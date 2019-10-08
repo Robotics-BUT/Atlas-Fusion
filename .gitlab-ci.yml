@@ -1,0 +1,22 @@
+image: ros_kinetic_image
+
+stages:
+  - build
+  - test
+
+build_job:
+  tags:
+    - ros_kinetic
+  stage: build
+  script:
+    - cd src/autodrive_local_map
+    - mkdir build && cd build
+    - cmake ..
+    - make
+
+test_jop:
+  tags:
+    - ros_kinetic
+  stage: test
+  script:
+    - echo "Test"
