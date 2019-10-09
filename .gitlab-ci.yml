@@ -14,9 +14,12 @@ build_job:
     - cmake ..
     - make
 
-test_jop:
+test_job:
+
   tags:
     - ros_kinetic
+
   stage: test
+
   script:
     - echo "Test"
