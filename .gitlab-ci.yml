@@ -5,10 +5,24 @@ stages:
   - test
 
 build_job:
+
   tags:
     - ros_kinetic
+
   stage: build
+
+  variables:
+    GIT_SUBMODULE_STRATEGY: none
+
+  before_script:
+    - sed -i "s/git@/gitlab-ci-token:$CI_BUILD_TOKEN@/g" .gitmodules
+    - cat .gitmodules
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+
   script:
+    - pwd
+    - source /opt/ros/kinetic/setup.bash
     - cd src/autodrive_local_map
     - mkdir build && cd build
     - cmake ..
