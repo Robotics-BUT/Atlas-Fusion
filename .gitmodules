@@ -1,0 +1,3 @@
+[submodule "src/autodrive_local_map/robotic-template-library"]
+	path = src/autodrive_local_map/robotic-template-library
+	url = https://git.robotika.ceitec.vutbr.cz:2223/xjelin08/RoboticTemplateLibrary.git

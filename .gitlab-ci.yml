@@ -15,7 +15,7 @@ build_job:
     GIT_SUBMODULE_STRATEGY: none
 
   before_script:
-    - sed -i "s/git@/gitlab-ci-token:$CI_BUILD_TOKEN@/g" .gitmodules
+    - sed -i "s/https:\\/\\//https:\\/\\/gitlab-ci-token:$CI_BUILD_TOKEN@/g" .gitmodules
     - cat .gitmodules
     - git submodule sync --recursive
     - git submodule update --init --recursive
