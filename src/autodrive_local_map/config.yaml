@@ -1,0 +1,4 @@
+logger:
+  log_file: "/tmp/autodrive_local_map"
+  log_ext: "log"
+  log_lvl: 1

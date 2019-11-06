@@ -1,7 +1,7 @@
 #pragma once
 
 namespace AutoDrive {
-    namespace LocalMap {
+    namespace DataLoader {
 
         enum class YoloDetectionClasses {
             kPerson = 0,

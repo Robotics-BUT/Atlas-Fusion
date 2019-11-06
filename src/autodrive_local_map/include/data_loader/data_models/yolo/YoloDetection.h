@@ -1,8 +1,12 @@
 #pragma once
 #include "YoloDetectionClasses.h"
 
+#include <iostream>
+
+#include "data_loader/data_models/GenericDataModel.h"
+
 namespace AutoDrive {
-    namespace LocalMap {
+    namespace DataLoader {
 
         class YoloDetection {
 
@@ -17,15 +21,17 @@ namespace AutoDrive {
                 size_t y2_;
             };
 
-            YoloDetection(size_t x1, size_t y2, size_t x2, size_t y2, float detConfidence, float classConfidence, YoloDetectionClasses cls)
+            explicit YoloDetection(size_t x1, size_t y1, size_t x2, size_t y2, float detConfidence, float classConfidence, YoloDetectionClasses cls)
             : bbox_{x1, y1, x2, y2}
             , detConfidence_(detConfidence)
             , classConfidence_(classConfidence)
-            , detClass_(cls);
+            , detClass_(cls) {
+
+            };
 
             YoloDetectionBBox getBoundingBox() { return bbox_; };
 
-            float getDetectionConfidence() { return detConfidence_ };
+            float getDetectionConfidence() { return detConfidence_; };
 
             float getClassConfidence() { return classConfidence_; };
 
