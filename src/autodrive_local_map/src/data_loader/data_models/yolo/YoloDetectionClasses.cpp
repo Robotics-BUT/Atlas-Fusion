@@ -1,7 +1,7 @@
-#include "local_map/Yolo/YoloDetection.h"
+#include "data_loader/data_models/yolo/YoloDetection.h"
 
 namespace AutoDrive {
-    namespace LocalMap {
+    namespace DataLoader {
 
         ReducedYoloDetectionClasses YoloDetection::getReducedDetectionClass() {
 
@@ -28,6 +28,8 @@ namespace AutoDrive {
                 case YoloDetectionClasses::kZebra:
                 case YoloDetectionClasses::kGiraffe:
                     detectionClass = ReducedYoloDetectionClasses::kAnimal; break;
+                default:
+                    break;
             }
             return detectionClass;
         }

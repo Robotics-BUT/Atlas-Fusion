@@ -26,7 +26,11 @@ build_job:
     - cd src/autodrive_local_map
     - mkdir build && cd build
     - cmake ..
-    - make
+    - make -j4
+
+  artifacts:
+    paths:
+      - src/autodrive_local_map/build/
 
 test_job:
 
@@ -35,5 +39,9 @@ test_job:
 
   stage: test
 
+  dependencies:
+    - build_job
+
   script:
-    - echo "Test"
+    - cd src/autodrive_local_map/build/
+    - make test

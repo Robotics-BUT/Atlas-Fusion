@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.16)
 project(autodrive_local_map)
 
 SET(CMAKE_CXX_STANDARD 17)
@@ -12,7 +12,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 find_package(OpenCV REQUIRED)
 find_package(catkin REQUIRED COMPONENTS roscpp std_msgs)
 find_package(Qt5 COMPONENTS Core REQUIRED)
-
+find_package(PCL 1.7 REQUIRED COMPONENTS common io)
+find_package(Yaml-cpp)
 
 
 ## Declare a catkin package
@@ -26,7 +27,11 @@ include_directories(
         ${catkin_INCLUDE_DIRS}
         ${OpenCV_INCLUDE_DIRS}
         ${Qt5_INCLUDE_DIRS}
+        ${PCL_INCLUDE_DIRS}
 )
+
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
 add_subdirectory(robotic-template-library)
 include_directories(
@@ -35,7 +40,8 @@ include_directories(
 
 
 set(SOURCES
-        src/MapBuilder.cpp)
+        src/MapBuilder.cpp
+        src/LogService.cpp)
 
 set(SOURCES_ALGORITHMS
         src/algorithms/GenericAlgorithm.cpp)
@@ -46,11 +52,33 @@ set(SOURCES_LOCAL_MAP
 set(SOURCES_VISUALIZERS
         src/visualizers/GenericVisualizer.cpp)
 
+set(SOURCES_DATA_LOADER
+        src/data_loader/DataLoader.cpp
+        src/data_loader/AbstractDataLoader.cpp
+        src/data_loader/CameraDataLoader.cpp
+        src/data_loader/LidarDataLoader.cpp
+        src/data_loader/GnssDataLoader.cpp
+        src/data_loader/ImuDataLoader.cpp
+        src/data_loader/data_models/gnss/GnssTimeDataModel.cpp
+        src/data_loader/data_models/gnss/GnssPoseDataModel.cpp
+        src/data_loader/data_models/imu/ImuDquatDataModel.cpp
+        src/data_loader/data_models/imu/ImuGnssDataModel.cpp
+        src/data_loader/data_models/imu/ImuImuDataModel.cpp
+        src/data_loader/data_models/imu/ImuMagDataModel.cpp
+        src/data_loader/data_models/imu/ImuPressureDataModel.cpp
+        src/data_loader/data_models/imu/ImuTempDataModel.cpp
+        src/data_loader/data_models/imu/ImuTimeDataModel.cpp
+        src/data_loader/data_models/lidar/LidarScanDataModel.cpp
+        src/data_loader/data_models/camera/CameraFrameDataModel.cpp
+        src/data_loader/data_models/camera/CameraIrFrameDataModel.cpp
+        src/data_loader/data_models/yolo/YoloDetectionClasses.cpp)
+
 
 add_library(basic_srcs STATIC ${SOURCES})
 add_library(algorithms_srcs STATIC ${SOURCES_ALGORITHMS})
 add_library(local_map_srcs STATIC ${SOURCES_LOCAL_MAP})
 add_library(visualizers_srcs STATIC ${SOURCES_VISUALIZERS})
+add_library(data_loader_srcs STATIC ${SOURCES_DATA_LOADER})
 
 add_executable(autodrive_local_map src/main.cpp)
 target_link_libraries(${PROJECT_NAME}
@@ -58,9 +86,13 @@ target_link_libraries(${PROJECT_NAME}
         algorithms_srcs
         local_map_srcs
         visualizers_srcs
+        data_loader_srcs
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
+        ${PCL_LIBRARIES}
         Qt5::Core
-        robotic-template-library)
+        rtl
+        stdc++fs
+        yaml-cpp)
 
 add_subdirectory(tests)
