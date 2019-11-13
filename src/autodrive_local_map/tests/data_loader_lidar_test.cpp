@@ -37,10 +37,6 @@ TEST(data_loader_lidar_test, load_lidar_get_timestamp) {
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
 
-    dataLoader.rewind();
-    EXPECT_EQ(dataLoader.isOnEnd(), false);
-    EXPECT_EQ(dataLoader.getLowestTimestamp(), 1568186745501937363);
-
     while(!dataLoader.isOnEnd()) {
     data = dataLoader.getNextData();
     }

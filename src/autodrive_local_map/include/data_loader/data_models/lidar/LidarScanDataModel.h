@@ -25,10 +25,9 @@ namespace AutoDrive {
             };
 
             std::string toString() override;
-
-            pcl::PointCloud<pcl::PointXYZ> getScan();
-
+            std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getScan();
             uint64_t getInnerTimestamp() {return innerLidarTimestamp_;};
+            LidarIdentifier getLidarIdentifier() {return identifier_;};
 
         private:
 

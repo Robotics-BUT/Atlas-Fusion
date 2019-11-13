@@ -188,10 +188,6 @@ TEST(data_loader_imu_test, load_imu_get_timestamp) {
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
 
-    dataLoader.rewind();
-    EXPECT_EQ(dataLoader.isOnEnd(), false);
-    EXPECT_EQ(dataLoader.getLowestTimestamp(), 1568186745408734467);
-
     while(!dataLoader.isOnEnd()) {
         data = dataLoader.getNextData();
     }

@@ -47,8 +47,8 @@ namespace AutoDrive {
             std::string toString() override;
             uint64_t getDataSize() override;
             bool isOnEnd() override;
-            void rewind() override;
             void setPose(timestamp_type) override;
+            void releaseOldData(timestamp_type keepHistory) override;
             void clear() override;
 
 
@@ -58,6 +58,7 @@ namespace AutoDrive {
             cv::VideoCapture video_;
             std::vector<std::shared_ptr<CameraFrame>> data_;
             std::vector<std::shared_ptr<CameraFrame>>::iterator dataIt_;
+            std::vector<std::shared_ptr<CameraFrame>>::iterator releaseIt_;
 
             void loadYoloDetections(const std::string& path) const;
         };

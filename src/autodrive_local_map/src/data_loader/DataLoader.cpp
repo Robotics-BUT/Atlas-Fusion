@@ -59,12 +59,6 @@ namespace AutoDrive {
             return true;
         }
 
-        void DataLoader::rewind() {
-            for(const auto& dataLoader : dataLoaders_) {
-                dataLoader->rewind();
-            }
-        }
-
         void DataLoader::setPose(timestamp_type pose) {
             for(const auto& dataLoader : dataLoaders_) {
                 dataLoader->setPose(pose);
@@ -84,7 +78,9 @@ namespace AutoDrive {
             }
 
             if (it != nullptr && minTimestamp < std::numeric_limits<uint64_t>::max()) {
-                return it->getNextData();
+                auto ret = it->getNextData();
+                it->releaseOldData(keepHistoryLength_);
+                return ret;
             }
             return std::make_shared<ErrorDataModel>();
         }
@@ -95,6 +91,14 @@ namespace AutoDrive {
                 dataLodar->clear();
             }
         }
+
+
+        void DataLoader::releaseOldData(timestamp_type keepHistory) {
+            for(const auto& dataLodar : dataLoaders_) {
+                dataLodar->releaseOldData(keepHistory);
+            }
+        }
+
 
         bool DataLoader::checkRecordConsistency(std::string& path) {
 

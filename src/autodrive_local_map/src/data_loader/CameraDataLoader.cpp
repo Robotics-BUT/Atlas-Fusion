@@ -76,6 +76,7 @@ namespace AutoDrive {
             }
 
             dataIt_ = data_.begin();
+            releaseIt_ = dataIt_;
             return true;
         }
 
@@ -97,7 +98,7 @@ namespace AutoDrive {
                     case CameraIndentifier::kCameraLeftSide:
                     case CameraIndentifier::kCameraRightFront:
                     case CameraIndentifier::kCameraRightSide:
-                        cameraFrame = std::make_shared<CameraFrameDataModel>((*dataIt_)->timestamp_, frame, (*dataIt_)->innerTimestamp_, (*dataIt_)->detections_);
+                        cameraFrame = std::make_shared<CameraFrameDataModel>((*dataIt_)->timestamp_, frame, (*dataIt_)->innerTimestamp_, cameraIdentifier_, (*dataIt_)->detections_);
 
                         break;
 
@@ -127,10 +128,6 @@ namespace AutoDrive {
             return dataIt_ >= data_.end();
         }
 
-        void CameraDataLoader::rewind() {
-            dataIt_ = data_.begin();
-        }
-
         void CameraDataLoader::setPose(timestamp_type timestamp) {
             for (dataIt_ = data_.begin(); dataIt_< data_.end() ; dataIt_ = std::next(dataIt_,1)) {
                 if((*dataIt_)->getTimestamp() >= timestamp) {
@@ -138,6 +135,21 @@ namespace AutoDrive {
                 }
             }
         }
+
+
+        void CameraDataLoader::releaseOldData(timestamp_type keepHistory) {
+            auto currentTime = (*dataIt_)->getTimestamp();
+            while(releaseIt_ < data_.end()) {
+                auto dataTimestamp = (*releaseIt_)->getTimestamp();
+                if(dataTimestamp + keepHistory < currentTime) {
+                    (*releaseIt_) = std::make_shared<CameraFrame>(0, 0, 0, 0, 0);
+                    releaseIt_++;
+                } else {
+                    break;
+                }
+            }
+        }
+
 
         void CameraDataLoader::clear() {
             video_.release();

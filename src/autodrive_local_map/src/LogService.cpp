@@ -6,7 +6,7 @@ namespace AutoDrive {
     bool LogService::openFile() {
         try {
             file_.open(logPath_);
-        } catch (std::exception e ) {
+        } catch (std::exception& e ) {
             std::cerr << e.what() << std::endl;
         }
          return file_.is_open();
@@ -58,5 +58,15 @@ namespace AutoDrive {
                 std::cout << msg << std::endl;
             }
         }
+    }
+
+    const std::string LogService::currentDateTime() {
+        time_t     now = time(0);
+        struct tm  tstruct;
+        char       buf[80];
+        tstruct = *localtime(&now);
+        strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+
+        return buf;
     }
 }

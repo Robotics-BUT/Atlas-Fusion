@@ -25,8 +25,8 @@ namespace AutoDrive {
             std::string toString() override;
             uint64_t getDataSize() override;
             bool isOnEnd() override;
-            void rewind() override;
             void setPose(timestamp_type) override;
+            void releaseOldData(timestamp_type keepHistory) override;
             void clear() override;
 
         private:
@@ -34,6 +34,7 @@ namespace AutoDrive {
             LidarIdentifier lidarIdentifier_;
             std::vector<std::shared_ptr<LidarScanDataModel>> data_;
             std::vector<std::shared_ptr<LidarScanDataModel>>::iterator dataIt_;
+            std::vector<std::shared_ptr<LidarScanDataModel>>::iterator releaseIt_;
 
         };
     }

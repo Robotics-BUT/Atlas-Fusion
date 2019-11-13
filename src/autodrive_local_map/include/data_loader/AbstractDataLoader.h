@@ -36,9 +36,9 @@ namespace AutoDrive {
             virtual std::string toString() = 0;
             virtual uint64_t getDataSize() = 0;
             virtual bool isOnEnd() = 0;
-            virtual void rewind() = 0;
             virtual void setPose(timestamp_type) = 0;
             virtual void clear() = 0;
+            virtual void releaseOldData(timestamp_type historyLenght) = 0;
 
         protected:
 

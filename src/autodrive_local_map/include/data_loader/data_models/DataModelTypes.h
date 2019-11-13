@@ -25,6 +25,7 @@ namespace AutoDrive {
         enum class LidarIdentifier {
             kLeftLidar,
             kRightLidar,
+            kNone,
         };
 
         enum class CameraIndentifier {

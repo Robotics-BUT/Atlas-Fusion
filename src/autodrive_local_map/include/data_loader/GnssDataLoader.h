@@ -22,8 +22,8 @@ namespace AutoDrive {
             std::string toString() override;
             uint64_t getDataSize() override;
             bool isOnEnd() override;
-            void rewind() override;
             void setPose(timestamp_type) override;
+            void releaseOldData(timestamp_type keepHistory) override;
             void clear() override;
 
         private:
@@ -32,6 +32,7 @@ namespace AutoDrive {
 
             std::vector<std::shared_ptr<GenericDataModel>> data_;
             std::vector<std::shared_ptr<GenericDataModel>>::iterator dataIt_;
+            std::vector<std::shared_ptr<GenericDataModel>>::iterator releaseIt_;
 
             std::vector<std::shared_ptr<GenericDataModel>> loadGnssTimeData(std::string& path);
             std::vector<std::shared_ptr<GenericDataModel>> loadGnssPoseData(std::string& path);
