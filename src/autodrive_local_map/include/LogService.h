@@ -24,12 +24,15 @@ namespace AutoDrive {
         , toFile_(file) {
         }
 
+        LogService(const LogService&) = delete;
+
         bool openFile();
 
         void debug(const std::string& msg);
         void info(const std::string& msg);
         void warning(const std::string& msg);
         void error(const std::string& msg);
+        static const std::string currentDateTime();
 
     private:
 

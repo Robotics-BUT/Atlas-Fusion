@@ -14,6 +14,7 @@ namespace AutoDrive {
                     data_ = loadGnssTimeData(path); break;
             }
             dataIt_ = data_.begin();
+            releaseIt_ = dataIt_;
             return true;
         }
 
@@ -57,13 +58,22 @@ namespace AutoDrive {
             return dataIt_ >= data_.end();
         }
 
-        void GnssDataLoader::rewind() {
-            dataIt_ = data_.begin();
-        }
-
         void GnssDataLoader::setPose(timestamp_type timestamp) {
             for (dataIt_ = data_.begin(); dataIt_< data_.end() ; dataIt_ = std::next(dataIt_,1)) {
                 if((*dataIt_)->getTimestamp() >= timestamp) {
+                    break;
+                }
+            }
+        }
+
+        void GnssDataLoader::releaseOldData(timestamp_type keepHistory) {
+            auto currentTime = (*dataIt_)->getTimestamp();
+            while(releaseIt_ < data_.end()) {
+                auto dataTimestamp = (*releaseIt_)->getTimestamp();
+                if(dataTimestamp + keepHistory < currentTime) {
+                    (*releaseIt_) = std::make_shared<GenericDataModel>(0);
+                    releaseIt_++;
+                } else {
                     break;
                 }
             }

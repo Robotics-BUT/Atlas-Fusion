@@ -70,10 +70,6 @@ TEST(data_loader_camera_test, load_camera_get_timestamp) {
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
 
-    dataLoader.rewind();
-    EXPECT_EQ(dataLoader.isOnEnd(), false);
-    EXPECT_EQ(dataLoader.getLowestTimestamp(), 1568186745453388439);
-
     while(!dataLoader.isOnEnd()) {
         data = dataLoader.getNextData();
     }

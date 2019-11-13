@@ -15,10 +15,10 @@ namespace AutoDrive {
 
             CameraIrFrameDataModel(uint64_t timestamp, cv::Mat img, double tempMin, double tempMax)
                     : GenericDataModel(timestamp)
-                    , image_(img)
                     , tempMin_(tempMin)
                     , tempMax_(tempMax){
                 type_ = DataModelTypes::kCameraIrDataModelType;
+                cv::cvtColor(img, image_, CV_BGR2GRAY);
             }
 
             std::string toString() override;

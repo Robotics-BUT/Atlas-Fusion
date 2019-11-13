@@ -13,12 +13,12 @@ namespace AutoDrive {
             return ss.str();
         }
 
-        pcl::PointCloud<pcl::PointXYZ> LidarScanDataModel::getScan() {
+        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> LidarScanDataModel::getScan() {
 
             if (pcl::io::loadPCDFile<pcl::PointXYZ> (scan_path_, scan_) == -1) {
                 std::cerr << "Could not open pcd file: " << scan_path_ << std::endl;
             }
-            return scan_;
+            return std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(scan_);
         }
 
     }

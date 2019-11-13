@@ -9,6 +9,7 @@
 #include "GnssDataLoader.h"
 #include "ImuDataLoader.h"
 #include "AbstractDataLoader.h"
+#include "LogService.h"
 
 namespace AutoDrive {
     namespace DataLoader {
@@ -17,7 +18,7 @@ namespace AutoDrive {
 
         public:
 
-            DataLoader()
+            DataLoader(LogService& logger, timestamp_type keepHistoryLength)
             : cameraLeftFrontDataLoader_(std::make_shared<CameraDataLoader>(CameraIndentifier::kCameraLeftFront))
             , cameraLeftSideDataLoader_(std::make_shared<CameraDataLoader>(CameraIndentifier::kCameraLeftSide))
             , cameraRightFrontDataLoader_(std::make_shared<CameraDataLoader>(CameraIndentifier::kCameraRightFront))
@@ -33,7 +34,9 @@ namespace AutoDrive {
             , imuMagDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kMag))
             , imuPressDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kPressure))
             , imuTempDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kTemp))
-            , imuTimeDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kTime)) {
+            , imuTimeDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kTime))
+            , logger_(logger)
+            , keepHistoryLength_(keepHistoryLength) {
 
                 dataLoaders_ = {
                         cameraLeftFrontDataLoader_,
@@ -61,9 +64,10 @@ namespace AutoDrive {
             std::string toString() override;
             uint64_t getDataSize() override;
             bool isOnEnd() override;
-            void rewind() override;
             void setPose(timestamp_type) override;
+            void releaseOldData(timestamp_type keepHistory) override;
             void clear() override;
+
 
         private:
 
@@ -89,6 +93,9 @@ namespace AutoDrive {
             std::shared_ptr<ImuDataLoader> imuTimeDataLoader_;
 
             std::vector<std::shared_ptr<AbstractDataLoader>> dataLoaders_;
+
+            LogService& logger_;
+            timestamp_type keepHistoryLength_;
 
             bool checkRecordConsistency(std::string& path);
             bool loadRecord(std::string& path);

@@ -75,10 +75,6 @@ TEST(data_loader_gnss_test, load_imu_get_timestamp) {
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
 
-    dataLoader.rewind();
-    EXPECT_EQ(dataLoader.isOnEnd(), false);
-    EXPECT_EQ(dataLoader.getLowestTimestamp(), 1568186745436549395);
-
     while(!dataLoader.isOnEnd()) {
         data = dataLoader.getNextData();
     }

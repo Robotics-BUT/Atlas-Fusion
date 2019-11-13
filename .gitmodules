@@ -1,3 +1,6 @@
 [submodule "src/autodrive_local_map/robotic-template-library"]
 	path = src/autodrive_local_map/robotic-template-library
 	url = https://git.robotika.ceitec.vutbr.cz:2223/xjelin08/RoboticTemplateLibrary.git
+[submodule "src/autodrive_local_map/calibrations"]
+	path = src/autodrive_local_map/calibrations
+	url = https://github.com/Robotics-BUT/Brno-Urban-Dataset-Calibrations.git

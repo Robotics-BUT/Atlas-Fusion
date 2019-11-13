@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 ## Find catkin and any catkin packages
 find_package(OpenCV REQUIRED)
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs tf2 tf2_msgs tf2_ros tf2_geometry_msgs image_transport cv_bridge)
 find_package(Qt5 COMPONENTS Core REQUIRED)
 find_package(PCL 1.7 REQUIRED COMPONENTS common io)
 find_package(Yaml-cpp)
@@ -41,7 +41,8 @@ include_directories(
 
 set(SOURCES
         src/MapBuilder.cpp
-        src/LogService.cpp)
+        src/LogService.cpp
+        src/TFTree.cpp)
 
 set(SOURCES_ALGORITHMS
         src/algorithms/GenericAlgorithm.cpp)
@@ -50,7 +51,12 @@ set(SOURCES_LOCAL_MAP
         src/local_map/GenericLocalMap.cpp)
 
 set(SOURCES_VISUALIZERS
-        src/visualizers/GenericVisualizer.cpp)
+        src/visualizers/GenericVisualizer.cpp
+        src/visualizers/VisualizationHandler.cpp
+        src/visualizers/LidarVisualizer.cpp
+        src/visualizers/ImuVisualizer.cpp
+        src/visualizers/CameraVisualizer.cpp
+        src/visualizers/GnssVisualizer.cpp)
 
 set(SOURCES_DATA_LOADER
         src/data_loader/DataLoader.cpp
