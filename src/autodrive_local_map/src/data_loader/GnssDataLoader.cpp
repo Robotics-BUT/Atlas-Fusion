@@ -25,13 +25,13 @@ namespace AutoDrive {
             return std::numeric_limits<uint64_t>::max();
         }
 
-        std::shared_ptr<GenericDataModel> GnssDataLoader::getNextData() {
+        std::shared_ptr<DataModels::GenericDataModel> GnssDataLoader::getNextData() {
             if (!isOnEnd()) {
                 auto output = *dataIt_;
                 dataIt_ = std::next(dataIt_,1);
                 return output;
             }
-            return std::make_shared<ErrorDataModel>();
+            return std::make_shared<DataModels::ErrorDataModel>();
         }
 
         std::string GnssDataLoader::toString() {
@@ -71,7 +71,7 @@ namespace AutoDrive {
             while(releaseIt_ < data_.end()) {
                 auto dataTimestamp = (*releaseIt_)->getTimestamp();
                 if(dataTimestamp + keepHistory < currentTime) {
-                    (*releaseIt_) = std::make_shared<GenericDataModel>(0);
+                    (*releaseIt_) = std::make_shared<DataModels::GenericDataModel>(0);
                     releaseIt_++;
                 } else {
                     break;
@@ -84,31 +84,33 @@ namespace AutoDrive {
             dataIt_ = data_.begin();
         }
 
-        std::vector<std::shared_ptr<GenericDataModel>> GnssDataLoader::loadGnssTimeData(std::string& path) {
-            std::vector<std::shared_ptr<GenericDataModel>> output;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> GnssDataLoader::loadGnssTimeData(std::string& path) {
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> output;
             auto csvContent = readCsv(path + Folders::kGnssFolder + Files::kTimeFile);
             for(const auto& substrings : csvContent) {
                 if(substrings.size() == 8) {
-                    output.push_back( std::make_shared<GnssTimeDataModel>(std::stoll(substrings[0]),std::stoll(substrings[1]),
-                                                                          std::stoll(substrings[2]),std::stoll(substrings[3]),
-                                                                          std::stoll(substrings[4]),std::stoll(substrings[5]),
-                                                                          std::stoll(substrings[6]),std::stoll(substrings[7])));
+                    output.push_back( std::make_shared<DataModels::GnssTimeDataModel>(
+                            std::stoll(substrings[0]),std::stoll(substrings[1]),
+                            std::stoll(substrings[2]),std::stoll(substrings[3]),
+                            std::stoll(substrings[4]),std::stoll(substrings[5]),
+                            std::stoll(substrings[6]),std::stoll(substrings[7])));
                 } else {
-                    std::cerr << "Unexpected lenght of gnss time data: " << std::endl;
+                    context_.logger_.error("Unexpected lenght of gnss time data");
                 }
             }
             return output;
         }
 
 
-        std::vector<std::shared_ptr<GenericDataModel>> GnssDataLoader::loadGnssPoseData(std::string& path) {
-            std::vector<std::shared_ptr<GenericDataModel>> output;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> GnssDataLoader::loadGnssPoseData(std::string& path) {
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> output;
             auto csvContent = readCsv(path + Folders::kGnssFolder + Files::kPoseFile);
             for(const auto& substrings : csvContent) {
                 if(substrings.size() == 5) {
-                    output.push_back( std::make_shared<GnssPoseDataModel>(std::stoll(substrings[0]),std::stod(substrings[1]),
-                                                                          std::stod(substrings[2]), std::stod(substrings[3]),
-                                                                          std::stod(substrings[4])));
+                    output.push_back( std::make_shared<DataModels::GnssPoseDataModel>(
+                            std::stoll(substrings[0]),std::stod(substrings[1]),
+                            std::stod(substrings[2]), std::stod(substrings[3]),
+                            std::stod(substrings[4])));
                 } else {
                     std::cerr << "Unexpected lenght of gnss pose data: " << std::endl;
                 }

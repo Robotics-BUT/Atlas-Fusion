@@ -11,22 +11,22 @@
 #include <rtl/Transformation3D.h>
 
 #include "ConfigService.h"
-#include "LogService.h"
+#include "Context.h"
 #include "visualizers/TFVisualizer.h"
-#include "TFTree.h"
+#include "local_map/Frames.h"
 
 rtl::Transformation3Dd getTFFrameFromConfig(AutoDrive::ConfigService& service, std::string name) {
     auto translation = service.getVector3DValue<double>({name, "trans"});
     auto rotation = service.getQuaternionValue<double>({name, "rot"});
-    rtl::Transformation3Dd frame{translation, rotation};
+    rtl::Transformation3Dd frame{ rotation, translation};
     return frame;
 }
 
 
-AutoDrive::TFTree buildTFTree(std::string&& rootFrame, std::vector<std::string>&& frames, std::string tfFilePath, AutoDrive::LogService& logger) {
+AutoDrive::LocalMap::TFTree buildTFTree(std::string rootFrame, std::vector<std::string> frames, std::string tfFilePath, AutoDrive::LogService& logger) {
 
     AutoDrive::ConfigService TFConfigService(std::move(tfFilePath));
-    AutoDrive::TFTree tfTree(rootFrame, logger);
+    AutoDrive::LocalMap::TFTree tfTree(rootFrame, logger);
     for(const auto& frameName : frames) {
         auto frame = getTFFrameFromConfig(TFConfigService, frameName);
         tfTree.addFrame(frame, frameName);
@@ -61,25 +61,30 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "autodrive_localmap");
     ros::NodeHandle node{};
 
+    std::string rootFrame = AutoDrive::LocalMap::Frames::kImuFrame;
+    std::vector<std::string> childFrames = {AutoDrive::LocalMap::Frames::kGnssAntennaFront,
+                                            AutoDrive::LocalMap::Frames::kGnssAntennaRear,
+                                            AutoDrive::LocalMap::Frames::kLidarLeft,
+                                            AutoDrive::LocalMap::Frames::kLidarRight,
+                                            AutoDrive::LocalMap::Frames::kCameraLeftFront,
+                                            AutoDrive::LocalMap::Frames::kCameraLeftSide,
+                                            AutoDrive::LocalMap::Frames::kCameraRightFront,
+                                            AutoDrive::LocalMap::Frames::kCameraRightSide,
+                                            AutoDrive::LocalMap::Frames::kCameraIr};
+    auto calibFolder = configService.getStringValue({"calibratios_folder"});
     auto tfTree = buildTFTree(
-            "imu",
-            {"gnss_front",
-             "gnss_rear",
-             "lidar_left",
-             "lidar_right",
-             "camera_left_front",
-             "camera_left_side",
-             "camera_right_front",
-             "camera_right_side",
-             "ir_camera"},
-             std::string(configService.getStringValue({"tf_file"})),
+             rootFrame,
+             childFrames,
+             std::string(calibFolder + "frames.yaml"),
              logger);
 
     auto keepHistorySecLength = static_cast<AutoDrive::DataLoader::timestamp_type>(configService.getDoubleValue({"map_builder", "keep_history_sec_length"}) * 1e9); // to nanoseconds
     auto dataFolder = configService.getStringValue({"data_folder"});
     auto maxReplayerRate = configService.getDoubleValue({"map_builder", "max_replayer_rate"});
 
-    AutoDrive::MapBuilder mapBuilder{node, tfTree, logger, keepHistorySecLength, maxReplayerRate};
+    auto context = AutoDrive::Context(logger, tfTree, calibFolder);
+
+    AutoDrive::MapBuilder mapBuilder{node, context, keepHistorySecLength, maxReplayerRate};
     mapBuilder.loadData(dataFolder);
     mapBuilder.buildMap();
     mapBuilder.clearData();

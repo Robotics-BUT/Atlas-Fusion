@@ -22,8 +22,6 @@ catkin_package()
 ## Build talker and listener
 include_directories(
         include
-        src/algorithms/include
-        src/local_map/include
         ${catkin_INCLUDE_DIRS}
         ${OpenCV_INCLUDE_DIRS}
         ${Qt5_INCLUDE_DIRS}
@@ -41,22 +39,47 @@ include_directories(
 
 set(SOURCES
         src/MapBuilder.cpp
-        src/LogService.cpp
-        src/TFTree.cpp)
+        src/LogService.cpp)
 
 set(SOURCES_ALGORITHMS
-        src/algorithms/GenericAlgorithm.cpp)
+        src/algorithms/SimpleTrajectoryLogger.cpp
+        src/algorithms/Kalman1D.cpp
+        src/algorithms/Kalman3D.cpp
+        src/algorithms/MovementModel.cpp
+        src/algorithms/ImuDataProcessor.cpp
+        src/algorithms/LidarFilter.cpp
+        src/algorithms/Projector.cpp
+        src/algorithms/DepthMap.cpp
+        src/algorithms/DetectionsProcessor.cpp)
 
 set(SOURCES_LOCAL_MAP
-        src/local_map/GenericLocalMap.cpp)
+        src/local_map/TFTree.cpp
+        src/local_map/LocalMap.cpp)
 
 set(SOURCES_VISUALIZERS
-        src/visualizers/GenericVisualizer.cpp
         src/visualizers/VisualizationHandler.cpp
         src/visualizers/LidarVisualizer.cpp
         src/visualizers/ImuVisualizer.cpp
         src/visualizers/CameraVisualizer.cpp
-        src/visualizers/GnssVisualizer.cpp)
+        src/visualizers/GnssVisualizer.cpp
+        src/visualizers/TrajectoryVisualizer.cpp
+        src/visualizers/TFVisualizer.cpp
+        src/visualizers/FrustumVisualizer.cpp)
+
+set(SOURCES_DATA_MODELS
+        src/data_models/gnss/GnssTimeDataModel.cpp
+        src/data_models/gnss/GnssPoseDataModel.cpp
+        src/data_models/imu/ImuDquatDataModel.cpp
+        src/data_models/imu/ImuGnssDataModel.cpp
+        src/data_models/imu/ImuImuDataModel.cpp
+        src/data_models/imu/ImuMagDataModel.cpp
+        src/data_models/imu/ImuPressureDataModel.cpp
+        src/data_models/imu/ImuTempDataModel.cpp
+        src/data_models/imu/ImuTimeDataModel.cpp
+        src/data_models/lidar/LidarScanDataModel.cpp
+        src/data_models/camera/CameraFrameDataModel.cpp
+        src/data_models/camera/CameraIrFrameDataModel.cpp
+        src/data_models/yolo/YoloDetectionClass.cpp)
 
 set(SOURCES_DATA_LOADER
         src/data_loader/DataLoader.cpp
@@ -65,34 +88,13 @@ set(SOURCES_DATA_LOADER
         src/data_loader/LidarDataLoader.cpp
         src/data_loader/GnssDataLoader.cpp
         src/data_loader/ImuDataLoader.cpp
-        src/data_loader/data_models/gnss/GnssTimeDataModel.cpp
-        src/data_loader/data_models/gnss/GnssPoseDataModel.cpp
-        src/data_loader/data_models/imu/ImuDquatDataModel.cpp
-        src/data_loader/data_models/imu/ImuGnssDataModel.cpp
-        src/data_loader/data_models/imu/ImuImuDataModel.cpp
-        src/data_loader/data_models/imu/ImuMagDataModel.cpp
-        src/data_loader/data_models/imu/ImuPressureDataModel.cpp
-        src/data_loader/data_models/imu/ImuTempDataModel.cpp
-        src/data_loader/data_models/imu/ImuTimeDataModel.cpp
-        src/data_loader/data_models/lidar/LidarScanDataModel.cpp
-        src/data_loader/data_models/camera/CameraFrameDataModel.cpp
-        src/data_loader/data_models/camera/CameraIrFrameDataModel.cpp
-        src/data_loader/data_models/yolo/YoloDetectionClasses.cpp)
+        )
 
-
-add_library(basic_srcs STATIC ${SOURCES})
-add_library(algorithms_srcs STATIC ${SOURCES_ALGORITHMS})
-add_library(local_map_srcs STATIC ${SOURCES_LOCAL_MAP})
-add_library(visualizers_srcs STATIC ${SOURCES_VISUALIZERS})
-add_library(data_loader_srcs STATIC ${SOURCES_DATA_LOADER})
+add_library(autodrive_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER})
 
 add_executable(autodrive_local_map src/main.cpp)
 target_link_libraries(${PROJECT_NAME}
-        basic_srcs
-        algorithms_srcs
-        local_map_srcs
-        visualizers_srcs
-        data_loader_srcs
+        autodrive_srcs
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
         ${PCL_LIBRARIES}

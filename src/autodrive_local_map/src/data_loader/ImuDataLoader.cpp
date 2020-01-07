@@ -37,13 +37,13 @@ namespace AutoDrive {
             return std::numeric_limits<uint64_t>::max();
         }
 
-        std::shared_ptr<GenericDataModel> ImuDataLoader::getNextData() {
+        std::shared_ptr<DataModels::GenericDataModel> ImuDataLoader::getNextData() {
             if (!isOnEnd()) {
                 auto output = *dataIt_;
                 dataIt_ = std::next(dataIt_,1);
                 return output;
             }
-            return std::make_shared<ErrorDataModel>();
+            return std::make_shared<DataModels::ErrorDataModel>();
         }
 
         std::string ImuDataLoader::toString() {
@@ -94,7 +94,7 @@ namespace AutoDrive {
             while(releaseIt_ < data_.end()) {
                 auto dataTimestamp = (*releaseIt_)->getTimestamp();
                 if(dataTimestamp + keepHistory < currentTime) {
-                    (*releaseIt_) = std::make_shared<GenericDataModel>(0);
+                    (*releaseIt_) = std::make_shared<DataModels::GenericDataModel>(0);
                     releaseIt_++;
                 } else {
                     break;
@@ -108,47 +108,48 @@ namespace AutoDrive {
         }
 
 
-        std::vector<std::shared_ptr<GenericDataModel>> ImuDataLoader::loadImuDquatData(std::string& path) {
-            std::vector<std::shared_ptr<GenericDataModel>> output;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> ImuDataLoader::loadImuDquatData(std::string& path) {
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> output;
             auto csvContent = readCsv(path + Folders::kImuFolder + Files::kDquatFile);
             for(const auto& substrings : csvContent) {
                 if(substrings.size() == 5) {
-                    output.push_back( std::make_shared<ImuDquatDataModel>(std::stoll(substrings[0]),
+                    output.push_back( std::make_shared<DataModels::ImuDquatDataModel>(std::stoll(substrings[0]),
                                                                           rtl::Quaternion<double>{std::stod(substrings[4]),
                                                                                                   std::stod(substrings[1]),
                                                                                                   std::stod(substrings[2]),
                                                                                                   std::stod(substrings[3])}
                     ));
                 } else {
-                    std::cerr << "Unexpected lenght of imu d_quat data: " << std::endl;
+                    context_.logger_.error("Unexpected lenght of imu d_quat data:");
                 }
             }
             return output;
         }
 
-        std::vector<std::shared_ptr<GenericDataModel>> ImuDataLoader::loadImuGnssData(std::string& path) {
-            std::vector<std::shared_ptr<GenericDataModel>> output;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> ImuDataLoader::loadImuGnssData(std::string& path) {
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> output;
             auto csvContent = readCsv(path + Folders::kImuFolder + Files::kGnssFile);
             for(const auto& substrings : csvContent) {
                 if(substrings.size() == 4) {
-                    output.push_back( std::make_shared<ImuGnssDataModel>(std::stoll(substrings[0]),std::stod(substrings[1]),
-                                                                         std::stod(substrings[2]),std::stod(substrings[3])));
+                    output.push_back( std::make_shared<DataModels::ImuGnssDataModel>(
+                            std::stoll(substrings[0]),std::stod(substrings[1]),
+                            std::stod(substrings[2]),std::stod(substrings[3])));
                 } else {
-                    std::cerr << "Unexpected lenght of imu gnss data: " << std::endl;
+                    context_.logger_.error("Unexpected lenght of imu gnss data: ");
                 }
             }
             return output;
         }
 
-        std::vector<std::shared_ptr<GenericDataModel>> ImuDataLoader::loadImuImuData(std::string& path) {
-            std::vector<std::shared_ptr<GenericDataModel>> output;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> ImuDataLoader::loadImuImuData(std::string& path) {
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> output;
             auto csvContent = readCsv(path + Folders::kImuFolder + Files::kImuFile);
             for(const auto& substrings : csvContent) {
                 if(substrings.size() == 11) {
-                    output.push_back( std::make_shared<ImuImuDataModel>(std::stoll(substrings[0]),
-                                                                        rtl::Vector3D<double>{std::stod(substrings[1]),
-                                                                                              std::stod(substrings[2]),
-                                                                                              std::stod(substrings[3])},
+                    output.push_back( std::make_shared<DataModels::ImuImuDataModel>(std::stoll(substrings[0]),
+                                                                        rtl::Vector3D<double>{-std::stod(substrings[1]),
+                                                                                              -std::stod(substrings[2]),
+                                                                                              -std::stod(substrings[3])},
                                                                         rtl::Vector3D<double>{std::stod(substrings[4]),
                                                                                               std::stod(substrings[5]),
                                                                                               std::stod(substrings[6])},
@@ -157,65 +158,65 @@ namespace AutoDrive {
                                                                                                 std::stod(substrings[8]),
                                                                                                 std::stod(substrings[9])}));
                 } else {
-                    std::cerr << "Unexpected lenght of imu imu data: " << std::endl;
+                    context_.logger_.error("Unexpected lenght of imu imu data: ");
                 }
             }
             return output;
         }
 
-        std::vector<std::shared_ptr<GenericDataModel>> ImuDataLoader::loadImuMagData(std::string& path) {
-            std::vector<std::shared_ptr<GenericDataModel>> output;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> ImuDataLoader::loadImuMagData(std::string& path) {
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> output;
             auto csvContent = readCsv(path + Folders::kImuFolder + Files::kMagFile);
             for(const auto& substrings : csvContent) {
                 if(substrings.size() == 4) {
-                    output.push_back( std::make_shared<ImuMagDataModel>(std::stoll(substrings[0]),
+                    output.push_back( std::make_shared<DataModels::ImuMagDataModel>(std::stoll(substrings[0]),
                                                                         rtl::Vector3D<double>{std::stod(substrings[1]),
                                                                                               std::stod(substrings[2]),
                                                                                               std::stod(substrings[3])}));
                 } else {
-                    std::cerr << "Unexpected lenght of imu mag data: " << std::endl;
+                    context_.logger_.error("Unexpected lenght of imu mag data: ");
                 }
             }
             return output;
         }
 
-        std::vector<std::shared_ptr<GenericDataModel>> ImuDataLoader::loadImuPressureData(std::string& path) {
-            std::vector<std::shared_ptr<GenericDataModel>> output;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> ImuDataLoader::loadImuPressureData(std::string& path) {
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> output;
             auto csvContent = readCsv(path + Folders::kImuFolder + Files::kPressureFile);
             for(const auto& substrings : csvContent) {
                 if(substrings.size() == 2) {
-                    output.push_back( std::make_shared<ImuPressureDataModel>(std::stoll(substrings[0]),std::stoll(substrings[1])));
+                    output.push_back( std::make_shared<DataModels::ImuPressureDataModel>(std::stoll(substrings[0]),std::stoll(substrings[1])));
                 } else {
-                    std::cerr << "Unexpected lenght of imu pressure data: " << std::endl;
+                    context_.logger_.error("Unexpected lenght of imu pressure data: ");
                 }
             }
             return output;
         }
 
-        std::vector<std::shared_ptr<GenericDataModel>> ImuDataLoader::loadImuTempData(std::string& path) {
-            std::vector<std::shared_ptr<GenericDataModel>> output;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> ImuDataLoader::loadImuTempData(std::string& path) {
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> output;
             auto csvContent = readCsv(path + Folders::kImuFolder + Files::kTempFile);
             for(const auto& substrings : csvContent) {
                 if(substrings.size() == 2) {
-                    output.push_back( std::make_shared<ImuTempDataModel>(std::stoll(substrings[0]),std::stod(substrings[1])));
+                    output.push_back( std::make_shared<DataModels::ImuTempDataModel>(std::stoll(substrings[0]),std::stod(substrings[1])));
                 } else {
-                    std::cerr << "Unexpected lenght of imu temp data: " << std::endl;
+                    context_.logger_.error("Unexpected lenght of imu temp data: ");
                 }
             }
             return output;
         }
 
-        std::vector<std::shared_ptr<GenericDataModel>> ImuDataLoader::loadImuTimeData(std::string& path) {
-            std::vector<std::shared_ptr<GenericDataModel>> output;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> ImuDataLoader::loadImuTimeData(std::string& path) {
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> output;
             auto csvContent = readCsv(path + Folders::kImuFolder + Files::kTimeFile);
             for(const auto& substrings : csvContent) {
                 if(substrings.size() == 8) {
-                    output.push_back( std::make_shared<ImuTimeDataModel>(std::stoll(substrings[0]),std::stoll(substrings[1]),
+                    output.push_back( std::make_shared<DataModels::ImuTimeDataModel>(std::stoll(substrings[0]),std::stoll(substrings[1]),
                                                                          std::stoll(substrings[2]),std::stoll(substrings[3]),
                                                                          std::stoll(substrings[4]),std::stoll(substrings[5]),
                                                                          std::stoll(substrings[6]),std::stoll(substrings[7])));
                 } else {
-                    std::cerr << "Unexpected lenght of imu time data: " << std::endl;
+                    context_.logger_.error("Unexpected lenght of imu time data: ");
                 }
             }
             return output;

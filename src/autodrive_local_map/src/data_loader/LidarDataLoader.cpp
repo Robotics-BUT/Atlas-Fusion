@@ -19,6 +19,8 @@ namespace AutoDrive {
                 case LidarIdentifier::kRightLidar:
                     folder = Folders::kLidarRightFolder;
                     break;
+                default:
+                    break;
             }
 
             auto csvContent = readCsv(path + folder + Files::kTimestampFile);
@@ -27,12 +29,12 @@ namespace AutoDrive {
                     std::stringstream ss;
                     ss << path + folder + Files::kScanFile << std::setw(6) << std::setfill('0')
                        << std::stoll(substrings[1]) << Files::kPcdExt;
-                    data_.push_back(std::make_shared<LidarScanDataModel>(std::stoll(substrings[0]),
+                    data_.push_back(std::make_shared<DataModels::LidarScanDataModel>(std::stoll(substrings[0]),
                                                                           lidarIdentifier_,
                                                                           ss.str(),
                                                                           std::stoll(substrings[2])));
                 } else {
-                    std::cerr << "Unexpected lenght of lidar scan data: " << std::endl;
+                    context_.logger_.error("Unexpected lenght of lidar scan data: ");
                 }
             }
             dataIt_ = data_.begin();
@@ -48,13 +50,13 @@ namespace AutoDrive {
             return std::numeric_limits<uint64_t>::max();
         }
 
-        std::shared_ptr<GenericDataModel> LidarDataLoader::getNextData() {
+        std::shared_ptr<DataModels::GenericDataModel> LidarDataLoader::getNextData() {
             if (!isOnEnd()) {
                 auto output = *dataIt_;
                 dataIt_ = std::next(dataIt_,1);
                 return output;
             }
-            return std::make_shared<ErrorDataModel>();
+            return std::make_shared<DataModels::ErrorDataModel>();
         }
 
         std::string LidarDataLoader::toString() {
@@ -85,7 +87,7 @@ namespace AutoDrive {
             while(releaseIt_ < data_.end()) {
                 auto dataTimestamp = (*releaseIt_)->getTimestamp();
                 if(dataTimestamp + keepHistory < currentTime) {
-                    (*releaseIt_) = std::make_shared<LidarScanDataModel>(0, LidarIdentifier::kNone, "", 0);
+                    (*releaseIt_) = std::make_shared<DataModels::LidarScanDataModel>(0, LidarIdentifier::kNone, "", 0);
                     releaseIt_++;
                 } else {
                     break;

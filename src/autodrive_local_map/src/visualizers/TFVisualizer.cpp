@@ -3,16 +3,20 @@
 
 namespace AutoDrive::Visualizers {
 
-    void TFVisualizer::addFrame(const std::string name, const rtl::Vector3D<double> trans, const rtl::Quaternion<double> rot) {
+    void TFVisualizer::updateOriginToRootTf(rtl::Transformation3D<double> tf) {
 
-        if (frames_.find(name) != frames_.end()) {
-            logger_.warning("Frame with name " + name + " already exists!");
-            return;
-        }
+        geometry_msgs::TransformStamped tf_msg;
 
-        DataLoader::TFFrame newFrame{trans, rot};
-        frames_[name] = newFrame;
-        keys_.push_back(name);
+        tf_msg.header.stamp = ros::Time::now();
+        tf_msg.header.frame_id = LocalMap::Frames::kOrigin;
+        tf_msg.child_frame_id = context_.tfTree_.getRootFrameName();
+        tf_msg.transform.translation.x = tf.trX();
+        tf_msg.transform.translation.y = tf.trY();
+        tf_msg.transform.translation.z = tf.trZ();
+        tf_msg.transform.rotation.x = tf.rotQuaternion().x();
+        tf_msg.transform.rotation.y = tf.rotQuaternion().y();
+        tf_msg.transform.rotation.z = tf.rotQuaternion().z();
+        tf_msg.transform.rotation.w = tf.rotQuaternion().w();
+        rootToOriginBroadcaster_.sendTransform(tf_msg);
     }
-
 }

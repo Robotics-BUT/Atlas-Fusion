@@ -3,9 +3,9 @@ logger:
   log_ext: "log"
   log_lvl: 1
 
-data_folder: "/home/autodrive/Data/final/2_2_1_1/"
-tf_file: "/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/frames.yaml"
+data_folder: "/home/autodrive/Data/final/1_1_3_1/"
+calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/"
 
 map_builder:
   keep_history_sec_length: 10
-  max_replayer_rate: 10.0
+  max_replayer_rate: 1

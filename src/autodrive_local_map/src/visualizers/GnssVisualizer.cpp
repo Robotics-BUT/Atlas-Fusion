@@ -1,14 +1,14 @@
 #include "visualizers/GnssVisualizer.h"
 
-#include "visualizers/Frames.h"
+#include "local_map/Frames.h"
 
 namespace AutoDrive::Visualizers {
 
 
-    void GnssVisualizer::drawGnssPose(const std::shared_ptr<DataLoader::GnssPoseDataModel> data) const {
+    void GnssVisualizer::drawGnssPose(const std::shared_ptr<DataModels::GnssPoseDataModel> data) const {
 
         visualization_msgs::Marker textMsg;
-        textMsg.header.frame_id = Frames::kGnssAntennaRear;
+        textMsg.header.frame_id = LocalMap::Frames::kGnssAntennaRear;
         textMsg.header.stamp = ros::Time::now();
         textMsg.pose.position.x = 0;
         textMsg.pose.position.y = 0;
