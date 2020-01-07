@@ -9,7 +9,7 @@
 #include "GnssDataLoader.h"
 #include "ImuDataLoader.h"
 #include "AbstractDataLoader.h"
-#include "LogService.h"
+#include "Context.h"
 
 namespace AutoDrive {
     namespace DataLoader {
@@ -18,24 +18,24 @@ namespace AutoDrive {
 
         public:
 
-            DataLoader(LogService& logger, timestamp_type keepHistoryLength)
-            : cameraLeftFrontDataLoader_(std::make_shared<CameraDataLoader>(CameraIndentifier::kCameraLeftFront))
-            , cameraLeftSideDataLoader_(std::make_shared<CameraDataLoader>(CameraIndentifier::kCameraLeftSide))
-            , cameraRightFrontDataLoader_(std::make_shared<CameraDataLoader>(CameraIndentifier::kCameraRightFront))
-            , cameraRightSideDataLoader_(std::make_shared<CameraDataLoader>(CameraIndentifier::kCameraRightSide))
-            , cameraIrDataLoader_(std::make_shared<CameraDataLoader>(CameraIndentifier::kCameraIr))
-            , leftLidarDataLoader_(std::make_shared<LidarDataLoader>(LidarIdentifier::kLeftLidar))
-            , rightLidarDataLoader_(std::make_shared<LidarDataLoader>(LidarIdentifier::kRightLidar))
-            , gnssPoseDataLoader_(std::make_shared<GnssDataLoader>(GnssLoaderIdentifier::kPose))
-            , gnssTimeDataLoader_(std::make_shared<GnssDataLoader>(GnssLoaderIdentifier::kTime))
-            , imuDquatDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kDQuat))
-            , imuGnssDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kGnss))
-            , imuImuDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kImu))
-            , imuMagDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kMag))
-            , imuPressDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kPressure))
-            , imuTempDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kTemp))
-            , imuTimeDataLoader_(std::make_shared<ImuDataLoader>(ImuLoaderIdentifier::kTime))
-            , logger_(logger)
+            DataLoader(Context& context, timestamp_type keepHistoryLength)
+            : cameraLeftFrontDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraLeftFront, context.calibFolder_+Files::kCameraLeftFrontCalibYaml))
+            , cameraLeftSideDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraLeftSide, context.calibFolder_+Files::kCameraLeftSideCalibYaml))
+            , cameraRightFrontDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraRightFront, context.calibFolder_+Files::kCameraRightFrontCalibYaml))
+            , cameraRightSideDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraRightSide, context.calibFolder_+Files::kCameraRightSideCalibYaml))
+            , cameraIrDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraIr, context.calibFolder_+Files::kCameraIrCalibYaml))
+            , leftLidarDataLoader_(std::make_shared<LidarDataLoader>(context, LidarIdentifier::kLeftLidar))
+            , rightLidarDataLoader_(std::make_shared<LidarDataLoader>(context, LidarIdentifier::kRightLidar))
+            , gnssPoseDataLoader_(std::make_shared<GnssDataLoader>(context, GnssLoaderIdentifier::kPose))
+            , gnssTimeDataLoader_(std::make_shared<GnssDataLoader>(context, GnssLoaderIdentifier::kTime))
+            , imuDquatDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kDQuat))
+            , imuGnssDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kGnss))
+            , imuImuDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kImu))
+            , imuMagDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kMag))
+            , imuPressDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kPressure))
+            , imuTempDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kTemp))
+            , imuTimeDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kTime))
+            , context_{context}
             , keepHistoryLength_(keepHistoryLength) {
 
                 dataLoaders_ = {
@@ -56,11 +56,19 @@ namespace AutoDrive {
                         imuTempDataLoader_,
                         imuTimeDataLoader_,
                 };
+
+                cameraDataLoaders_ = {
+                        cameraLeftFrontDataLoader_,
+                        cameraLeftSideDataLoader_,
+                        cameraRightFrontDataLoader_,
+                        cameraRightSideDataLoader_,
+                        cameraIrDataLoader_,
+                };
             }
 
             bool loadData(std::string path) override;
             timestamp_type getLowestTimestamp() override;
-            std::shared_ptr<GenericDataModel> getNextData() override;
+            std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
             std::string toString() override;
             uint64_t getDataSize() override;
             bool isOnEnd() override;
@@ -68,6 +76,7 @@ namespace AutoDrive {
             void releaseOldData(timestamp_type keepHistory) override;
             void clear() override;
 
+            std::shared_ptr<DataModels::GenericDataModel> getCameraCalibDataForCameraID(CameraIndentifier id);
 
         private:
 
@@ -93,8 +102,10 @@ namespace AutoDrive {
             std::shared_ptr<ImuDataLoader> imuTimeDataLoader_;
 
             std::vector<std::shared_ptr<AbstractDataLoader>> dataLoaders_;
+            std::vector<std::shared_ptr<CameraDataLoader>> cameraDataLoaders_;
 
-            LogService& logger_;
+
+            Context& context_;
             timestamp_type keepHistoryLength_;
 
             bool checkRecordConsistency(std::string& path);

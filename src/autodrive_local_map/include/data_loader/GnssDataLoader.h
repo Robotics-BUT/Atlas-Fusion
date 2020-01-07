@@ -2,6 +2,7 @@
 
 #include "AbstractDataLoader.h"
 #include "data_models/all.h"
+#include "Context.h"
 
 namespace AutoDrive {
     namespace DataLoader {
@@ -10,15 +11,16 @@ namespace AutoDrive {
 
         public:
 
-            GnssDataLoader(GnssLoaderIdentifier id)
-            : dataLoaderIdentifier_(id) {
+            GnssDataLoader(Context& context, GnssLoaderIdentifier id)
+            : context_{context}
+            , dataLoaderIdentifier_(id) {
                 data_.clear();
                 dataIt_ = data_.begin();
             }
 
             bool loadData(std::string path) override;
             uint64_t getLowestTimestamp() override;
-            std::shared_ptr<GenericDataModel> getNextData() override;
+            std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
             std::string toString() override;
             uint64_t getDataSize() override;
             bool isOnEnd() override;
@@ -28,15 +30,15 @@ namespace AutoDrive {
 
         private:
 
+            Context& context_;
             GnssLoaderIdentifier dataLoaderIdentifier_;
 
-            std::vector<std::shared_ptr<GenericDataModel>> data_;
-            std::vector<std::shared_ptr<GenericDataModel>>::iterator dataIt_;
-            std::vector<std::shared_ptr<GenericDataModel>>::iterator releaseIt_;
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> data_;
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>>::iterator dataIt_;
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>>::iterator releaseIt_;
 
-            std::vector<std::shared_ptr<GenericDataModel>> loadGnssTimeData(std::string& path);
-            std::vector<std::shared_ptr<GenericDataModel>> loadGnssPoseData(std::string& path);
-
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadGnssTimeData(std::string& path);
+            std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadGnssPoseData(std::string& path);
         };
 
     }

@@ -4,8 +4,8 @@
 #include <sensor_msgs/Imu.h>
 
 #include "Topics.h"
-#include "LogService.h"
-#include "data_loader/data_models/imu/ImuImuDataModel.h"
+#include "Context.h"
+#include "data_models/imu/ImuImuDataModel.h"
 
 namespace AutoDrive::Visualizers {
 
@@ -14,21 +14,19 @@ namespace AutoDrive::Visualizers {
 
     public:
 
-        ImuVisualizer(ros::NodeHandle& node, LogService& logger)
-        : node_(node)
-        , logger_(logger) {
+        ImuVisualizer(ros::NodeHandle& node, Context& context)
+        : node_{node}
+        , context_{context} {
             imuPublisher_ = node_.advertise<sensor_msgs::Imu>( Topics::kImuTopic, 0 );
         }
 
-        void drawImuData(const std::shared_ptr<DataLoader::ImuImuDataModel>) const;
+        void drawImuData(rtl::Vector3D<double> linAcc) const;
 
     protected:
 
         ros::NodeHandle& node_;
-        LogService& logger_;
-
+        Context& context_;
         ros::Publisher imuPublisher_;
-
     };
 
 }

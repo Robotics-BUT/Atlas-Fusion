@@ -3,9 +3,9 @@
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
 
-#include "LogService.h"
+#include "Context.h"
 #include "Topics.h"
-#include "data_loader/data_models/gnss/GnssPoseDataModel.h"
+#include "data_models/gnss/GnssPoseDataModel.h"
 
 namespace AutoDrive::Visualizers {
 
@@ -14,21 +14,17 @@ namespace AutoDrive::Visualizers {
     public:
 
 
-        GnssVisualizer(ros::NodeHandle& node, LogService& logger)
-        : node_(node)
-        , logger_(logger) {
+        GnssVisualizer(ros::NodeHandle& node, Context& context)
+        : node_{node}
+        , context_{context} {
             gnssPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kGnssTopic, 0 );
         }
-
-        void drawGnssPose(const std::shared_ptr<DataLoader::GnssPoseDataModel>) const;
+        void drawGnssPose(const std::shared_ptr<DataModels::GnssPoseDataModel>) const;
 
     protected:
-
         ros::NodeHandle& node_;
-        LogService& logger_;
-
+        Context& context_;
         ros::Publisher gnssPublisher_;
-
     };
 
 }

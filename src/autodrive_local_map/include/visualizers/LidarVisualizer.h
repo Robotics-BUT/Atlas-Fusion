@@ -6,8 +6,8 @@
 #include <pcl/point_types.h>
 #include <sensor_msgs/PointCloud2.h>
 
-#include "visualizers/Topics.h"
-#include "LogService.h"
+#include "Context.h"
+#include "Topics.h"
 
 namespace AutoDrive::Visualizers {
 
@@ -20,25 +20,25 @@ namespace AutoDrive::Visualizers {
             kRight,
         };
 
-        LidarVisualizer(ros::NodeHandle& n, LogService& logger)
-        : node_(n)
-        , logger_(logger) {
+        LidarVisualizer(ros::NodeHandle& node, Context& context)
+        : node_{node}
+        , context_{context} {
 
             lidarLeftPublisher_ = node_.advertise<sensor_msgs::PointCloud2>( Topics::kLidarLeft, 0 );
             lidarRightPublisher_ = node_.advertise<sensor_msgs::PointCloud2>( Topics::kLidarRight, 0 );
         }
 
-        void drawLeftPointcloud(const std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>) const;
-        void drawRightPointcloud(const std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>) const;
+        void drawLeftPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>) const;
+        void drawRightPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>) const;
 
     private:
 
         ros::NodeHandle& node_;
-        LogService& logger_;
+        Context& context_;
 
         ros::Publisher lidarLeftPublisher_;
         ros::Publisher lidarRightPublisher_;
 
-        void drawPointCloud(const std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>, const LidarType type) const;
+        void drawPointCloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>>, const LidarType type) const;
     };
 }

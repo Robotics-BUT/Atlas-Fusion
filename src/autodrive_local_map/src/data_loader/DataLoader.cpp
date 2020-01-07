@@ -13,13 +13,13 @@ namespace AutoDrive {
         bool DataLoader::loadData(std::string path) {
 
             if(!std::experimental::filesystem::is_directory(path)) {
-                std::cerr << "Unable to open recording on path: " << path << std::endl;
+                context_.logger_.error("Unable to open recording on path: " + path);
                 return false;
             }
 
             auto isConsistent = checkRecordConsistency(path);
             if(!isConsistent) {
-                std::cerr << "Recording is unconsistent" << std::endl;
+                context_.logger_.error("Recording is unconsistent");
                 return false;
             }
 
@@ -65,7 +65,7 @@ namespace AutoDrive {
             }
         }
 
-        std::shared_ptr<GenericDataModel> DataLoader::getNextData() {
+        std::shared_ptr<DataModels::GenericDataModel> DataLoader::getNextData() {
 
             std::shared_ptr<AbstractDataLoader> it = nullptr;
             uint64_t minTimestamp = std::numeric_limits<uint64_t>::max();
@@ -82,7 +82,7 @@ namespace AutoDrive {
                 it->releaseOldData(keepHistoryLength_);
                 return ret;
             }
-            return std::make_shared<ErrorDataModel>();
+            return std::make_shared<DataModels::ErrorDataModel>();
         }
 
 
@@ -105,7 +105,7 @@ namespace AutoDrive {
             for(const auto& folder : Folders::mandatoryFolders) {
                 const auto directory = path + folder;
                 if(!std::experimental::filesystem::is_directory(directory)) {
-                    std::cerr << "Unable to find mandatory folder: " << directory << std::endl;
+                    context_.logger_.error("Unable to find mandatory folder: " + directory);
                     return false;
                 }
             }
@@ -113,7 +113,7 @@ namespace AutoDrive {
             for(const auto& file : Files::mandatoryFiles) {
                 const auto f = path + file;
                 if(!std::experimental::filesystem::is_regular_file(f)) {
-                    std::cerr << "Unable to find mandatory file: " << f << std::endl;
+                    context_.logger_.error("Unable to find mandatory file: " + f);
                     return false;
                 }
             }
@@ -123,19 +123,28 @@ namespace AutoDrive {
 
         bool DataLoader::loadRecord(std::string& path) {
 
-            std::cout << "Loading data ..." << std::endl;
+            context_.logger_.info("Loading data ...");
 
             for(const auto& dataLoader : dataLoaders_) {
                 auto result = dataLoader->loadData(path);
-                std::cout << dataLoader->toString() << std::endl;
+                context_.logger_.info(dataLoader->toString());
                 if (!result) {
-                    std::cerr << "Error when reading data from filesystem" << std::endl;
+                    context_.logger_.error("Error when reading data from filesystem");
                     return false;
                 }
             }
 
-            std::cout << "Data Loading done" << std::endl;
+            context_.logger_.info("Data Loading done");
             return true;
+        }
+
+        std::shared_ptr<DataModels::GenericDataModel> DataLoader::getCameraCalibDataForCameraID(CameraIndentifier id) {
+            for (const auto& cameraDataLoader : cameraDataLoaders_) {
+                if(cameraDataLoader->getCameraIdentifier() == id) {
+                    return cameraDataLoader->getCameraCalibParams();
+                }
+            }
+            return std::make_shared<DataModels::ErrorDataModel>();
         }
     }
 }

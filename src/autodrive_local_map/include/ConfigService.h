@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <yaml-cpp/yaml.h>
-#include "data_loader/data_models/TFFrame.h"
 
 namespace AutoDrive {
 
@@ -28,7 +27,10 @@ namespace AutoDrive {
         bool getBoolValue(const std::vector<std::string>& keys) { return getNode(keys).as<bool >(); }
 
         template <typename T>
-        std::vector<T> getArrayValue(const std::vector<std::string>& keys) { return getNode(keys).as<std::vector<T> >(); }
+        std::vector<T> getArrayValue(const std::vector<std::string>& keys) {
+            auto node = getNode(keys).as<std::vector<T> >();
+            return node;
+        }
 
         template <typename T>
         rtl::Quaternion<T> getQuaternionValue(const std::vector<std::string>& keys) {
@@ -40,6 +42,24 @@ namespace AutoDrive {
         rtl::Vector3D<T> getVector3DValue(const std::vector<std::string>& keys) {
             auto arr = getArrayValue<T>(keys);
             return rtl::Vector3D<T>{ arr[0], arr[1], arr[2]};
+        }
+
+        template <typename T>
+        std::vector<std::vector<T>> getMatValue(const std::vector<std::string>& keys) {
+            auto arr = getArrayValue<T>(keys);
+            size_t size = size_t(std::sqrt(arr.size()));
+
+            std::vector<std::vector<T>> output;
+            if( size == std::sqrt(arr.size())) {
+                for(size_t i = 0 ; i < size ; i++) {
+                    std::vector<T> vec;
+                    for(size_t j = 0 ; j < size ; j++) {
+                        vec.push_back(arr[j+i*size]);
+                    }
+                    output.push_back(vec);
+                }
+            }
+            return output;
         }
 
 

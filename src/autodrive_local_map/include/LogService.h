@@ -15,9 +15,10 @@ namespace AutoDrive {
             Info = 1,
             Warning = 2,
             Error = 3,
+            Off = 4,
         };
 
-        LogService(std::string &&path, LogLevel& lvl, bool console, bool file)
+        LogService(std::string &&path, LogLevel lvl, bool console, bool file)
         : logPath_(path)
         , logLvl_(lvl)
         , toConsole_(console)

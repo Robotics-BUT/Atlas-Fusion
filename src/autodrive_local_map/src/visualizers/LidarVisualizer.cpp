@@ -1,7 +1,7 @@
 #include "visualizers/LidarVisualizer.h"
 
 #include <pcl_conversions/pcl_conversions.h>
-#include "visualizers/Frames.h"
+#include "local_map/Frames.h"
 
 namespace AutoDrive::Visualizers {
 
@@ -26,11 +26,11 @@ namespace AutoDrive::Visualizers {
 
         switch (type) {
             case LidarType::kLeft:
-                msg.header.frame_id = Frames::kLidarLeft;
+                msg.header.frame_id = LocalMap::Frames::kLidarLeft;
                 lidarLeftPublisher_.publish(msg);
                 break;
             case LidarType::kRight:
-                msg.header.frame_id = Frames::kLidarRight;
+                msg.header.frame_id = LocalMap::Frames::kLidarRight;
                 lidarRightPublisher_.publish(msg);
                 break;
         }

@@ -1,7 +1,8 @@
 #include <chrono>
-#include "MapBuilder.h"
-#include "data_loader/data_models/all.h"
-#include "data_loader/data_models/DataModelTypes.h"
+ #include "MapBuilder.h"
+#include "data_models/all.h"
+#include "data_models/DataModelTypes.h"
+#include "algorithms/Projector.h"
 
 namespace AutoDrive {
 
@@ -12,6 +13,34 @@ namespace AutoDrive {
         dataLoader_.loadData(dataFolder);
         std::cout << "Total No. of loaded data: " << dataLoader_.getDataSize() << std::endl;
 
+        //dataLoader_.setPose(1564663008747159969);
+
+        std::vector<DataLoader::CameraIndentifier> cameraIDs = {
+                DataLoader::CameraIndentifier::kCameraLeftFront,
+                DataLoader::CameraIndentifier::kCameraLeftSide,
+                DataLoader::CameraIndentifier::kCameraRightFront,
+                DataLoader::CameraIndentifier::kCameraRightSide,
+                DataLoader::CameraIndentifier::kCameraIr,
+        };
+
+        for(const auto& cam : cameraIDs) {
+            auto params = dataLoader_.getCameraCalibDataForCameraID(cam);
+            auto tf = getCameraTf(cam);
+
+            if(params->getType() == DataModels::DataModelTypes::kCameraCalibrationParamsDataModelType) {
+                auto paramModel = std::dynamic_pointer_cast<DataModels::CameraCalibrationParamsDataModel>(params);
+                visualizationHandler_.setCameraCalibParamsForCameraId(paramModel, cam);
+
+                auto intrinsicParams = paramModel->getMatIntrinsicParams();
+                auto distortionParams =  paramModel->getMatDistortionParams();
+
+                auto projector = std::make_shared<Algorithms::Projector>(intrinsicParams, distortionParams, tf);
+                depthMap_.addProjector(projector, cam);
+                detectionProcessor_.addProjector(projector, getCameraFrame(cam));
+            } else {
+                context_.logger_.warning("Unable to read camera calib data");
+            }
+        }
     }
 
     void MapBuilder::buildMap() {
@@ -19,10 +48,17 @@ namespace AutoDrive {
         int64_t last_system_ts = 0;
         uint64_t last_data_ts = 0;
 
-        for (size_t i = 0; i < dataLoader_.getDataSize(); i++) {
+        visualizationHandler_.updateOriginToRootTf({});
+
+        for (size_t i = 0; !dataLoader_.isOnEnd(); i++) {
             auto data = dataLoader_.getNextData();
             auto data_ts = data->getTimestamp();
-            std::cout << data_ts << " " << data->toString() << std::endl;
+
+            std::cout << "Time: " << data_ts << std::endl;
+
+            std::stringstream ss;
+            ss << data_ts << " " << data->toString();
+            context_.logger_.debug(ss.str());
 
             if(last_system_ts == 0) {
                 last_system_ts = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -44,51 +80,80 @@ namespace AutoDrive {
 
             /* ... data processing ... */
 
-            if(dataType == DataLoader::DataModelTypes::kCameraDataModelType) {
+            if(dataType == DataModels::DataModelTypes::kCameraDataModelType) {
 
-                auto cameraFrame = std::dynamic_pointer_cast<DataLoader::CameraFrameDataModel>(data);
+                auto cameraFrame = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
+                auto detections3D = depthMap_.onNewCameraData(cameraFrame);
+                auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, getCameraFrame(cameraFrame->getCameraIdentifier()));
+
+                localMap_.onNewFrustumDetections(frustums, getCameraFrame(cameraFrame->getCameraIdentifier()));
+
+                visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
                 visualizationHandler_.drawRGBImage(cameraFrame);
 
-            } else if (dataType == DataLoader::DataModelTypes::kCameraIrDataModelType) {
+            } else if (dataType == DataModels::DataModelTypes::kCameraIrDataModelType) {
 
-                auto irCameraFrame = std::dynamic_pointer_cast<DataLoader::CameraIrFrameDataModel>(data);
+                auto irCameraFrame = std::dynamic_pointer_cast<DataModels::CameraIrFrameDataModel>(data);
                 visualizationHandler_.drawIRImage(irCameraFrame);
 
-            } else if (dataType == DataLoader::DataModelTypes::kGnssPositionDataModelType) {
+            } else if (dataType == DataModels::DataModelTypes::kGnssPositionDataModelType) {
 
-                auto poseData = std::dynamic_pointer_cast<DataLoader::GnssPoseDataModel>(data);
+                auto poseData = std::dynamic_pointer_cast<DataModels::GnssPoseDataModel>(data);
+                gnssPoseLogger_.onGnssPose(poseData);
+                selfModel_.onGnssPose(poseData);
+
+                //auto currentPose = poseLogger_.getPosition();
+                auto currentPose = selfModel_.getPosition();
+                imuPoseLogger_.setAltitude(currentPose.getPosition().z());
+
+                visualizationHandler_.updateOriginToRootTf(currentPose);
+                visualizationHandler_.drawRawGnssTrajectory(gnssPoseLogger_.getPositionHistory());
+                visualizationHandler_.drawFilteredTrajectory(selfModel_.getPositionHistory());
                 visualizationHandler_.drawGnssPoseData(poseData);
 
-            } else if (dataType == DataLoader::DataModelTypes::kGnssTimeDataModelType) {
+            } else if (dataType == DataModels::DataModelTypes::kGnssTimeDataModelType) {
 
-            } else if (dataType == DataLoader::DataModelTypes::kImuDquatDataModelType) {
+            } else if (dataType == DataModels::DataModelTypes::kImuDquatDataModelType) {
 
-            } else if (dataType == DataLoader::DataModelTypes::kImuGnssDataModelType) {
+                auto dQuatData = std::dynamic_pointer_cast<DataModels::ImuDquatDataModel>(data);
+                selfModel_.onImuDquatData(dQuatData);
 
-            } else if (dataType == DataLoader::DataModelTypes::kImuImuDataModelType) {
+            } else if (dataType == DataModels::DataModelTypes::kImuGnssDataModelType) {
 
-                auto imuData = std::dynamic_pointer_cast<DataLoader::ImuImuDataModel>(data);
-                visualizationHandler_.drawImuData(imuData);
+                auto poseData = std::dynamic_pointer_cast<DataModels::ImuGnssDataModel>(data);
+                imuPoseLogger_.onImuGps(poseData);
+                visualizationHandler_.drawImuGpsTrajectory(imuPoseLogger_.getPositionHistory());
 
-            } else if (dataType == DataLoader::DataModelTypes::kImuMagDataModelType) {
+            } else if (dataType == DataModels::DataModelTypes::kImuImuDataModelType) {
 
-            } else if (dataType == DataLoader::DataModelTypes::kImuPressDataModelType) {
+                auto imuData = std::dynamic_pointer_cast<DataModels::ImuImuDataModel>(data);
 
-            } else if (dataType == DataLoader::DataModelTypes::kImuTempDataModelType) {
+                imuProcessor_.setOrientation(imuData->getOrientation());
+                auto linAccNoGrav = imuProcessor_.removeGravitaionAcceleration(imuData->getLinearAcc());
 
-            } else if (dataType == DataLoader::DataModelTypes::kImuTimeDataModelType) {
+                selfModel_.onImuImuData(imuData);
+                visualizationHandler_.drawImuData(linAccNoGrav);
 
-            } else if (dataType == DataLoader::DataModelTypes::kLidarScanDataModelType) {
+            } else if (dataType == DataModels::DataModelTypes::kImuMagDataModelType) {
 
-                auto lidarData = std::dynamic_pointer_cast<DataLoader::LidarScanDataModel>(data);
+            } else if (dataType == DataModels::DataModelTypes::kImuPressDataModelType) {
+
+            } else if (dataType == DataModels::DataModelTypes::kImuTempDataModelType) {
+
+            } else if (dataType == DataModels::DataModelTypes::kImuTimeDataModelType) {
+
+            } else if (dataType == DataModels::DataModelTypes::kLidarScanDataModelType) {
+                auto lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
+                lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_, std::placeholders::_1));
+                depthMap_.onNewLidarData(lidarData);
                 visualizationHandler_.drawLidarData(lidarData);
 
-            } else if (dataType == DataLoader::DataModelTypes::kGenericDataModelType) {
-                logger_.warning("Received Generic data model from DataLoader");
-            } else if (dataType == DataLoader::DataModelTypes::kErrorDataModelType) {
-                logger_.warning("Received Error data model from DataLoader");
+            } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {
+                context_.logger_.warning("Received Generic data model from DataLoader");
+            } else if (dataType == DataModels::DataModelTypes::kErrorDataModelType) {
+                context_.logger_.warning("Received Error data model from DataLoader");
             } else {
-                logger_.warning("Unepected type of data model from DataLoader");
+                context_.logger_.warning("Unepected type of data model from DataLoader");
             }
         }
     }
@@ -96,5 +161,44 @@ namespace AutoDrive {
 
     void MapBuilder::clearData() {
         dataLoader_.clear();
+    }
+
+
+    rtl::Transformation3D<double> MapBuilder::getCameraTf(const DataLoader::CameraIndentifier& id) {
+
+        switch (id){
+            case DataLoader::CameraIndentifier::kCameraLeftFront:
+                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraLeftFront);
+            case DataLoader::CameraIndentifier::kCameraLeftSide:
+                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraLeftSide);
+            case DataLoader::CameraIndentifier::kCameraRightFront:
+                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraRightFront);
+            case DataLoader::CameraIndentifier::kCameraRightSide:
+                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraRightSide);
+            case DataLoader::CameraIndentifier::kCameraIr:
+                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraIr);
+            default:
+                context_.logger_.error("Unable to find transformation for camera!");
+                return rtl::Transformation3D<double>();
+        }
+    }
+
+    std::string MapBuilder::getCameraFrame(const DataLoader::CameraIndentifier& id) {
+
+        switch (id){
+            case DataLoader::CameraIndentifier::kCameraLeftFront:
+                return LocalMap::Frames::kCameraLeftFront;
+            case DataLoader::CameraIndentifier::kCameraLeftSide:
+                return LocalMap::Frames::kCameraLeftSide;
+            case DataLoader::CameraIndentifier::kCameraRightFront:
+                return LocalMap::Frames::kCameraRightFront;
+            case DataLoader::CameraIndentifier::kCameraRightSide:
+                return LocalMap::Frames::kCameraRightSide;
+            case DataLoader::CameraIndentifier::kCameraIr:
+                return LocalMap::Frames::kCameraIr;
+            default:
+                context_.logger_.error("Unable to find frame for camera!");
+                return "";
+        }
     }
 }

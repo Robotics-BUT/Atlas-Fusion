@@ -14,7 +14,7 @@ namespace AutoDrive {
 
 
     void LogService::debug(const std::string& msg) {
-        if (logLvl_ >= LogLevel::Debug) {
+        if (logLvl_ <= LogLevel::Debug) {
             if(toFile_ && file_.is_open()) {
                 file_ << msg << std::endl;
             }
@@ -26,7 +26,7 @@ namespace AutoDrive {
 
 
     void LogService::info(const std::string& msg) {
-        if (logLvl_ >= LogLevel::Info) {
+        if (logLvl_ <= LogLevel::Info) {
             if(toFile_ && file_.is_open()) {
                 file_ << msg << std::endl;
             }
@@ -38,7 +38,7 @@ namespace AutoDrive {
 
 
     void LogService::warning(const std::string& msg) {
-        if (logLvl_ >= LogLevel::Warning) {
+        if (logLvl_ <= LogLevel::Warning) {
             if(toFile_ && file_.is_open()) {
                 file_ << msg << std::endl;
             }
@@ -50,7 +50,7 @@ namespace AutoDrive {
 
 
     void LogService::error(const std::string& msg) {
-        if (logLvl_ >= LogLevel::Error) {
+        if (logLvl_ <= LogLevel::Error) {
             if(toFile_ && file_.is_open()) {
                 file_ << msg << std::endl;
             }

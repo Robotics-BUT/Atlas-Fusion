@@ -2,7 +2,8 @@
 
 #include <sensor_msgs/PointCloud2.h>
 
-#include "visualizers/Frames.h"
+#include "local_map/Frames.h"
+#include "visualizers/VisualizationStructures.h"
 
 namespace AutoDrive::Visualizers{
 
@@ -11,8 +12,7 @@ namespace AutoDrive::Visualizers{
         testCubePublisher_.publish(getTestCube());
     }
 
-
-    void VisualizationHandler::drawLidarData(const std::shared_ptr<DataLoader::LidarScanDataModel> data) const {
+    void VisualizationHandler::drawLidarData(const std::shared_ptr<DataModels::LidarScanDataModel> data) const {
 
         auto scan = data->getScan();
         if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kLeftLidar) {
@@ -22,13 +22,11 @@ namespace AutoDrive::Visualizers{
         }
     }
 
-
-    void VisualizationHandler::drawImuData(const std::shared_ptr<DataLoader::ImuImuDataModel> data) const {
-        imuVisualizer_.drawImuData(data);
+    void VisualizationHandler::drawImuData(const rtl::Vector3D<double> linAcc) const {
+        imuVisualizer_.drawImuData(linAcc);
     }
 
-
-    void VisualizationHandler::drawRGBImage(const std::shared_ptr<DataLoader::CameraFrameDataModel> data) const {
+    void VisualizationHandler::drawRGBImage(const std::shared_ptr<DataModels::CameraFrameDataModel> data) const {
         switch(data->getCameraIdentifier()) {
             case DataLoader::CameraIndentifier::kCameraLeftFront:
                 cameraVisualizer_.drawCameraLeftFrontImage(data);
@@ -43,20 +41,19 @@ namespace AutoDrive::Visualizers{
                 cameraVisualizer_.drawCameraRightSideImage(data);
                 break;
             default:
-                logger_.warning("Unexpected camera frame source when drawing RGB image");
+                context_.logger_.warning("Unexpected camera frame source when drawing RGB image");
                 break;
         }
     }
 
-    void VisualizationHandler::drawIRImage(const std::shared_ptr<DataLoader::CameraIrFrameDataModel> data) const {
+    void VisualizationHandler::drawIRImage(const std::shared_ptr<DataModels::CameraIrFrameDataModel> data) const {
         cameraVisualizer_.drawCameraIrImage(data);
     }
-
 
     visualization_msgs::Marker VisualizationHandler::getTestCube() const {
 
         visualization_msgs::Marker cube;
-        cube.header.frame_id = Frames::kOrigin;
+        cube.header.frame_id = LocalMap::Frames::kOrigin;
         cube.header.stamp = ros::Time();
         cube.id = 0;
         cube.type = visualization_msgs::Marker::CUBE;
@@ -78,9 +75,33 @@ namespace AutoDrive::Visualizers{
         return cube;
     }
 
-
-    void VisualizationHandler::drawGnssPoseData(const std::shared_ptr<DataLoader::GnssPoseDataModel>data) const {
+    void VisualizationHandler::drawGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel>data) const {
         gnssVisualizer_.drawGnssPose(data);
     }
 
+    void VisualizationHandler::drawRawGnssTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
+        trajectoryVisualizer_.drawRawTrajectory(data);
+    }
+
+    void VisualizationHandler::drawFilteredTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
+        trajectoryVisualizer_.drawFilteredTrajectory(data);
+    }
+
+    void VisualizationHandler::drawImuGpsTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
+        trajectoryVisualizer_.drawImuGpsTrajectory(data);
+    }
+
+    void VisualizationHandler::updateOriginToRootTf(const DataModels::LocalPosition& pose) {
+        rtl::Transformation3D tf(pose.getOrientation(), pose.getPosition());
+        tfTreeVisualizer_.updateOriginToRootTf(tf);
+    }
+
+    void VisualizationHandler::setCameraCalibParamsForCameraId(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, DataLoader::CameraIndentifier id) {
+        cameraParams_[id] = params;
+        cameraVisualizer_.setCameraParams(cameraParams_);
+    }
+
+    void VisualizationHandler::drawFrustumDetections(std::vector<std::shared_ptr<DataModels::FrustumDetection>> detections) {
+        frustumVisualizer_.visualizeFrustumDetections(detections);
+    }
 }

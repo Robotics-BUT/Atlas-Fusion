@@ -3,29 +3,32 @@
 #include <istream>
 
 #include "data_loader/LidarDataLoader.h"
+#include "Context.h"
 
 #define DATA_FOLDER TEST_FOLDER"test_data/"
 
 TEST(data_loader_lidar_test, data_loader_lidar_data)
 {
-    AutoDrive::DataLoader::LidarDataLoader dataLoader(AutoDrive::DataLoader::LidarIdentifier::kLeftLidar);
+    auto context = AutoDrive::Context::getEmptyContext();
+    AutoDrive::DataLoader::LidarDataLoader dataLoader(context, AutoDrive::DataLoader::LidarIdentifier::kLeftLidar);
     dataLoader.loadData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),500);
 
-    auto data = std::dynamic_pointer_cast<AutoDrive::DataLoader::LidarScanDataModel>(dataLoader.getNextData());
-    EXPECT_EQ(data->getType(), AutoDrive::DataLoader::DataModelTypes::kLidarScanDataModelType);
+    auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::LidarScanDataModel>(dataLoader.getNextData());
+    EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kLidarScanDataModelType);
     EXPECT_EQ(data->getTimestamp(), 1568186745501937363);
     EXPECT_EQ(data->getInnerTimestamp(), 6735310785341193029);
 
-    data = std::dynamic_pointer_cast<AutoDrive::DataLoader::LidarScanDataModel>(dataLoader.getNextData());
-    EXPECT_EQ(data->getType(), AutoDrive::DataLoader::DataModelTypes::kLidarScanDataModelType);
+    data = std::dynamic_pointer_cast<AutoDrive::DataModels::LidarScanDataModel>(dataLoader.getNextData());
+    EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kLidarScanDataModelType);
     EXPECT_EQ(data->getTimestamp(), 1568186745602125461);
     EXPECT_EQ(data->getInnerTimestamp(), 6735310785341293114);
 }
 
 TEST(data_loader_lidar_test, load_lidar_get_timestamp) {
 
-    AutoDrive::DataLoader::LidarDataLoader dataLoader(AutoDrive::DataLoader::LidarIdentifier::kLeftLidar);
+    auto context = AutoDrive::Context::getEmptyContext();
+    AutoDrive::DataLoader::LidarDataLoader dataLoader(context, AutoDrive::DataLoader::LidarIdentifier::kLeftLidar);
     dataLoader.loadData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
@@ -46,7 +49,8 @@ TEST(data_loader_lidar_test, load_lidar_get_timestamp) {
 
 TEST(data_loader_lidar_test, load_lidar_set_pose) {
 
-    AutoDrive::DataLoader::LidarDataLoader dataLoader(AutoDrive::DataLoader::LidarIdentifier::kLeftLidar);
+    auto context = AutoDrive::Context::getEmptyContext();
+    AutoDrive::DataLoader::LidarDataLoader dataLoader(context, AutoDrive::DataLoader::LidarIdentifier::kLeftLidar);
     dataLoader.loadData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);

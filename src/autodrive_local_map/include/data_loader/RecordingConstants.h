@@ -53,6 +53,12 @@ namespace AutoDrive {
             const std::string kScanFile = "scan";
             const std::string kPcdExt = ".pcd";
 
+            const std::string kCameraLeftFrontCalibYaml = "camera_left_front.yaml";
+            const std::string kCameraLeftSideCalibYaml = "camera_left_side.yaml";
+            const std::string kCameraRightFrontCalibYaml = "camera_right_front.yaml";
+            const std::string kCameraRightSideCalibYaml = "camera_right_side.yaml";
+            const std::string kCameraIrCalibYaml = "camera_ir.yaml";
+
             const std::vector <std::string> mandatoryFiles {
                     Folders::kCameraIr + kVideoFile,
                     Folders::kCameraIr + kTimestampFile,

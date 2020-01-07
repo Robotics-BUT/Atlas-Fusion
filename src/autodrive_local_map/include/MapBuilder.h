@@ -2,14 +2,19 @@
 
 #include <ros/ros.h>
 
-#include "algorithms/GenericAlgorithm.h"
-#include "local_map/GenericLocalMap.h"
-#include "visualizers/GenericVisializer.h"
+#include "algorithms/SimpleTrajectoryLogger.h"
+#include "algorithms/MovementModel.h"
+#include "algorithms/ImuDataProcessor.h"
+#include "algorithms/LidarFilter.h"
+#include "algorithms/DepthMap.h"
+#include "algorithms/DetectionsProcessor.h"
+
 #include "data_loader/DataLoader.h"
 #include "visualizers/VisualizationHandler.h"
 
-#include "LogService.h"
-#include "TFTree.h"
+#include "Context.h"
+
+#include "local_map/LocalMap.h"
 
 namespace AutoDrive {
 
@@ -17,15 +22,22 @@ namespace AutoDrive {
 
     public:
 
-        explicit MapBuilder(ros::NodeHandle& n, TFTree& tfTree, LogService& logger, DataLoader::timestamp_type keepHistoryLength, double maxReplayerRate)
-        : rosNode_{n}
-        , tfTree_{tfTree}
-        , visualizationHandler_(rosNode_, tfTree, logger)
-        , logger_(logger)
-        , dataLoader_(logger, keepHistoryLength)
+        explicit MapBuilder(ros::NodeHandle& node, Context& context, DataLoader::timestamp_type keepHistoryLength, double maxReplayerRate)
+        : node_{node}
+        , context_{context}
+        , gnssPoseLogger_{context, 100}
+        , imuPoseLogger_{context, 1000}
+        , selfModel_{context, 1, 1}
+        , depthMap_{context}
+        , detectionProcessor_{context}
+        , visualizationHandler_(node, context)
+        , dataLoader_(context, keepHistoryLength)
         , keepHistoryLength_(keepHistoryLength)
-        , maxReplayerRate_(maxReplayerRate) {
+        , maxReplayerRate_(maxReplayerRate)
+        , localMap_{context}
+        {
 
+            lidarFilter_.enableFilterNearObjects();
         }
 
         void loadData(const std::string&);
@@ -34,18 +46,28 @@ namespace AutoDrive {
 
     private:
 
-        ros::NodeHandle& rosNode_;
-        TFTree& tfTree_;
+        ros::NodeHandle& node_;
+        Context& context_;
 
-        Algorithms::GenericAlgorithm algorithm_;
-        LocalMap::GenericLocalMap map_;
-        Visualizers::GenericVisualizer visualizer_;
+        Algorithms::SimpleTrajectoryLogger gnssPoseLogger_;
+        Algorithms::SimpleTrajectoryLogger imuPoseLogger_;
+        Algorithms::MovementModel selfModel_;
+        Algorithms::ImuDataProcessor imuProcessor_;
+        Algorithms::LidarFilter lidarFilter_;
+        Algorithms::DepthMap depthMap_;
+        Algorithms::DetectionsProcessor detectionProcessor_;
+
         Visualizers::VisualizationHandler visualizationHandler_;
-        LogService& logger_;
 
         DataLoader::DataLoader dataLoader_;
         DataLoader::timestamp_type keepHistoryLength_;
         double maxReplayerRate_;
+
+        LocalMap::LocalMap localMap_;
+
+        [[deprecated]]
+        rtl::Transformation3D<double> getCameraTf(const DataLoader::CameraIndentifier&);
+        std::string getCameraFrame(const DataLoader::CameraIndentifier& id);
 
     };
 

@@ -1,14 +1,13 @@
 #pragma once
 
-#include <ros/ros.h>
+#include "Context.h"
 #include <tf2_ros/static_transform_broadcaster.h>
+#include <tf2_ros/transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <cstdio>
 #include <tf2/LinearMath/Quaternion.h>
 
-#include "data_loader/data_models/TFFrame.h"
-#include "LogService.h"
-#include "TFTree.h"
+#include "local_map/Frames.h"
 
 namespace AutoDrive::Visualizers {
 
@@ -16,39 +15,37 @@ namespace AutoDrive::Visualizers {
 
     public:
 
-        TFVisualizer(TFTree& tfTree, LogService& logger)
-        : tfTree_(tfTree)
-        , logger_(logger) {
+        TFVisualizer(ros::NodeHandle& node, Context& context)
+        : node_{node}
+        , context_{context} {
 
-            for (const auto& frameName : tfTree.getFrameNames()) {
-
-                auto broadcaster = std::make_shared<tf2_ros::StaticTransformBroadcaster>();
-                geometry_msgs::TransformStamped static_transformStamped;
-
-                auto& tf = tfTree.getTree().at(frameName);
-
-                static_transformStamped.header.stamp = ros::Time::now();
-                static_transformStamped.header.frame_id = tfTree.getRootFrameName();
-                static_transformStamped.child_frame_id = frameName;
-                static_transformStamped.transform.translation.x = tf.trX();
-                static_transformStamped.transform.translation.y = tf.trY();
-                static_transformStamped.transform.translation.z = tf.trZ();
-                static_transformStamped.transform.rotation.x = tf.rotQuaternion().x();
-                static_transformStamped.transform.rotation.y = tf.rotQuaternion().y();
-                static_transformStamped.transform.rotation.z = tf.rotQuaternion().z();
-                static_transformStamped.transform.rotation.w = tf.rotQuaternion().w();
-                broadcaster->sendTransform(static_transformStamped);
-                broadcasters_.emplace_back(broadcaster);
+            broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>();
+            std::vector<geometry_msgs::TransformStamped> msgVector;
+            for (const auto& frameName : context_.tfTree_.getFrameNames()) {
+                auto tf = context_.tfTree_.getTransformationForFrame(frameName);
+                geometry_msgs::TransformStamped msg;
+                msg.header.stamp = ros::Time::now();
+                msg.header.frame_id = context_.tfTree_.getRootFrameName();
+                msg.child_frame_id = frameName;
+                msg.transform.translation.x = tf.trX();
+                msg.transform.translation.y = tf.trY();
+                msg.transform.translation.z = tf.trZ();
+                msg.transform.rotation.x = tf.rotQuaternion().x();
+                msg.transform.rotation.y = tf.rotQuaternion().y();
+                msg.transform.rotation.z = tf.rotQuaternion().z();
+                msg.transform.rotation.w = tf.rotQuaternion().w();
+                msgVector.push_back(msg);
             }
+            broadcaster_->sendTransform(msgVector);
         }
+
+        void updateOriginToRootTf(rtl::Transformation3D<double> tf);
 
     protected:
 
-        std::vector<std::string> keys_{};
-        std::unordered_map<std::string, AutoDrive::DataLoader::TFFrame> frames_;
-
-        TFTree& tfTree_;
-        LogService& logger_;
-        std::vector<std::shared_ptr<tf2_ros::StaticTransformBroadcaster>> broadcasters_{};
+        ros::NodeHandle& node_;
+        Context& context_;
+        std::shared_ptr<tf2_ros::StaticTransformBroadcaster> broadcaster_{};
+        tf2_ros::TransformBroadcaster rootToOriginBroadcaster_{};
     };
 }
