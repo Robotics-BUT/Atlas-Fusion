@@ -48,13 +48,12 @@ namespace AutoDrive {
         int64_t last_system_ts = 0;
         uint64_t last_data_ts = 0;
 
-        visualizationHandler_.updateOriginToRootTf({});
+        DataModels::LocalPosition initPose{{},{},0};
+        visualizationHandler_.updateOriginToRootTf(initPose);
 
         for (size_t i = 0; !dataLoader_.isOnEnd(); i++) {
             auto data = dataLoader_.getNextData();
             auto data_ts = data->getTimestamp();
-
-            std::cout << "Time: " << data_ts << std::endl;
 
             std::stringstream ss;
             ss << data_ts << " " << data->toString();
@@ -81,15 +80,15 @@ namespace AutoDrive {
             /* ... data processing ... */
 
             if(dataType == DataModels::DataModelTypes::kCameraDataModelType) {
-
-                auto cameraFrame = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
-                auto detections3D = depthMap_.onNewCameraData(cameraFrame);
-                auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, getCameraFrame(cameraFrame->getCameraIdentifier()));
-
-                localMap_.onNewFrustumDetections(frustums, getCameraFrame(cameraFrame->getCameraIdentifier()));
-
-                visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
-                visualizationHandler_.drawRGBImage(cameraFrame);
+//
+//                auto cameraFrame = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
+//                auto detections3D = depthMap_.onNewCameraData(cameraFrame);
+//                auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, getCameraFrame(cameraFrame->getCameraIdentifier()));
+//
+//                localMap_.onNewFrustumDetections(frustums, getCameraFrame(cameraFrame->getCameraIdentifier()));
+//
+//                visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
+//                visualizationHandler_.drawRGBImage(cameraFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kCameraIrDataModelType) {
 
@@ -143,10 +142,32 @@ namespace AutoDrive {
             } else if (dataType == DataModels::DataModelTypes::kImuTimeDataModelType) {
 
             } else if (dataType == DataModels::DataModelTypes::kLidarScanDataModelType) {
+
                 auto lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
                 lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_, std::placeholders::_1));
-                depthMap_.onNewLidarData(lidarData);
+
+                auto lidarID = lidarData->getLidarIdentifier();
+                auto lidarFrame = getLidarFrame(lidarID);
+
+                if (lidarDataHistory_.count(lidarFrame) > 0) {
+
+                    auto poseBefore = selfModel_.estimatePositionInTime( (lidarDataHistory_[lidarFrame])->getTimestamp());
+                    auto poseNow = selfModel_.getPosition();
+                    auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(lidarData->getScan(), poseBefore, poseNow, {});
+                    pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
+                    pointCloudAggregator_.addPointCloudBatches(batches);
+
+                }
+                lidarDataHistory_[lidarFrame] = lidarData;
+
+//                depthMap_.onNewLidarData(lidarData);
                 visualizationHandler_.drawLidarData(lidarData);
+
+                static size_t cnt = 0;
+                if(cnt++ % 10 == 0) {
+                    auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
+                    visualizationHandler_.drawAggregatedPointcloud(aggregatedPointcloud);
+                }
 
             } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {
                 context_.logger_.warning("Received Generic data model from DataLoader");
@@ -198,6 +219,19 @@ namespace AutoDrive {
                 return LocalMap::Frames::kCameraIr;
             default:
                 context_.logger_.error("Unable to find frame for camera!");
+                return "";
+        }
+    }
+
+
+    std::string MapBuilder::getLidarFrame(const DataLoader::LidarIdentifier & id) {
+        switch (id){
+            case DataLoader::LidarIdentifier::kLeftLidar:
+                return LocalMap::Frames::kLidarLeft;
+            case DataLoader::LidarIdentifier::kRightLidar:
+                return LocalMap::Frames::kLidarRight;
+            default:
+                context_.logger_.error("Unable to find frame for lidar!");
                 return "";
         }
     }

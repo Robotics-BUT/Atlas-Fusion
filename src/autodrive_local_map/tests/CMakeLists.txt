@@ -58,6 +58,12 @@ target_link_libraries(kalman_3d_test ${all_libs})
 add_test(NAME kalman_3d_test COMMAND kalman_3d_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 
+add_executable(pointcloud_extrapolation_test pointcloud_extrapolation_test.cpp)
+target_compile_definitions(pointcloud_extrapolation_test PUBLIC TEST_FOLDER="${PROJECT_SOURCE_DIR}/")
+target_link_libraries(pointcloud_extrapolation_test ${all_libs})
+add_test(NAME pointcloud_extrapolation_test COMMAND pointcloud_extrapolation_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+
 add_executable(projector_test projector_test.cpp)
 target_compile_definitions(projector_test PUBLIC TEST_FOLDER="${PROJECT_SOURCE_DIR}/")
 target_link_libraries(projector_test ${all_libs})

@@ -11,7 +11,6 @@ namespace AutoDrive::Visualizers {
 
         size_t cnt = 0;
         for(const auto& detection : detections) {
-            std::cout << detection->getFrustum()->getOrigin().x() << " " << detection->getFrustum()->getOrigin().y() << " "  << detection->getFrustum()->getOrigin().z() << std::endl;
 
             // Frustum
             visualization_msgs::Marker marker;
@@ -145,7 +144,7 @@ namespace AutoDrive::Visualizers {
         switch (getReducedDetectionClass(cls)) {
             case DataModels::ReducedYoloDetectionClasses::kPedestrian:
                 output.r = 1.0;
-                output.g = 1.0;
+                output.g = 0.0;
                 output.b = 0.0;
                 break;
             case DataModels::ReducedYoloDetectionClasses::kBike:
@@ -164,9 +163,9 @@ namespace AutoDrive::Visualizers {
                 output.b = 0.0;
                 break;
             case DataModels::ReducedYoloDetectionClasses::kOther:
-                output.r = 0.7;
-                output.g = 0.7;
-                output.b = 0.7;
+                output.r = 1.0;
+                output.g = 1.0;
+                output.b = 0.0;
                 break;
         }
 

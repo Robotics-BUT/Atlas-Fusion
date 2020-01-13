@@ -35,6 +35,9 @@ namespace AutoDrive::Algorithms {
         std::deque<DataModels::LocalPosition> getPositionHistory() { return positionHistory_; };
 
         DataModels::LocalPosition getPosition();
+        DataModels::LocalPosition estimatePositionInTime(uint64_t time);
+
+        static DataModels::LocalPosition interpolateLocalPosition( DataModels::LocalPosition& begin, DataModels::LocalPosition& end, float ratio);
 
     private:
 
@@ -55,6 +58,7 @@ namespace AutoDrive::Algorithms {
 
         uint64_t lastImuTimestamp_{};
         uint64_t lastDquatTimestamp_{};
+        uint64_t currentTime{};
 
         Algorithms::ImuDataProcessor imuProcessor_{};
 

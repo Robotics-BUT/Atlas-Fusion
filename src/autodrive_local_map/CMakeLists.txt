@@ -50,7 +50,9 @@ set(SOURCES_ALGORITHMS
         src/algorithms/LidarFilter.cpp
         src/algorithms/Projector.cpp
         src/algorithms/DepthMap.cpp
-        src/algorithms/DetectionsProcessor.cpp)
+        src/algorithms/DetectionsProcessor.cpp
+        src/algorithms/pointcloud/PointCloudExtrapolator.cpp
+        src/algorithms/pointcloud/PointCloudAggregator.cpp)
 
 set(SOURCES_LOCAL_MAP
         src/local_map/TFTree.cpp
@@ -87,8 +89,7 @@ set(SOURCES_DATA_LOADER
         src/data_loader/CameraDataLoader.cpp
         src/data_loader/LidarDataLoader.cpp
         src/data_loader/GnssDataLoader.cpp
-        src/data_loader/ImuDataLoader.cpp
-        )
+        src/data_loader/ImuDataLoader.cpp)
 
 add_library(autodrive_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER})
 
