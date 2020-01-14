@@ -12,6 +12,8 @@ namespace AutoDrive::DataModels {
 
     public:
 
+        PointCloudBatch() = delete;
+
         explicit PointCloudBatch(uint64_t ts, pcl::PointCloud<pcl::PointXYZ> points, std::string frame, rtl::Transformation3D<double> tf)
         : timestamp_{ts}
         , points_{points}

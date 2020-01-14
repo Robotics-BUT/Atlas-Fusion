@@ -35,7 +35,7 @@ namespace AutoDrive {
         , selfModel_{context, 1, 1}
         , depthMap_{context}
         , detectionProcessor_{context}
-        , pointCloudExtrapolator_{context, 10}
+        , pointCloudExtrapolator_{context, 100}
         , pointCloudAggregator_{context, 1.0}
         , occGrid_{context}
         , visualizationHandler_(node, context)

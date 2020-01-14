@@ -52,6 +52,13 @@ namespace AutoDrive::Algorithms {
         }
 
         positionHistory_.push_back(position);
+
+        std::cout << " Pose History" << std::endl;
+        for(const auto& position : positionHistory_) {
+            std::cout << position.getPosition().x() << " " << position.getPosition().y() << " " << position.getPosition().z() << " ";
+            std::cout << position.getOrientation().x() << " " << position.getOrientation().y() << " " << position.getOrientation().z() << " " << position.getOrientation().w() << " ";
+            std::cout << position.getTimestamp() << std::endl;
+        }
     }
 
 
@@ -103,11 +110,12 @@ namespace AutoDrive::Algorithms {
 
     DataModels::LocalPosition MovementModel::getPosition() {
 
-        double heading = estimateHeading();
-        return DataModels::LocalPosition(
-                {kalmanX_.getPosition(), kalmanY_.getPosition(), kalmanZ_.getPosition()},
-                rpyToQuaternion(roll_, pitch_, heading/180*M_PI),
-                currentTime);
+//        double heading = estimateHeading();
+//        return DataModels::LocalPosition(
+//                {kalmanX_.getPosition(), kalmanY_.getPosition(), kalmanZ_.getPosition()},
+//                rpyToQuaternion(roll_, pitch_, heading),
+//                currentTime);
+        return positionHistory_.back();
     }
 
 
@@ -164,8 +172,9 @@ namespace AutoDrive::Algorithms {
 
 
     double MovementModel::estimateHeading() {
-        double azim = atan2(kalmanY_.getSpeed(), kalmanX_.getSpeed());
-        return (azim / M_PI * 180);
+        return kalmanYaw_.getPosition();
+//        double azim = atan2(kalmanY_.getSpeed(), kalmanX_.getSpeed());
+//        return (azim / M_PI * 180);
     }
 
     DataModels::GlobalPosition MovementModel::gnssPoseToRootFrame(const DataModels::GlobalPosition gnssPose) {

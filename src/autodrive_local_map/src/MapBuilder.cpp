@@ -80,15 +80,15 @@ namespace AutoDrive {
             /* ... data processing ... */
 
             if(dataType == DataModels::DataModelTypes::kCameraDataModelType) {
-//
-//                auto cameraFrame = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
+
+                auto cameraFrame = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
 //                auto detections3D = depthMap_.onNewCameraData(cameraFrame);
 //                auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, getCameraFrame(cameraFrame->getCameraIdentifier()));
 //
 //                localMap_.onNewFrustumDetections(frustums, getCameraFrame(cameraFrame->getCameraIdentifier()));
 //
 //                visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
-//                visualizationHandler_.drawRGBImage(cameraFrame);
+                visualizationHandler_.drawRGBImage(cameraFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kCameraIrDataModelType) {
 
@@ -151,20 +151,36 @@ namespace AutoDrive {
 
                 if (lidarDataHistory_.count(lidarFrame) > 0) {
 
-                    auto poseBefore = selfModel_.estimatePositionInTime( (lidarDataHistory_[lidarFrame])->getTimestamp());
+                    auto lidarTF = context_.tfTree_.getTransformationForFrame(getLidarFrame(lidarID));
+                    auto lastLidarTimestamp = (lidarDataHistory_[lidarFrame])->getTimestamp();
+                    auto poseBefore = selfModel_.estimatePositionInTime( lastLidarTimestamp );
                     auto poseNow = selfModel_.getPosition();
-                    auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(lidarData->getScan(), poseBefore, poseNow, {});
+
+                    std::cout << "Poses diff: " << std::endl;
+                    std::cout << poseBefore.getPosition().x() << " " << poseBefore.getPosition().y() << " " << poseBefore.getPosition().z() << " " << std::endl;
+                    std::cout << poseBefore.getOrientation().x() << " "  << poseBefore.getOrientation().y() << " " << poseBefore.getOrientation().z() << " " << poseBefore.getOrientation().w() << std::endl;
+                    std::cout << poseBefore.getTimestamp() << std::endl << std::endl;
+
+                    std::cout << poseNow.getPosition().x() << " " << poseNow.getPosition().y() << " " << poseNow.getPosition().z() << " " << std::endl;
+                    std::cout << poseNow.getOrientation().x() << " "  << poseNow.getOrientation().y() << " " << poseNow.getOrientation().z() << " " << poseNow.getOrientation().w() << std::endl;
+                    std::cout << poseNow.getTimestamp() << std::endl << std::endl;
+
+                    std::cout << (poseNow-poseBefore).getPosition().x() << " " << (poseNow-poseBefore).getPosition().y() << " " << (poseNow-poseBefore).getPosition().z() << " " << std::endl;
+                    std::cout << (poseNow-poseBefore).getOrientation().x() << " "  << (poseNow-poseBefore).getOrientation().y() << " " << (poseNow-poseBefore).getOrientation().z() << " " << (poseNow-poseBefore).getOrientation().w() << std::endl;
+                    std::cout << (poseNow-poseBefore).getTimestamp() << std::endl << std::endl;
+
+                    auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(lidarData->getScan(), poseNow, poseNow-poseBefore, lidarTF);
                     pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
                     pointCloudAggregator_.addPointCloudBatches(batches);
 
                 }
                 lidarDataHistory_[lidarFrame] = lidarData;
 
-//                depthMap_.onNewLidarData(lidarData);
+                depthMap_.onNewLidarData(lidarData);
                 visualizationHandler_.drawLidarData(lidarData);
 
                 static size_t cnt = 0;
-                if(cnt++ % 10 == 0) {
+                if(cnt++ % 1 == 0) {
                     auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
                     visualizationHandler_.drawAggregatedPointcloud(aggregatedPointcloud);
                 }

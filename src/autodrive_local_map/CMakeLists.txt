@@ -81,7 +81,8 @@ set(SOURCES_DATA_MODELS
         src/data_models/lidar/LidarScanDataModel.cpp
         src/data_models/camera/CameraFrameDataModel.cpp
         src/data_models/camera/CameraIrFrameDataModel.cpp
-        src/data_models/yolo/YoloDetectionClass.cpp)
+        src/data_models/yolo/YoloDetectionClass.cpp
+        src/local_map/LocalPosition.cpp)
 
 set(SOURCES_DATA_LOADER
         src/data_loader/DataLoader.cpp
@@ -89,7 +90,7 @@ set(SOURCES_DATA_LOADER
         src/data_loader/CameraDataLoader.cpp
         src/data_loader/LidarDataLoader.cpp
         src/data_loader/GnssDataLoader.cpp
-        src/data_loader/ImuDataLoader.cpp)
+        src/data_loader/ImuDataLoader.cpp )
 
 add_library(autodrive_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER})
 

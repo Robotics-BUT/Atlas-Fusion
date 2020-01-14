@@ -16,6 +16,9 @@ namespace AutoDrive::Algorithms {
         auto singleBatchSize = static_cast<size_t>(std::ceil(static_cast<float>(scan->width) / noOfBatches_));
         auto timeOffset = startPose.getTimestamp();
         auto duration = poseDiff.getTimestamp();
+        DataModels::LocalPosition endPose {startPose.getPosition() + poseDiff.getPosition(),
+                                           startPose.getOrientation() * poseDiff.getOrientation(),
+                                           startPose.getTimestamp() + poseDiff.getTimestamp()};
 
 
         std::cout << " ------- " << std::endl;
@@ -24,11 +27,12 @@ namespace AutoDrive::Algorithms {
 
             double ratio = static_cast<double>(i) / noOfBatches_;
             auto pose = AutoDrive::DataModels::LocalPosition {
-                    {poseDiff.getPosition().x() * ratio, poseDiff.getPosition().y() * ratio, poseDiff.getPosition().z() * ratio},
-                    {poseDiff.getOrientation().slerp({},1 - ratio)},
-                    uint64_t(duration * ratio)
+                    {poseDiff.getPosition().x() * (ratio), poseDiff.getPosition().y() * (ratio), poseDiff.getPosition().z() * (ratio)},
+                    {poseDiff.getOrientation().slerp({}, (float)(1-ratio))},
+                    uint64_t(duration * (ratio))
             };
-            std::cout << "  tf: " << pose.getPosition().x() << "  " << pose.getPosition().y() <<  " " << pose.getPosition().z() << std::endl;
+            std::cout << "  tf: " << pose.getPosition().x() << " " << pose.getPosition().y() <<  " " << pose.getPosition().z() << std::endl;
+            std::cout << "      " << pose.getOrientation().x() << " " << pose.getOrientation().y() << " " << pose.getOrientation().z() << " " << pose.getOrientation().w() << " " << std::endl;
 
 
             rtl::Transformation3D<double> movementCompensationTF{pose.getOrientation(), pose.getPosition()};
@@ -37,17 +41,22 @@ namespace AutoDrive::Algorithms {
             pcl::PointCloud<pcl::PointXYZ> points;
             points.reserve(singleBatchSize);
 
+            // TODO: Avoid point copying
             for(size_t j = 0 ; j < singleBatchSize ; j++) {
                 if(pointCnt < scan->width) {
                     points.push_back(scan->at(pointCnt++));
                 }
             }
 
-            rtl::Transformation3D<double> toGlobelFrameTf{startPose.getOrientation().inverted(), -startPose.getPosition()};
 
-            auto finalTF = toGlobelFrameTf(movementCompensationTF(sensorOffsetTf));
+
+            rtl::Transformation3D<double> toGlobelFrameTf{endPose.getOrientation(), endPose.getPosition()};
+            rtl::Transformation3D<double> startToEndTf{poseDiff.getOrientation(), poseDiff.getPosition()};
+            auto finalTF = toGlobelFrameTf(startToEndTf.inverted()(movementCompensationTF(sensorOffsetTf)));
+//            auto finalTF = startToEndTf.inverted()(movementCompensationTF(sensorOffsetTf));
 
             std::cout << "  final tf: " << finalTF.trX() << "  " << finalTF.trY() <<  " " << finalTF.trZ() << std::endl;
+            // TODO: Avoid point copying
             auto batch = std::make_shared<DataModels::PointCloudBatch>(ts, points, LocalMap::Frames::kOrigin, finalTF);
             output.push_back(batch);
         }

@@ -25,27 +25,35 @@ pcl::PointCloud<pcl::PointXYZ> distort(pcl::PointCloud<pcl::PointXYZ> pc, AutoDr
 
     pcl::PointCloud<pcl::PointXYZ> output;
     auto rot = distortion.getOrientation();
+
     for(size_t i = 0 ; i < N ; i++) {
 
         float ratio = float(i)/N;
-        float x_offset = -(float)(distortion.getPosition().x()) * ratio;
-        float y_offset = -(float)(distortion.getPosition().y()) * ratio;
-        float z_offset = -(float)(distortion.getPosition().z()) * ratio;
+
+        float x_offset = (float)(distortion.getPosition().x()) * ratio;
+        float y_offset = (float)(distortion.getPosition().y()) * ratio;
+        float z_offset = (float)(distortion.getPosition().z()) * ratio;
 
         rtl::Quaternion<double> zero_rot{};
         rtl::Quaternion<double> partialRot{zero_rot.eigenQuat().slerp(ratio, rot.eigenQuat())};
-        auto rotMat = partialRot.inverted().rotMat();
+
+
+        rtl::Transformation3D<double> tf{partialRot, {x_offset, y_offset, z_offset}};
+        tf = tf.inverted();
+        auto rotMat = tf.rotQuaternion().rotMat();
 
         Eigen::Affine3f pcl_tf = Eigen::Affine3f::Identity();
+        pcl_tf = Eigen::Affine3f::Identity();
         pcl_tf(0,0) = static_cast<float>(rotMat(0, 0)); pcl_tf(1,0) = static_cast<float>(rotMat(1, 0)); pcl_tf(2,0) = static_cast<float>(rotMat(2, 0));
         pcl_tf(0,1) = static_cast<float>(rotMat(0, 1)); pcl_tf(1,1) = static_cast<float>(rotMat(1, 1)); pcl_tf(2,1) = static_cast<float>(rotMat(2, 1));
         pcl_tf(0,2) = static_cast<float>(rotMat(0, 2)); pcl_tf(1,2) = static_cast<float>(rotMat(1, 2)); pcl_tf(2,2) = static_cast<float>(rotMat(2, 2));
-        pcl_tf.translation() << x_offset, y_offset, z_offset;
+        pcl_tf.translation() << tf.trX(), tf.trY(), tf.trZ();
 
         pcl::PointCloud<pcl::PointXYZ> src;
         src.push_back(pc.at(i));
         pcl::PointCloud<pcl::PointXYZ> dest;
         pcl::transformPointCloud (src, dest, pcl_tf);
+
         output += dest;
     }
     return output;
@@ -64,10 +72,10 @@ AutoDrive::DataModels::LocalPosition getPoseDiff(AutoDrive::DataModels::LocalPos
 
 
 
-class Visualizer {
+class VisualizerExt {
 
 public:
-    Visualizer() {
+    VisualizerExt() {
         int argc = 0;
         char* argv[] = {0};
         ros::init(argc, argv, "autodrive_localmap");
@@ -81,17 +89,15 @@ public:
 
         msg.header.stamp = ros::Time::now();
         msg.header.frame_id = "origin";
-        msg.header.seq = seq;
         pc_publisher_.publish(msg);
     }
 private:
 
     ros::NodeHandle* node_;
     ros::Publisher pc_publisher_;
-    size_t seq = 0;
 };
 
-Visualizer visualizer;
+VisualizerExt visualizer;
 
 TEST(pointcloud_extrapolation, init) {
     auto context = AutoDrive::Context::getEmptyContext();
@@ -110,8 +116,8 @@ TEST(pointcloud_extrapolation, forward_movement) {
         std::cout << "Point " << i+1 << ": " << data.at(i).x << " " << data.at(i).y << " " << data.at(i).z << std::endl;
     }
 
-    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, {}, 0};
-    AutoDrive::DataModels::LocalPosition endPose {{1,0,0}, {}, 0};
+    AutoDrive::DataModels::LocalPosition startPose {{1,0,0}, {}, 0};
+    AutoDrive::DataModels::LocalPosition endPose {{2,0,0}, {}, 0};
     auto poseDiff = getPoseDiff(startPose, endPose);
 
 
@@ -137,7 +143,7 @@ TEST(pointcloud_extrapolation, forward_movement) {
 
 
     auto batches = extrapolator.splitPointCloudToBatches(
-            std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(data_dist), endPose, poseDiff, {});
+            std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(data_dist), startPose, poseDiff, {});
 
     pcl::PointCloud<pcl::PointXYZ> undist_data;
     for (const auto& batch : batches) {
@@ -150,7 +156,10 @@ TEST(pointcloud_extrapolation, forward_movement) {
     }
 
     visualizer.publishPointcloud(data);
+    visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(data_dist);
+    visualizer.publishPointcloud(data_dist);
+    visualizer.publishPointcloud(undist_data);
     visualizer.publishPointcloud(undist_data);
 }
 
@@ -170,7 +179,7 @@ TEST(pointcloud_extrapolation, rotation_left) {
 
     auto batches = extrapolator.splitPointCloudToBatches(
             std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(data_dist),
-            AutoDrive::DataModels::LocalPosition{{},{},0},
+            startPose,
             poseDiff,
             {});
 
@@ -179,41 +188,16 @@ TEST(pointcloud_extrapolation, rotation_left) {
         undist_data += batch->getTransformedPoints();
     }
 
+
+    visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(data_dist);
+    visualizer.publishPointcloud(data_dist);
+    visualizer.publishPointcloud(undist_data);
     visualizer.publishPointcloud(undist_data);
 }
 
 
-TEST(pointcloud_extrapolation, rotation_and_translation) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator{context, N};
-
-    auto data = getTestData();
-
-
-    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, {1,0,0,0}, 0};
-    AutoDrive::DataModels::LocalPosition endPose {{1,0,0}, {0.707, 0, 0, 0.707}, 0};
-    auto poseDiff = getPoseDiff(startPose, endPose);
-    auto data_dist = distort(data, poseDiff);
-
-
-
-    auto batches = extrapolator.splitPointCloudToBatches(
-        std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(data_dist),
-        AutoDrive::DataModels::LocalPosition{{},{},0},
-        poseDiff,
-        {});
-
-    pcl::PointCloud<pcl::PointXYZ> undist_data;
-    for (const auto& batch : batches) {
-        undist_data += batch->getTransformedPoints();
-    }
-
-    visualizer.publishPointcloud(data);
-    visualizer.publishPointcloud(data_dist);
-    visualizer.publishPointcloud(undist_data);
-}
 
 
 int main(int argc, char **argv){

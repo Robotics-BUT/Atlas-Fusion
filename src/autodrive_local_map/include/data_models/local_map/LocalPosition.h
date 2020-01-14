@@ -27,6 +27,11 @@ namespace AutoDrive::DataModels {
         void setOrientation(rtl::Quaternion<double> orientation) { orientation_ = orientation; };
 
         uint64_t getTimestamp() const {return timestamp_;};
+
+        LocalPosition operator+(LocalPosition& other);
+        LocalPosition operator-(LocalPosition& other);
+
+
     private:
 
         rtl::Vector3D<double> position_;
