@@ -53,12 +53,12 @@ namespace AutoDrive::Algorithms {
 
         positionHistory_.push_back(position);
 
-        std::cout << " Pose History" << std::endl;
-        for(const auto& position : positionHistory_) {
-            std::cout << position.getPosition().x() << " " << position.getPosition().y() << " " << position.getPosition().z() << " ";
-            std::cout << position.getOrientation().x() << " " << position.getOrientation().y() << " " << position.getOrientation().z() << " " << position.getOrientation().w() << " ";
-            std::cout << position.getTimestamp() << std::endl;
-        }
+//        std::cout << " Pose History" << std::endl;
+//        for(const auto& position : positionHistory_) {
+//            std::cout << position.getPosition().x() << " " << position.getPosition().y() << " " << position.getPosition().z() << " ";
+//            std::cout << position.getOrientation().x() << " " << position.getOrientation().y() << " " << position.getOrientation().z() << " " << position.getOrientation().w() << " ";
+//            std::cout << position.getTimestamp() << std::endl;
+//        }
     }
 
 

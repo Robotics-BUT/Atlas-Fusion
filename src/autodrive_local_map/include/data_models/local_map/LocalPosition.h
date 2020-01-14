@@ -31,6 +31,8 @@ namespace AutoDrive::DataModels {
         LocalPosition operator+(LocalPosition& other);
         LocalPosition operator-(LocalPosition& other);
 
+        std::string toString();
+
 
     private:
 

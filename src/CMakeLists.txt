@@ -3,4 +3,4 @@ project(AutoDrive_Local_Map)
 
 enable_testing()
 
-add_subdirectory(src/autodrive_local_map)
+add_subdirectory(autodrive_local_map)

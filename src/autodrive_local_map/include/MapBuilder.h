@@ -10,6 +10,7 @@
 #include "algorithms/DetectionsProcessor.h"
 #include "algorithms/pointcloud/PointCloudExtrapolator.h"
 #include "algorithms/pointcloud/PointCloudAggregator.h"
+#include "algorithms/pointcloud/PointCloudProcessor.h"
 #include "algorithms/pointcloud/OccupancyGrid3D.h"
 
 
@@ -37,6 +38,7 @@ namespace AutoDrive {
         , detectionProcessor_{context}
         , pointCloudExtrapolator_{context, 100}
         , pointCloudAggregator_{context, 1.0}
+        , pointCloudProcessor_ {context, 0.2}
         , occGrid_{context}
         , visualizationHandler_(node, context)
         , dataLoader_(context, keepHistoryLength)
@@ -67,6 +69,7 @@ namespace AutoDrive {
 
         Algorithms::PointCloudExtrapolator pointCloudExtrapolator_;
         Algorithms::PointCloudAggregator pointCloudAggregator_;
+        Algorithms::PointCloudProcessor pointCloudProcessor_;
         Algorithms::OccupancyGrid3D occGrid_;
 
         Visualizers::VisualizationHandler visualizationHandler_;

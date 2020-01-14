@@ -147,7 +147,7 @@ TEST(pointcloud_extrapolation, forward_movement) {
 
     pcl::PointCloud<pcl::PointXYZ> undist_data;
     for (const auto& batch : batches) {
-        undist_data += batch->getTransformedPoints();
+        undist_data += *(batch->getTransformedPoints());
     }
 
     std::cout << " ************************ " << std::endl;
@@ -185,7 +185,7 @@ TEST(pointcloud_extrapolation, rotation_left) {
 
     pcl::PointCloud<pcl::PointXYZ> undist_data;
     for (const auto& batch : batches) {
-        undist_data += batch->getTransformedPoints();
+        undist_data += *(batch->getTransformedPoints());
     }
 
 

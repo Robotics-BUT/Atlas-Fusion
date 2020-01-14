@@ -1,5 +1,3 @@
-#pragma once
-
 #include "data_models/local_map/LocalPosition.h"
 
 namespace AutoDrive::DataModels {
@@ -19,6 +17,15 @@ namespace AutoDrive::DataModels {
                               position_.z() - other.getPosition().z()},
                              {other.getOrientation().inverted() * orientation_},
                              timestamp_ - other.getTimestamp()};
+    }
+
+    std::string LocalPosition::toString() {
+
+        std::stringstream ss;
+        ss << position_.x() << " " << position_.y() << " " << position_.z() << " | "
+           << orientation_.x() << " " << orientation_.y() << " " << orientation_.z() << " " << orientation_.w() << " | "
+           << timestamp_;
+        return ss.str();
     }
 
 }

@@ -88,6 +88,13 @@ namespace AutoDrive {
 //                localMap_.onNewFrustumDetections(frustums, getCameraFrame(cameraFrame->getCameraIdentifier()));
 //
 //                visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
+
+                if(cameraFrame->getCameraIdentifier() == DataLoader::CameraIndentifier::kCameraLeftFront) {
+                    auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
+                    auto downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud);
+                    visualizationHandler_.drawAggregatedPointcloud(downsampledAggregatedPc);
+                }
+
                 visualizationHandler_.drawRGBImage(cameraFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kCameraIrDataModelType) {
@@ -156,20 +163,9 @@ namespace AutoDrive {
                     auto poseBefore = selfModel_.estimatePositionInTime( lastLidarTimestamp );
                     auto poseNow = selfModel_.getPosition();
 
-                    std::cout << "Poses diff: " << std::endl;
-                    std::cout << poseBefore.getPosition().x() << " " << poseBefore.getPosition().y() << " " << poseBefore.getPosition().z() << " " << std::endl;
-                    std::cout << poseBefore.getOrientation().x() << " "  << poseBefore.getOrientation().y() << " " << poseBefore.getOrientation().z() << " " << poseBefore.getOrientation().w() << std::endl;
-                    std::cout << poseBefore.getTimestamp() << std::endl << std::endl;
+                    auto downsampledScan = pointCloudProcessor_.downsamplePointCloud(lidarData->getScan());
 
-                    std::cout << poseNow.getPosition().x() << " " << poseNow.getPosition().y() << " " << poseNow.getPosition().z() << " " << std::endl;
-                    std::cout << poseNow.getOrientation().x() << " "  << poseNow.getOrientation().y() << " " << poseNow.getOrientation().z() << " " << poseNow.getOrientation().w() << std::endl;
-                    std::cout << poseNow.getTimestamp() << std::endl << std::endl;
-
-                    std::cout << (poseNow-poseBefore).getPosition().x() << " " << (poseNow-poseBefore).getPosition().y() << " " << (poseNow-poseBefore).getPosition().z() << " " << std::endl;
-                    std::cout << (poseNow-poseBefore).getOrientation().x() << " "  << (poseNow-poseBefore).getOrientation().y() << " " << (poseNow-poseBefore).getOrientation().z() << " " << (poseNow-poseBefore).getOrientation().w() << std::endl;
-                    std::cout << (poseNow-poseBefore).getTimestamp() << std::endl << std::endl;
-
-                    auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(lidarData->getScan(), poseNow, poseNow-poseBefore, lidarTF);
+                    auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan, poseNow, poseNow-poseBefore, lidarTF);
                     pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
                     pointCloudAggregator_.addPointCloudBatches(batches);
 
@@ -178,12 +174,6 @@ namespace AutoDrive {
 
                 depthMap_.onNewLidarData(lidarData);
                 visualizationHandler_.drawLidarData(lidarData);
-
-                static size_t cnt = 0;
-                if(cnt++ % 1 == 0) {
-                    auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
-                    visualizationHandler_.drawAggregatedPointcloud(aggregatedPointcloud);
-                }
 
             } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {
                 context_.logger_.warning("Received Generic data model from DataLoader");

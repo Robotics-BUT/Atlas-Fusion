@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 find_package(OpenCV REQUIRED)
 find_package(catkin REQUIRED COMPONENTS roscpp std_msgs tf2 tf2_msgs tf2_ros tf2_geometry_msgs image_transport cv_bridge)
 find_package(Qt5 COMPONENTS Core REQUIRED)
-find_package(PCL 1.7 REQUIRED COMPONENTS common io)
+find_package(PCL 1.7 REQUIRED COMPONENTS common io filters)
 find_package(Yaml-cpp)
 
 
@@ -39,7 +39,8 @@ include_directories(
 
 set(SOURCES
         src/MapBuilder.cpp
-        src/LogService.cpp)
+        src/LogService.cpp
+        src/Context.cpp)
 
 set(SOURCES_ALGORITHMS
         src/algorithms/SimpleTrajectoryLogger.cpp
@@ -52,7 +53,8 @@ set(SOURCES_ALGORITHMS
         src/algorithms/DepthMap.cpp
         src/algorithms/DetectionsProcessor.cpp
         src/algorithms/pointcloud/PointCloudExtrapolator.cpp
-        src/algorithms/pointcloud/PointCloudAggregator.cpp)
+        src/algorithms/pointcloud/PointCloudAggregator.cpp
+        src/algorithms/pointcloud/PointCloudProcessor.cpp)
 
 set(SOURCES_LOCAL_MAP
         src/local_map/TFTree.cpp

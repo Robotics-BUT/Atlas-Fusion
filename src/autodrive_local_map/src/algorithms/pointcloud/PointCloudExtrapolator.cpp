@@ -20,8 +20,6 @@ namespace AutoDrive::Algorithms {
                                            startPose.getOrientation() * poseDiff.getOrientation(),
                                            startPose.getTimestamp() + poseDiff.getTimestamp()};
 
-
-        std::cout << " ------- " << std::endl;
         size_t pointCnt = 0;
         for(size_t i = 0 ; i < noOfBatches_ ; i++) {
 
@@ -31,9 +29,6 @@ namespace AutoDrive::Algorithms {
                     {poseDiff.getOrientation().slerp({}, (float)(1-ratio))},
                     uint64_t(duration * (ratio))
             };
-            std::cout << "  tf: " << pose.getPosition().x() << " " << pose.getPosition().y() <<  " " << pose.getPosition().z() << std::endl;
-            std::cout << "      " << pose.getOrientation().x() << " " << pose.getOrientation().y() << " " << pose.getOrientation().z() << " " << pose.getOrientation().w() << " " << std::endl;
-
 
             rtl::Transformation3D<double> movementCompensationTF{pose.getOrientation(), pose.getPosition()};
             uint64_t ts = timeOffset + static_cast<uint64_t>(ratio * duration);
@@ -53,9 +48,7 @@ namespace AutoDrive::Algorithms {
             rtl::Transformation3D<double> toGlobelFrameTf{endPose.getOrientation(), endPose.getPosition()};
             rtl::Transformation3D<double> startToEndTf{poseDiff.getOrientation(), poseDiff.getPosition()};
             auto finalTF = toGlobelFrameTf(startToEndTf.inverted()(movementCompensationTF(sensorOffsetTf)));
-//            auto finalTF = startToEndTf.inverted()(movementCompensationTF(sensorOffsetTf));
 
-            std::cout << "  final tf: " << finalTF.trX() << "  " << finalTF.trY() <<  " " << finalTF.trZ() << std::endl;
             // TODO: Avoid point copying
             auto batch = std::make_shared<DataModels::PointCloudBatch>(ts, points, LocalMap::Frames::kOrigin, finalTF);
             output.push_back(batch);

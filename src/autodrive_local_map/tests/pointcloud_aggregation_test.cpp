@@ -290,7 +290,7 @@ TEST(pointcloud_aggregation, rotation_movement) {
         aggregator.addPointCloudBatches(batches);
 
         for (const auto& batch : batches) {
-            undistData += batch->getTransformedPoints();
+            undistData += *(batch->getTransformedPoints());
         }
 
         data += tmp;
@@ -345,7 +345,7 @@ TEST(pointcloud_aggregation, translation_and_rotation) {
         aggregator.addPointCloudBatches(batches);
 
         for (const auto& batch : batches) {
-            undistData += batch->getTransformedPoints();
+            undistData += *(batch->getTransformedPoints());
         }
 
         data += tmp;
