@@ -84,7 +84,8 @@ set(SOURCES_DATA_MODELS
         src/data_models/camera/CameraFrameDataModel.cpp
         src/data_models/camera/CameraIrFrameDataModel.cpp
         src/data_models/yolo/YoloDetectionClass.cpp
-        src/local_map/LocalPosition.cpp)
+        src/data_models/local_map/LocalPosition.cpp
+        src/data_models/local_map/PointCloudBatch.cpp)
 
 set(SOURCES_DATA_LOADER
         src/data_loader/DataLoader.cpp

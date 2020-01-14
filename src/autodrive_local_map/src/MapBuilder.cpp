@@ -45,6 +45,7 @@ namespace AutoDrive {
 
     void MapBuilder::buildMap() {
 
+        uint64_t dataCounter = 0;
         int64_t last_system_ts = 0;
         uint64_t last_data_ts = 0;
 
@@ -54,6 +55,10 @@ namespace AutoDrive {
         for (size_t i = 0; !dataLoader_.isOnEnd(); i++) {
             auto data = dataLoader_.getNextData();
             auto data_ts = data->getTimestamp();
+
+//            if(dataCounter++ > 1000) {
+//                return;
+//            }
 
             std::stringstream ss;
             ss << data_ts << " " << data->toString();
@@ -172,7 +177,7 @@ namespace AutoDrive {
                 }
                 lidarDataHistory_[lidarFrame] = lidarData;
 
-                depthMap_.onNewLidarData(lidarData);
+//                depthMap_.onNewLidarData(lidarData);
                 visualizationHandler_.drawLidarData(lidarData);
 
             } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {

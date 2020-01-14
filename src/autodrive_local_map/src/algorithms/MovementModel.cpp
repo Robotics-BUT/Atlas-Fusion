@@ -128,8 +128,8 @@ namespace AutoDrive::Algorithms {
                     return positionHistory_.at(i);
                 } else {
 
-                    auto poseBefore = &positionHistory_.at(i);
-                    auto poseAfter = &positionHistory_.at(i+1);
+                    auto poseBefore = &positionHistory_.at(std::max(static_cast<size_t>(i), positionHistory_.size()-2));
+                    auto poseAfter = &positionHistory_.at(std::max(static_cast<size_t>(i+1), positionHistory_.size()-1));
 
                     auto numerator = static_cast<float>(poseAfter->getTimestamp() - time);
                     auto denominator = static_cast<float>(poseAfter->getTimestamp() - poseBefore->getTimestamp());

@@ -84,7 +84,6 @@ int main(int argc, char** argv) {
 
     auto context = AutoDrive::Context(logger, tfTree, calibFolder);
 
-    return 0;
     AutoDrive::MapBuilder mapBuilder{node, context, keepHistorySecLength, maxReplayerRate};
     mapBuilder.loadData(dataFolder);
     mapBuilder.buildMap();
