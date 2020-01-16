@@ -52,6 +52,7 @@ set(SOURCES_ALGORITHMS
         src/algorithms/Projector.cpp
         src/algorithms/DepthMap.cpp
         src/algorithms/DetectionsProcessor.cpp
+        src/algorithms/QuadratureFilter.cpp
         src/algorithms/pointcloud/PointCloudExtrapolator.cpp
         src/algorithms/pointcloud/PointCloudAggregator.cpp
         src/algorithms/pointcloud/PointCloudProcessor.cpp)

@@ -12,9 +12,9 @@ namespace AutoDrive::Algorithms {
     void PointCloudAggregator::filterOutBatches(uint64_t currentTime) {
 
 
-        std::cout << " * Filtering batches * " << std::endl;
-        std::cout << "batches no: " << batchQueue_.size() << std::endl;
-        auto start = Context::getHighPrecisionTime();
+//        std::cout << " * Filtering batches * " << std::endl;
+//        std::cout << "batches no: " << batchQueue_.size() << std::endl;
+//        auto start = Context::getHighPrecisionTime();
 
         while(!batchQueue_.empty()) {
             auto timeDiff = static_cast<double>((currentTime - batchQueue_.front()->getTimestamp()))*1e-9;
@@ -25,8 +25,8 @@ namespace AutoDrive::Algorithms {
             }
         }
 
-        auto end = Context::getHighPrecisionTime();
-        std::cout << "duration: " << Context::highPrecisionTimeToMilliseconds(end-start) << std::endl;
+//        auto end = Context::getHighPrecisionTime();
+//        std::cout << "duration: " << Context::highPrecisionTimeToMilliseconds(end-start) << std::endl;
     }
 
 
@@ -44,9 +44,9 @@ namespace AutoDrive::Algorithms {
 
     std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudAggregator::getAggregatedPointCloud() {
 
-        std::cout << " * Get aggregated points * " << std::endl;
-        std::cout << "batches no: " << batchQueue_.size() << std::endl;
-        auto start = Context::getHighPrecisionTime();
+//        std::cout << " * Get aggregated points * " << std::endl;
+//        std::cout << "batches no: " << batchQueue_.size() << std::endl;
+//        auto start = Context::getHighPrecisionTime();
 
         auto output = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
 
@@ -58,8 +58,8 @@ namespace AutoDrive::Algorithms {
                 *output += *(batch->getTransformedPoints());
             }
 
-            auto end = Context::getHighPrecisionTime();
-            std::cout << "duration: " << Context::highPrecisionTimeToMilliseconds(end - start) << std::endl;
+//            auto end = Context::getHighPrecisionTime();
+//            std::cout << "duration: " << Context::highPrecisionTimeToMilliseconds(end - start) << std::endl;
         }
 
         return output;

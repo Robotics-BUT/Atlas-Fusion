@@ -15,11 +15,13 @@ namespace AutoDrive::Algorithms {
                 data->getAltitude(),
                 data->getAzimut()};
         auto imuPose = gnssPoseToRootFrame(gnssPose);
+        auto yaw = -data->getAzimut() * M_PI / 180;
 
         if(!initialized_) {
             initPositionGnss_ = gnssPoseToRootFrame(gnssPose);
             lastImuTimestamp_ = data->getTimestamp();
             lastDquatTimestamp_ = data->getTimestamp();
+            orientationOffset_ = rpyToQuaternion(0,0,yaw);
             initialized_ = true;
         }
 
@@ -29,36 +31,24 @@ namespace AutoDrive::Algorithms {
 
 
         auto offset = DataModels::GlobalPosition::getOffsetBetweenCoords(initPositionGnss_, imuPose);
-        auto azimut = data->getAzimut();
-        yaw_ = -azimut*M_PI/180;
 
         cv::Mat measurementX = (cv::Mat_<double>(2, 1) << offset.x(), 0);
         cv::Mat measurementY = (cv::Mat_<double>(2, 1) << offset.y(), 0);
         cv::Mat measurementZ = (cv::Mat_<double>(2, 1) << offset.z(), 0);
-        cv::Mat measurementYaw = (cv::Mat_<double>(2, 1) << -azimut*M_PI/180, 0);
         kalmanX_.correct(measurementX);
         kalmanY_.correct(measurementY);
         kalmanZ_.correct(measurementZ);
-        kalmanYaw_.correct(measurementYaw);
 
-        auto speed = abs(kalmanY_.getSpeed()) + abs(kalmanX_.getSpeed());
-        auto heading = estimateHeading();
+        double roll, pitch, y;
+        quaternionToRPY(orientation_, roll, pitch, y);
 
         DataModels::LocalPosition position{{kalmanX_.getPosition(), kalmanY_.getPosition(), kalmanZ_.getPosition()},
-                                           rpyToQuaternion(0, 0, estimateHeading()),
+                                           rpyToQuaternion(roll,pitch, estimateHeading()),
                                            data->getTimestamp()};
-        if (speed < 1.0) {
-            position.setOrientation(rpyToQuaternion(0, 0, -azimut * M_PI / 180));
-        }
 
         positionHistory_.push_back(position);
 
-//        std::cout << " Pose History" << std::endl;
-//        for(const auto& position : positionHistory_) {
-//            std::cout << position.getPosition().x() << " " << position.getPosition().y() << " " << position.getPosition().z() << " ";
-//            std::cout << position.getOrientation().x() << " " << position.getOrientation().y() << " " << position.getOrientation().z() << " " << position.getOrientation().w() << " ";
-//            std::cout << position.getTimestamp() << std::endl;
-//        }
+        std::cout << position.toString() << std::endl;
     }
 
 
@@ -74,12 +64,13 @@ namespace AutoDrive::Algorithms {
             imuProcessor_.setOrientation(data->getOrientation());
             auto linAccNoGrav = imuProcessor_.removeGravitaionAcceleration(data->getLinearAcc());
 
-            double localYaw = 0;
-            auto imuOrientation = data->getOrientation();
-            quaternionToRPY(imuOrientation, roll_, pitch_, localYaw);
+            orientation_ = data->getOrientation();
+            double roll, pitch, yaw;
+            quaternionToRPY(orientation_, roll, pitch, yaw);
 
-            auto accX = cos(yaw_)*linAccNoGrav.x() - sin(yaw_)*linAccNoGrav.y();
-            auto accY = sin(yaw_)*linAccNoGrav.x() + cos(yaw_)*linAccNoGrav.y();
+            yaw = estimateHeading();
+            auto accX = cos(yaw)*linAccNoGrav.x() - sin(yaw)*linAccNoGrav.y();
+            auto accY = sin(yaw)*linAccNoGrav.x() + cos(yaw)*linAccNoGrav.y();
 
             auto dt = (data->getTimestamp() - lastImuTimestamp_) * 1e-9;
             kalmanX_.predict(dt, accX);
@@ -97,14 +88,14 @@ namespace AutoDrive::Algorithms {
 
         if(initialized_) {
 
-            auto dt = (data->getTimestamp() - lastImuTimestamp_) * 1e-9;
-            auto dQuat = data->getDQuat();
-
-            double roll, pitch, yaw;
-            quaternionToRPY(dQuat, roll, pitch, yaw);
-            kalmanYaw_.predict(dt, yaw);
-
-            lastDquatTimestamp_ = data->getTimestamp();
+//            auto dt = (data->getTimestamp() - lastImuTimestamp_) * 1e-9;
+//            auto dQuat = data->getDQuat();
+//
+//            double roll, pitch, yaw;
+//            quaternionToRPY(dQuat, roll, pitch, yaw);
+//            kalmanYaw_.predict(dt, yaw);
+//
+//            lastDquatTimestamp_ = data->getTimestamp();
         }
     }
 
@@ -128,8 +119,8 @@ namespace AutoDrive::Algorithms {
                     return positionHistory_.at(i);
                 } else {
 
-                    auto poseBefore = &positionHistory_.at(std::max(static_cast<size_t>(i), positionHistory_.size()-2));
-                    auto poseAfter = &positionHistory_.at(std::max(static_cast<size_t>(i+1), positionHistory_.size()-1));
+                    auto poseBefore = &positionHistory_.at(std::min(static_cast<size_t>(i), positionHistory_.size()-2));
+                    auto poseAfter = &positionHistory_.at(std::min(static_cast<size_t>(i+1), positionHistory_.size()-1));
 
                     auto numerator = static_cast<float>(poseAfter->getTimestamp() - time);
                     auto denominator = static_cast<float>(poseAfter->getTimestamp() - poseBefore->getTimestamp());
@@ -172,9 +163,9 @@ namespace AutoDrive::Algorithms {
 
 
     double MovementModel::estimateHeading() {
-        return kalmanYaw_.getPosition();
-//        double azim = atan2(kalmanY_.getSpeed(), kalmanX_.getSpeed());
-//        return (azim / M_PI * 180);
+        auto speed = std::sqrt( std::pow(kalmanY_.getSpeed(),2) + std::pow(kalmanX_.getSpeed(),2));
+        auto heading = atan2(kalmanY_.getSpeed(), kalmanX_.getSpeed());
+        return heading;
     }
 
     DataModels::GlobalPosition MovementModel::gnssPoseToRootFrame(const DataModels::GlobalPosition gnssPose) {
@@ -221,5 +212,11 @@ namespace AutoDrive::Algorithms {
         double siny_cosp = 2 * (q.w() * q.z() + q.x() * q.y());
         double cosy_cosp = 1 - 2 * (q.y() * q.y() + q.z() * q.z());
         yaw = std::atan2(siny_cosp, cosy_cosp);
+    }
+
+
+    double MovementModel::getSpeedGainFactor(double speed) {
+        double y = 1 / ( 1 + std::exp( -0.15 * ( speed-25 ) ) );
+        return y;
     }
 }
