@@ -56,9 +56,9 @@ namespace AutoDrive {
             auto data = dataLoader_.getNextData();
             auto data_ts = data->getTimestamp();
 
-//            if(dataCounter++ > 1000) {
-//                return;
-//            }
+            if(dataCounter++ > 1000) {
+                return;
+            }
 
             std::stringstream ss;
             ss << data_ts << " " << data->toString();
@@ -86,18 +86,27 @@ namespace AutoDrive {
 
             if(dataType == DataModels::DataModelTypes::kCameraDataModelType) {
 
-                auto cameraFrame = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
-//                auto detections3D = depthMap_.onNewCameraData(cameraFrame);
-//                auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, getCameraFrame(cameraFrame->getCameraIdentifier()));
-//
-//                localMap_.onNewFrustumDetections(frustums, getCameraFrame(cameraFrame->getCameraIdentifier()));
-//
-//                visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
+                static int cnt = 0;
 
-                if(cameraFrame->getCameraIdentifier() == DataLoader::CameraIndentifier::kCameraLeftFront) {
+                auto cameraFrame = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
+//                if(cameraFrame->getCameraIdentifier() == DataLoader::CameraIndentifier::kCameraRightSide) {
+
+                    auto batches = pointCloudAggregator_.getAllBatches();
+                    depthMap_.updatePointcloudData(batches);
+
+                    auto detections3D = depthMap_.onNewCameraData(cameraFrame, selfModel_.getPosition());
+                    auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, getCameraFrame(
+                            cameraFrame->getCameraIdentifier()));
+
+                    localMap_.onNewFrustumDetections(frustums, getCameraFrame(cameraFrame->getCameraIdentifier()));
+                    visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
+//                }
+
+                if(cnt++ >= 3) {
                     auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
                     auto downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud);
                     visualizationHandler_.drawAggregatedPointcloud(downsampledAggregatedPc);
+                    cnt = 0;
                 }
 
                 visualizationHandler_.drawRGBImage(cameraFrame);

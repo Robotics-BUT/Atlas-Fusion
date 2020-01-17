@@ -16,12 +16,13 @@ namespace AutoDrive::Algorithms {
                 data->getAzimut()};
         auto imuPose = gnssPoseToRootFrame(gnssPose);
         auto yaw = -data->getAzimut() * M_PI / 180;
+        gnssYaw_ = yaw;
 
         if(!initialized_) {
             initPositionGnss_ = gnssPoseToRootFrame(gnssPose);
             lastImuTimestamp_ = data->getTimestamp();
             lastDquatTimestamp_ = data->getTimestamp();
-            orientationOffset_ = rpyToQuaternion(0,0,yaw);
+//            orientationOffset_ =  orientation_ * rpyToQuaternion(0,0,yaw).inverted() ;
             initialized_ = true;
         }
 
@@ -44,11 +45,12 @@ namespace AutoDrive::Algorithms {
 
         DataModels::LocalPosition position{{kalmanX_.getPosition(), kalmanY_.getPosition(), kalmanZ_.getPosition()},
                                            rpyToQuaternion(roll,pitch, estimateHeading()),
+//                                           orientation_ * orientationOffset_,
                                            data->getTimestamp()};
 
         positionHistory_.push_back(position);
 
-        std::cout << position.toString() << std::endl;
+        //std::cout << position.toString() << std::endl;
     }
 
 
@@ -77,6 +79,8 @@ namespace AutoDrive::Algorithms {
             kalmanY_.predict(dt, accY);
             kalmanZ_.predict(dt, linAccNoGrav.z());
 
+            std::cout << orientation_.x() << " " << orientation_.y()  << " " << orientation_.z()  << " " << orientation_.w() << std::endl;
+
             lastImuTimestamp_ = data->getTimestamp();
         }
     }
@@ -95,7 +99,7 @@ namespace AutoDrive::Algorithms {
 //            quaternionToRPY(dQuat, roll, pitch, yaw);
 //            kalmanYaw_.predict(dt, yaw);
 //
-//            lastDquatTimestamp_ = data->getTimestamp();
+            lastDquatTimestamp_ = data->getTimestamp();
         }
     }
 
@@ -163,9 +167,19 @@ namespace AutoDrive::Algorithms {
 
 
     double MovementModel::estimateHeading() {
+
+        auto speedHeading = atan2(kalmanY_.getSpeed(), kalmanX_.getSpeed());
+        auto speedQuaternion = rtl::Quaternion<double>{0, 0, speedHeading};
+        auto gnssQuaternion = rtl::Quaternion<double>{0, 0, gnssYaw_};
+
         auto speed = std::sqrt( std::pow(kalmanY_.getSpeed(),2) + std::pow(kalmanX_.getSpeed(),2));
-        auto heading = atan2(kalmanY_.getSpeed(), kalmanX_.getSpeed());
-        return heading;
+        auto gain = getSpeedGainFactor(speed);
+
+        double r,p,y;
+        auto result = speedQuaternion.slerp(gnssQuaternion, gain);
+        quaternionToRPY(result, r, p , y);
+
+        return y;
     }
 
     DataModels::GlobalPosition MovementModel::gnssPoseToRootFrame(const DataModels::GlobalPosition gnssPose) {

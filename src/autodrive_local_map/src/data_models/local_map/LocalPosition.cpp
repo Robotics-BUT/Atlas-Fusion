@@ -2,6 +2,11 @@
 
 namespace AutoDrive::DataModels {
 
+
+    rtl::Transformation3D<double> LocalPosition::toTf() const {
+        return {getOrientation(), getPosition()};
+    }
+
     LocalPosition LocalPosition::operator+(LocalPosition& other) {
 
         return LocalPosition{{position_.x() + other.getPosition().x(),

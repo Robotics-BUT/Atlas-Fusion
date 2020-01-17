@@ -3,19 +3,25 @@
 #include <pcl/common/transforms.h>
 #include <pcl/point_cloud.h>
 #include <visualizers/LidarVisualizer.h>
+#include <data_models/local_map/LocalPosition.h>
 #include "local_map/Frames.h"
 
 namespace AutoDrive::Algorithms {
 
 
-    void DepthMap::onNewLidarData(std::shared_ptr<DataModels::LidarScanDataModel> data) {
+//    void DepthMap::onNewLidarData(std::shared_ptr<DataModels::LidarScanDataModel> data) {
+//
+//        auto lidarFrame = lidarIdentifierToFrame(data->getLidarIdentifier());
+//        auto tf = context_.tfTree_.getTransformationForFrame(lidarFrame);
+//        storeLidarDataInRootFrame(data,tf);
+//    }
 
-        auto lidarFrame = lidarIdentifierToFrame(data->getLidarIdentifier());
-        auto tf = context_.tfTree_.getTransformationForFrame(lidarFrame);
-        storeLidarDataInRootFrame(data,tf);
+
+    void DepthMap::updatePointcloudData(std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches) {
+        batches_ = batches;
     }
 
-    std::shared_ptr<std::vector<DataModels::YoloDetection3D>> DepthMap::onNewCameraData(std::shared_ptr<DataModels::CameraFrameDataModel> data) {
+    std::shared_ptr<std::vector<DataModels::YoloDetection3D>> DepthMap::onNewCameraData(std::shared_ptr<DataModels::CameraFrameDataModel> data, DataModels::LocalPosition imuPose) {
 
         auto output = std::make_shared<std::vector<DataModels::YoloDetection3D>>();
 
@@ -33,7 +39,7 @@ namespace AutoDrive::Algorithms {
 
         std::vector<cv::Point2f> valid2DPoints;
         std::vector<cv::Point3f> valid3DPoints{};
-        getAllCurrentPointsProjectedToImage(cameraId, valid2DPoints, valid3DPoints, data->getImage().cols, data->getImage().rows);
+        getAllCurrentPointsProjectedToImage(cameraId, valid2DPoints, valid3DPoints, data->getImage().cols, data->getImage().rows, imuPose.toTf());
 
         auto img = data->getImage();
         if(!valid2DPoints.empty()) {
@@ -58,9 +64,6 @@ namespace AutoDrive::Algorithms {
                 output->push_back(detection3D);
             }
         }
-//            cv::imshow("bublebum", img);
-//            cv::waitKey(1);
-//        }
 
         return output;
     }
@@ -94,43 +97,48 @@ namespace AutoDrive::Algorithms {
             std::vector<cv::Point2f>& validPoints2D,
             std::vector<cv::Point3f>& validPoints3D,
             size_t img_width,
-            size_t img_height) {
+            size_t img_height,
+            rtl::Transformation3D<double> frameTf) {
 
         auto projector = projectors_[id];
         auto cameraFrame = cameraIdentifierToFrame(id);
 
-        for (auto& [id, scan] : lidarScans_) {
+        //for (auto& [id, scan] : lidarScans_) {
 
-            pcl::PointCloud<pcl::PointXYZ> destPCL;
-            auto tf = context_.tfTree_.getTransformationForFrame(cameraFrame).inverted();
-            applyTransformOnPclData(scan, destPCL, tf);
+        pcl::PointCloud<pcl::PointXYZ> destPCL;
+        auto imuToCamera = context_.tfTree_.getTransformationForFrame(cameraFrame);
+        rtl::Transformation3D<double> originToCameraTf = imuToCamera.inverted()(frameTf.inverted());
 
-            std::vector<cv::Point3f> points3D;
-            std::vector<cv::Point2f> points2D;
-            points3D.reserve(destPCL.width * destPCL.height);
+        for(const auto& batch : batches_) {
+            destPCL += *(batch->getTransformedPointsWithAnotherTF(originToCameraTf));
+        }
 
-            for(const auto& pnt : destPCL ){
-                if(pnt.z > 0 ) {
-                    points3D.push_back({pnt.x, pnt.y, pnt.z});
-                }
-            }
+        std::vector<cv::Point3f> points3D;
+        std::vector<cv::Point2f> points2D;
+        points3D.reserve(destPCL.width * destPCL.height);
 
-            projector->projectPoints(points3D, points2D);
-
-            if(points2D.size() != points3D.size()) {
-                context_.logger_.error("Number of projected points does not corresponds with number of input points!");
-            }
-
-            validPoints2D.reserve(points2D.size());
-            validPoints3D.reserve(points3D.size());
-
-            for(size_t i = 0 ; i < points3D.size() ; i++) {
-                if(points2D.at(i).y > 0 && points2D.at(i).y < img_height && points2D.at(i).x > 0 && points2D.at(i).x < img_width) {
-                    validPoints2D.push_back(points2D.at(i));
-                    validPoints3D.push_back(points3D.at(i));
-                }
+        for(const auto& pnt : destPCL ){
+            if(pnt.z > 0 ) {
+                points3D.push_back({pnt.x, pnt.y, pnt.z});
             }
         }
+
+        projector->projectPoints(points3D, points2D);
+
+        if(points2D.size() != points3D.size()) {
+            context_.logger_.error("Number of projected points does not corresponds with number of input points!");
+        }
+
+        validPoints2D.reserve(points2D.size());
+        validPoints3D.reserve(points3D.size());
+
+        for(size_t i = 0 ; i < points3D.size() ; i++) {
+            if(points2D.at(i).y > 0 && points2D.at(i).y < img_height && points2D.at(i).x > 0 && points2D.at(i).x < img_width) {
+                validPoints2D.push_back(points2D.at(i));
+                validPoints3D.push_back(points3D.at(i));
+            }
+        }
+        //}
     }
 
 

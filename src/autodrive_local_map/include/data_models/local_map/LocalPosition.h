@@ -2,6 +2,7 @@
 
 #include <rtl/Vector3D.h>
 #include <rtl/Quaternion.h>
+#include <rtl/Transformation3D.h>
 
 namespace AutoDrive::DataModels {
 
@@ -25,6 +26,8 @@ namespace AutoDrive::DataModels {
 
         void setPositon(rtl::Vector3D<double> pose) { position_ = pose;};
         void setOrientation(rtl::Quaternion<double> orientation) { orientation_ = orientation; };
+
+        rtl::Transformation3D<double> toTf() const;
 
         uint64_t getTimestamp() const {return timestamp_;};
 

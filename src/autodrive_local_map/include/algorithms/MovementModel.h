@@ -55,14 +55,12 @@ namespace AutoDrive::Algorithms {
         Kalman1D kalmanY_;
         Kalman1D kalmanZ_;
 
-
-
 //        double roll_{};
 //        double pitch_{};
-//        double yaw_{};
+        double gnssYaw_{};
 
         rtl::Quaternion<double> orientation_;
-        rtl::Quaternion<double> orientationOffset_;
+//        rtl::Quaternion<double> orientationOffset_;
 
         uint64_t lastImuTimestamp_{};
         uint64_t lastDquatTimestamp_{};
