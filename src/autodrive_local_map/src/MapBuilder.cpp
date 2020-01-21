@@ -53,12 +53,22 @@ namespace AutoDrive {
         visualizationHandler_.updateOriginToRootTf(initPose);
 
         for (size_t i = 0; !dataLoader_.isOnEnd(); i++) {
+
             auto data = dataLoader_.getNextData();
             auto data_ts = data->getTimestamp();
 
-            if(dataCounter++ > 1000) {
-                return;
-            }
+//            static uint64_t timeBegin = data->getTimestamp();
+//            uint64_t diff = 0;
+//            do {
+//                diff = (data->getTimestamp() - timeBegin );
+//                data = dataLoader_.getNextData();
+//            } while(diff < 10e9);
+
+
+
+//            if(dataCounter++ > 1000) {
+//                return;
+//            }
 
             std::stringstream ss;
             ss << data_ts << " " << data->toString();
@@ -89,7 +99,7 @@ namespace AutoDrive {
                 static int cnt = 0;
 
                 auto cameraFrame = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
-//                if(cameraFrame->getCameraIdentifier() == DataLoader::CameraIndentifier::kCameraRightSide) {
+//                if(cameraFrame->getCameraIdentifier() == DataLoader::CameraIndentifier::kCameraLeftSide) {
 
                     auto batches = pointCloudAggregator_.getAllBatches();
                     depthMap_.updatePointcloudData(batches);
@@ -179,14 +189,12 @@ namespace AutoDrive {
 
                     auto downsampledScan = pointCloudProcessor_.downsamplePointCloud(lidarData->getScan());
 
-                    auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan, poseNow, poseNow-poseBefore, lidarTF);
+                    auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan, poseBefore, poseNow-poseBefore, lidarTF);
                     pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
                     pointCloudAggregator_.addPointCloudBatches(batches);
 
                 }
                 lidarDataHistory_[lidarFrame] = lidarData;
-
-//                depthMap_.onNewLidarData(lidarData);
                 visualizationHandler_.drawLidarData(lidarData);
 
             } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {

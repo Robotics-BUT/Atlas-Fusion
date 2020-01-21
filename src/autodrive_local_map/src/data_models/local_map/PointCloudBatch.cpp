@@ -10,14 +10,15 @@ namespace AutoDrive::DataModels {
 
     std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudBatch::getTransformedPoints() const {
 
-        return transformPointsByTF(tf_);
+        return transformPointsByTF(tf_, points_);
     }
 
 
 
-    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudBatch::getTransformedPointsWithAnotherTF(rtl::Transformation3D<double> tf) const {
+    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudBatch::getTransformedPointsWithAnotherTF(rtl::Transformation3D<double>& tf) const {
 
-        return transformPointsByTF( tf(tf_) );
+        return transformPointsByTF( tf(tf_), points_ );
+
     }
 
 
@@ -42,10 +43,12 @@ namespace AutoDrive::DataModels {
 
 
 
-    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudBatch::transformPointsByTF( rtl::Transformation3D<double> tf ) const {
+    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudBatch::transformPointsByTF( const rtl::Transformation3D<double>& tf, const pcl::PointCloud<pcl::PointXYZ>& pts ) const {
 
         auto output = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
-        auto rotMat = tf.rotQuaternion().rotMat();
+        output->reserve(pts.size());
+
+        auto rotMat = tf.rotMat();
         Eigen::Affine3f pcl_tf = Eigen::Affine3f::Identity();
         pcl_tf(0,0) = static_cast<float>(rotMat(0, 0));
         pcl_tf(1,0) = static_cast<float>(rotMat(1, 0));
@@ -56,8 +59,8 @@ namespace AutoDrive::DataModels {
         pcl_tf(0,2) = static_cast<float>(rotMat(0, 2));
         pcl_tf(1,2) = static_cast<float>(rotMat(1, 2));
         pcl_tf(2,2) = static_cast<float>(rotMat(2, 2));
-        pcl_tf.translation() << tf_.trX(), tf_.trY(), tf_.trZ();
-        pcl::transformPointCloud (points_, *output, pcl_tf);
+        pcl_tf.translation() << tf.trX(), tf.trY(), tf.trZ();
+        pcl::transformPointCloud (pts, *output, pcl_tf);
 
         return output;
     }

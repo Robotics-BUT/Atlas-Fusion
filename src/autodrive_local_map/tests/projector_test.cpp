@@ -143,6 +143,33 @@ TEST(projector_test, visualization) {
 }
 
 
+
+TEST(projector_test, circular_pattern_projection) {
+
+    auto tf = getTF();
+    AutoDrive::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
+
+    std::vector<cv::Point2f> points2D;
+    std::vector<cv::Point3f> points3D;
+
+    for(int i = 0 ; i < 360 ; i+=10) {
+        float angle = i * M_PI / 180;
+        points3D.emplace_back(cv::Point3f{sin(angle), 0,cos(angle)});
+    }
+
+    projector.projectPoints(points3D, points2D);
+
+    cv::Mat img(1080,1920,CV_8UC3);
+    size_t cnt = 1;
+    for(const auto& p : points2D) {
+        cv::circle(img, p, cnt++, {0, 255, 0}, 1);
+    }
+    cv::imshow("bublebum", img);
+    cv::waitKey(0);
+
+}
+
+
 int main(int argc, char **argv){
 
     testing::InitGoogleTest(&argc, argv);

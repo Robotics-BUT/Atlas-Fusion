@@ -51,6 +51,10 @@ namespace AutoDrive::Algorithms {
                     cv::circle(img, valid2DPoints.at(index), 5, {255, 0, 0});
                 }
 
+//                for (auto &p : valid2DPoints) {
+//                    cv::circle(img, p, 5, {255, 0, 0});
+//                }
+
                 auto bb = detection->getBoundingBox();
                 cv::rectangle(img, {static_cast<int>(bb.x1_), static_cast<int>(bb.y1_)},
                                    {static_cast<int>(bb.x2_), static_cast<int>(bb.y2_)}, {0, 0, 255}, 5);
@@ -60,9 +64,13 @@ namespace AutoDrive::Algorithms {
                 DataModels::BoundingBox2D bbx {static_cast<float>(bb.x1_), static_cast<float>(bb.y1_), static_cast<float>(bb.x2_), static_cast<float>(bb.y2_)};
                 DataModels::YoloDetection3D detection3D {bbx, distance, detection->getDetectionConfidence(), detection->getClassConfidence(), detection->getDetectionClass()};
                 detection3D.addParent(data);
-
+                //std::cout << "bb: " << detection3D.getBoundingBox().x1_ << " " << detection3D.getBoundingBox().y1_ << " " << detection3D.getBoundingBox().x2_ << " " << detection3D.getBoundingBox().y2_ << " " << detection3D.getDistance() << std::endl;
                 output->push_back(detection3D);
             }
+//            cv::imshow("bublebum", img);
+//            cv::waitKey(100);
+        //} else {
+        //    context_.logger_.warning("Missing valid points for frustum distance estimation!");
         }
 
         return output;
@@ -98,16 +106,14 @@ namespace AutoDrive::Algorithms {
             std::vector<cv::Point3f>& validPoints3D,
             size_t img_width,
             size_t img_height,
-            rtl::Transformation3D<double> frameTf) {
+            rtl::Transformation3D<double> originToImu) {
 
         auto projector = projectors_[id];
         auto cameraFrame = cameraIdentifierToFrame(id);
 
-        //for (auto& [id, scan] : lidarScans_) {
-
         pcl::PointCloud<pcl::PointXYZ> destPCL;
         auto imuToCamera = context_.tfTree_.getTransformationForFrame(cameraFrame);
-        rtl::Transformation3D<double> originToCameraTf = imuToCamera.inverted()(frameTf.inverted());
+        rtl::Transformation3D<double> originToCameraTf = (imuToCamera.inverted()(originToImu.inverted()));//imuToCamera.inverted()(originToImu.inverted());
 
         for(const auto& batch : batches_) {
             destPCL += *(batch->getTransformedPointsWithAnotherTF(originToCameraTf));
@@ -117,11 +123,21 @@ namespace AutoDrive::Algorithms {
         std::vector<cv::Point2f> points2D;
         points3D.reserve(destPCL.width * destPCL.height);
 
+        pcl::PointCloud<pcl::PointXYZ> test;
         for(const auto& pnt : destPCL ){
             if(pnt.z > 0 ) {
                 points3D.push_back({pnt.x, pnt.y, pnt.z});
+                test.push_back({pnt.x, pnt.y, pnt.z});
             }
         }
+
+//        vis_.drawAggregatedPointcloud(std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(test));
+//        for(int j = 0 ; j < 360; j+=1) {
+//            for (int i = 0; i < 360; i += 1) {
+//                float angle = i * M_PI / 180;
+//                points3D.emplace_back(cv::Point3f{sin(j*M_PI / 180), sin(angle), cos(angle)});
+//            }
+//        }
 
         projector->projectPoints(points3D, points2D);
 
@@ -133,12 +149,11 @@ namespace AutoDrive::Algorithms {
         validPoints3D.reserve(points3D.size());
 
         for(size_t i = 0 ; i < points3D.size() ; i++) {
-            if(points2D.at(i).y > 0 && points2D.at(i).y < img_height && points2D.at(i).x > 0 && points2D.at(i).x < img_width) {
+            if(points2D.at(i).y >= 0 && points2D.at(i).y < img_height && points2D.at(i).x >= 0 && points2D.at(i).x < img_width) {
                 validPoints2D.push_back(points2D.at(i));
                 validPoints3D.push_back(points3D.at(i));
             }
         }
-        //}
     }
 
 
@@ -177,7 +192,7 @@ namespace AutoDrive::Algorithms {
             case DataLoader::CameraIndentifier::kCameraLeftFront:
                 return LocalMap::Frames::kCameraLeftFront;
             case DataLoader::CameraIndentifier::kCameraLeftSide:
-                return LocalMap::Frames::kCameraLeftFront;
+                return LocalMap::Frames::kCameraLeftSide;
             case DataLoader::CameraIndentifier::kCameraRightFront:
                 return LocalMap::Frames::kCameraRightFront;
             case DataLoader::CameraIndentifier::kCameraRightSide:

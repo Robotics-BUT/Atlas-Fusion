@@ -57,7 +57,7 @@ namespace AutoDrive::Visualizers {
             msg.markers.push_back(marker);
         }
         frustumPublisher_.publish(msg);
-        maxMarkerNo = cnt;
+        maxMarkerNo = std::max(maxMarkerNo, cnt);
     }
 
 

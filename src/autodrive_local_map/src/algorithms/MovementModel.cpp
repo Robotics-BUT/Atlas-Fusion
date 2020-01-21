@@ -79,7 +79,7 @@ namespace AutoDrive::Algorithms {
             kalmanY_.predict(dt, accY);
             kalmanZ_.predict(dt, linAccNoGrav.z());
 
-            std::cout << orientation_.x() << " " << orientation_.y()  << " " << orientation_.z()  << " " << orientation_.w() << std::endl;
+            //std::cout << orientation_.x() << " " << orientation_.y()  << " " << orientation_.z()  << " " << orientation_.w() << std::endl;
 
             lastImuTimestamp_ = data->getTimestamp();
         }
@@ -110,6 +110,9 @@ namespace AutoDrive::Algorithms {
 //                {kalmanX_.getPosition(), kalmanY_.getPosition(), kalmanZ_.getPosition()},
 //                rpyToQuaternion(roll_, pitch_, heading),
 //                currentTime);
+        if(positionHistory_.empty()){
+            return DataModels::LocalPosition{{},{},0};
+        }
         return positionHistory_.back();
     }
 
@@ -167,6 +170,8 @@ namespace AutoDrive::Algorithms {
 
 
     double MovementModel::estimateHeading() {
+
+        return gnssYaw_;
 
         auto speedHeading = atan2(kalmanY_.getSpeed(), kalmanX_.getSpeed());
         auto speedQuaternion = rtl::Quaternion<double>{0, 0, speedHeading};

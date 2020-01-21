@@ -24,7 +24,7 @@ namespace AutoDrive::DataModels {
 
         std::shared_ptr<const pcl::PointCloud<pcl::PointXYZ>> getPoints() const;
         std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getTransformedPoints() const;
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getTransformedPointsWithAnotherTF(rtl::Transformation3D<double> tf) const;
+        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getTransformedPointsWithAnotherTF(rtl::Transformation3D<double>& tf) const;
 
         uint64_t getTimestamp() const;
         size_t getPointsSize() const;
@@ -37,7 +37,7 @@ namespace AutoDrive::DataModels {
         std::string referenceFrame_;
         rtl::Transformation3D<double> tf_;
 
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> transformPointsByTF( rtl::Transformation3D<double> tf ) const;
+        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> transformPointsByTF( const rtl::Transformation3D<double>& tf, const pcl::PointCloud<pcl::PointXYZ>& pts ) const;
     };
 
 }

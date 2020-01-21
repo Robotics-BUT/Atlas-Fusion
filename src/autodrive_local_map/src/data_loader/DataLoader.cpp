@@ -31,7 +31,14 @@ namespace AutoDrive {
 
 
         timestamp_type DataLoader::getLowestTimestamp() {
-            return 0;
+            uint64_t minTimestamp = std::numeric_limits<uint64_t>::max();
+
+            for(const auto& dataLoader : dataLoaders_) {
+                if (dataLoader->getLowestTimestamp() < minTimestamp){
+                    minTimestamp = dataLoader->getLowestTimestamp();
+                }
+            }
+            return minTimestamp;
         }
 
 
