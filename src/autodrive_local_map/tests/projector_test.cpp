@@ -164,8 +164,8 @@ TEST(projector_test, circular_pattern_projection) {
     for(const auto& p : points2D) {
         cv::circle(img, p, cnt++, {0, 255, 0}, 1);
     }
-    cv::imshow("bublebum", img);
-    cv::waitKey(0);
+//    cv::imshow("bublebum", img);
+//    cv::waitKey(0);
 
 }
 
