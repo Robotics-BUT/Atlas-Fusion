@@ -34,13 +34,13 @@ namespace AutoDrive {
         , gnssPoseLogger_{context, 100}
         , imuPoseLogger_{context, 1000}
         , selfModel_{context, 1, 1}
+        , depthMap_{context}
         , detectionProcessor_{context}
         , pointCloudExtrapolator_{context, 100}
         , pointCloudAggregator_{context, 1.0}
         , pointCloudProcessor_ {context, 0.2}
         , occGrid_{context}
         , visualizationHandler_(node, context)
-                , depthMap_{context, visualizationHandler_}
         , dataLoader_(context, keepHistoryLength)
         , keepHistoryLength_(keepHistoryLength)
         , maxReplayerRate_(maxReplayerRate)

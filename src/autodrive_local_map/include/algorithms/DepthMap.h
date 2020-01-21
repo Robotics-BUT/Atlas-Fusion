@@ -10,8 +10,6 @@
 #include "data_models/local_map/PointCloudBatch.h"
 #include "data_models/local_map/LocalPosition.h"
 
-#include "visualizers/VisualizationHandler.h"
-
 
 namespace AutoDrive::Algorithms {
 
@@ -20,9 +18,8 @@ namespace AutoDrive::Algorithms {
 
     public:
 
-        explicit DepthMap(Context& context, Visualizers::VisualizationHandler& vis)
-        : context_{context}
-        , vis_{vis} {
+        explicit DepthMap(Context& context)
+        : context_{context} {
 
         }
 
@@ -33,7 +30,6 @@ namespace AutoDrive::Algorithms {
     private:
 
         Context& context_;
-        Visualizers::VisualizationHandler& vis_;
         std::map<DataLoader::CameraIndentifier, std::shared_ptr<Projector>> projectors_{};
         std::map<DataLoader::LidarIdentifier, pcl::PointCloud<pcl::PointXYZ>> lidarScans_{};
         std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches_;
