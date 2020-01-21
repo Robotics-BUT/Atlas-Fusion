@@ -96,7 +96,10 @@ set(SOURCES_DATA_LOADER
         src/data_loader/GnssDataLoader.cpp
         src/data_loader/ImuDataLoader.cpp )
 
-add_library(autodrive_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER})
+set(SOURCES_FAIL_CHECK
+        src/fail_check/AbstrackFailChecker.cpp)
+
+add_library(autodrive_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_FAIL_CHECK})
 
 add_executable(autodrive_local_map src/main.cpp)
 target_link_libraries(${PROJECT_NAME}
