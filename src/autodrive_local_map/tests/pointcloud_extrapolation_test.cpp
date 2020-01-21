@@ -7,8 +7,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 
 #define N 40
-
-
+//#define VISUALIZE
 
 pcl::PointCloud<pcl::PointXYZ> getTestData() {
     pcl::PointCloud<pcl::PointXYZ> output;
@@ -97,7 +96,9 @@ private:
     ros::Publisher pc_publisher_;
 };
 
+#ifdef VISUALIZE
 VisualizerExt visualizer;
+#endif
 
 TEST(pointcloud_extrapolation, init) {
     auto context = AutoDrive::Context::getEmptyContext();
@@ -155,12 +156,14 @@ TEST(pointcloud_extrapolation, forward_movement) {
         std::cout << "Back Transformed " << i+1 << ": " << undist_data.at(i).x << " " << undist_data.at(i).y << " " << undist_data.at(i).z << std::endl;
     }
 
+#ifdef VISUALIZE
     visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(data_dist);
     visualizer.publishPointcloud(data_dist);
     visualizer.publishPointcloud(undist_data);
     visualizer.publishPointcloud(undist_data);
+#endif
 }
 
 
@@ -189,12 +192,14 @@ TEST(pointcloud_extrapolation, rotation_left) {
     }
 
 
+#ifdef VISUALIZE
     visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(data_dist);
     visualizer.publishPointcloud(data_dist);
     visualizer.publishPointcloud(undist_data);
     visualizer.publishPointcloud(undist_data);
+#endif
 }
 
 

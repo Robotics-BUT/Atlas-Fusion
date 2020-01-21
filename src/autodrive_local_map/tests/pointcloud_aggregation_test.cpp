@@ -15,6 +15,7 @@
 #define N 40
 #define M 5
 #define NOISE_AMP 0.00
+//#define VISUALIZE
 
 float getRandFloat() {
     return static_cast<float>( ( ( ( rand()%200 ) - 100 ) / 100.0 ) * NOISE_AMP );
@@ -116,7 +117,10 @@ private:
     ros::NodeHandle* node_;
     ros::Publisher pc_publisher_;
 };
+
+#ifdef VISUALIZE
 VisualizerAgg visualizer;
+#endif
 
 
 TEST(pointcloud_aggregation, init) {
@@ -145,8 +149,10 @@ TEST(pointcloud_aggregation, static_aggregation) {
     auto aggregatedPC = aggregator.getAggregatedPointCloud();
     EXPECT_EQ(aggregatedPC->size(), N);
 
+#ifdef VISUALIZE
     visualizer.publishPointcloud(*aggregatedPC);
     visualizer.publishPointcloud(*aggregatedPC);
+#endif
 }
 
 
@@ -173,6 +179,8 @@ TEST(pointcloud_aggregation, multiple_static_aggregation) {
     auto aggregatedPC = aggregator.getAggregatedPointCloud();
     EXPECT_EQ(aggregatedPC->size(), N*M);
 
+
+#ifdef VISUALIZE
     visualizer.publishPointcloud(*aggregatedPC);
     visualizer.publishPointcloud(*aggregatedPC);
     visualizer.publishPointcloud(*aggregatedPC);
@@ -180,6 +188,7 @@ TEST(pointcloud_aggregation, multiple_static_aggregation) {
     visualizer.publishPointcloud(*aggregatedPC);
     visualizer.publishPointcloud(*aggregatedPC);
     visualizer.publishPointcloud(*aggregatedPC);
+#endif
 }
 
 
@@ -208,8 +217,10 @@ TEST(pointcloud_aggregation, points_filtration) {
     auto aggregatedPC = aggregator.getAggregatedPointCloud();
     EXPECT_EQ(aggregatedPC->size(), N);
 
+#ifdef VISUALIZE
     visualizer.publishPointcloud(*aggregatedPC);
     visualizer.publishPointcloud(*aggregatedPC);
+#endif
 }
 
 
@@ -251,12 +262,14 @@ TEST(pointcloud_aggregation, forward_movement) {
     auto aggregatedPC = aggregator.getAggregatedPointCloud();
     EXPECT_EQ(aggregatedPC->size(), N*M);
 
+#ifdef VISUALIZE
     visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(distData);
     visualizer.publishPointcloud(distData);
     visualizer.publishPointcloud(*aggregatedPC);
     visualizer.publishPointcloud(*aggregatedPC);
+#endif
 }
 
 
@@ -301,6 +314,8 @@ TEST(pointcloud_aggregation, rotation_movement) {
     auto aggregatedPC = aggregator.getAggregatedPointCloud();
     EXPECT_EQ(aggregatedPC->size(), N*M);
 
+
+#ifdef VISUALIZE
     visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(distData);
@@ -309,6 +324,7 @@ TEST(pointcloud_aggregation, rotation_movement) {
     visualizer.publishPointcloud(undistData);
     visualizer.publishPointcloud(*aggregatedPC);
     visualizer.publishPointcloud(*aggregatedPC);
+#endif
 }
 
 
@@ -351,13 +367,17 @@ TEST(pointcloud_aggregation, translation_and_rotation) {
         data += tmp;
         distData += distTmp;
 
+#ifdef VISUALIZE
         visualizer.publishPointcloud(undistData);
+#endif
     }
 
 
     auto aggregatedPC = aggregator.getAggregatedPointCloud();
     EXPECT_EQ(aggregatedPC->size(), N*M);
 
+
+#ifdef VISUALIZE
     visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(data);
     visualizer.publishPointcloud(distData);
@@ -366,6 +386,7 @@ TEST(pointcloud_aggregation, translation_and_rotation) {
     visualizer.publishPointcloud(undistData);
     visualizer.publishPointcloud(*aggregatedPC);
     visualizer.publishPointcloud(*aggregatedPC);
+#endif
 }
 
 
