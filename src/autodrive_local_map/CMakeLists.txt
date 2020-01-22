@@ -97,7 +97,13 @@ set(SOURCES_DATA_LOADER
         src/data_loader/ImuDataLoader.cpp )
 
 set(SOURCES_FAIL_CHECK
-        src/fail_check/AbstrackFailChecker.cpp)
+        src/fail_check/AbstrackFailChecker.cpp
+        src/fail_check/FailChecker.cpp
+        src/fail_check/CameraRGBFailChecker.cpp
+        src/fail_check/CameraIrFailChecker.cpp
+        src/fail_check/LidarFailChecker.cpp
+        src/fail_check/ImuFailChecker.cpp
+        src/fail_check/GnssFailChecker.cpp)
 
 add_library(autodrive_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_FAIL_CHECK})
 

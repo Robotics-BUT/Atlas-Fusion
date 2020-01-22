@@ -22,6 +22,8 @@
 #include "local_map/LocalMap.h"
 #include "data_models/lidar/LidarScanDataModel.h"
 
+#include "fail_check/all.h"
+
 namespace AutoDrive {
 
     class MapBuilder {
@@ -40,6 +42,7 @@ namespace AutoDrive {
         , pointCloudAggregator_{context, 1.0}
         , pointCloudProcessor_ {context, 0.2}
         , occGrid_{context}
+        , failChecker_{context}
         , visualizationHandler_(node, context)
         , dataLoader_(context, keepHistoryLength)
         , keepHistoryLength_(keepHistoryLength)
@@ -72,6 +75,8 @@ namespace AutoDrive {
         Algorithms::PointCloudProcessor pointCloudProcessor_;
         Algorithms::OccupancyGrid3D occGrid_;
 
+        FailCheck::FailChecker failChecker_;
+
         Visualizers::VisualizationHandler visualizationHandler_;
 
         DataLoader::DataLoader dataLoader_;
@@ -82,10 +87,11 @@ namespace AutoDrive {
 
         std::map<std::string, std::shared_ptr<DataModels::LidarScanDataModel>> lidarDataHistory_;
 
-        [[deprecated]]
-        rtl::Transformation3D<double> getCameraTf(const DataLoader::CameraIndentifier&);
-        std::string getCameraFrame(const DataLoader::CameraIndentifier& id);
-        std::string getLidarFrame(const DataLoader::LidarIdentifier & id);
+//        [[deprecated]]
+//        rtl::Transformation3D<double> getCameraTf(const DataLoader::CameraIndentifier&);
+        std::string getFrameForData(std::shared_ptr<DataModels::GenericDataModel>);
+//        std::string getCameraFrame(const DataLoader::CameraIndentifier& id);
+//        std::string getLidarFrame(const DataLoader::LidarIdentifier & id);
 
     };
 

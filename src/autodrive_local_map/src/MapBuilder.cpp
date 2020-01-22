@@ -1,7 +1,10 @@
 #include <chrono>
- #include "MapBuilder.h"
+
+#include "MapBuilder.h"
+
 #include "data_models/all.h"
 #include "data_models/DataModelTypes.h"
+
 #include "algorithms/Projector.h"
 
 namespace AutoDrive {
@@ -13,30 +16,29 @@ namespace AutoDrive {
         dataLoader_.loadData(dataFolder);
         std::cout << "Total No. of loaded data: " << dataLoader_.getDataSize() << std::endl;
 
-        //dataLoader_.setPose(1564663008747159969);
-
-        std::vector<DataLoader::CameraIndentifier> cameraIDs = {
-                DataLoader::CameraIndentifier::kCameraLeftFront,
-                DataLoader::CameraIndentifier::kCameraLeftSide,
-                DataLoader::CameraIndentifier::kCameraRightFront,
-                DataLoader::CameraIndentifier::kCameraRightSide,
-                DataLoader::CameraIndentifier::kCameraIr,
+        std::vector<std::string> cameraFrames = {
+                LocalMap::Frames::kCameraLeftFront,
+                LocalMap::Frames::kCameraLeftSide,
+                LocalMap::Frames::kCameraRightFront,
+                LocalMap::Frames::kCameraRightSide,
+                LocalMap::Frames::kCameraIr,
         };
 
-        for(const auto& cam : cameraIDs) {
-            auto params = dataLoader_.getCameraCalibDataForCameraID(cam);
-            auto tf = getCameraTf(cam);
+        for(const auto& frame : cameraFrames) {
+            auto cameraID = dataLoader_.getCameraIDfromFrame(frame);
+            auto params = dataLoader_.getCameraCalibDataForCameraID(cameraID);
+            auto tf = context_.tfTree_.getTransformationForFrame(frame);
 
             if(params->getType() == DataModels::DataModelTypes::kCameraCalibrationParamsDataModelType) {
                 auto paramModel = std::dynamic_pointer_cast<DataModels::CameraCalibrationParamsDataModel>(params);
-                visualizationHandler_.setCameraCalibParamsForCameraId(paramModel, cam);
+                visualizationHandler_.setCameraCalibParamsForCameraId(paramModel, cameraID);
 
                 auto intrinsicParams = paramModel->getMatIntrinsicParams();
                 auto distortionParams =  paramModel->getMatDistortionParams();
 
                 auto projector = std::make_shared<Algorithms::Projector>(intrinsicParams, distortionParams, tf);
-                depthMap_.addProjector(projector, cam);
-                detectionProcessor_.addProjector(projector, getCameraFrame(cam));
+                depthMap_.addProjector(projector, cameraID);
+                detectionProcessor_.addProjector(projector, frame);
             } else {
                 context_.logger_.warning("Unable to read camera calib data");
             }
@@ -90,7 +92,9 @@ namespace AutoDrive {
 
 
             auto dataType = data->getType();
-
+            auto sensorFrame = getFrameForData(data);
+            auto sensorFailCheckID = failChecker_.frameToFailcheckID(sensorFrame);
+            failChecker_.onNewData(data, sensorFailCheckID);
 
             /* ... data processing ... */
 
@@ -98,19 +102,16 @@ namespace AutoDrive {
 
                 static int cnt = 0;
 
-                auto cameraFrame = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
-//                if(cameraFrame->getCameraIdentifier() == DataLoader::CameraIndentifier::kCameraLeftSide) {
+                auto imgData = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
 
-                    auto batches = pointCloudAggregator_.getAllBatches();
-                    depthMap_.updatePointcloudData(batches);
+                auto batches = pointCloudAggregator_.getAllBatches();
+                depthMap_.updatePointcloudData(batches);
 
-                    auto detections3D = depthMap_.onNewCameraData(cameraFrame, selfModel_.getPosition());
-                    auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, getCameraFrame(
-                            cameraFrame->getCameraIdentifier()));
+                auto detections3D = depthMap_.onNewCameraData(imgData, selfModel_.getPosition());
+                auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
 
-                    localMap_.onNewFrustumDetections(frustums, getCameraFrame(cameraFrame->getCameraIdentifier()));
-                    visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
-//                }
+                localMap_.onNewFrustumDetections(frustums, sensorFrame);
+                visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
 
                 if(cnt++ >= 3) {
                     auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
@@ -119,7 +120,7 @@ namespace AutoDrive {
                     cnt = 0;
                 }
 
-                visualizationHandler_.drawRGBImage(cameraFrame);
+                visualizationHandler_.drawRGBImage(imgData);
 
             } else if (dataType == DataModels::DataModelTypes::kCameraIrDataModelType) {
 
@@ -178,12 +179,11 @@ namespace AutoDrive {
                 lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_, std::placeholders::_1));
 
                 auto lidarID = lidarData->getLidarIdentifier();
-                auto lidarFrame = getLidarFrame(lidarID);
 
-                if (lidarDataHistory_.count(lidarFrame) > 0) {
+                if (lidarDataHistory_.count(sensorFrame) > 0) {
 
-                    auto lidarTF = context_.tfTree_.getTransformationForFrame(getLidarFrame(lidarID));
-                    auto lastLidarTimestamp = (lidarDataHistory_[lidarFrame])->getTimestamp();
+                    auto lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);
+                    auto lastLidarTimestamp = (lidarDataHistory_[sensorFrame])->getTimestamp();
                     auto poseBefore = selfModel_.estimatePositionInTime( lastLidarTimestamp );
                     auto poseNow = selfModel_.getPosition();
 
@@ -194,7 +194,7 @@ namespace AutoDrive {
                     pointCloudAggregator_.addPointCloudBatches(batches);
 
                 }
-                lidarDataHistory_[lidarFrame] = lidarData;
+                lidarDataHistory_[sensorFrame] = lidarData;
                 visualizationHandler_.drawLidarData(lidarData);
 
             } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {
@@ -213,54 +213,110 @@ namespace AutoDrive {
     }
 
 
-    rtl::Transformation3D<double> MapBuilder::getCameraTf(const DataLoader::CameraIndentifier& id) {
+//    rtl::Transformation3D<double> MapBuilder::getCameraTf(const DataLoader::CameraIndentifier& id) {
+//
+//        switch (id){
+//            case DataLoader::CameraIndentifier::kCameraLeftFront:
+//                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraLeftFront);
+//            case DataLoader::CameraIndentifier::kCameraLeftSide:
+//                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraLeftSide);
+//            case DataLoader::CameraIndentifier::kCameraRightFront:
+//                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraRightFront);
+//            case DataLoader::CameraIndentifier::kCameraRightSide:
+//                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraRightSide);
+//            case DataLoader::CameraIndentifier::kCameraIr:
+//                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraIr);
+//            default:
+//                context_.logger_.error("Unable to find transformation for camera!");
+//                return rtl::Transformation3D<double>();
+//        }
+//    }
 
-        switch (id){
-            case DataLoader::CameraIndentifier::kCameraLeftFront:
-                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraLeftFront);
-            case DataLoader::CameraIndentifier::kCameraLeftSide:
-                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraLeftSide);
-            case DataLoader::CameraIndentifier::kCameraRightFront:
-                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraRightFront);
-            case DataLoader::CameraIndentifier::kCameraRightSide:
-                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraRightSide);
-            case DataLoader::CameraIndentifier::kCameraIr:
-                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraIr);
-            default:
-                context_.logger_.error("Unable to find transformation for camera!");
-                return rtl::Transformation3D<double>();
-        }
-    }
 
-    std::string MapBuilder::getCameraFrame(const DataLoader::CameraIndentifier& id) {
+    std::string MapBuilder::getFrameForData(std::shared_ptr<DataModels::GenericDataModel> data) {
+        auto type = data->getType();
 
-        switch (id){
-            case DataLoader::CameraIndentifier::kCameraLeftFront:
-                return LocalMap::Frames::kCameraLeftFront;
-            case DataLoader::CameraIndentifier::kCameraLeftSide:
-                return LocalMap::Frames::kCameraLeftSide;
-            case DataLoader::CameraIndentifier::kCameraRightFront:
-                return LocalMap::Frames::kCameraRightFront;
-            case DataLoader::CameraIndentifier::kCameraRightSide:
-                return LocalMap::Frames::kCameraRightSide;
-            case DataLoader::CameraIndentifier::kCameraIr:
+
+        switch (type) {
+
+            case DataModels::DataModelTypes::kCameraDataModelType:
+                switch(std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data)->getCameraIdentifier()) {
+                    case DataLoader::CameraIndentifier::kCameraLeftFront:
+                        return LocalMap::Frames::kCameraLeftFront;
+                    case DataLoader::CameraIndentifier::kCameraLeftSide:
+                        return LocalMap::Frames::kCameraLeftSide;
+                    case DataLoader::CameraIndentifier::kCameraRightFront:
+                        return LocalMap::Frames::kCameraRightFront;
+                    case DataLoader::CameraIndentifier::kCameraRightSide:
+                        return LocalMap::Frames::kCameraRightSide;
+                    default:
+                        context_.logger_.error("Unable to estimate camera frame!");
+                        return LocalMap::Frames::kErr;
+                }
+
+            case DataModels::DataModelTypes::kCameraIrDataModelType:
                 return LocalMap::Frames::kCameraIr;
+
+            case DataModels::DataModelTypes::kLidarScanDataModelType:
+                switch(std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data)->getLidarIdentifier()) {
+                    case DataLoader::LidarIdentifier::kLeftLidar:
+                        return LocalMap::Frames::kLidarLeft;
+                    case DataLoader::LidarIdentifier::kRightLidar:
+                        return LocalMap::Frames::kLidarRight;
+                    default:
+                        context_.logger_.error("Unable to estimate lidar frame!");
+                        return LocalMap::Frames::kErr;
+                }
+
+            case DataModels::DataModelTypes::kImuDquatDataModelType:
+            case DataModels::DataModelTypes::kImuGnssDataModelType:
+            case DataModels::DataModelTypes::kImuImuDataModelType:
+            case DataModels::DataModelTypes::kImuMagDataModelType:
+            case DataModels::DataModelTypes::kImuPressDataModelType:
+            case DataModels::DataModelTypes::kImuTimeDataModelType:
+            case DataModels::DataModelTypes::kImuTempDataModelType:
+                return LocalMap::Frames::kImuFrame;
+
+            case DataModels::DataModelTypes::kGnssPositionDataModelType:
+            case DataModels::DataModelTypes::kGnssTimeDataModelType:
+                return LocalMap::Frames::kGnssAntennaRear;
+
             default:
-                context_.logger_.error("Unable to find frame for camera!");
-                return "";
+                context_.logger_.error("Unable to estimate sensor frame!");
+                return LocalMap::Frames::kErr;
         }
     }
 
 
-    std::string MapBuilder::getLidarFrame(const DataLoader::LidarIdentifier & id) {
-        switch (id){
-            case DataLoader::LidarIdentifier::kLeftLidar:
-                return LocalMap::Frames::kLidarLeft;
-            case DataLoader::LidarIdentifier::kRightLidar:
-                return LocalMap::Frames::kLidarRight;
-            default:
-                context_.logger_.error("Unable to find frame for lidar!");
-                return "";
-        }
-    }
+//    std::string MapBuilder::getCameraFrame(const DataLoader::CameraIndentifier& id) {
+//
+//        switch (id){
+//            case DataLoader::CameraIndentifier::kCameraLeftFront:
+//                return LocalMap::Frames::kCameraLeftFront;
+//            case DataLoader::CameraIndentifier::kCameraLeftSide:
+//                return LocalMap::Frames::kCameraLeftSide;
+//            case DataLoader::CameraIndentifier::kCameraRightFront:
+//                return LocalMap::Frames::kCameraRightFront;
+//            case DataLoader::CameraIndentifier::kCameraRightSide:
+//                return LocalMap::Frames::kCameraRightSide;
+//            case DataLoader::CameraIndentifier::kCameraIr:
+//                return LocalMap::Frames::kCameraIr;
+//            default:
+//                context_.logger_.error("Unable to find frame for camera!");
+//                return "";
+//        }
+//    }
+
+
+//    std::string MapBuilder::getLidarFrame(const DataLoader::LidarIdentifier & id) {
+//        switch (id){
+//            case DataLoader::LidarIdentifier::kLeftLidar:
+//                return LocalMap::Frames::kLidarLeft;
+//            case DataLoader::LidarIdentifier::kRightLidar:
+//                return LocalMap::Frames::kLidarRight;
+//            default:
+//                context_.logger_.error("Unable to find frame for lidar!");
+//                return "";
+//        }
+//    }
 }

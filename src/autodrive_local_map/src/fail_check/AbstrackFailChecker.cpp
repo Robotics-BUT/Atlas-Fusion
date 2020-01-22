@@ -2,5 +2,7 @@
 
 namespace AutoDrive::FailCheck {
 
-
+    float AbstrackFailChecker::getSensorStatus() {
+        return sensorStatus_;
+    }
 }

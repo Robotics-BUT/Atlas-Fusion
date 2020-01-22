@@ -76,6 +76,7 @@ namespace AutoDrive {
             void releaseOldData(timestamp_type keepHistory) override;
             void clear() override;
 
+            CameraIndentifier getCameraIDfromFrame(const std::string&);
             std::shared_ptr<DataModels::GenericDataModel> getCameraCalibDataForCameraID(CameraIndentifier id);
 
         private:
