@@ -35,6 +35,7 @@ namespace AutoDrive::Algorithms {
                     1.0);
 
             auto tf = context_.tfTree_.getTransformationForFrame(frame);
+            auto tmp = frustum.applyTransformation(tf);
 
             output.push_back(std::make_shared<DataModels::FrustumDetection>(
                     std::make_shared<rtl::Frustum<double>>(frustum.applyTransformation(tf)),

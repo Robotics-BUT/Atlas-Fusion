@@ -12,7 +12,8 @@ namespace AutoDrive::Algorithms {
 
         Projector(const cv::Mat intrinsic, const cv::Mat distortion, rtl::Transformation3D<double>& tf)
         : intrinsic_{intrinsic}
-        , distortion_{distortion}{
+        , distortion_{distortion}
+        {
 
             auto rotMat = tf.rotQuaternion().rotMat();
 //            cv::Mat rot = (cv::Mat_<float>(3, 3) <<
@@ -30,8 +31,8 @@ namespace AutoDrive::Algorithms {
 
         void getPointDirection(const std::vector<cv::Point2f>& src, std::vector<cv::Point3f>& dest);
 
-//        void undistort(const std::vector<cv::Point2f>& src, std::vector<cv::Point2f>& dest);
-//        void distort(const std::vector<cv::Point2f>& src, std::vector<cv::Point2f>& dest);
+        void undistort(const std::vector<cv::Point2f>& src, std::vector<cv::Point2f>& dest);
+        void distort(const std::vector<cv::Point2f>& src, std::vector<cv::Point2f>& dest);
 
     private:
 

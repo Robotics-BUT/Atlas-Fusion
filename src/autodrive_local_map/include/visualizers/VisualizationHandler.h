@@ -61,6 +61,8 @@ namespace AutoDrive::Visualizers {
 
         void drawFrustumDetections(std::vector<std::shared_ptr<DataModels::FrustumDetection>> detections);
 
+        void drawAggregatedPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
+
     private:
 
         ros::NodeHandle& node_;

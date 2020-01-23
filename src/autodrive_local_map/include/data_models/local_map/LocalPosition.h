@@ -2,6 +2,7 @@
 
 #include <rtl/Vector3D.h>
 #include <rtl/Quaternion.h>
+#include <rtl/Transformation3D.h>
 
 namespace AutoDrive::DataModels {
 
@@ -9,9 +10,10 @@ namespace AutoDrive::DataModels {
 
     public:
 
-        LocalPosition(rtl::Vector3D<double> positon = {}, rtl::Quaternion<double> orientation={})
+        explicit LocalPosition(rtl::Vector3D<double> positon, rtl::Quaternion<double> orientation, uint64_t timestamp)
         : position_(std::move(positon))
-        , orientation_(std::move(orientation)) {
+        , orientation_(std::move(orientation))
+        , timestamp_{timestamp} {
 
         }
 
@@ -24,10 +26,22 @@ namespace AutoDrive::DataModels {
 
         void setPositon(rtl::Vector3D<double> pose) { position_ = pose;};
         void setOrientation(rtl::Quaternion<double> orientation) { orientation_ = orientation; };
+
+        rtl::Transformation3D<double> toTf() const;
+
+        uint64_t getTimestamp() const {return timestamp_;};
+
+        LocalPosition operator+(LocalPosition& other);
+        LocalPosition operator-(LocalPosition& other);
+
+        std::string toString();
+
+
     private:
 
         rtl::Vector3D<double> position_;
         rtl::Quaternion<double> orientation_;
+        uint64_t timestamp_;
 
     };
 

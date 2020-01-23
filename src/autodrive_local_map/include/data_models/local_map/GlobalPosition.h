@@ -47,9 +47,9 @@ namespace AutoDrive::DataModels {
 
 
 
-        static LocalPosition getOffsetBetweenCoords(GlobalPosition& coord1, GlobalPosition& coord2){
+        static rtl::Vector3D<double> getOffsetBetweenCoords(GlobalPosition& coord1, GlobalPosition& coord2){
 
-            LocalPosition offset;
+            rtl::Vector3D<double> offset{0,0,0};
 
             double mid_lat = (coord1.getLatitude() + coord2.getLatitude())/2;
             double mid_lon = (coord1.getLongitude() + coord2.getLongitude())/2;
@@ -63,10 +63,10 @@ namespace AutoDrive::DataModels {
             offset.setY(getDistanceBetweenCoords(c1, c2));
 
             if (coord1.getLatitude() > coord2.getLatitude()) {
-                offset.setX(-offset.getPosition().x());
+                offset.setX(-offset.x());
             }
             if (coord1.getLongitude() < coord2.getLongitude()) {
-                offset.setY(-offset.getPosition().y());
+                offset.setY(-offset.y());
             }
             offset.setZ(coord2.getAltitude() - coord1.getAltitude());
 
@@ -78,10 +78,10 @@ namespace AutoDrive::DataModels {
 
             const double step = 0.001f;
             auto g1 = GlobalPosition(globalOrigin.getLatitude() + step, globalOrigin.getLongitude() + step, 0, 0);
-            LocalPosition mili_deg_distance = getOffsetBetweenCoords(globalOrigin, g1);
+            auto mili_deg_distance = getOffsetBetweenCoords(globalOrigin, g1);
 
-            double lat_step = (localOffset.getPosition().y() * step) / mili_deg_distance.getPosition().y();
-            double lon_step = (localOffset.getPosition().x() * step) / mili_deg_distance.getPosition().x();
+            double lat_step = (localOffset.getPosition().y() * step) / mili_deg_distance.y();
+            double lon_step = (localOffset.getPosition().x() * step) / mili_deg_distance.x();
 
             GlobalPosition output{globalOrigin.getLatitude() + lat_step, globalOrigin.getLongitude() + lon_step, globalOrigin.getAltitude() + localOffset.getPosition().z(), 0};
             return output;
