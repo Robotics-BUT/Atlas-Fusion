@@ -22,5 +22,7 @@ namespace AutoDrive::LocalMap {
         const std::string kGnssAntennaFront = "gnss_front";
         const std::string kGnssAntennaRear = "gnss_rear";
 
+        const std::string kErr = "";
+
     }
 }

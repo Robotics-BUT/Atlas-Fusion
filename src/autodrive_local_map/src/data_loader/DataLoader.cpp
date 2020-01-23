@@ -6,6 +6,7 @@
 #include <experimental/filesystem>
 #include <fstream>
 #include <iomanip>
+#include <local_map/Frames.h>
 
 namespace AutoDrive {
     namespace DataLoader {
@@ -143,6 +144,23 @@ namespace AutoDrive {
 
             context_.logger_.info("Data Loading done");
             return true;
+        }
+
+
+        CameraIndentifier DataLoader::getCameraIDfromFrame(const std::string& frame) {
+            if (frame == LocalMap::Frames::kCameraLeftFront) {
+                return CameraIndentifier::kCameraLeftFront;
+            } else if (frame == LocalMap::Frames::kCameraLeftSide) {
+                return CameraIndentifier::kCameraLeftSide;
+            } else if (frame == LocalMap::Frames::kCameraRightFront) {
+                return CameraIndentifier::kCameraRightFront;
+            } else if (frame == LocalMap::Frames::kCameraRightSide) {
+                return CameraIndentifier::kCameraRightSide;
+            } else if (frame == LocalMap::Frames::kCameraIr) {
+                return CameraIndentifier::kCameraIr;
+            } else {
+                context_.logger_.warning("Unexpected camera frame in DataLoader::getCameraIDfromFrame()!");
+            };
         }
 
         std::shared_ptr<DataModels::GenericDataModel> DataLoader::getCameraCalibDataForCameraID(CameraIndentifier id) {
