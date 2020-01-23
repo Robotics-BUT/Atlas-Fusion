@@ -14,6 +14,7 @@
 #include "data_models/local_map/GlobalPosition.h"
 
 #include "algorithms/ImuDataProcessor.h"
+#include "algorithms/QuadratureFilter.h"
 
 namespace AutoDrive::Algorithms {
 
@@ -26,7 +27,10 @@ namespace AutoDrive::Algorithms {
         , kalmanX_{kalmanProcessNoise, kalmanObservationNoise}
         , kalmanY_{kalmanProcessNoise, kalmanObservationNoise}
         , kalmanZ_{kalmanProcessNoise, kalmanObservationNoise}
-        , kalmanYaw_{kalmanProcessNoise, kalmanObservationNoise}{ }
+        //, kalmanYaw_{kalmanProcessNoise, kalmanObservationNoise}
+        {
+
+        }
 
         void onGnssPose(std::shared_ptr<DataModels::GnssPoseDataModel> data);
         void onImuImuData(std::shared_ptr<DataModels::ImuImuDataModel> data);
@@ -35,6 +39,9 @@ namespace AutoDrive::Algorithms {
         std::deque<DataModels::LocalPosition> getPositionHistory() { return positionHistory_; };
 
         DataModels::LocalPosition getPosition();
+        DataModels::LocalPosition estimatePositionInTime(uint64_t time);
+
+        static DataModels::LocalPosition interpolateLocalPosition( DataModels::LocalPosition& begin, DataModels::LocalPosition& end, float ratio);
 
     private:
 
@@ -47,20 +54,26 @@ namespace AutoDrive::Algorithms {
         Kalman1D kalmanX_;
         Kalman1D kalmanY_;
         Kalman1D kalmanZ_;
-        Kalman1D kalmanYaw_;
 
-        double roll_{};
-        double pitch_{};
-        double yaw_{};
+//        double roll_{};
+//        double pitch_{};
+        double gnssYaw_{};
+
+        rtl::Quaternion<double> orientation_;
+//        rtl::Quaternion<double> orientationOffset_;
 
         uint64_t lastImuTimestamp_{};
         uint64_t lastDquatTimestamp_{};
+        uint64_t currentTime{};
 
         Algorithms::ImuDataProcessor imuProcessor_{};
 
         double estimateHeading();
+        double estimateSpeedHeading();
         DataModels::GlobalPosition gnssPoseToRootFrame(DataModels::GlobalPosition);
         rtl::Quaternion<double> rpyToQuaternion(double, double, double);
         void quaternionToRPY(rtl::Quaternion<double> q, double& roll, double &pitch, double& yaw);
+
+        double getSpeedGainFactor(double speed);
     };
 };

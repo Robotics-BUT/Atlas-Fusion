@@ -24,7 +24,7 @@ namespace AutoDrive::Algorithms {
         }
 
         auto offset = DataModels::GlobalPosition::getOffsetBetweenCoords(initPositionGnss_, imuPose);
-        position_.setPositon(offset.getPosition());
+        position_.setPositon(offset);
 
         auto azimut = data->getAzimut();
         position_.setOrientation(rpyToQuaternion(0,0,-azimut*M_PI/180));
@@ -52,7 +52,7 @@ namespace AutoDrive::Algorithms {
 
         double altitudeTemp = position_.getPosition().z();
         auto offset = DataModels::GlobalPosition::getOffsetBetweenCoords(initPositionGnss_, imuPose);
-        position_.setPositon(offset.getPosition());
+        position_.setPositon(offset);
         position_.setZ(altitudeTemp);
 
         positionHistory_.push_back(position_);
@@ -61,7 +61,9 @@ namespace AutoDrive::Algorithms {
 
     DataModels::GlobalPosition SimpleTrajectoryLogger::gnssPoseToRootFrame(const DataModels::GlobalPosition gnssPose) {
 
-        auto gnssOffset = context_.tfTree_.transformPointFromFrameToFrame({}, LocalMap::Frames::kGnssAntennaRear, LocalMap::Frames::kImuFrame);
+        auto gnssOffset = DataModels::LocalPosition{context_.tfTree_.transformPointFromFrameToFrame({}, LocalMap::Frames::kGnssAntennaRear, LocalMap::Frames::kImuFrame),
+                                                    {},
+                                                    0};
         return DataModels::GlobalPosition::localPoseToGlobalPose(gnssOffset, gnssPose);
     }
 

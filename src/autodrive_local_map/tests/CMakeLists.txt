@@ -58,7 +58,31 @@ target_link_libraries(kalman_3d_test ${all_libs})
 add_test(NAME kalman_3d_test COMMAND kalman_3d_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 
+add_executable(local_pose_test local_pose_test.cpp)
+target_compile_definitions(local_pose_test PUBLIC TEST_FOLDER="${PROJECT_SOURCE_DIR}/")
+target_link_libraries(local_pose_test ${all_libs})
+add_test(NAME local_pose_test COMMAND local_pose_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+
+add_executable(pointcloud_aggregation_test pointcloud_aggregation_test.cpp)
+target_compile_definitions(pointcloud_aggregation_test PUBLIC TEST_FOLDER="${PROJECT_SOURCE_DIR}/")
+target_link_libraries(pointcloud_aggregation_test ${all_libs})
+add_test(NAME pointcloud_aggregation_test COMMAND pointcloud_aggregation_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+
+add_executable(pointcloud_extrapolation_test pointcloud_extrapolation_test.cpp)
+target_compile_definitions(pointcloud_extrapolation_test PUBLIC TEST_FOLDER="${PROJECT_SOURCE_DIR}/")
+target_link_libraries(pointcloud_extrapolation_test ${all_libs})
+add_test(NAME pointcloud_extrapolation_test COMMAND pointcloud_extrapolation_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+
 add_executable(projector_test projector_test.cpp)
 target_compile_definitions(projector_test PUBLIC TEST_FOLDER="${PROJECT_SOURCE_DIR}/")
 target_link_libraries(projector_test ${all_libs})
 add_test(NAME projector_test COMMAND projector_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+
+add_executable(quadrature_filter_test quadrature_filter_test.cpp)
+target_compile_definitions(quadrature_filter_test PUBLIC TEST_FOLDER="${PROJECT_SOURCE_DIR}/")
+target_link_libraries(quadrature_filter_test ${all_libs})
+add_test(NAME quadrature_filter_test COMMAND quadrature_filter_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

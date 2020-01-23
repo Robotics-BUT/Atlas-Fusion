@@ -21,6 +21,7 @@ namespace AutoDrive::Algorithms {
 
         SimpleTrajectoryLogger(Context& context, size_t historyLenght)
         : context_{context}
+        , position_{{},{},0}
         , historyLenght_{historyLenght} {
 
         }
@@ -35,7 +36,7 @@ namespace AutoDrive::Algorithms {
 
     private:
         Context& context_;
-        DataModels::LocalPosition position_{};
+        DataModels::LocalPosition position_;
 
 
         bool initialized_ = false;

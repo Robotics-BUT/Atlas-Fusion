@@ -45,16 +45,30 @@ namespace AutoDrive {
 
     void MapBuilder::buildMap() {
 
+        uint64_t dataCounter = 0;
         int64_t last_system_ts = 0;
         uint64_t last_data_ts = 0;
 
-        visualizationHandler_.updateOriginToRootTf({});
+        DataModels::LocalPosition initPose{{},{},0};
+        visualizationHandler_.updateOriginToRootTf(initPose);
 
         for (size_t i = 0; !dataLoader_.isOnEnd(); i++) {
+
             auto data = dataLoader_.getNextData();
             auto data_ts = data->getTimestamp();
 
-            std::cout << "Time: " << data_ts << std::endl;
+//            static uint64_t timeBegin = data->getTimestamp();
+//            uint64_t diff = 0;
+//            do {
+//                diff = (data->getTimestamp() - timeBegin );
+//                data = dataLoader_.getNextData();
+//            } while(diff < 10e9);
+
+
+
+//            if(dataCounter++ > 1000) {
+//                return;
+//            }
 
             std::stringstream ss;
             ss << data_ts << " " << data->toString();
@@ -82,13 +96,29 @@ namespace AutoDrive {
 
             if(dataType == DataModels::DataModelTypes::kCameraDataModelType) {
 
+                static int cnt = 0;
+
                 auto cameraFrame = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
-                auto detections3D = depthMap_.onNewCameraData(cameraFrame);
-                auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, getCameraFrame(cameraFrame->getCameraIdentifier()));
+//                if(cameraFrame->getCameraIdentifier() == DataLoader::CameraIndentifier::kCameraLeftSide) {
 
-                localMap_.onNewFrustumDetections(frustums, getCameraFrame(cameraFrame->getCameraIdentifier()));
+                    auto batches = pointCloudAggregator_.getAllBatches();
+                    depthMap_.updatePointcloudData(batches);
 
-                visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
+                    auto detections3D = depthMap_.onNewCameraData(cameraFrame, selfModel_.getPosition());
+                    auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, getCameraFrame(
+                            cameraFrame->getCameraIdentifier()));
+
+                    localMap_.onNewFrustumDetections(frustums, getCameraFrame(cameraFrame->getCameraIdentifier()));
+                    visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
+//                }
+
+                if(cnt++ >= 3) {
+                    auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
+                    auto downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud);
+                    visualizationHandler_.drawAggregatedPointcloud(downsampledAggregatedPc);
+                    cnt = 0;
+                }
+
                 visualizationHandler_.drawRGBImage(cameraFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kCameraIrDataModelType) {
@@ -143,9 +173,28 @@ namespace AutoDrive {
             } else if (dataType == DataModels::DataModelTypes::kImuTimeDataModelType) {
 
             } else if (dataType == DataModels::DataModelTypes::kLidarScanDataModelType) {
+
                 auto lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
                 lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_, std::placeholders::_1));
-                depthMap_.onNewLidarData(lidarData);
+
+                auto lidarID = lidarData->getLidarIdentifier();
+                auto lidarFrame = getLidarFrame(lidarID);
+
+                if (lidarDataHistory_.count(lidarFrame) > 0) {
+
+                    auto lidarTF = context_.tfTree_.getTransformationForFrame(getLidarFrame(lidarID));
+                    auto lastLidarTimestamp = (lidarDataHistory_[lidarFrame])->getTimestamp();
+                    auto poseBefore = selfModel_.estimatePositionInTime( lastLidarTimestamp );
+                    auto poseNow = selfModel_.getPosition();
+
+                    auto downsampledScan = pointCloudProcessor_.downsamplePointCloud(lidarData->getScan());
+
+                    auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan, poseBefore, poseNow-poseBefore, lidarTF);
+                    pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
+                    pointCloudAggregator_.addPointCloudBatches(batches);
+
+                }
+                lidarDataHistory_[lidarFrame] = lidarData;
                 visualizationHandler_.drawLidarData(lidarData);
 
             } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {
@@ -198,6 +247,19 @@ namespace AutoDrive {
                 return LocalMap::Frames::kCameraIr;
             default:
                 context_.logger_.error("Unable to find frame for camera!");
+                return "";
+        }
+    }
+
+
+    std::string MapBuilder::getLidarFrame(const DataLoader::LidarIdentifier & id) {
+        switch (id){
+            case DataLoader::LidarIdentifier::kLeftLidar:
+                return LocalMap::Frames::kLidarLeft;
+            case DataLoader::LidarIdentifier::kRightLidar:
+                return LocalMap::Frames::kLidarRight;
+            default:
+                context_.logger_.error("Unable to find frame for lidar!");
                 return "";
         }
     }

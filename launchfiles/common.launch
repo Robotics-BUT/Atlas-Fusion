@@ -1,0 +1,7 @@
+<!-- -->
+
+<launch>
+
+<node name="autodrive_local_map" pkg="autodrive_local_map" type="autodrive_local_map" launch-prefix="valgrind --tool=callgrind --callgrind-out-file='callgrind.listener.%p' " args="/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/config.yaml" />
+
+</launch>

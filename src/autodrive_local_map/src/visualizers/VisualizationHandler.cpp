@@ -104,4 +104,8 @@ namespace AutoDrive::Visualizers{
     void VisualizationHandler::drawFrustumDetections(std::vector<std::shared_ptr<DataModels::FrustumDetection>> detections) {
         frustumVisualizer_.visualizeFrustumDetections(detections);
     }
+
+    void VisualizationHandler::drawAggregatedPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
+        lidarVisualizer_.drawPointcloudOnTopic(pc, "test_topic");
+    }
 }

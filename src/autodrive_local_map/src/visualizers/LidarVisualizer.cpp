@@ -35,4 +35,13 @@ namespace AutoDrive::Visualizers {
                 break;
         }
     }
+
+    void LidarVisualizer::drawPointcloudOnTopic(const std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc, const std::string topic) const {
+        sensor_msgs::PointCloud2 msg;
+        pcl::toROSMsg(*pc, msg);
+
+        msg.header.stamp = ros::Time::now();
+        msg.header.frame_id = LocalMap::Frames::kOrigin;
+        test_publisher_.publish(msg);
+    }
 }
