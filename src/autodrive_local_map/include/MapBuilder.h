@@ -12,6 +12,7 @@
 #include "algorithms/pointcloud/PointCloudAggregator.h"
 #include "algorithms/pointcloud/PointCloudProcessor.h"
 #include "algorithms/pointcloud/OccupancyGrid3D.h"
+#include "algorithms/pointcloud/LaserAggregator.h"
 
 
 #include "data_loader/DataLoader.h"
@@ -30,17 +31,32 @@ namespace AutoDrive {
 
     public:
 
-        explicit MapBuilder(ros::NodeHandle& node, Context& context, DataLoader::timestamp_type keepHistoryLength, double maxReplayerRate)
+        explicit MapBuilder(
+                ros::NodeHandle& node,
+                Context& context,
+                uint32_t gnssLogPoseNo,
+                uint32_t imuLogPoseNo,
+                float selfModelProcessNoise,
+                float selfModelObservationNoise,
+                float leafSize,
+                uint32_t noOfBatchesPerScan,
+                float liadrAggregationTime,
+                uint32_t noOfLasersPerLidar,
+                uint32_t noOfLaserAggregatedPoints,
+                DataLoader::timestamp_type keepHistoryLength,
+                double maxReplayerRate)
         : node_{node}
         , context_{context}
-        , gnssPoseLogger_{context, 100}
-        , imuPoseLogger_{context, 1000}
-        , selfModel_{context, 1, 1}
+        , gnssPoseLogger_{context, gnssLogPoseNo}
+        , imuPoseLogger_{context, imuLogPoseNo}
+        , selfModel_{context, selfModelProcessNoise, selfModelObservationNoise}
         , depthMap_{context}
         , detectionProcessor_{context}
-        , pointCloudExtrapolator_{context, 100}
-        , pointCloudAggregator_{context, 1.0}
-        , pointCloudProcessor_ {context, 0.2}
+        , pointCloudExtrapolator_{context, noOfBatchesPerScan}
+        , pointCloudAggregator_{context, liadrAggregationTime}
+        , pointCloudProcessor_ {context, leafSize}
+        , leftLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints}
+        , rightLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints}
         , occGrid_{context}
         , failChecker_{context}
         , visualizationHandler_(node, context)
@@ -73,6 +89,8 @@ namespace AutoDrive {
         Algorithms::PointCloudExtrapolator pointCloudExtrapolator_;
         Algorithms::PointCloudAggregator pointCloudAggregator_;
         Algorithms::PointCloudProcessor pointCloudProcessor_;
+        Algorithms::LaserAggregator leftLidarLaserAggregator_;
+        Algorithms::LaserAggregator rightLidarLaserAggregator_;
         Algorithms::OccupancyGrid3D occGrid_;
 
         FailCheck::FailChecker failChecker_;
@@ -87,12 +105,7 @@ namespace AutoDrive {
 
         std::map<std::string, std::shared_ptr<DataModels::LidarScanDataModel>> lidarDataHistory_;
 
-//        [[deprecated]]
-//        rtl::Transformation3D<double> getCameraTf(const DataLoader::CameraIndentifier&);
         std::string getFrameForData(std::shared_ptr<DataModels::GenericDataModel>);
-//        std::string getCameraFrame(const DataLoader::CameraIndentifier& id);
-//        std::string getLidarFrame(const DataLoader::LidarIdentifier & id);
-
     };
 
 }

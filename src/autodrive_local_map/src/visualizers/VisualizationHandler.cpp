@@ -108,4 +108,9 @@ namespace AutoDrive::Visualizers{
     void VisualizationHandler::drawAggregatedPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
         lidarVisualizer_.drawPointcloudOnTopic(pc, "test_topic");
     }
+
+
+    void VisualizationHandler::drawAggregatedLasers(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
+        lidarVisualizer_.drawLasers(pc);
+    }
 }

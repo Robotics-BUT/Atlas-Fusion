@@ -58,6 +58,12 @@ target_link_libraries(kalman_3d_test ${all_libs})
 add_test(NAME kalman_3d_test COMMAND kalman_3d_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 
+add_executable(laser_aggregator_test laser_aggregator_test.cpp)
+target_compile_definitions(laser_aggregator_test PUBLIC TEST_FOLDER="${PROJECT_SOURCE_DIR}/")
+target_link_libraries(laser_aggregator_test ${all_libs})
+add_test(NAME laser_aggregator_test COMMAND laser_aggregator_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+
 add_executable(local_pose_test local_pose_test.cpp)
 target_compile_definitions(local_pose_test PUBLIC TEST_FOLDER="${PROJECT_SOURCE_DIR}/")
 target_link_libraries(local_pose_test ${all_libs})

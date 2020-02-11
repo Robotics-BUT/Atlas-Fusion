@@ -186,12 +186,22 @@ namespace AutoDrive {
                     auto lastLidarTimestamp = (lidarDataHistory_[sensorFrame])->getTimestamp();
                     auto poseBefore = selfModel_.estimatePositionInTime( lastLidarTimestamp );
                     auto poseNow = selfModel_.getPosition();
+                    auto poseDiff = poseNow-poseBefore;
 
                     auto downsampledScan = pointCloudProcessor_.downsamplePointCloud(lidarData->getScan());
+                    auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan, poseBefore, poseDiff, lidarTF);
 
-                    auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan, poseBefore, poseNow-poseBefore, lidarTF);
                     pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
                     pointCloudAggregator_.addPointCloudBatches(batches);
+
+                    if(lidarID == DataLoader::LidarIdentifier::kLeftLidar) {
+                        leftLidarLaserAggregator_.onNewLaserData(lidarData->getRawScan(), poseBefore, poseDiff, lidarTF);
+                        visualizationHandler_.drawAggregatedLasers(leftLidarLaserAggregator_.getAggregatedLaser(5));
+                    } else if (lidarID == DataLoader::LidarIdentifier::kRightLidar) {
+                        rightLidarLaserAggregator_.onNewLaserData(lidarData->getRawScan(), poseBefore, poseDiff, lidarTF);
+                    } else {
+                        context_.logger_.warning("Unexpected lidar identifier");
+                    }
 
                 }
                 lidarDataHistory_[sensorFrame] = lidarData;
@@ -211,27 +221,6 @@ namespace AutoDrive {
     void MapBuilder::clearData() {
         dataLoader_.clear();
     }
-
-
-//    rtl::Transformation3D<double> MapBuilder::getCameraTf(const DataLoader::CameraIndentifier& id) {
-//
-//        switch (id){
-//            case DataLoader::CameraIndentifier::kCameraLeftFront:
-//                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraLeftFront);
-//            case DataLoader::CameraIndentifier::kCameraLeftSide:
-//                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraLeftSide);
-//            case DataLoader::CameraIndentifier::kCameraRightFront:
-//                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraRightFront);
-//            case DataLoader::CameraIndentifier::kCameraRightSide:
-//                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraRightSide);
-//            case DataLoader::CameraIndentifier::kCameraIr:
-//                return context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraIr);
-//            default:
-//                context_.logger_.error("Unable to find transformation for camera!");
-//                return rtl::Transformation3D<double>();
-//        }
-//    }
-
 
     std::string MapBuilder::getFrameForData(std::shared_ptr<DataModels::GenericDataModel> data) {
         auto type = data->getType();
@@ -286,37 +275,4 @@ namespace AutoDrive {
                 return LocalMap::Frames::kErr;
         }
     }
-
-
-//    std::string MapBuilder::getCameraFrame(const DataLoader::CameraIndentifier& id) {
-//
-//        switch (id){
-//            case DataLoader::CameraIndentifier::kCameraLeftFront:
-//                return LocalMap::Frames::kCameraLeftFront;
-//            case DataLoader::CameraIndentifier::kCameraLeftSide:
-//                return LocalMap::Frames::kCameraLeftSide;
-//            case DataLoader::CameraIndentifier::kCameraRightFront:
-//                return LocalMap::Frames::kCameraRightFront;
-//            case DataLoader::CameraIndentifier::kCameraRightSide:
-//                return LocalMap::Frames::kCameraRightSide;
-//            case DataLoader::CameraIndentifier::kCameraIr:
-//                return LocalMap::Frames::kCameraIr;
-//            default:
-//                context_.logger_.error("Unable to find frame for camera!");
-//                return "";
-//        }
-//    }
-
-
-//    std::string MapBuilder::getLidarFrame(const DataLoader::LidarIdentifier & id) {
-//        switch (id){
-//            case DataLoader::LidarIdentifier::kLeftLidar:
-//                return LocalMap::Frames::kLidarLeft;
-//            case DataLoader::LidarIdentifier::kRightLidar:
-//                return LocalMap::Frames::kLidarRight;
-//            default:
-//                context_.logger_.error("Unable to find frame for lidar!");
-//                return "";
-//        }
-//    }
 }

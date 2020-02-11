@@ -22,7 +22,7 @@ namespace AutoDrive::Algorithms {
         std::vector<std::shared_ptr<DataModels::PointCloudBatch>> splitPointCloudToBatches(
                 std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> scan,
                 DataModels::LocalPosition startPose,
-                DataModels::LocalPosition endPose,
+                DataModels::LocalPosition poseDiff,
                 rtl::Transformation3D<double> sensorOffset);
 
         void setNoOfBatches(size_t n) {noOfBatches_ = n;};

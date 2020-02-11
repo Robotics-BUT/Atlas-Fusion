@@ -78,13 +78,40 @@ int main(int argc, char** argv) {
              std::string(calibFolder + "frames.yaml"),
              logger);
 
+    auto lasersPerLidar = configService.getUInt32Value({"laser_aggregator", "lasers"});
+    auto pointsPerLaser = configService.getUInt32Value({"laser_aggregator", "points_per_laser"});
+
+    auto leafSize = configService.getFloatValue({"lidar_aggregator", "leaf_size"});
+    auto batchesPerScan = configService.getUInt32Value({"lidar_aggregator", "no_of_batches_per_scan"});
+    auto aggretationTime = configService.getFloatValue({"lidar_aggregator", "aggretation_time"});
+
+    auto selfModelProcessNoise = configService.getFloatValue({"self_model", "kalman_process_noise"});
+    auto selfModelObservationNoise = configService.getFloatValue({"self_model", "kalman_observation_noise"});
+
+    auto gnssLogNo = configService.getUInt32Value({"pose_logger", "gnss"});
+    auto imuLogNo = configService.getUInt32Value({"pose_logger", "imu"});
+
     auto keepHistorySecLength = static_cast<AutoDrive::DataLoader::timestamp_type>(configService.getDoubleValue({"map_builder", "keep_history_sec_length"}) * 1e9); // to nanoseconds
     auto dataFolder = configService.getStringValue({"data_folder"});
     auto maxReplayerRate = configService.getDoubleValue({"map_builder", "max_replayer_rate"});
 
     auto context = AutoDrive::Context(logger, tfTree, calibFolder);
 
-    AutoDrive::MapBuilder mapBuilder{node, context, keepHistorySecLength, maxReplayerRate};
+    AutoDrive::MapBuilder mapBuilder{
+        node,
+        context,
+        gnssLogNo,
+        imuLogNo,
+        selfModelProcessNoise,
+        selfModelObservationNoise,
+        leafSize,
+        batchesPerScan,
+        aggretationTime,
+        lasersPerLidar,
+        pointsPerLaser,
+        keepHistorySecLength,
+        maxReplayerRate};
+
     mapBuilder.loadData(dataFolder);
     mapBuilder.buildMap();
     mapBuilder.clearData();
