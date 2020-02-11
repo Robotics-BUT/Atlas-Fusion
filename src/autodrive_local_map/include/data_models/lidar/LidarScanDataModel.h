@@ -27,6 +27,7 @@ namespace AutoDrive::DataModels {
 
         std::string toString() override;
         std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getScan();
+        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getRawScan();
         uint64_t getInnerTimestamp() {return innerLidarTimestamp_;};
         DataLoader::LidarIdentifier getLidarIdentifier() {return identifier_;};
         void registerFilter(std::function<void(pcl::PointCloud<pcl::PointXYZ>&)> fnc) { filter_ = fnc; };
@@ -37,6 +38,7 @@ namespace AutoDrive::DataModels {
 
         DataLoader::LidarIdentifier identifier_;
         pcl::PointCloud<pcl::PointXYZ> scan_{};
+        pcl::PointCloud<pcl::PointXYZ> filteredScan_{};
         std::string scan_path_;
         uint64_t innerLidarTimestamp_;
         std::function<void(pcl::PointCloud<pcl::PointXYZ>&)> filter_ = nullptr;

@@ -9,3 +9,20 @@ calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/autodrive_
 map_builder:
   keep_history_sec_length: 10
   max_replayer_rate: 1
+
+laser_aggregator:
+  lasers: 32
+  points_per_laser: 10000
+
+lidar_aggregator:
+  leaf_size: 0.2
+  no_of_batches_per_scan: 100
+  aggretation_time: 0.5
+
+self_model:
+  kalman_process_noise: 1.0
+  kalman_observation_noise: 1.0
+
+pose_logger:
+  gnss: 100
+  imu: 1000
