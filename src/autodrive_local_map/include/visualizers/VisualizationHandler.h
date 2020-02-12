@@ -4,7 +4,7 @@
 #include <visualization_msgs/Marker.h>
 #include <memory>
 
-#include <rtl/Frustum.h>
+#include <rtl/Frustum3D.h>
 
 #include "data_models/imu/ImuImuDataModel.h"
 #include "data_models/camera/CameraFrameDataModel.h"
@@ -38,17 +38,21 @@ namespace AutoDrive::Visualizers {
         , gnssVisualizer_(node, context)
         , tfTreeVisualizer_(node, context)
         , trajectoryVisualizer_(node, context)
-        , frustumVisualizer_(node, context)
-        , cameraParams_{} {
+        , frustumVisualizer_(node, context) {
             testCubePublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kTestCubeTopic, 0 );
         }
 
         void drawTestingCube() const;
 
-        void drawLidarData(std::shared_ptr<DataModels::LidarScanDataModel>) const;
+        void drawLidarData(std::shared_ptr<DataModels::LidarScanDataModel>);
+        void drawAggregatedPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
+        void drawAggregatedLasers(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
+        void drawGlobalPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
+
+        void drawRGBImage(std::shared_ptr<DataModels::CameraFrameDataModel>);
+        void drawIRImage(std::shared_ptr<DataModels::CameraIrFrameDataModel>);
+
         void drawImuData(rtl::Vector3D<double> linAcc) const;
-        void drawRGBImage(std::shared_ptr<DataModels::CameraFrameDataModel>) const;
-        void drawIRImage(std::shared_ptr<DataModels::CameraIrFrameDataModel>) const;
         void drawGnssPoseData(std::shared_ptr<DataModels::GnssPoseDataModel>) const;
 
         void drawRawGnssTrajectory(const std::deque<DataModels::LocalPosition> &data) const;
@@ -57,12 +61,10 @@ namespace AutoDrive::Visualizers {
 
         void updateOriginToRootTf(const DataModels::LocalPosition& pose);
 
-        void setCameraCalibParamsForCameraId(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, DataLoader::CameraIndentifier id);
+        void setCameraCalibParamsForCameraId(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, std::string frame);
 
         void drawFrustumDetections(std::vector<std::shared_ptr<DataModels::FrustumDetection>> detections);
 
-        void drawAggregatedPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
-        void drawAggregatedLasers(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
 
     private:
 
@@ -78,8 +80,6 @@ namespace AutoDrive::Visualizers {
         TFVisualizer tfTreeVisualizer_;
         TrajectoryVisualizer trajectoryVisualizer_;
         FrustumVisualizer frustumVisualizer_;
-
-        std::map<DataLoader::CameraIndentifier, std::shared_ptr<DataModels::CameraCalibrationParamsDataModel>> cameraParams_;
 
         visualization_msgs::Marker getTestCube() const;
     };

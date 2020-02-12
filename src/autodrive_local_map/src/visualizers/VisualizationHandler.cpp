@@ -12,33 +12,44 @@ namespace AutoDrive::Visualizers{
         testCubePublisher_.publish(getTestCube());
     }
 
-    void VisualizationHandler::drawLidarData(const std::shared_ptr<DataModels::LidarScanDataModel> data) const {
+
+    /* LIDAR */
+
+    void VisualizationHandler::drawLidarData(const std::shared_ptr<DataModels::LidarScanDataModel> data) {
 
         auto scan = data->getScan();
         if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kLeftLidar) {
-            lidarVisualizer_.drawLeftPointcloud(scan);
+            lidarVisualizer_.drawPointcloudOnTopic(scan, Topics::kLidarLeft, LocalMap::Frames::kLidarLeft);
         } else if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kRightLidar) {
-            lidarVisualizer_.drawRightPointcloud(scan);
+            lidarVisualizer_.drawPointcloudOnTopic(scan, Topics::kLidarRight, LocalMap::Frames::kLidarRight);
         }
     }
 
-    void VisualizationHandler::drawImuData(const rtl::Vector3D<double> linAcc) const {
-        imuVisualizer_.drawImuData(linAcc);
+
+    void VisualizationHandler::drawAggregatedPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
+        lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kLidarAggregated, LocalMap::Frames::kOrigin);
     }
 
-    void VisualizationHandler::drawRGBImage(const std::shared_ptr<DataModels::CameraFrameDataModel> data) const {
+
+    void VisualizationHandler::drawAggregatedLasers(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
+        lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kLidarLaser, LocalMap::Frames::kOrigin);
+    }
+
+
+    void VisualizationHandler::drawRGBImage(const std::shared_ptr<DataModels::CameraFrameDataModel> data) {
+
         switch(data->getCameraIdentifier()) {
             case DataLoader::CameraIndentifier::kCameraLeftFront:
-                cameraVisualizer_.drawCameraLeftFrontImage(data);
+                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraLeftFront, Topics::kCameraLeftFrontInfo, LocalMap::Frames::kCameraLeftFront);
                 break;
             case DataLoader::CameraIndentifier::kCameraLeftSide:
-                cameraVisualizer_.drawCameraLeftSideImage(data);
+                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraLeftSide, Topics::kCameraLeftSideInfo, LocalMap::Frames::kCameraLeftSide);
                 break;
             case DataLoader::CameraIndentifier::kCameraRightFront:
-                cameraVisualizer_.drawCameraRightFrontImage(data);
+                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraRightFront, Topics::kCameraRightFrontInfo, LocalMap::Frames::kCameraRightFront);
                 break;
             case DataLoader::CameraIndentifier::kCameraRightSide:
-                cameraVisualizer_.drawCameraRightSideImage(data);
+                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraRightSide, Topics::kCameraRightSideInfo, LocalMap::Frames::kCameraRightSide);
                 break;
             default:
                 context_.logger_.warning("Unexpected camera frame source when drawing RGB image");
@@ -46,9 +57,15 @@ namespace AutoDrive::Visualizers{
         }
     }
 
-    void VisualizationHandler::drawIRImage(const std::shared_ptr<DataModels::CameraIrFrameDataModel> data) const {
-        cameraVisualizer_.drawCameraIrImage(data);
+
+    void VisualizationHandler::drawIRImage(std::shared_ptr<DataModels::CameraIrFrameDataModel> data) {
+        cameraVisualizer_.drawIRCameraFrameWithTopic(data, Topics::kCameraIr, Topics::kCameraIrInfo, LocalMap::Frames::kCameraIr);
     }
+
+    void VisualizationHandler::drawImuData(const rtl::Vector3D<double> linAcc) const {
+        imuVisualizer_.drawImuData(linAcc);
+    }
+
 
     visualization_msgs::Marker VisualizationHandler::getTestCube() const {
 
@@ -96,21 +113,11 @@ namespace AutoDrive::Visualizers{
         tfTreeVisualizer_.updateOriginToRootTf(tf);
     }
 
-    void VisualizationHandler::setCameraCalibParamsForCameraId(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, DataLoader::CameraIndentifier id) {
-        cameraParams_[id] = params;
-        cameraVisualizer_.setCameraParams(cameraParams_);
+    void VisualizationHandler::setCameraCalibParamsForCameraId(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, std::string frame) {
+        cameraVisualizer_.setCameraParams(frame, params);
     }
 
     void VisualizationHandler::drawFrustumDetections(std::vector<std::shared_ptr<DataModels::FrustumDetection>> detections) {
         frustumVisualizer_.visualizeFrustumDetections(detections);
-    }
-
-    void VisualizationHandler::drawAggregatedPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
-        lidarVisualizer_.drawPointcloudOnTopic(pc, "test_topic");
-    }
-
-
-    void VisualizationHandler::drawAggregatedLasers(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
-        lidarVisualizer_.drawLasers(pc);
     }
 }
