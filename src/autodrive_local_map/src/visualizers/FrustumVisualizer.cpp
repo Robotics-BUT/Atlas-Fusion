@@ -142,27 +142,27 @@ namespace AutoDrive::Visualizers {
         output.a = 1.0;
 
         switch (getReducedDetectionClass(cls)) {
-            case DataModels::ReducedYoloDetectionClasses::kPedestrian:
+            case DataModels::ReducedYoloDetectionClasses::kPedestrian:  // red
                 output.r = 1.0;
                 output.g = 0.0;
                 output.b = 0.0;
                 break;
-            case DataModels::ReducedYoloDetectionClasses::kBike:
+            case DataModels::ReducedYoloDetectionClasses::kBike:    // purple
                 output.r = 1.0;
                 output.g = 0.0;
                 output.b = 1.0;
                 break;
-            case DataModels::ReducedYoloDetectionClasses::kVehicle:
-                output.r = 1.0;
-                output.g = 0.0;
-                output.b = 0.0;
+            case DataModels::ReducedYoloDetectionClasses::kVehicle: // blue
+                output.r = 0.0;
+                output.g = 0.5;
+                output.b = 1.0;
                 break;
-            case DataModels::ReducedYoloDetectionClasses::kAnimal:
+            case DataModels::ReducedYoloDetectionClasses::kAnimal:  // green
                 output.r = 0.0;
                 output.g = 1.0;
                 output.b = 0.0;
                 break;
-            case DataModels::ReducedYoloDetectionClasses::kOther:
+            case DataModels::ReducedYoloDetectionClasses::kOther:   //yellow
                 output.r = 1.0;
                 output.g = 1.0;
                 output.b = 0.0;

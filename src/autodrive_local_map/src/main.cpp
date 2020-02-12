@@ -82,6 +82,7 @@ int main(int argc, char** argv) {
     auto pointsPerLaser = configService.getUInt32Value({"laser_aggregator", "points_per_laser"});
 
     auto leafSize = configService.getFloatValue({"lidar_aggregator", "leaf_size"});
+    auto globalLeafSize = configService.getFloatValue({"lidar_aggregator", "global_leaf_size"});
     auto batchesPerScan = configService.getUInt32Value({"lidar_aggregator", "no_of_batches_per_scan"});
     auto aggretationTime = configService.getFloatValue({"lidar_aggregator", "aggretation_time"});
 
@@ -105,6 +106,7 @@ int main(int argc, char** argv) {
         selfModelProcessNoise,
         selfModelObservationNoise,
         leafSize,
+        globalLeafSize,
         batchesPerScan,
         aggretationTime,
         lasersPerLidar,

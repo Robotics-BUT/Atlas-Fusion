@@ -10,35 +10,29 @@
 
 namespace AutoDrive::Visualizers {
 
-    void CameraVisualizer::drawCameraLeftFrontImage(const std::shared_ptr<DataModels::CameraFrameDataModel> data) const {
+
+
+    void CameraVisualizer::drawRGBCameraFrameWithTopic(std::shared_ptr<DataModels::CameraFrameDataModel> data, std::string cameraTopic, std::string cameraInfoTopic, std::string frame) {
+        checkCameraTopic(cameraTopic);
+        checkCameraInfoTopic(cameraInfoTopic);
+
         auto ts = ros::Time::now();
-        publishCameraInfo(cameraParams_.at(DataLoader::CameraIndentifier::kCameraLeftFront), cameraLeftFrontInfoPublisher_, LocalMap::Frames::kCameraLeftFront, ts);
-        drawRGBImage(data, cameraLeftFrontPublisher_, LocalMap::Frames::kCameraLeftFront, ts);
+
+        cv_bridge::CvImagePtr cv_ptr(new cv_bridge::CvImage);
+        cv_ptr->header.stamp = ts;
+        cv_ptr->header.frame_id = frame;
+        cv_ptr->encoding = "bgr8";
+        cv_ptr->image = data->getImage();
+
+        cameraPublishers_[cameraTopic].publish(cv_ptr->toImageMsg());
+        publishCameraInfo(cameraParams_[frame], cameraInfoTopic, LocalMap::Frames::kCameraIr, ts);
     }
 
 
-    void CameraVisualizer::drawCameraRightFrontImage(const std::shared_ptr<DataModels::CameraFrameDataModel> data) const {
-        auto ts = ros::Time::now();
-        drawRGBImage(data, cameraRightFrontPublisher_, LocalMap::Frames::kCameraRightFront, ts);
-        publishCameraInfo(cameraParams_.at(DataLoader::CameraIndentifier::kCameraRightFront), cameraRightFrontInfoPublisher_, LocalMap::Frames::kCameraRightFront, ts);
-    }
+    void CameraVisualizer::drawIRCameraFrameWithTopic(std::shared_ptr<DataModels::CameraIrFrameDataModel> data, std::string cameraTopic, std::string cameraInfoTopic, std::string frame) {
+        checkCameraTopic(cameraTopic);
+        checkCameraInfoTopic(cameraInfoTopic);
 
-
-    void CameraVisualizer::drawCameraLeftSideImage(const std::shared_ptr<DataModels::CameraFrameDataModel> data) const {
-        auto ts = ros::Time::now();
-        drawRGBImage(data, cameraLeftSidePublisher_, LocalMap::Frames::kCameraLeftSide, ts);
-        publishCameraInfo(cameraParams_.at(DataLoader::CameraIndentifier::kCameraLeftSide), cameraLeftSideInfoPublisher_, LocalMap::Frames::kCameraLeftSide, ts);
-    }
-
-
-    void CameraVisualizer::drawCameraRightSideImage(const std::shared_ptr<DataModels::CameraFrameDataModel> data) const {
-        auto ts = ros::Time::now();
-        drawRGBImage(data, cameraRightSidePublisher_, LocalMap::Frames::kCameraRightSide, ts);
-        publishCameraInfo(cameraParams_.at(DataLoader::CameraIndentifier::kCameraRightSide), cameraRightSideInfoPublisher_, LocalMap::Frames::kCameraRightSide, ts);
-    }
-
-
-    void CameraVisualizer::drawCameraIrImage(const std::shared_ptr<DataModels::CameraIrFrameDataModel> data) const {
         auto ts = ros::Time::now();
 
         std::shared_ptr<cv_bridge::CvImage> cv_ptr = std::make_shared<cv_bridge::CvImage>();
@@ -47,25 +41,28 @@ namespace AutoDrive::Visualizers {
         cv_ptr->encoding = "mono8";
         cv_ptr->image = data->getImage();
 
-        cameraIrPublisher_.publish(cv_ptr->toImageMsg());
+        cameraPublishers_[cameraTopic].publish(cv_ptr->toImageMsg());
+        publishCameraInfo(cameraParams_[frame], cameraInfoTopic, LocalMap::Frames::kCameraIr, ts);
 
-        publishCameraInfo(cameraParams_.at(DataLoader::CameraIndentifier::kCameraIr), cameraIrInfoPublisher_, LocalMap::Frames::kCameraIr, ts);
     }
 
 
-    void CameraVisualizer::drawRGBImage(const std::shared_ptr<DataModels::CameraFrameDataModel> data, const image_transport::Publisher& publisher, const std::string& frame, ros::Time ts) const {
-
-        cv_bridge::CvImagePtr cv_ptr(new cv_bridge::CvImage);
-        cv_ptr->header.stamp = ts;
-        cv_ptr->header.frame_id = frame;
-        cv_ptr->encoding = "bgr8";
-        cv_ptr->image = data->getImage();
-
-        publisher.publish(cv_ptr->toImageMsg());
+    void CameraVisualizer::checkCameraTopic(std::string& topic) {
+        if(cameraPublishers_.count(topic) == 0){
+            cameraPublishers_[topic] = it_.advertise( topic, 0 );
+        }
     }
 
 
-    void CameraVisualizer::publishCameraInfo(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, const ros::Publisher& pub, std::string frame, ros::Time ts) const {
+    void CameraVisualizer::checkCameraInfoTopic(std::string& topic) {
+
+        if(cameraInfoPublishers_.count(topic) == 0){
+            cameraInfoPublishers_[topic] = node_.advertise<sensor_msgs::CameraInfo>( topic, 0 );
+        }
+    }
+
+
+    void CameraVisualizer::publishCameraInfo(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, std::string& topic, std::string frame, ros::Time ts) {
         sensor_msgs::CameraInfo msg;
 
         msg.header.stamp = ts;
@@ -93,7 +90,7 @@ namespace AutoDrive::Visualizers {
                  intrinsic[1][0], intrinsic[1][1], intrinsic[1][2], 0,
                  intrinsic[2][0], intrinsic[2][1], intrinsic[2][2], 0};
 
-        pub.publish(msg);
+        cameraInfoPublishers_[topic].publish(msg);
     }
 
 }

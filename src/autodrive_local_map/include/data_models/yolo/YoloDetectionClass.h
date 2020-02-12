@@ -87,10 +87,10 @@ namespace AutoDrive::DataModels {
 
     enum class ReducedYoloDetectionClasses {
         kPedestrian = 0,
-        kBike = 2,
-        kVehicle = 3,
-        kAnimal = 4,
-        kOther = 5,
+        kBike = 1,
+        kVehicle = 2,
+        kAnimal = 3,
+        kOther = 4,
     };
 
     ReducedYoloDetectionClasses getReducedDetectionClass(YoloDetectionClass& cls);

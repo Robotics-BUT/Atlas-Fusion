@@ -13,6 +13,7 @@
 #include "algorithms/pointcloud/PointCloudProcessor.h"
 #include "algorithms/pointcloud/OccupancyGrid3D.h"
 #include "algorithms/pointcloud/LaserAggregator.h"
+#include "algorithms/pointcloud/GlobalPointcloudStorage.h"
 
 
 #include "data_loader/DataLoader.h"
@@ -39,6 +40,7 @@ namespace AutoDrive {
                 float selfModelProcessNoise,
                 float selfModelObservationNoise,
                 float leafSize,
+                float globalLeafSize,
                 uint32_t noOfBatchesPerScan,
                 float liadrAggregationTime,
                 uint32_t noOfLasersPerLidar,
@@ -57,6 +59,7 @@ namespace AutoDrive {
         , pointCloudProcessor_ {context, leafSize}
         , leftLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints}
         , rightLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints}
+        , globalPointcloudStorage_{context, globalLeafSize}
         , occGrid_{context}
         , failChecker_{context}
         , visualizationHandler_(node, context)
@@ -91,6 +94,7 @@ namespace AutoDrive {
         Algorithms::PointCloudProcessor pointCloudProcessor_;
         Algorithms::LaserAggregator leftLidarLaserAggregator_;
         Algorithms::LaserAggregator rightLidarLaserAggregator_;
+        Algorithms::GlobalPointcloudStorage globalPointcloudStorage_;
         Algorithms::OccupancyGrid3D occGrid_;
 
         FailCheck::FailChecker failChecker_;

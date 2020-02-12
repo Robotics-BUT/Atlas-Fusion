@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <rtl/Frustum.h>
+#include <rtl/Frustum3D.h>
 
 #include "data_models/yolo/YoloDetection.h"
 

@@ -31,7 +31,7 @@ namespace AutoDrive {
 
             if(params->getType() == DataModels::DataModelTypes::kCameraCalibrationParamsDataModelType) {
                 auto paramModel = std::dynamic_pointer_cast<DataModels::CameraCalibrationParamsDataModel>(params);
-                visualizationHandler_.setCameraCalibParamsForCameraId(paramModel, cameraID);
+                visualizationHandler_.setCameraCalibParamsForCameraId(paramModel, frame);
 
                 auto intrinsicParams = paramModel->getMatIntrinsicParams();
                 auto distortionParams =  paramModel->getMatDistortionParams();
@@ -101,6 +101,7 @@ namespace AutoDrive {
             if(dataType == DataModels::DataModelTypes::kCameraDataModelType) {
 
                 static int cnt = 0;
+                static int globalPcCnt = 0;
 
                 auto imgData = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
 
@@ -115,8 +116,15 @@ namespace AutoDrive {
 
                 if(cnt++ >= 3) {
                     auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
-                    auto downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud);
+                    auto downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud)
+                            ;
+                    globalPointcloudStorage_.addMorePointsToGlobalStorage(downsampledAggregatedPc);
                     visualizationHandler_.drawAggregatedPointcloud(downsampledAggregatedPc);
+
+                    if(globalPcCnt++ >= 100) {
+                        //visualizationHandler_.drawGlobalPointcloud(globalPointcloudStorage_.getEntirePointcloud());
+                        globalPcCnt = 0;
+                    }
                     cnt = 0;
                 }
 

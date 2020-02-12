@@ -32,5 +32,10 @@ namespace AutoDrive::Visualizers {
 
         const std::string kYoloFrustumDetections = "/autodrive/local_map/yolo/frustums";
 
+
+        const std::string kLidarAggregated = "/autodrive/local_map/lidar/aggregated";
+        const std::string kLidarLaser = "/autodrive/local_map/lidar/laser";
+        const std::string kGlobalPointCloud = "/autodrive/local_map/lidar/global";
+
     }
 }
