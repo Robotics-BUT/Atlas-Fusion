@@ -95,6 +95,12 @@ namespace AutoDrive {
             auto sensorFrame = getFrameForData(data);
             auto sensorFailCheckID = failChecker_.frameToFailcheckID(sensorFrame);
             failChecker_.onNewData(data, sensorFailCheckID);
+            auto sensorScore = failChecker_.getSensorStatus(sensorFailCheckID);
+
+            if(sensorScore < 0.9) {
+                context_.logger_.warning("Sensor Score is too low");
+                continue;
+            }
 
             /* ... data processing ... */
 
