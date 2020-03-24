@@ -21,6 +21,7 @@ namespace AutoDrive::DataModels {
             case YoloDetectionClass::kCat:
             case YoloDetectionClass::kDog:
             case YoloDetectionClass::kHorse:
+            case YoloDetectionClass::kCow:
             case YoloDetectionClass::kSheep:
             case YoloDetectionClass::kElephant:
             case YoloDetectionClass::kBear:

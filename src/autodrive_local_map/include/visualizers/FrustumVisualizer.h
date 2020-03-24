@@ -25,7 +25,7 @@ namespace AutoDrive::Visualizers {
         }
 
 
-        void visualizeFrustumDetections(std::vector<std::shared_ptr<DataModels::FrustumDetection>> detections);
+        void visualizeFrustumDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> detections);
 
     private:
 
@@ -34,8 +34,8 @@ namespace AutoDrive::Visualizers {
 
         ros::Publisher frustumPublisher_;
 
-        std::vector<geometry_msgs::Point> frustumToGeometryPointVector(std::shared_ptr<rtl::Frustum<double>> f);
-        std::vector<geometry_msgs::Point> frustumToAxis(std::shared_ptr<rtl::Frustum<double>> f);
+        std::vector<geometry_msgs::Point> frustumToGeometryPointVector(std::shared_ptr<const rtl::Frustum<double>> f);
+        std::vector<geometry_msgs::Point> frustumToAxis(std::shared_ptr<const rtl::Frustum<double>> f);
 
         std_msgs::ColorRGBA getColorByClass(DataModels::YoloDetectionClass);
     };

@@ -15,5 +15,6 @@ namespace AutoDrive::DataLoader {
         kCameraRightFront,
         kCameraRightSide,
         kCameraIr,
+        kErr
     };
 }

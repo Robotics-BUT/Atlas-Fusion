@@ -13,6 +13,10 @@ namespace AutoDrive::Visualizers{
     }
 
 
+    void VisualizationHandler::drawSelf() const {
+        selfPublisher_.publish(getSelfCube());
+    }
+
     /* LIDAR */
 
     void VisualizationHandler::drawLidarData(const std::shared_ptr<DataModels::LidarScanDataModel> data) {
@@ -33,6 +37,11 @@ namespace AutoDrive::Visualizers{
 
     void VisualizationHandler::drawAggregatedLasers(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
         lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kLidarLaser, LocalMap::Frames::kOrigin);
+    }
+
+
+    void VisualizationHandler::drawPointcloudCutout(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
+        lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kCutoutPointcloud, LocalMap::Frames::kImuFrame);
     }
 
 
@@ -62,8 +71,54 @@ namespace AutoDrive::Visualizers{
         cameraVisualizer_.drawIRCameraFrameWithTopic(data, Topics::kCameraIr, Topics::kCameraIrInfo, LocalMap::Frames::kCameraIr);
     }
 
-    void VisualizationHandler::drawImuData(const rtl::Vector3D<double> linAcc) const {
-        imuVisualizer_.drawImuData(linAcc);
+
+    void VisualizationHandler::drawSpeedData(rtl::Vector3D<double> speed) {
+        imuVisualizer_.drawImuData(speed, LocalMap::Frames::kImuFrame, Topics::kSpeedTopic);
+    }
+
+    void VisualizationHandler::drawImuData(const rtl::Vector3D<double> linAcc) {
+        imuVisualizer_.drawImuData(linAcc, LocalMap::Frames::kImuFrame, Topics::kImuTopic);
+    }
+
+    void VisualizationHandler::drawImuAvgData(rtl::Vector3D<double> linAcc) {
+        imuVisualizer_.drawImuData(linAcc, LocalMap::Frames::kImuFrame, Topics::kImuAvgTopic);
+    }
+
+    void VisualizationHandler::drawGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel>data) const {
+        gnssVisualizer_.drawGnssPose(data);
+    }
+
+    void VisualizationHandler::drawRawGnssTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
+        trajectoryVisualizer_.drawRawTrajectory(data);
+    }
+
+    void VisualizationHandler::drawFilteredTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
+        trajectoryVisualizer_.drawFilteredTrajectory(data);
+    }
+
+    void VisualizationHandler::drawImuGpsTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
+        trajectoryVisualizer_.drawImuGpsTrajectory(data);
+    }
+
+    void VisualizationHandler::updateOriginToRootTf(const DataModels::LocalPosition& pose) {
+        rtl::Transformation3D tf(pose.getOrientation(), pose.getPosition());
+        tfTreeVisualizer_.updateOriginToRootTf(tf);
+    }
+
+    void VisualizationHandler::setCameraCalibParamsForCameraId(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, std::string frame) {
+        cameraVisualizer_.setCameraParams(frame, params);
+    }
+
+    void VisualizationHandler::drawFrustumDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> detections) {
+        frustumVisualizer_.visualizeFrustumDetections(detections);
+    }
+
+    void VisualizationHandler::drawLidarDetection(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections) {
+        lidarVisualizer_.drawLidarDetections(detections, Topics::kLidarDetections, LocalMap::Frames::kImuFrame);
+    }
+
+    void VisualizationHandler::drawTelemetry(std::string telemetryText) {
+        telemetryVisualizer_.drawTelemetryAsText(telemetryText, LocalMap::Frames::kImuFrame, Topics::kTelemetryText);
     }
 
 
@@ -92,32 +147,29 @@ namespace AutoDrive::Visualizers{
         return cube;
     }
 
-    void VisualizationHandler::drawGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel>data) const {
-        gnssVisualizer_.drawGnssPose(data);
-    }
+    visualization_msgs::Marker VisualizationHandler::getSelfCube() const {
 
-    void VisualizationHandler::drawRawGnssTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
-        trajectoryVisualizer_.drawRawTrajectory(data);
-    }
+        visualization_msgs::Marker cube;
+        cube.header.frame_id = LocalMap::Frames::kImuFrame;
+        cube.header.stamp = ros::Time();
+        cube.id = 0;
+        cube.type = visualization_msgs::Marker::CUBE;
+        cube.action = visualization_msgs::Marker::ADD;
+        cube.pose.position.x = 0;
+        cube.pose.position.y = 0;
+        cube.pose.position.z = -0.75;
+        cube.pose.orientation.x = 0.0;
+        cube.pose.orientation.y = 0.0;
+        cube.pose.orientation.z = 0.0;
+        cube.pose.orientation.w = 1.0;
+        cube.scale.x = 4.5;
+        cube.scale.y = 2.5;
+        cube.scale.z = 1.5;
 
-    void VisualizationHandler::drawFilteredTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
-        trajectoryVisualizer_.drawFilteredTrajectory(data);
-    }
-
-    void VisualizationHandler::drawImuGpsTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
-        trajectoryVisualizer_.drawImuGpsTrajectory(data);
-    }
-
-    void VisualizationHandler::updateOriginToRootTf(const DataModels::LocalPosition& pose) {
-        rtl::Transformation3D tf(pose.getOrientation(), pose.getPosition());
-        tfTreeVisualizer_.updateOriginToRootTf(tf);
-    }
-
-    void VisualizationHandler::setCameraCalibParamsForCameraId(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, std::string frame) {
-        cameraVisualizer_.setCameraParams(frame, params);
-    }
-
-    void VisualizationHandler::drawFrustumDetections(std::vector<std::shared_ptr<DataModels::FrustumDetection>> detections) {
-        frustumVisualizer_.visualizeFrustumDetections(detections);
+        cube.color.a = 0.5;
+        cube.color.r = 0.0;
+        cube.color.g = 1.0;
+        cube.color.b = 0.0;
+        return cube;
     }
 }

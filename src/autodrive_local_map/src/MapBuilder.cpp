@@ -110,22 +110,38 @@ namespace AutoDrive {
                 static int globalPcCnt = 0;
 
                 auto imgData = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
-
                 auto batches = pointCloudAggregator_.getAllBatches();
                 depthMap_.updatePointcloudData(batches);
+
 
                 auto detections3D = depthMap_.onNewCameraData(imgData, selfModel_.getPosition());
                 auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
 
-                localMap_.onNewFrustumDetections(frustums, sensorFrame);
-                visualizationHandler_.drawFrustumDetections(localMap_.getAllFrustumDetections());
+
+                localMap_.setFrustumDetections(frustums, sensorFrame);
+                visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
+
 
                 if(cnt++ >= 3) {
                     auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
-                    auto downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud)
-                            ;
+                    auto downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud);
                     globalPointcloudStorage_.addMorePointsToGlobalStorage(downsampledAggregatedPc);
+
+
+                    auto tunel = pointCloudAggregator_.getPointcloudCutout(pointCloudProcessor_.transformPointcloud(downsampledAggregatedPc, selfModel_.getPosition().toTf().inverted()),
+                                                                           rtl::BoundingBox3f{rtl::Vector3Df{-30.0f, -10.0f, -0.5f},
+                                                                                              rtl::Vector3Df{ 30.0f,  10.0f, 10.0f}});
+                    auto downsampledTunel = pointCloudProcessor_.downsamplePointCloud(tunel);
+                    auto lidarObstacles = lidarObjectDetector_.detectObstacles(downsampledTunel);
+                    localMap_.setLidarDetections(
+                            objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(),
+                                                                       lidarObstacles));
+
+
                     visualizationHandler_.drawAggregatedPointcloud(downsampledAggregatedPc);
+                    visualizationHandler_.drawLidarDetection(lidarObstacles);
+                    visualizationHandler_.drawPointcloudCutout(tunel);
+                    visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
 
                     if(globalPcCnt++ >= 100) {
                         //visualizationHandler_.drawGlobalPointcloud(globalPointcloudStorage_.getEntirePointcloud());
@@ -155,6 +171,9 @@ namespace AutoDrive {
                 visualizationHandler_.drawRawGnssTrajectory(gnssPoseLogger_.getPositionHistory());
                 visualizationHandler_.drawFilteredTrajectory(selfModel_.getPositionHistory());
                 visualizationHandler_.drawGnssPoseData(poseData);
+                visualizationHandler_.drawTelemetry(selfModel_.getTelemetryString());
+                visualizationHandler_.drawImuAvgData(selfModel_.getAvgAcceleration());
+                visualizationHandler_.drawSpeedData(selfModel_.getSpeedVector());
 
             } else if (dataType == DataModels::DataModelTypes::kGnssTimeDataModelType) {
 
@@ -220,6 +239,7 @@ namespace AutoDrive {
                 }
                 lidarDataHistory_[sensorFrame] = lidarData;
                 visualizationHandler_.drawLidarData(lidarData);
+                visualizationHandler_.drawSelf();
 
             } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {
                 context_.logger_.warning("Received Generic data model from DataLoader");

@@ -17,16 +17,16 @@ namespace AutoDrive::Visualizers {
         ImuVisualizer(ros::NodeHandle& node, Context& context)
         : node_{node}
         , context_{context} {
-            imuPublisher_ = node_.advertise<sensor_msgs::Imu>( Topics::kImuTopic, 0 );
         }
 
-        void drawImuData(rtl::Vector3D<double> linAcc) const;
+        void drawImuData(rtl::Vector3D<double> linAcc, std::string frame, std::string topic);
 
     protected:
 
         ros::NodeHandle& node_;
         Context& context_;
-        ros::Publisher imuPublisher_;
+
+        std::map<std::string, std::shared_ptr<ros::Publisher>> publishers_;
     };
 
 }

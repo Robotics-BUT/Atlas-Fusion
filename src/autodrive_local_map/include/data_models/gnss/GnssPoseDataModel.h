@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include "data_models/GenericDataModel.h"
 
 namespace AutoDrive::DataModels {
@@ -23,6 +24,7 @@ namespace AutoDrive::DataModels {
         double getLongitude() {return longitude_;};
         double getAltitude() {return altitude_;};
         double getAzimut() {return azimut_;};
+        double getHeading() {return -azimut_ * M_PI / 180;};
 
     private:
 

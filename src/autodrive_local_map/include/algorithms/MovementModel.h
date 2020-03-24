@@ -38,16 +38,25 @@ namespace AutoDrive::Algorithms {
 
         std::deque<DataModels::LocalPosition> getPositionHistory() { return positionHistory_; };
 
-        DataModels::LocalPosition getPosition();
-        DataModels::LocalPosition estimatePositionInTime(uint64_t time);
+        DataModels::LocalPosition getPosition() const;
+        double getSpeed() const;
+        rtl::Vector3D<double> getVectorSpeed() const;
 
+        double getHeading() const;
+        rtl::Quaternion<double> getOrientation() const;
+
+        DataModels::LocalPosition estimatePositionInTime(uint64_t time);
         static DataModels::LocalPosition interpolateLocalPosition( DataModels::LocalPosition& begin, DataModels::LocalPosition& end, float ratio);
+
+        [[deprecated]] float getSpeedAzimOffset();
 
     private:
 
         Context& context_;
 
-        bool initialized_ = false;
+        bool poseInitialized_ = false;
+        bool headingInitialized_ = false;
+
         DataModels::GlobalPosition initPositionGnss_{0,0,0,0};
         std::deque<DataModels::LocalPosition> positionHistory_;
 
@@ -55,12 +64,7 @@ namespace AutoDrive::Algorithms {
         Kalman1D kalmanY_;
         Kalman1D kalmanZ_;
 
-//        double roll_{};
-//        double pitch_{};
-        double gnssYaw_{};
-
         rtl::Quaternion<double> orientation_;
-//        rtl::Quaternion<double> orientationOffset_;
 
         uint64_t lastImuTimestamp_{};
         uint64_t lastDquatTimestamp_{};
@@ -68,12 +72,16 @@ namespace AutoDrive::Algorithms {
 
         Algorithms::ImuDataProcessor imuProcessor_{};
 
-        double estimateHeading();
-        double estimateSpeedHeading();
+        uint64_t lastValidGnssHeadingTimestamp_{};
+
+        double estimateHeading() const;
+        double estimateSpeedHeading() const;
+
         DataModels::GlobalPosition gnssPoseToRootFrame(DataModels::GlobalPosition);
         rtl::Quaternion<double> rpyToQuaternion(double, double, double);
-        void quaternionToRPY(rtl::Quaternion<double> q, double& roll, double &pitch, double& yaw);
+        void quaternionToRPY(rtl::Quaternion<double> q, double& roll, double &pitch, double& yaw) const;
 
-        double getSpeedGainFactor(double speed);
+        double getSpeedGainFactor(double speed) const;
+        double azimuthToHeading(double azimuth) const;
     };
 };

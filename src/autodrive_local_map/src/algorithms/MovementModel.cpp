@@ -1,30 +1,37 @@
 #include "algorithms/MovementModel.h"
 #include "local_map/Frames.h"
+#include <rtl/Transformation3D.h>
 
 namespace AutoDrive::Algorithms {
 
 
+    /// Hooks
 
     void MovementModel::onGnssPose(std::shared_ptr<DataModels::GnssPoseDataModel> data) {
 
         currentTime = data->getTimestamp();
 
-        auto gnssPose = DataModels::GlobalPosition{
-                data->getLatitude(),
-                data->getLongitude(),
-                data->getAltitude(),
-                data->getAzimut()};
+        auto gnssPose = DataModels::GlobalPosition{ data->getLatitude(), data->getLongitude(), data->getAltitude(), 0};
         auto imuPose = gnssPoseToRootFrame(gnssPose);
-        auto yaw = -data->getAzimut() * M_PI / 180;
-        gnssYaw_ = yaw;
+        auto heading = azimuthToHeading(data->getAzimut());
 
-        if(!initialized_) {
+        if(!poseInitialized_) {
             initPositionGnss_ = gnssPoseToRootFrame(gnssPose);
             lastImuTimestamp_ = data->getTimestamp();
             lastDquatTimestamp_ = data->getTimestamp();
-//            orientationOffset_ =  orientation_ * rpyToQuaternion(0,0,yaw).inverted() ;
-            initialized_ = true;
+            poseInitialized_ = true;
         }
+
+        if(heading != 0) {
+
+            if(!headingInitialized_) {
+                orientation_ = rpyToQuaternion(0,0,heading);
+                headingInitialized_ = true;
+            }
+
+            orientation_ = orientation_.slerp(rpyToQuaternion(0,0,heading), 0.01);
+        }
+
 
         while(positionHistory_.size() >= 100) {
             positionHistory_.pop_front();
@@ -44,43 +51,28 @@ namespace AutoDrive::Algorithms {
         quaternionToRPY(orientation_, roll, pitch, y);
 
         DataModels::LocalPosition position{{kalmanX_.getPosition(), kalmanY_.getPosition(), kalmanZ_.getPosition()},
-                                           rpyToQuaternion(roll,pitch, estimateHeading()),
-//                                           orientation_ * orientationOffset_,
+                                           orientation_,
                                            data->getTimestamp()};
 
         positionHistory_.push_back(position);
-
-        //std::cout << position.toString() << std::endl;
     }
 
 
     void MovementModel::onImuImuData(std::shared_ptr<DataModels::ImuImuDataModel> data) {
 
         currentTime = data->getTimestamp();
-
-        if(initialized_) {
-
-            auto imuToOriginTf = context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kImuFrame);
-            imuToOriginTf.setTranslation({});
+        if(poseInitialized_) {
 
             imuProcessor_.setOrientation(data->getOrientation());
             auto linAccNoGrav = imuProcessor_.removeGravitaionAcceleration(data->getLinearAcc());
 
-            orientation_ = data->getOrientation();
-            double roll, pitch, yaw;
-            quaternionToRPY(orientation_, roll, pitch, yaw);
-
-            yaw = estimateHeading();
-            auto accX = cos(yaw)*linAccNoGrav.x() - sin(yaw)*linAccNoGrav.y();
-            auto accY = sin(yaw)*linAccNoGrav.x() + cos(yaw)*linAccNoGrav.y();
+            auto orientatnionTF = rtl::Transformation3D<double>{orientation_,{}};
+            auto rotatedLinAccNoGrav = orientatnionTF(linAccNoGrav);
 
             auto dt = (data->getTimestamp() - lastImuTimestamp_) * 1e-9;
-            kalmanX_.predict(dt, accX);
-            kalmanY_.predict(dt, accY);
-            kalmanZ_.predict(dt, linAccNoGrav.z());
-
-            //std::cout << orientation_.x() << " " << orientation_.y()  << " " << orientation_.z()  << " " << orientation_.w() << std::endl;
-
+            kalmanX_.predict(dt, rotatedLinAccNoGrav.x());
+            kalmanY_.predict(dt, rotatedLinAccNoGrav.y());
+            kalmanZ_.predict(dt, rotatedLinAccNoGrav.z());
             lastImuTimestamp_ = data->getTimestamp();
         }
     }
@@ -90,32 +82,46 @@ namespace AutoDrive::Algorithms {
 
         currentTime = data->getTimestamp();
 
-        if(initialized_) {
-
-//            auto dt = (data->getTimestamp() - lastImuTimestamp_) * 1e-9;
-//            auto dQuat = data->getDQuat();
-//
-//            double roll, pitch, yaw;
-//            quaternionToRPY(dQuat, roll, pitch, yaw);
-//            kalmanYaw_.predict(dt, yaw);
-//
+        if(poseInitialized_) {
+            orientation_ = orientation_ * data->getDQuat();
             lastDquatTimestamp_ = data->getTimestamp();
         }
     }
 
-    DataModels::LocalPosition MovementModel::getPosition() {
 
-//        double heading = estimateHeading();
-//        return DataModels::LocalPosition(
-//                {kalmanX_.getPosition(), kalmanY_.getPosition(), kalmanZ_.getPosition()},
-//                rpyToQuaternion(roll_, pitch_, heading),
-//                currentTime);
+
+    /// Getters
+
+    DataModels::LocalPosition MovementModel::getPosition() const {
+
         if(positionHistory_.empty()){
             return DataModels::LocalPosition{{},{},0};
         }
         return positionHistory_.back();
     }
 
+
+    double MovementModel::getSpeed() const {
+        return std::sqrt( std::pow(kalmanX_.getSpeed(),2) + std::pow(kalmanY_.getSpeed(),2) + std::pow(kalmanZ_.getSpeed(),2) );
+    }
+
+
+    rtl::Vector3D<double> MovementModel::getVectorSpeed() const {
+        return {kalmanX_.getSpeed(), kalmanY_.getSpeed(), kalmanZ_.getSpeed()};
+    }
+
+
+    double MovementModel::getHeading() const {
+        return estimateHeading();
+    }
+
+
+    rtl::Quaternion<double> MovementModel::getOrientation() const {
+        return orientation_;
+    }
+
+
+    /// Others
 
     DataModels::LocalPosition MovementModel::estimatePositionInTime(const uint64_t time) { // currently returns the last position before the reference time
 
@@ -169,22 +175,21 @@ namespace AutoDrive::Algorithms {
     }
 
 
-    double MovementModel::estimateHeading() {
+    double MovementModel::estimateHeading() const {
 
-        return gnssYaw_;
+        double roll, pitch, yaw;
+        quaternionToRPY(orientation_, roll, pitch, yaw);
+        return yaw;
+    }
 
+
+    double MovementModel::estimateSpeedHeading() const {
+        return atan2(kalmanY_.getSpeed(), kalmanX_.getSpeed());
+    }
+
+    [[deprecated]] float MovementModel::getSpeedAzimOffset() {
         auto speedHeading = atan2(kalmanY_.getSpeed(), kalmanX_.getSpeed());
-        auto speedQuaternion = rtl::Quaternion<double>{0, 0, speedHeading};
-        auto gnssQuaternion = rtl::Quaternion<double>{0, 0, gnssYaw_};
-
-        auto speed = std::sqrt( std::pow(kalmanY_.getSpeed(),2) + std::pow(kalmanX_.getSpeed(),2));
-        auto gain = getSpeedGainFactor(speed);
-
-        double r,p,y;
-        auto result = speedQuaternion.slerp(gnssQuaternion, gain);
-        quaternionToRPY(result, r, p , y);
-
-        return y;
+        return speedHeading;
     }
 
     DataModels::GlobalPosition MovementModel::gnssPoseToRootFrame(const DataModels::GlobalPosition gnssPose) {
@@ -213,7 +218,7 @@ namespace AutoDrive::Algorithms {
         return q;
     }
 
-    void MovementModel::quaternionToRPY(rtl::Quaternion<double> q, double& roll, double &pitch, double& yaw) {
+    void MovementModel::quaternionToRPY(rtl::Quaternion<double> q, double& roll, double &pitch, double& yaw) const {
 
         // roll (x-axis rotation)
         double sinr_cosp = 2 * (q.w() * q.x() + q.y() * q.z());
@@ -234,8 +239,13 @@ namespace AutoDrive::Algorithms {
     }
 
 
-    double MovementModel::getSpeedGainFactor(double speed) {
+    double MovementModel::getSpeedGainFactor(double speed) const {
         double y = 1 / ( 1 + std::exp( -0.15 * ( speed-25 ) ) );
         return y;
+    }
+
+
+    double MovementModel::azimuthToHeading(double azimuth) const {
+        return -azimuth * M_PI / 180;
     }
 }

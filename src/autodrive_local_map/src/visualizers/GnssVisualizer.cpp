@@ -23,11 +23,13 @@ namespace AutoDrive::Visualizers {
         textMsg.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
         textMsg.action = visualization_msgs::Marker::ADD;
 
+        double printAzimut = data->getAzimut() > 180 ? data->getAzimut()-360 : data->getAzimut();
+
         std::stringstream ss;
         ss << std::setprecision(10)  << "Lat: " << data->getLatitude() << "\n"
            << "Lon: " << data->getLongitude() << std::endl
            << std::setprecision(4) << "Alt: " << data->getAltitude() << "\n"
-           << "Azim: " << data->getAzimut();
+           << "Azim: " << printAzimut;
         textMsg.text = ss.str();
 
         gnssPublisher_.publish(textMsg);

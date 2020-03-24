@@ -20,6 +20,8 @@ namespace AutoDrive::Algorithms {
 
         std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> downsamplePointCloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input);
 
+        static std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> transformPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input, rtl::Transformation3D<double> tf);
+
     private:
 
         Context& context_;

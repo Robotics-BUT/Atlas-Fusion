@@ -23,8 +23,11 @@ namespace AutoDrive::Algorithms {
         void predict(double dt, double u);
         void correct(cv::Mat measurement);
 
-        double getPosition();
-        double getSpeed();
+        double getPosition() const;
+        double getSpeed() const;
+
+        void setPosition(double position);
+        void setSpeed(double speed);
 
     private:
 
