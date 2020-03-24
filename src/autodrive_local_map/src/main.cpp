@@ -14,6 +14,7 @@
 #include "Context.h"
 #include "visualizers/TFVisualizer.h"
 #include "local_map/Frames.h"
+#include "munkres/munkres.h"
 
 rtl::Transformation3Dd getTFFrameFromConfig(AutoDrive::ConfigService& service, std::string name) {
     auto translation = service.getVector3DValue<double>({name, "trans"});
@@ -36,6 +37,16 @@ AutoDrive::LocalMap::TFTree buildTFTree(std::string rootFrame, std::vector<std::
 
 
 int main(int argc, char** argv) {
+
+
+    int cols =3;
+    int rows = 4;
+    std::vector<int> M = {2, 2, 1,
+                          1, 2, 2,
+                          2, 1, 2,
+                          2, 2, 2};
+    auto f = [&](unsigned r, unsigned c) { return M[r * cols + c]; };
+    auto matching = Munkres::munkres_algorithm<int>(rows, cols, f);
 
     const std::string imuFrameName = "imu";
 

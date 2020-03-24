@@ -6,13 +6,13 @@ namespace AutoDrive::Visualizers {
 
 
     void TrajectoryVisualizer::drawRawTrajectory(std::deque<DataModels::LocalPosition> data) const {
-        Color c{1.0, 0.0, 0.0};
+        Color c{0.0, 1.0, 0.0};
         drawTrajectory(data, rawTrajectoryPublisher_, c);
     }
 
 
     void TrajectoryVisualizer::drawFilteredTrajectory(std::deque<DataModels::LocalPosition> data) const {
-        Color c{0.0, 1.0, 0.0};
+        Color c{1.0, 0.0, 0.0};
         drawTrajectory(data, filteredTrajectoryPublisher_, c);
     }
 

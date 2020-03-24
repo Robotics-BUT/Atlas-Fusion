@@ -7,9 +7,9 @@ namespace AutoDrive::Algorithms {
     }
 
 
-    std::vector<std::shared_ptr<DataModels::FrustumDetection>> DetectionsProcessor::onNew3DYoloDetections(std::shared_ptr<std::vector<DataModels::YoloDetection3D>> detections3D, std::string frame) {
+    std::vector<std::shared_ptr<const DataModels::FrustumDetection>> DetectionsProcessor::onNew3DYoloDetections(std::shared_ptr<std::vector<DataModels::YoloDetection3D>> detections3D, std::string frame) {
 
-        std::vector<std::shared_ptr<DataModels::FrustumDetection>> output{};
+        std::vector<std::shared_ptr<const DataModels::FrustumDetection>> output{};
         auto projector = projectors_[frame];
         for(const auto& detection : *detections3D) {
             auto boundingBox = detection.getBoundingBox();
@@ -37,7 +37,7 @@ namespace AutoDrive::Algorithms {
             auto tf = context_.tfTree_.getTransformationForFrame(frame);
             auto tmp = frustum.applyTransformation(tf);
 
-            output.push_back(std::make_shared<DataModels::FrustumDetection>(
+            output.push_back(std::make_shared<const DataModels::FrustumDetection>(
                     std::make_shared<rtl::Frustum<double>>(frustum.applyTransformation(tf)),
                     detection.getDetectionConfidence(),
                     detection.getClassConfidence(),

@@ -17,14 +17,7 @@ namespace AutoDrive::Algorithms {
 
             auto tf = rtl::Transformation3D<double>{ orientation_, {0,0,0}};
             auto grav = tf.inverted()(g_);
-
-            //std::cout << " * * * * * * * * * " << std::endl;
-            //std::cout << acc.x() << " "  << acc.y() <<  " " << acc.z() << std::endl;
-            //std::cout << grav.x() << " "  << grav.y() <<  " " << grav.z() << std::endl;
-
             rtl::Vector3D<double> diff = acc - grav;
-
-            //std::cout << diff.x() << " "  << diff.y() <<  " " << diff.z() << std::endl;
             return diff;
         }
 

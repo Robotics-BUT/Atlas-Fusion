@@ -160,6 +160,7 @@ namespace AutoDrive {
                 return CameraIndentifier::kCameraIr;
             } else {
                 context_.logger_.warning("Unexpected camera frame in DataLoader::getCameraIDfromFrame()!");
+                return CameraIndentifier::kErr;
             };
         }
 

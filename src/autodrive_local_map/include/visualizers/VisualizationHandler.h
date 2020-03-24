@@ -10,6 +10,7 @@
 #include "data_models/camera/CameraFrameDataModel.h"
 #include "data_models/camera/CameraIrFrameDataModel.h"
 #include "data_models/DataModelTypes.h"
+#include "data_models/local_map/LidarDetection.h"
 
 #include "Topics.h"
 #include "Context.h"
@@ -20,6 +21,7 @@
 #include "GnssVisualizer.h"
 #include "TFVisualizer.h"
 #include "FrustumVisualizer.h"
+#include "TelemetryVisualizer.h"
 
 #include "TrajectoryVisualizer.h"
 
@@ -38,21 +40,27 @@ namespace AutoDrive::Visualizers {
         , gnssVisualizer_(node, context)
         , tfTreeVisualizer_(node, context)
         , trajectoryVisualizer_(node, context)
-        , frustumVisualizer_(node, context) {
+        , frustumVisualizer_(node, context)
+        , telemetryVisualizer_(node, context) {
             testCubePublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kTestCubeTopic, 0 );
+            selfPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kSelf, 0);
         }
 
         void drawTestingCube() const;
+        void drawSelf() const;
 
         void drawLidarData(std::shared_ptr<DataModels::LidarScanDataModel>);
         void drawAggregatedPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
         void drawAggregatedLasers(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
         void drawGlobalPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
+        void drawPointcloudCutout(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
 
         void drawRGBImage(std::shared_ptr<DataModels::CameraFrameDataModel>);
         void drawIRImage(std::shared_ptr<DataModels::CameraIrFrameDataModel>);
 
-        void drawImuData(rtl::Vector3D<double> linAcc) const;
+        void drawSpeedData(rtl::Vector3D<double> speed);
+        void drawImuData(rtl::Vector3D<double> linAcc);
+        void drawImuAvgData(rtl::Vector3D<double> linAcc);
         void drawGnssPoseData(std::shared_ptr<DataModels::GnssPoseDataModel>) const;
 
         void drawRawGnssTrajectory(const std::deque<DataModels::LocalPosition> &data) const;
@@ -63,8 +71,10 @@ namespace AutoDrive::Visualizers {
 
         void setCameraCalibParamsForCameraId(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, std::string frame);
 
-        void drawFrustumDetections(std::vector<std::shared_ptr<DataModels::FrustumDetection>> detections);
+        void drawFrustumDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> detections);
+        void drawLidarDetection(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections);
 
+        void drawTelemetry(std::string telemetryText);
 
     private:
 
@@ -72,6 +82,7 @@ namespace AutoDrive::Visualizers {
         Context& context_;
 
         ros::Publisher testCubePublisher_;
+        ros::Publisher selfPublisher_;
 
         LidarVisualizer lidarVisualizer_;
         ImuVisualizer imuVisualizer_;
@@ -80,8 +91,10 @@ namespace AutoDrive::Visualizers {
         TFVisualizer tfTreeVisualizer_;
         TrajectoryVisualizer trajectoryVisualizer_;
         FrustumVisualizer frustumVisualizer_;
+        TelemetryVisualizer telemetryVisualizer_;
 
         visualization_msgs::Marker getTestCube() const;
+        visualization_msgs::Marker getSelfCube() const;
     };
 
 }

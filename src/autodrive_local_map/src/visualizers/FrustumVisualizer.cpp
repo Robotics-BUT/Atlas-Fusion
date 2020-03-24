@@ -3,7 +3,7 @@
 
 namespace AutoDrive::Visualizers {
 
-    void FrustumVisualizer::visualizeFrustumDetections(std::vector<std::shared_ptr<DataModels::FrustumDetection>> detections) {
+    void FrustumVisualizer::visualizeFrustumDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> detections) {
 
         static size_t maxMarkerNo = 0;
         visualization_msgs::MarkerArray msg;
@@ -29,21 +29,21 @@ namespace AutoDrive::Visualizers {
             msg.markers.push_back(marker);
 
             // Frustum Axis
-            visualization_msgs::Marker frustumAxis;
-            frustumAxis.header.frame_id = LocalMap::Frames::kImuFrame;
-            frustumAxis.header.stamp = time;
-            frustumAxis.id = cnt++;
-            frustumAxis.type = visualization_msgs::Marker::LINE_LIST;
-            frustumAxis.action = visualization_msgs::Marker::ADD;
-
-            frustumAxis.points = frustumToAxis(detection->getFrustum());
-
-            frustumAxis.scale.x = 0.05;
-            frustumAxis.scale.y = 0.05;
-            frustumAxis.scale.z = 0.05;
-
-            frustumAxis.color = getColorByClass(detection->getClass());
-            msg.markers.push_back(frustumAxis);
+//            visualization_msgs::Marker frustumAxis;
+//            frustumAxis.header.frame_id = LocalMap::Frames::kImuFrame;
+//            frustumAxis.header.stamp = time;
+//            frustumAxis.id = cnt++;
+//            frustumAxis.type = visualization_msgs::Marker::LINE_LIST;
+//            frustumAxis.action = visualization_msgs::Marker::ADD;
+//
+//            frustumAxis.points = frustumToAxis(detection->getFrustum());
+//
+//            frustumAxis.scale.x = 0.05;
+//            frustumAxis.scale.y = 0.05;
+//            frustumAxis.scale.z = 0.05;
+//
+//            frustumAxis.color = getColorByClass(detection->getClass());
+//            msg.markers.push_back(frustumAxis);
         }
 
         for(size_t i = cnt ; i < maxMarkerNo; i++) {
@@ -61,7 +61,7 @@ namespace AutoDrive::Visualizers {
     }
 
 
-    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToGeometryPointVector(std::shared_ptr<rtl::Frustum<double>> f) {
+    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToGeometryPointVector(std::shared_ptr<const rtl::Frustum<double>> f) {
 
         geometry_msgs::Point ntl;
         geometry_msgs::Point ntr;
@@ -120,7 +120,7 @@ namespace AutoDrive::Visualizers {
     }
 
 
-    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToAxis(std::shared_ptr<rtl::Frustum<double>> f) {
+    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToAxis(std::shared_ptr<const rtl::Frustum<double>> f) {
 
         geometry_msgs::Point origin;
         geometry_msgs::Point middle;

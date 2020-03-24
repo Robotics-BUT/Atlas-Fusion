@@ -11,15 +11,15 @@ namespace AutoDrive::DataModels {
 
     public:
 
-        explicit FrustumDetection(std::shared_ptr<rtl::Frustum<double>> frustum, float detConfidence, float classConfidence, YoloDetectionClass cls)
-                : frustum_{frustum}
+        explicit FrustumDetection(std::shared_ptr<const rtl::Frustum<double>> frustum, float detConfidence, float classConfidence, YoloDetectionClass cls)
+                : frustum_{std::move(frustum)}
                 , detConfidence_{detConfidence}
                 , classConfidence_{classConfidence}
                 , cls_{cls} {
 
         }
 
-        std::shared_ptr<rtl::Frustum<double>> getFrustum() { return frustum_; };
+        std::shared_ptr<const rtl::Frustum<double>> getFrustum() const { return frustum_; };
         float getDetectionConfidence() const {return detConfidence_;};
         float getClassConfidence() const {return classConfidence_;};
         YoloDetectionClass getClass() const {return cls_;};
@@ -29,7 +29,7 @@ namespace AutoDrive::DataModels {
 
     private:
 
-        std::shared_ptr<rtl::Frustum<double>> frustum_;
+        std::shared_ptr<const rtl::Frustum<double>> frustum_;
         float detConfidence_;
         float classConfidence_;
         YoloDetectionClass cls_;

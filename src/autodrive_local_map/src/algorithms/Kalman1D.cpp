@@ -30,15 +30,24 @@ namespace AutoDrive::Algorithms {
 //        printMatrix(covariance_, "covariance_");
     }
 
-    double Kalman1D::getPosition() {
+    double Kalman1D::getPosition() const {
         auto pose = states_.at<double>(0);
         return pose;
     }
 
-    double Kalman1D::getSpeed() {
+    double Kalman1D::getSpeed() const {
         auto speed = states_.at<double>(1);
         return speed;
     }
+
+    void Kalman1D::setPosition(double position) {
+        states_.at<double>(0) = position;
+    }
+
+    void Kalman1D::setSpeed(double speed) {
+        states_.at<double>(1) = speed;
+    }
+
 
     void Kalman1D::printMatrix(cv::Mat mat, std::string name) {
         std::cout << " *** " << name << " *** " << std::endl;

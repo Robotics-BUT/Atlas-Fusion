@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 find_package(OpenCV REQUIRED)
 find_package(catkin REQUIRED COMPONENTS roscpp std_msgs tf2 tf2_msgs tf2_ros tf2_geometry_msgs image_transport cv_bridge)
 find_package(Qt5 COMPONENTS Core REQUIRED)
-find_package(PCL 1.7 REQUIRED COMPONENTS common io filters)
+find_package(PCL 1.7 REQUIRED COMPONENTS)
 find_package(Yaml-cpp)
 
 
@@ -31,9 +31,10 @@ include_directories(
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-add_subdirectory(robotic-template-library)
+add_subdirectory(libs/robotic-template-library)
 include_directories(
-        robotic-template-library/include
+        libs/robotic-template-library/include
+        libs/munkres/include
 )
 
 
@@ -57,11 +58,14 @@ set(SOURCES_ALGORITHMS
         src/algorithms/pointcloud/PointCloudAggregator.cpp
         src/algorithms/pointcloud/PointCloudProcessor.cpp
         src/algorithms/pointcloud/LaserAggregator.cpp
-        src/algorithms/pointcloud/GlobalPointcloudStorage.cpp)
+        src/algorithms/pointcloud/GlobalPointcloudStorage.cpp
+        src/algorithms/pointcloud/ObjectDetector.cpp
+        src/algorithms/SelfModel.cpp)
 
 set(SOURCES_LOCAL_MAP
         src/local_map/TFTree.cpp
-        src/local_map/LocalMap.cpp)
+        src/local_map/LocalMap.cpp
+        src/local_map/ObjectsAggregator.cpp)
 
 set(SOURCES_VISUALIZERS
         src/visualizers/VisualizationHandler.cpp
@@ -71,7 +75,8 @@ set(SOURCES_VISUALIZERS
         src/visualizers/GnssVisualizer.cpp
         src/visualizers/TrajectoryVisualizer.cpp
         src/visualizers/TFVisualizer.cpp
-        src/visualizers/FrustumVisualizer.cpp)
+        src/visualizers/FrustumVisualizer.cpp
+        src/visualizers/TelemetryVisualizer.cpp)
 
 set(SOURCES_DATA_MODELS
         src/data_models/gnss/GnssTimeDataModel.cpp
@@ -88,7 +93,9 @@ set(SOURCES_DATA_MODELS
         src/data_models/camera/CameraIrFrameDataModel.cpp
         src/data_models/yolo/YoloDetectionClass.cpp
         src/data_models/local_map/LocalPosition.cpp
-        src/data_models/local_map/PointCloudBatch.cpp)
+        src/data_models/local_map/PointCloudBatch.cpp
+        src/data_models/local_map/LidarDetection.cpp
+        src/data_models/local_map/Object.cpp)
 
 set(SOURCES_DATA_LOADER
         src/data_loader/DataLoader.cpp

@@ -45,9 +45,24 @@ namespace AutoDrive::Algorithms {
                 // TODO: Avoid using + operator
                 *output += *(batch->getTransformedPoints());
             }
-
         }
+        return output;
+    }
 
+
+
+    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudAggregator::getPointcloudCutout(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input,rtl::BoundingBox3f borders) {
+
+        auto output = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
+        output->reserve(input->size());
+
+        for(const auto& point : *input) {
+            if(point.x > borders.min().getElement(0) && point.x < borders.max().getElement(0) &&
+               point.y > borders.min().getElement(1) && point.y < borders.max().getElement(1) &&
+               point.z > borders.min().getElement(2) && point.z < borders.max().getElement(2)) {
+                output->push_back(point);
+            }
+        }
         return output;
     }
 

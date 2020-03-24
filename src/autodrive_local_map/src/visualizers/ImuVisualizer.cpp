@@ -3,7 +3,11 @@
 
 namespace AutoDrive::Visualizers {
 
-    void ImuVisualizer::drawImuData(const rtl::Vector3D<double> linAcc) const {
+    void ImuVisualizer::drawImuData(const rtl::Vector3D<double> linAcc, std::string frame, std::string topic) {
+
+        if(publishers_.count(topic) == 0) {
+            publishers_[topic] = std::make_shared<ros::Publisher>(node_.advertise<sensor_msgs::Imu>( topic, 0));
+        }
 
         sensor_msgs::Imu msg;
         msg.header.stamp = ros::Time::now();
@@ -12,6 +16,6 @@ namespace AutoDrive::Visualizers {
         msg.linear_acceleration.y = linAcc.y();
         msg.linear_acceleration.z = linAcc.z();
 
-        imuPublisher_.publish(msg);
+        publishers_[topic]->publish(msg);
     }
 }

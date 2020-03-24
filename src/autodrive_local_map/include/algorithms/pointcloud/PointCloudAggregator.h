@@ -1,10 +1,11 @@
 #pragma once
 
 #include <queue>
+#include <rtl/BoundingBox.h>
 
 #include "Context.h"
-
 #include "data_models/local_map/PointCloudBatch.h"
+#include "data_models/local_map/LocalPosition.h"
 
 namespace AutoDrive::Algorithms {
 
@@ -22,6 +23,8 @@ namespace AutoDrive::Algorithms {
         void filterOutBatches(uint64_t currentTime);
         std::vector<std::shared_ptr<DataModels::PointCloudBatch>> getAllBatches();
         std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getAggregatedPointCloud();
+
+        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getPointcloudCutout(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input, rtl::BoundingBox3f);
 
     private:
 

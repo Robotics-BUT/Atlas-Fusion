@@ -7,9 +7,12 @@ namespace AutoDrive::Visualizers {
 
     namespace Topics {
         const std::string kTestCubeTopic = "/autodrive/local_map/test_cube";
+        const std::string kSelf = "/autodrive/local_map/self";
+
         const std::string kLidarLeft = "/autodrive/local_map/lidar/left";
         const std::string kLidarRight = "/autodrive/local_map/lidar/right";
         const std::string kImuTopic = "/autodrive/local_map/imu/imu";
+        const std::string kImuAvgTopic = "/autodrive/local_map/imu/imu_avg";
         const std::string kGnssTopic = "/autodrive/local_map/gnss/pose_text";
 
 
@@ -36,6 +39,12 @@ namespace AutoDrive::Visualizers {
         const std::string kLidarAggregated = "/autodrive/local_map/lidar/aggregated";
         const std::string kLidarLaser = "/autodrive/local_map/lidar/laser";
         const std::string kGlobalPointCloud = "/autodrive/local_map/lidar/global";
+        const std::string kCutoutPointcloud = "/autodrive/local_map/lidar/cutout";
+
+        const std::string kLidarDetections = "/autodrive/local_map/lidar_detections";
+
+        const std::string kTelemetryText = "/autodrive/local_map/telemetry/text";
+        const std::string kSpeedTopic = "/autodrive/local_map/speed";
 
     }
 }

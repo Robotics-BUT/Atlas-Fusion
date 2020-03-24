@@ -4,6 +4,7 @@
 
 #include "algorithms/SimpleTrajectoryLogger.h"
 #include "algorithms/MovementModel.h"
+#include "algorithms/SelfModel.h"
 #include "algorithms/ImuDataProcessor.h"
 #include "algorithms/LidarFilter.h"
 #include "algorithms/DepthMap.h"
@@ -14,6 +15,7 @@
 #include "algorithms/pointcloud/OccupancyGrid3D.h"
 #include "algorithms/pointcloud/LaserAggregator.h"
 #include "algorithms/pointcloud/GlobalPointcloudStorage.h"
+#include "algorithms/pointcloud/ObjectDetector.h"
 
 
 #include "data_loader/DataLoader.h"
@@ -22,6 +24,8 @@
 #include "Context.h"
 
 #include "local_map/LocalMap.h"
+#include "local_map/ObjectsAggregator.h"
+
 #include "data_models/lidar/LidarScanDataModel.h"
 
 #include "fail_check/all.h"
@@ -61,12 +65,14 @@ namespace AutoDrive {
         , rightLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints}
         , globalPointcloudStorage_{context, globalLeafSize}
         , occGrid_{context}
+        , lidarObjectDetector_{context}
         , failChecker_{context}
         , visualizationHandler_(node, context)
         , dataLoader_(context, keepHistoryLength)
         , keepHistoryLength_(keepHistoryLength)
         , maxReplayerRate_(maxReplayerRate)
         , localMap_{context}
+        , objectAggregator_{context}
         {
 
             lidarFilter_.enableFilterNearObjects();
@@ -83,7 +89,7 @@ namespace AutoDrive {
 
         Algorithms::SimpleTrajectoryLogger gnssPoseLogger_;
         Algorithms::SimpleTrajectoryLogger imuPoseLogger_;
-        Algorithms::MovementModel selfModel_;
+        Algorithms::SelfModel selfModel_;
         Algorithms::ImuDataProcessor imuProcessor_;
         Algorithms::LidarFilter lidarFilter_;
         Algorithms::DepthMap depthMap_;
@@ -96,6 +102,7 @@ namespace AutoDrive {
         Algorithms::LaserAggregator rightLidarLaserAggregator_;
         Algorithms::GlobalPointcloudStorage globalPointcloudStorage_;
         Algorithms::OccupancyGrid3D occGrid_;
+        Algorithms::ObjectDetector lidarObjectDetector_;
 
         FailCheck::FailChecker failChecker_;
 
@@ -106,6 +113,7 @@ namespace AutoDrive {
         double maxReplayerRate_;
 
         LocalMap::LocalMap localMap_;
+        LocalMap::ObjectsAggregator objectAggregator_;
 
         std::map<std::string, std::shared_ptr<DataModels::LidarScanDataModel>> lidarDataHistory_;
 

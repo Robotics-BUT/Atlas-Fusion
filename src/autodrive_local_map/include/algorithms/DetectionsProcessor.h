@@ -20,7 +20,7 @@ namespace AutoDrive::Algorithms {
 
         }
 
-        std::vector<std::shared_ptr<DataModels::FrustumDetection>> onNew3DYoloDetections(std::shared_ptr<std::vector<DataModels::YoloDetection3D>>, std::string);
+        std::vector<std::shared_ptr<const DataModels::FrustumDetection>> onNew3DYoloDetections(std::shared_ptr<std::vector<DataModels::YoloDetection3D>>, std::string);
         void addProjector(std::shared_ptr<Projector> projector, std::string);
 
     private:
