@@ -47,17 +47,17 @@ namespace AutoDrive::Algorithms {
 
                 auto detPointIndexes = getIndexesOfPointsInDetection(valid2DPoints, detection);
 
-                for (auto &index : detPointIndexes) {
-                    cv::circle(img, valid2DPoints.at(index), 5, {255, 0, 0});
-                }
+//                for (auto &index : detPointIndexes) {
+//                    cv::circle(img, valid2DPoints.at(index), 5, {255, 0, 0});
+//                }
 
 //                for (auto &p : valid2DPoints) {
 //                    cv::circle(img, p, 5, {255, 0, 0});
 //                }
 
                 auto bb = detection->getBoundingBox();
-                cv::rectangle(img, {static_cast<int>(bb.x1_), static_cast<int>(bb.y1_)},
-                                   {static_cast<int>(bb.x2_), static_cast<int>(bb.y2_)}, {0, 0, 255}, 5);
+//                cv::rectangle(img, {static_cast<int>(bb.x1_), static_cast<int>(bb.y1_)},
+//                                   {static_cast<int>(bb.x2_), static_cast<int>(bb.y2_)}, {0, 0, 255}, 5);
 
                 auto distance = getMedianDepthOfPointVector(valid3DPoints, detPointIndexes);
 

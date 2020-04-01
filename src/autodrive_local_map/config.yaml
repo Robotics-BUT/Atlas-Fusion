@@ -3,9 +3,10 @@ logger:
   log_ext: "log"
   log_lvl: 1
 
-#data_folder: "/home/autodrive/Data/final/1_1_3_1/"
-data_folder: "/home/autodrive/Data/final/2_1_3_1/"
-calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/"
+data_folder: "/home/default_user/Data/autodrive/1_1_1_1/"
+#data_folder: "/home/autodrive/Data/final/2_1_3_1/"
+#calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/"
+calibratios_folder: "/home/default_user/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/"
 
 map_builder:
   keep_history_sec_length: 10
