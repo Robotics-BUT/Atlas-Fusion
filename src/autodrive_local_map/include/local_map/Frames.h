@@ -5,6 +5,9 @@
 
 namespace AutoDrive::LocalMap {
 
+    /**
+     * Frames defines the names of the sensor's local coordinates systems.
+     */
     namespace Frames {
         const std::string kOrigin = "origin";
 
@@ -22,7 +25,7 @@ namespace AutoDrive::LocalMap {
         const std::string kGnssAntennaFront = "gnss_front";
         const std::string kGnssAntennaRear = "gnss_rear";
 
-        const std::string kErr = "";
+        const std::string kErr = "ERROR";
 
     }
 }

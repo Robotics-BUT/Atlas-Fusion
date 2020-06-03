@@ -72,7 +72,7 @@ namespace AutoDrive::Visualizers{
     }
 
 
-    void VisualizationHandler::drawSpeedData(rtl::Vector3D<double> speed) {
+    void VisualizationHandler::drawVelocityData(rtl::Vector3D<double> speed) {
         imuVisualizer_.drawImuData(speed, LocalMap::Frames::kImuFrame, Topics::kSpeedTopic);
     }
 
@@ -84,7 +84,7 @@ namespace AutoDrive::Visualizers{
         imuVisualizer_.drawImuData(linAcc, LocalMap::Frames::kImuFrame, Topics::kImuAvgTopic);
     }
 
-    void VisualizationHandler::drawGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel>data) const {
+    void VisualizationHandler::drawGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel> data) const {
         gnssVisualizer_.drawGnssPose(data);
     }
 

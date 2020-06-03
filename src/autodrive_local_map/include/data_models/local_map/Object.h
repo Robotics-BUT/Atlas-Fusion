@@ -4,6 +4,9 @@
 
 namespace AutoDrive::DataModels {
 
+    /**
+     * Object represents the combination of Lidar and NN's detections combined into one. WIP
+     */
     class Object {
 
     public:

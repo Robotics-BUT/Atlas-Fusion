@@ -4,6 +4,9 @@
 
 namespace AutoDrive::DataModels{
 
+    /**
+     * Error Data Model is used for representation of the missing data or other unexpected event.
+     */
     class ErrorDataModel : public GenericDataModel {
 
     public:

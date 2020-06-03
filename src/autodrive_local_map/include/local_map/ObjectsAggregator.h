@@ -5,17 +5,30 @@
 
 namespace AutoDrive::LocalMap {
 
+    /**
+     * Objects Aggregator handles the objects pairing and tracking. Currently still in development
+     */
     class ObjectsAggregator {
 
     public:
 
         ObjectsAggregator() = delete;
 
+        /**
+         * Constructor
+         * @param context global services container (logging service, etc.)
+         */
         ObjectsAggregator(Context& context)
         : context_{context} {
 
         }
 
+        /**
+         * STILL UNDER DEVELOPMENT
+         * @param previousDetections -
+         * @param newDetections -
+         * @return -
+         */
         std::vector<std::shared_ptr<const DataModels::LidarDetection>> aggregateLidarDetections(
                 std::vector<std::shared_ptr<const DataModels::LidarDetection>> previousDetections,
                 std::vector<std::shared_ptr<const DataModels::LidarDetection>> newDetections) const;

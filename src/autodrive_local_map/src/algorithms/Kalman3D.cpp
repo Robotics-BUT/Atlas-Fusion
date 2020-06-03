@@ -3,31 +3,21 @@
 namespace AutoDrive::Algorithms {
 
     void Kalman3D::predict(double dt, cv::Mat u) {
-//        std::cout << " ******** Prediciton ** " << std::endl;
         auto A = getTransitionMatrix(dt);
         auto B = getControlMatrix(dt);
         auto Q = getCovarianceProcessNoiseMatrix(processNoise_, dt);
 
-//        std::cout << "u " << u << std::endl;
         states_ = A * states_ + B * u;
-//        printMatrix(states_, "states");
         covariance_ = A * covariance_ * A.t() + Q;
-//        printMatrix(covariance_, "covariance_");
     }
 
     void Kalman3D::correct(cv::Mat measurement) {
 
-//        std::cout << " ******** Prediciton ** " << std::endl;
         auto H = getMeasurementMatrix();
-//        printMatrix(H, "H");
         auto R = getCovarianceObservationNoiseMatrix(observationNoise_);
-//        printMatrix(R, "R");
         auto K = covariance_ * H.t() / (H * covariance_ * H.t() + R);
-//        printMatrix(K, "K");
         states_ = states_ + (K * (measurement - H * states_));
-//        printMatrix(states_, "states_");
         covariance_ = ( cv::Mat::eye(6,6, H.type()) - K * H) * covariance_;
-//        printMatrix(covariance_, "covariance_");
     }
 
     cv::Mat Kalman3D::getPosition() {
@@ -38,7 +28,7 @@ namespace AutoDrive::Algorithms {
         return pose;
     }
 
-    cv::Mat Kalman3D::getSpeed() {
+    cv::Mat Kalman3D::getVelocity() {
         cv::Mat speed = (cv::Mat_<double>(3, 1) <<
                 states_.at<double>(3),
                 states_.at<double>(4),

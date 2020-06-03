@@ -4,10 +4,20 @@
 
 namespace AutoDrive::DataModels {
 
+    /**
+     * XSens IMU contains also a GNSS receiver. IMU GNSS Data Model represents global WGS84 position
+     */
     class ImuGnssDataModel : public GenericDataModel {
 
     public:
 
+        /**
+         * Constructor
+         * @param timestamp measurement timestamp
+         * @param lat WGS84 latitude
+         * @param lon WGS84 longitude
+         * @param alt WGS84 altitude
+         */
         ImuGnssDataModel(uint64_t timestamp, double lat, double lon, double alt)
         : GenericDataModel(timestamp)
         , latitude_(lat)
@@ -18,8 +28,22 @@ namespace AutoDrive::DataModels {
 
         std::string toString() override;
 
+        /**
+         * WGS84 latitude getter
+         * @return latitude
+         */
         double getLatitude() {return latitude_;};
+
+        /**
+         * WGS84 longitude getter
+         * @return longitude
+         */
         double getLongitude() {return longitude_;};
+
+        /**
+         * WGS84 altitude getter
+         * @return altitude
+         */
         double getAltitude() {return altitude_;};
 
     private:

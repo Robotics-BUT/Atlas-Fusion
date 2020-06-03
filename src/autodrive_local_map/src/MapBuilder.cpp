@@ -37,6 +37,10 @@ namespace AutoDrive {
                 auto distortionParams =  paramModel->getMatDistortionParams();
 
                 auto projector = std::make_shared<Algorithms::Projector>(intrinsicParams, distortionParams, tf);
+                if(frame == LocalMap::Frames::kCameraIr) {
+                    yoloIrReprojector_.setupCameraProjector(projector);
+                }
+
                 depthMap_.addProjector(projector, cameraID);
                 detectionProcessor_.addProjector(projector, frame);
             } else {
@@ -58,19 +62,6 @@ namespace AutoDrive {
 
             auto data = dataLoader_.getNextData();
             auto data_ts = data->getTimestamp();
-
-//            static uint64_t timeBegin = data->getTimestamp();
-//            uint64_t diff = 0;
-//            do {
-//                diff = (data->getTimestamp() - timeBegin );
-//                data = dataLoader_.getNextData();
-//            } while(diff < 10e9);
-
-
-
-//            if(dataCounter++ > 1000) {
-//                return;
-//            }
 
             std::stringstream ss;
             ss << data_ts << " " << data->toString();
@@ -117,10 +108,24 @@ namespace AutoDrive {
                 auto detections3D = depthMap_.onNewCameraData(imgData, selfModel_.getPosition());
                 auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
 
+                if(sensorFrame == LocalMap::Frames::kCameraLeftFront) {
+
+                    auto imuToCameraTf = context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraIr);
+                    auto reprojectedYoloDetections = yoloIrReprojector_.onNewDetections(frustums, imuToCameraTf.inverted());
+
+                    if(!reprojectedYoloDetections->empty()) {
+                        auto imgWidthHeight = yoloIrReprojector_.getLastIrFrameWidthHeight();
+                        yoloIRDetectionWriter_.writeDetections(reprojectedYoloDetections,
+                                                               yoloIrReprojector_.getCurrentIrFrameNo());
+                        yoloIRDetectionWriter_.writeDetectionsAsTrainData(reprojectedYoloDetections,
+                                                                          yoloIrReprojector_.getCurrentIrFrameNo(), imgWidthHeight.first, imgWidthHeight.second);
+                        yoloIRDetectionWriter_.writeIRImageAsTrainData(yoloIrReprojector_.getLastIrFrame(),
+                                                                       yoloIrReprojector_.getCurrentIrFrameNo());
+                    }
+                }
 
                 localMap_.setFrustumDetections(frustums, sensorFrame);
                 visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
-
 
                 if(cnt++ >= 3) {
                     auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
@@ -142,12 +147,6 @@ namespace AutoDrive {
                     visualizationHandler_.drawLidarDetection(lidarObstacles);
                     visualizationHandler_.drawPointcloudCutout(tunel);
                     visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
-
-                    if(globalPcCnt++ >= 100) {
-                        //visualizationHandler_.drawGlobalPointcloud(globalPointcloudStorage_.getEntirePointcloud());
-                        globalPcCnt = 0;
-                    }
-                    cnt = 0;
                 }
 
                 visualizationHandler_.drawRGBImage(imgData);
@@ -155,7 +154,25 @@ namespace AutoDrive {
             } else if (dataType == DataModels::DataModelTypes::kCameraIrDataModelType) {
 
                 auto irCameraFrame = std::dynamic_pointer_cast<DataModels::CameraIrFrameDataModel>(data);
+                static size_t frameCnt = 0;
+
+                auto imuToCameraTf = context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraIr);
+                auto originToImuTf = selfModel_.getPosition().toTf();
+
+                auto points2Dand3Dpair = depthMap_.getPointsInCameraFoV(
+                        irCameraFrame->getCameraIdentifier(),
+                        irCameraFrame->getImage().cols,
+                        irCameraFrame->getImage().rows,
+                        originToImuTf,
+                        false);
+                auto img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first,
+                                                                   points2Dand3Dpair->second,
+                                                                   irCameraFrame->getImage().cols,
+                                                                   irCameraFrame->getImage().rows);
+                lidarIrImgPlotter_.saveImage(img, frameCnt);
+                yoloIrReprojector_.onNewIRFrame(irCameraFrame);
                 visualizationHandler_.drawIRImage(irCameraFrame);
+                frameCnt++;
 
             } else if (dataType == DataModels::DataModelTypes::kGnssPositionDataModelType) {
 
@@ -163,7 +180,6 @@ namespace AutoDrive {
                 gnssPoseLogger_.onGnssPose(poseData);
                 selfModel_.onGnssPose(poseData);
 
-                //auto currentPose = poseLogger_.getPosition();
                 auto currentPose = selfModel_.getPosition();
                 imuPoseLogger_.setAltitude(currentPose.getPosition().z());
 
@@ -173,7 +189,7 @@ namespace AutoDrive {
                 visualizationHandler_.drawGnssPoseData(poseData);
                 visualizationHandler_.drawTelemetry(selfModel_.getTelemetryString());
                 visualizationHandler_.drawImuAvgData(selfModel_.getAvgAcceleration());
-                visualizationHandler_.drawSpeedData(selfModel_.getSpeedVector());
+                visualizationHandler_.drawVelocityData(selfModel_.getSpeedVector());
 
             } else if (dataType == DataModels::DataModelTypes::kGnssTimeDataModelType) {
 

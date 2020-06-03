@@ -9,9 +9,9 @@ TEST(kalman_d3_test, init) {
     EXPECT_EQ(kalman.getPosition().at<double>(0), 0.0);
     EXPECT_EQ(kalman.getPosition().at<double>(1), 0.0);
     EXPECT_EQ(kalman.getPosition().at<double>(2), 0.0);
-    EXPECT_EQ(kalman.getSpeed().at<double>(0), 0);
-    EXPECT_EQ(kalman.getSpeed().at<double>(1), 0);
-    EXPECT_EQ(kalman.getSpeed().at<double>(2), 0);
+    EXPECT_EQ(kalman.getVelocity().at<double>(0), 0);
+    EXPECT_EQ(kalman.getVelocity().at<double>(1), 0);
+    EXPECT_EQ(kalman.getVelocity().at<double>(2), 0);
 }
 
 
@@ -29,9 +29,9 @@ TEST(kalman_3_test, iteration) {
                   kalman.getPosition().at<double>(0) << " " <<
                   kalman.getPosition().at<double>(1) << " " <<
                   kalman.getPosition().at<double>(2) << " " <<
-                  kalman.getSpeed().at<double>(0) << " " <<
-                  kalman.getSpeed().at<double>(1) << " " <<
-                  kalman.getSpeed().at<double>(2) << std::endl;
+                                                            kalman.getVelocity().at<double>(0) << " " <<
+                                                         kalman.getVelocity().at<double>(1) << " " <<
+                                                         kalman.getVelocity().at<double>(2) << std::endl;
 
         cv::Mat controlInput = (cv::Mat_<double>(3, 1) <<
                 0,
@@ -51,9 +51,9 @@ TEST(kalman_3_test, iteration) {
             kalman.getPosition().at<double>(0) << " " <<
             kalman.getPosition().at<double>(1) << " " <<
             kalman.getPosition().at<double>(2) << " " <<
-            kalman.getSpeed().at<double>(0) << " " <<
-            kalman.getSpeed().at<double>(1) << " " <<
-            kalman.getSpeed().at<double>(2) << std::endl;
+                                                      kalman.getVelocity().at<double>(0) << " " <<
+                                                   kalman.getVelocity().at<double>(1) << " " <<
+                                                   kalman.getVelocity().at<double>(2) << std::endl;
         kalman.correct(measurement);
     }
 }
@@ -85,9 +85,9 @@ TEST(kalman_d3_test, fixed_pose) {
     EXPECT_NEAR(kalman.getPosition().at<double>(0), measured_pose, 0.1);
     EXPECT_NEAR(kalman.getPosition().at<double>(1), measured_pose, 0.1);
     EXPECT_NEAR(kalman.getPosition().at<double>(2), measured_pose, 0.1);
-    EXPECT_NEAR(kalman.getSpeed().at<double>(0), 0, 0.1);
-    EXPECT_NEAR(kalman.getSpeed().at<double>(1), 0, 0.1);
-    EXPECT_NEAR(kalman.getSpeed().at<double>(2), 0, 0.1);
+    EXPECT_NEAR(kalman.getVelocity().at<double>(0), 0, 0.1);
+    EXPECT_NEAR(kalman.getVelocity().at<double>(1), 0, 0.1);
+    EXPECT_NEAR(kalman.getVelocity().at<double>(2), 0, 0.1);
 }
 
 
@@ -118,9 +118,9 @@ TEST(kalman_d3_test, fixed_speed) {
     EXPECT_NEAR(kalman.getPosition().at<double>(0), measured_pose, 0.1);
     EXPECT_NEAR(kalman.getPosition().at<double>(1), measured_pose, 0.1);
     EXPECT_NEAR(kalman.getPosition().at<double>(2), measured_pose, 0.1);
-    EXPECT_NEAR(kalman.getSpeed().at<double>(0), speed, 0.1);
-    EXPECT_NEAR(kalman.getSpeed().at<double>(1), speed, 0.1);
-    EXPECT_NEAR(kalman.getSpeed().at<double>(2), speed, 0.1);
+    EXPECT_NEAR(kalman.getVelocity().at<double>(0), speed, 0.1);
+    EXPECT_NEAR(kalman.getVelocity().at<double>(1), speed, 0.1);
+    EXPECT_NEAR(kalman.getVelocity().at<double>(2), speed, 0.1);
 }
 
 

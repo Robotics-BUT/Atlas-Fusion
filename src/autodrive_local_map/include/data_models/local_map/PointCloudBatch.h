@@ -8,12 +8,25 @@
 
 namespace AutoDrive::DataModels {
 
+    /**
+     * Point Cloud Batch represents small part of the LiDAR scan. Splitting scans into batches is used during the
+     * motion undistorting process. Batch holds the points and the transformation. This transformation is lazy evaluated
+     * so the is no redundant transformation application on all points. In time transformation can be chained and
+     * could be applied only once when the points are needed.
+     */
     class PointCloudBatch {
 
     public:
 
         PointCloudBatch() = delete;
 
+        /**
+         * Constructor
+         * @param ts timestamp, when the points have been measured
+         * @param untransformed points 3D points
+         * @param frame sensor's frame
+         * @param tf transformation that should be applied on points to get real position in 3D space
+         */
         explicit PointCloudBatch(uint64_t ts, pcl::PointCloud<pcl::PointXYZ> points, std::string frame, rtl::Transformation3D<double> tf)
         : timestamp_{ts}
         , points_{std::move(points)}
@@ -22,13 +35,47 @@ namespace AutoDrive::DataModels {
 
         }
 
+        /**
+         * Untransformed points getter
+         * @return untransformed points
+         */
         std::shared_ptr<const pcl::PointCloud<pcl::PointXYZ>> getPoints() const;
+
+        /**
+         * Points with applied transformation getter
+         * @return transformed 3D points
+         */
         std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getTransformedPoints() const;
+
+        /**
+         * Double transformed points ( points transformed by this->tf transformed by argument tf)
+         * @param tf second transformation applied on points
+         * @return transformed points
+         */
         std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getTransformedPointsWithAnotherTF(rtl::Transformation3D<double>& tf) const;
 
+        /**
+         * Timestamp when the points have been scanned
+         * @return nanosecond timestamp
+         */
         uint64_t getTimestamp() const;
+
+        /**
+         * Method returns number of points in the batch
+         * @return batch size
+         */
         size_t getPointsSize() const;
+
+        /**
+         * Method returns frame of the LiDAR that has scanned points
+         * @return string name of the sensnor's frame
+         */
         std::string getFrame() const;
+
+        /**
+         * Points transformation getter
+         * @return transformtaion that should be applied on points to get the real 3D position
+         */
         rtl::Transformation3D<double> getTF() const;
 
     private:

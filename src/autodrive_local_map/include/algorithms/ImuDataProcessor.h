@@ -7,12 +7,24 @@
 
 namespace AutoDrive::Algorithms {
 
+    /**
+     * Imu Data Processor is responsible for a removing gravitation force from the meashured IMU data
+     */
     class ImuDataProcessor {
 
     public:
 
+        /**
+         * Setter for a current IMU orientation
+         * @param orient current imu orientation w.r.t. global coordinate system
+         */
         void setOrientation(rtl::Quaternion<double> orient) { orientation_ = orient; };
 
+        /**
+         * Method removed gravitation forces from the given 3D acceleration measurement
+         * @param acc rad acceleration data with gravitation component
+         * @return gravitation-free linear acceleration data
+         */
         rtl::Vector3D<double> removeGravitaionAcceleration(rtl::Vector3D<double> acc) {
 
             auto tf = rtl::Transformation3D<double>{ orientation_, {0,0,0}};

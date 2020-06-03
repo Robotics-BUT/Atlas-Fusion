@@ -13,6 +13,10 @@
 
 namespace AutoDrive::Visualizers {
 
+    /**
+     * Visualization backend (ROS) implementations for visualizing point cloud structures, like raw lidar scans or
+     * aggregated point clouds
+     */
     class LidarVisualizer {
 
     public:
@@ -22,6 +26,11 @@ namespace AutoDrive::Visualizers {
             kRight,
         };
 
+        /**
+         * Constructor
+         * @param node ros node reference
+         * @param context global services container (timestamps, logging, etc.)
+         */
         LidarVisualizer(ros::NodeHandle& node, Context& context)
         : node_{node}
         , context_{context} {

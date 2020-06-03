@@ -7,25 +7,65 @@
 
 namespace AutoDrive::DataModels {
 
+    /**
+     * Global Position represents WGS84 global position
+     */
     class GlobalPosition {
 
     public:
 
+        /**
+         * Constructor
+         * @param lat WGS84 latitude
+         * @param lon WGS84 longitude
+         * @param alt WGS84 altitude
+         * @param azim azimut
+         */
         GlobalPosition(double lat, double lon, double alt, double azim)
         : position_{lat, lon, alt}
         , azim_(azim) {
 
         }
 
+        /**
+         * Latitude getter
+         * @return latitude
+         */
         double getLatitude() { return position_.x(); };
+
+        /**
+         * Logitude getter
+         * @return longitude
+         */
         double getLongitude() { return position_.y(); };
+
+        /**
+         * Altitude getter
+         * @return altitude
+         */
         double getAltitude() { return position_.z(); };
+
+        /**
+         * Azimut getter
+         * @return azimut
+         */
         double getAzimuth() { return azim_; };
 
+        /**
+         * Converts degrees to radians
+         * @param deg angle in degrees
+         * @return angle in radians
+         */
         static inline double degToRad(double deg) {
             return deg * 3.1415 / 180;
         }
 
+        /**
+         * Method calculates metric distance between two WGS84 coordinates
+         * @param coord1 first WGS84 coordinate
+         * @param coord2 second WGS84 coordinate
+         * @return metrid distance between coords
+         */
         static double getDistanceBetweenCoords(GlobalPosition& coord1, GlobalPosition& coord2){
 
             const double R = 6371000;
@@ -46,7 +86,12 @@ namespace AutoDrive::DataModels {
         }
 
 
-
+        /**
+         * Returns the 2D vector of metrix distances between two coordinates. Positive direction to north and east.
+         * @param coord1 Reference coord
+         * @param coord2 Vector coord
+         * @return (x, y, 0) distance between two WGS84 coordinates
+         */
         static rtl::Vector3D<double> getOffsetBetweenCoords(GlobalPosition& coord1, GlobalPosition& coord2){
 
             rtl::Vector3D<double> offset{0,0,0};
@@ -74,6 +119,12 @@ namespace AutoDrive::DataModels {
 
         }
 
+        /**
+         * Converst relative local metric position referenced to WGS84 global anchor into the nwe WGS84 position.
+         * @param localOffset local position that will be converted
+         * @param globalOrigin WGS position of the local origin
+         * @return WGS84 position of the input local offset
+         */
         static GlobalPosition localPoseToGlobalPose(LocalPosition localOffset, GlobalPosition globalOrigin) {
 
             const double step = 0.001f;

@@ -47,17 +47,17 @@ set(SOURCES_ALGORITHMS
         src/algorithms/SimpleTrajectoryLogger.cpp
         src/algorithms/Kalman1D.cpp
         src/algorithms/Kalman3D.cpp
-        src/algorithms/MovementModel.cpp
         src/algorithms/ImuDataProcessor.cpp
         src/algorithms/LidarFilter.cpp
         src/algorithms/Projector.cpp
         src/algorithms/DepthMap.cpp
         src/algorithms/DetectionsProcessor.cpp
-        src/algorithms/QuadratureFilter.cpp
         src/algorithms/pointcloud/PointCloudExtrapolator.cpp
         src/algorithms/pointcloud/PointCloudAggregator.cpp
         src/algorithms/pointcloud/PointCloudProcessor.cpp
         src/algorithms/pointcloud/LaserAggregator.cpp
+        src/algorithms/pointcloud/GlobalPointcloudStorage.cpp
+        src/algorithms/yolo_reprojection/YoloDetectionReprojector.cpp
         src/algorithms/pointcloud/GlobalPointcloudStorage.cpp
         src/algorithms/pointcloud/ObjectDetector.cpp
         src/algorithms/SelfModel.cpp)
@@ -105,6 +105,10 @@ set(SOURCES_DATA_LOADER
         src/data_loader/GnssDataLoader.cpp
         src/data_loader/ImuDataLoader.cpp )
 
+set(SOURCES_DATA_WRITERS
+        src/data_writers/YoloDetectionWriter.cpp
+        src/data_writers/Lidar2ImagePlotter.cpp)
+
 set(SOURCES_FAIL_CHECK
         src/fail_check/AbstrackFailChecker.cpp
         src/fail_check/FailChecker.cpp
@@ -114,7 +118,7 @@ set(SOURCES_FAIL_CHECK
         src/fail_check/ImuFailChecker.cpp
         src/fail_check/GnssFailChecker.cpp)
 
-add_library(autodrive_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_FAIL_CHECK})
+add_library(autodrive_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK})
 
 add_executable(autodrive_local_map src/main.cpp)
 target_link_libraries(${PROJECT_NAME}

@@ -5,10 +5,22 @@
 
 namespace AutoDrive::DataModels {
 
+    /**
+     * GNSS Pose Data Model encapsulates global WGS84 position measured by GNSS receiver with differential antenna and
+     * heading estimation
+     */
     class GnssPoseDataModel : public GenericDataModel {
 
     public:
 
+        /**
+         * Constructor
+         * @param timestamp measurement timestamp
+         * @param lat WGS84 latitude
+         * @param lon WGS84 longitude
+         * @param alt WGS84 altitude
+         * @param azim WGS84 azimuth
+         */
         GnssPoseDataModel(uint64_t timestamp, double lat, double lon, double alt, double azim)
         : GenericDataModel(timestamp)
         , latitude_(lat)
@@ -20,10 +32,34 @@ namespace AutoDrive::DataModels {
 
         std::string toString() override;
 
+        /**
+         * WGS84 latitude getter
+         * @return latitude
+         */
         double getLatitude() {return latitude_;};
+
+        /**
+         * WGS84 longitude getter
+         * @return longitude
+         */
         double getLongitude() {return longitude_;};
+
+        /**
+         * WGS84 Altitude getter
+         * @return altitude
+         */
         double getAltitude() {return altitude_;};
+
+        /**
+         * Differential antenna estimated azimuth
+         * @return azimuth
+         */
         double getAzimut() {return azimut_;};
+
+        /**
+         * Differential antenna estimated heading = (-azimuth * pi / 180)
+         * @return heading
+         */
         double getHeading() {return -azimut_ * M_PI / 180;};
 
     private:

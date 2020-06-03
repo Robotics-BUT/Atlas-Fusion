@@ -4,6 +4,9 @@
 
 namespace AutoDrive::Algorithms {
 
+    /**
+     * WORK IN PROGRESS
+     */
     class OccupancyGrid3D {
 
     public:

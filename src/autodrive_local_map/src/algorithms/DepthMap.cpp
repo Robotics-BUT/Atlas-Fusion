@@ -60,17 +60,16 @@ namespace AutoDrive::Algorithms {
 //                                   {static_cast<int>(bb.x2_), static_cast<int>(bb.y2_)}, {0, 0, 255}, 5);
 
                 auto distance = getMedianDepthOfPointVector(valid3DPoints, detPointIndexes);
-
-                DataModels::BoundingBox2D bbx {static_cast<float>(bb.x1_), static_cast<float>(bb.y1_), static_cast<float>(bb.x2_), static_cast<float>(bb.y2_)};
-                DataModels::YoloDetection3D detection3D {bbx, distance, detection->getDetectionConfidence(), detection->getClassConfidence(), detection->getDetectionClass()};
-                detection3D.addParent(data);
-                //std::cout << "bb: " << detection3D.getBoundingBox().x1_ << " " << detection3D.getBoundingBox().y1_ << " " << detection3D.getBoundingBox().x2_ << " " << detection3D.getBoundingBox().y2_ << " " << detection3D.getDistance() << std::endl;
-                output->push_back(detection3D);
+                if(distance > 0) {
+                    DataModels::BoundingBox2D bbx{static_cast<float>(bb.x1_), static_cast<float>(bb.y1_),
+                                                  static_cast<float>(bb.x2_), static_cast<float>(bb.y2_)};
+                    DataModels::YoloDetection3D detection3D{bbx, distance, detection->getDetectionConfidence(),
+                                                            detection->getClassConfidence(),
+                                                            detection->getDetectionClass()};
+                    detection3D.addParent(data);
+                    output->push_back(detection3D);
+                }
             }
-//            cv::imshow("bublebum", img);
-//            cv::waitKey(100);
-        //} else {
-        //    context_.logger_.warning("Missing valid points for frustum distance estimation!");
         }
 
         return output;
@@ -79,6 +78,19 @@ namespace AutoDrive::Algorithms {
 
     void DepthMap::addProjector(std::shared_ptr<Projector> projector, DataLoader::CameraIndentifier id) {
         projectors_[id] = projector;
+    }
+
+
+    std::shared_ptr<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> DepthMap::getPointsInCameraFoV(
+            DataLoader::CameraIndentifier id,
+            size_t imgWidth,
+            size_t imgHeight,
+            rtl::Transformation3D<double> currentFrameTf,
+            bool useDistMat) {
+
+        auto output = std::make_shared<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>>();
+        getAllCurrentPointsProjectedToImage(id, output->first, output->second, imgWidth, imgHeight, currentFrameTf, useDistMat);
+        return output;
     }
 
 
@@ -106,7 +118,8 @@ namespace AutoDrive::Algorithms {
             std::vector<cv::Point3f>& validPoints3D,
             size_t img_width,
             size_t img_height,
-            rtl::Transformation3D<double> originToImu) {
+            rtl::Transformation3D<double> originToImu,
+            bool useDistMat) {
 
         auto projector = projectors_[id];
         auto cameraFrame = cameraIdentifierToFrame(id);
@@ -139,7 +152,7 @@ namespace AutoDrive::Algorithms {
 //            }
 //        }
 
-        projector->projectPoints(points3D, points2D);
+        projector->projectPoints(points3D, points2D, useDistMat);
 
         if(points2D.size() != points3D.size()) {
             context_.logger_.error("Number of projected points does not corresponds with number of input points!");
@@ -183,7 +196,7 @@ namespace AutoDrive::Algorithms {
             auto midIndex = static_cast<size_t>(distances.size() / 2);
             return distances.at(midIndex);
         }
-        return 0;
+        return -1;
     }
 
 

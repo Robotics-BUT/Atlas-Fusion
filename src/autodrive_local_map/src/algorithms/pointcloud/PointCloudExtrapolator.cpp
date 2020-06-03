@@ -1,5 +1,4 @@
 #include "algorithms/pointcloud/PointCloudExtrapolator.h"
-#include "algorithms/MovementModel.h"
 #include "local_map/Frames.h"
 
 namespace AutoDrive::Algorithms {
@@ -43,8 +42,6 @@ namespace AutoDrive::Algorithms {
                 }
             }
 
-
-
             rtl::Transformation3D<double> toGlobelFrameTf{endPose.getOrientation(), endPose.getPosition()};
             rtl::Transformation3D<double> startToEndTf{poseDiff.getOrientation(), poseDiff.getPosition()};
             auto finalTF = toGlobelFrameTf(startToEndTf.inverted()(movementCompensationTF(sensorOffsetTf)));
@@ -54,20 +51,6 @@ namespace AutoDrive::Algorithms {
             output.push_back(batch);
         }
 
-
         return output;
     }
-
-
-
-    DataModels::LocalPosition PointCloudExtrapolator::interpolateLocalPosition(
-            DataModels::LocalPosition& begin,
-            DataModels::LocalPosition& end,
-            float ratio) {
-
-        float r = static_cast<float>(std::min(std::max((double)ratio, 0.0), 1.0));
-
-        return MovementModel::interpolateLocalPosition(begin, end, r);
-    }
-
 }

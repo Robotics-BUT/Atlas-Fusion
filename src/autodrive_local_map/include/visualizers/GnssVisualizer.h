@@ -9,11 +9,18 @@
 
 namespace AutoDrive::Visualizers {
 
+    /**
+     * Visualization backend (ROS) implementations for visualizing GNSS receiver data
+     */
     class GnssVisualizer {
 
     public:
 
-
+        /**
+         * Constructor
+         * @param node ros node reference
+         * @param context global services container (timestamps, logging, etc.)
+         */
         GnssVisualizer(ros::NodeHandle& node, Context& context)
         : node_{node}
         , context_{context} {

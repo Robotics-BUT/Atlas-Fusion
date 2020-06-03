@@ -3,20 +3,28 @@
 namespace AutoDrive::Algorithms {
 
 
-    void Projector::projectPoints(const std::vector<cv::Point3f>& src, std::vector<cv::Point2f>& dest) {
+    void Projector::projectPoints(const std::vector<cv::Point3f>& src, std::vector<cv::Point2f>& dest, bool useDist) {
 
         std::vector<cv::Point2f> tmp;
         if(!src.empty()) {
-            cv::projectPoints(src, rvec_, tvec_, intrinsic_, distortion_, dest);
+            if(useDist) {
+                cv::projectPoints(src, rvec_, tvec_, intrinsic_, distortion_, dest);
+            } else {
+                cv::projectPoints(src, rvec_, tvec_, intrinsic_, {}, dest);
+            }
         }
     }
 
 
 
-    void Projector::reverseProjection(const std::vector<cv::Point2f>& src, std::vector<cv::Point3f>& dest) {
+    void Projector::reverseProjection(const std::vector<cv::Point2f>& src, std::vector<cv::Point3f>& dest, bool useDist) {
 
         std::vector<cv::Point2f> undistorted;
-        cv::undistortPoints(src, undistorted, intrinsic_, distortion_);
+        if (useDist) {
+            cv::undistortPoints(src, undistorted, intrinsic_, distortion_);
+        } else {
+            cv::undistortPoints(src, undistorted, intrinsic_, {});
+        }
 
         for(const auto& p : undistorted) {
             float denominatr = static_cast<float>(std::sqrt( std::pow(p.x,2) + std::pow(p.y,2) + 1 ));
