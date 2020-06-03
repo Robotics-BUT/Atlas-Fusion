@@ -10,6 +10,9 @@
 
 namespace AutoDrive::FailCheck {
 
+    /**
+     * Fail Checker encapsulates the fail checking for all the sensors via the single API
+     */
     class FailChecker {
 
     public:
@@ -29,6 +32,11 @@ namespace AutoDrive::FailCheck {
         };
 
         FailChecker() = delete;
+
+        /**
+         * Constructor
+         * @param context global services container (time, logging, etc.)
+         */
         explicit FailChecker(Context& context)
         : context_{context} {
 
@@ -46,9 +54,25 @@ namespace AutoDrive::FailCheck {
 //            failCheckers_[SensorFailCheckID::kRadar] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<RadarFailChecker>(context));
         }
 
-        void onNewData(std::shared_ptr<DataModels::GenericDataModel>, SensorFailCheckID sensor);
-        float getSensorStatus(SensorFailCheckID);
+        /**
+         * Input pipe for new sensor data
+         * @param data sensor data packet
+         * @param sensor identifier of the sensor
+         */
+        void onNewData(std::shared_ptr<DataModels::GenericDataModel> data, SensorFailCheckID sensor);
 
+        /**
+         * Returns the reliability of the given sensro
+         * @param sensor sensor identificator
+         * @return sensor reliability score
+         */
+        float getSensorStatus(SensorFailCheckID sensor);
+
+        /**
+         * Converts sensor frame (string) into Fail Checker specific sensor identifier
+         * @param frame name of sensor frame
+         * @return Fail Checker specific sensor identifier
+         */
         SensorFailCheckID frameToFailcheckID(std::string frame);
 
     protected:

@@ -14,10 +14,21 @@
 namespace AutoDrive {
     namespace DataLoader {
 
+        /**
+         * Data Loader works as a frontend for the entire data loading sections this class creates the only one bridge
+         * between the intancess that reads data from data source and the data processin pipeline. Data Loader owns all
+         * the sensor specific data loaders and handles the data providing in the correct time order.
+         */
         class DataLoader : public AbstractDataLoader {
 
         public:
 
+            /**
+             * Constructor
+             * @param context global services container (system time, logging, etc.)
+             * @param keepHistoryLength defines in nanoseconds how long should be the past data be holded in momory
+             * before it will be removed
+             */
             DataLoader(Context& context, timestamp_type keepHistoryLength)
             : cameraLeftFrontDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraLeftFront, context.calibFolder_+Files::kCameraLeftFrontCalibYaml))
             , cameraLeftSideDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraLeftSide, context.calibFolder_+Files::kCameraLeftSideCalibYaml))
@@ -76,7 +87,17 @@ namespace AutoDrive {
             void releaseOldData(timestamp_type keepHistory) override;
             void clear() override;
 
+            /**
+             * Method converts camera frame name into the Camera Data Loader specific identifier.
+             * @return Identifier that identifies Camera Data Loader related to the given camera frame.
+             */
             CameraIndentifier getCameraIDfromFrame(const std::string&);
+
+            /**
+             * Method allows to request the camera's calibration parameters for specific camera sensor
+             * @param id camera sensor identifier
+             * @return calibration data for given camera sensor
+             */
             std::shared_ptr<DataModels::GenericDataModel> getCameraCalibDataForCameraID(CameraIndentifier id);
 
         private:
@@ -111,7 +132,6 @@ namespace AutoDrive {
 
             bool checkRecordConsistency(std::string& path);
             bool loadRecord(std::string& path);
-
         };
     }
 }

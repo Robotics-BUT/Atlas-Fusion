@@ -11,10 +11,18 @@
 
 namespace AutoDrive::Visualizers {
 
+    /**
+     * Visualization backend (ROS) implementations for visualizing transformation tree
+     */
     class TFVisualizer {
 
     public:
 
+        /**
+         * Constructor
+         * @param node ros node reference
+         * @param context global services container (timestamps, logging, etc.)
+         */
         TFVisualizer(ros::NodeHandle& node, Context& context)
         : node_{node}
         , context_{context} {

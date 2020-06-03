@@ -73,14 +73,15 @@ namespace AutoDrive::Algorithms {
             quaternionToRPY(data->getOrientation(), r, p, y);
             rtl::Quaternion<double> modifiedImuOrientation = rpyToQuaternion(r, p ,getHeading());
             orientation_ = orientation_.slerp(modifiedImuOrientation, 0.001);
+            //orientation_ = data->getOrientation();
         }
 
         lastImuTimestamp_ = data->getTimestamp();
     }
 
     void SelfModel::onImuDquatData(std::shared_ptr<DataModels::ImuDquatDataModel> data) {
-//        orientation_ = orientation_ * data->getDQuat();
-//        lastDquatTimestamp_ = data->getTimestamp();
+        orientation_ = orientation_ * data->getDQuat();
+        lastDquatTimestamp_ = data->getTimestamp();
     }
 
     /// Getters
@@ -99,11 +100,11 @@ namespace AutoDrive::Algorithms {
 
     // Speed
     double SelfModel::getSpeedScalar() const {
-        return std::sqrt( std::pow(kalmanX_.getSpeed(),2) + std::pow(kalmanY_.getSpeed(),2) + std::pow(kalmanZ_.getSpeed(),2) );
+        return std::sqrt( std::pow(kalmanX_.getVelocity(),2) + std::pow(kalmanY_.getVelocity(),2) + std::pow(kalmanZ_.getVelocity(),2) );
     }
 
     rtl::Vector3D<double> SelfModel::getSpeedVector() const {
-        auto speed = rtl::Vector3D<double>{kalmanX_.getSpeed(), kalmanY_.getSpeed(), kalmanZ_.getSpeed()};
+        auto speed = rtl::Vector3D<double>{kalmanX_.getVelocity(), kalmanY_.getVelocity(), kalmanZ_.getVelocity()};
         auto tf = rtl::Transformation3D<double> {orientation_,{}};
         return tf.inverted()(speed);
     }
@@ -202,7 +203,7 @@ namespace AutoDrive::Algorithms {
 
 
     std::pair<double, float> SelfModel::speedHeading() {
-        double heading = atan2(kalmanY_.getSpeed(), kalmanX_.getSpeed());
+        double heading = atan2(kalmanY_.getVelocity(), kalmanX_.getVelocity());
         double speed = getSpeedScalar();
         float validityFactor = static_cast<float>( 1 / ( 1 + std::exp( -1.0 * ( speed - 5.0 ) ) ) );
         return {heading, validityFactor};

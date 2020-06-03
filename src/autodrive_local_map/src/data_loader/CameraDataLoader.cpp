@@ -69,6 +69,11 @@ namespace AutoDrive::DataLoader {
                 return false;
             }
 
+            auto width = static_cast<int>(video_.get(cv::CAP_PROP_FRAME_WIDTH));
+            auto height = static_cast<int>(video_.get(cv::CAP_PROP_FRAME_HEIGHT));
+            imageWidthHeight_ = {width, height};
+
+
             if(cameraIdentifier_ == DataLoader::CameraIndentifier::kCameraLeftFront ||
                cameraIdentifier_ == DataLoader::CameraIndentifier::kCameraLeftSide ||
                cameraIdentifier_ == DataLoader::CameraIndentifier::kCameraRightFront ||
@@ -95,11 +100,6 @@ namespace AutoDrive::DataLoader {
                 video_ >> frame;
                 cv::Mat undistortFrame(frame.rows, frame.cols, frame.type());
 
-//                auto calibParams = getCameraCalibParams();
-//                auto intrinsic = calibParams->getMatIntrinsicParams();
-//                auto distortion = calibParams->getMatDistortionParams();
-
-//                cv::undistort(frame, undistortFrame, intrinsic, distortion);
                 std::shared_ptr<DataModels::GenericDataModel> cameraFrame;
                 switch(cameraIdentifier_) {
                     case DataLoader::CameraIndentifier::kCameraLeftFront:
@@ -111,7 +111,7 @@ namespace AutoDrive::DataLoader {
                         break;
 
                     case DataLoader::CameraIndentifier::kCameraIr:
-                        cameraFrame = std::make_shared<DataModels::CameraIrFrameDataModel>((*dataIt_)->timestamp_, frame, (*dataIt_)->tempMin_, (*dataIt_)->tempMax_);
+                        cameraFrame = std::make_shared<DataModels::CameraIrFrameDataModel>((*dataIt_)->timestamp_, frame, (*dataIt_)->tempMin_, (*dataIt_)->tempMax_, cameraIdentifier_);
                         break;
                 }
 
@@ -180,10 +180,14 @@ namespace AutoDrive::DataLoader {
                     }
 
                     size_t frame_id = std::stoul(detection[0]);
+                    auto x1 = std::stod(detection[1]) * imageWidthHeight_.first;
+                    auto y1 = std::stod(detection[2]) * imageWidthHeight_.second;
+                    auto w = std::stod(detection[3]) * imageWidthHeight_.first;
+                    auto h = std::stod(detection[4]) * imageWidthHeight_.second;
                     if(frame_id < data_.size()) {
                         data_.at(frame_id)->detections_.push_back(std::make_shared<DataModels::YoloDetection>(
-                                std::stoul(detection[1]), std::stoul(detection[2]),
-                                std::stoul(detection[3]), std::stoul(detection[4]),
+                                x1, y1,
+                                x1 + w, y1 + h,
                                 std::stof(detection[5]), std::stof(detection[6]),
                                 static_cast<DataModels::YoloDetectionClass>(std::stoi(detection[7]))));
                     }

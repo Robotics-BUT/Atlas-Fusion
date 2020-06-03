@@ -2,6 +2,9 @@
 
 namespace AutoDrive::DataModels {
 
+    /**
+     * Full list of COCO dataset labels used for the video-yolo inference.
+     */
     enum class YoloDetectionClass {
         kPerson = 0,
         kBicycle = 1,
@@ -85,6 +88,9 @@ namespace AutoDrive::DataModels {
         kToothbrush = 79,
     };
 
+    /**
+     * Simplified YOLO detection classes. Reduces the number of classes which are used in this mapping system.
+     */
     enum class ReducedYoloDetectionClasses {
         kPedestrian = 0,
         kBike = 1,

@@ -22,6 +22,8 @@ namespace AutoDrive {
 
             const std::string kYoloFolder = "yolo/";
 
+            const std::string kLidarDepth = "lidar_depth/";
+
             const std::vector <std::string> mandatoryFolders{
                     kCameraLeftFrontFolder,
                     kCameraLeftSideFolder,
@@ -49,6 +51,8 @@ namespace AutoDrive {
             const std::string kTempFile = "temp.txt";
 
             const std::string kPoseFile = "pose.txt";
+
+            const std::string kIrCameraYoloFile = "camera_ir.txt";
 
             const std::string kScanFile = "scan";
             const std::string kPcdExt = ".pcd";

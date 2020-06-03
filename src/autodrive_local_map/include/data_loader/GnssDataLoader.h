@@ -7,10 +7,19 @@
 namespace AutoDrive {
     namespace DataLoader {
 
+        /**
+         * GNSS Data Loader loads and handles data providing for the RTK GNNS Receiver sensor. It covers the global
+         * positioning, heading estimation and GNSS timestamping.
+         */
         class GnssDataLoader : public AbstractDataLoader{
 
         public:
 
+            /**
+             * Constructor
+             * @param context global services container (timestamps, logging, etc.)
+             * @param id distinguishes if the GNSS handles the time or the position data
+             */
             GnssDataLoader(Context& context, GnssLoaderIdentifier id)
             : context_{context}
             , dataLoaderIdentifier_(id) {

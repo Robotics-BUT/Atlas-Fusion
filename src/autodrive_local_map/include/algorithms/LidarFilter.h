@@ -6,10 +6,18 @@
 
 namespace AutoDrive::Algorithms {
 
+    /**
+     * Lidar Filter class encapsulates simple tools that allows to filter input point cloud data that comes directly
+     * from the lidar scanner
+     */
     class LidarFilter {
 
     public:
 
+        /**
+         * Method calls the set of filtering actions on the incomming lidar scan
+         * @param data lidar scan
+         */
         void applyFiltersOnLidarData( pcl::PointCloud<pcl::PointXYZ>& data) {
 
             if(filterNearObjects_) {
@@ -17,7 +25,14 @@ namespace AutoDrive::Algorithms {
             }
         }
 
+        /**
+         * Set the flag that enables point cloud filtration
+         */
         void enableFilterNearObjects() {filterNearObjects_ = true;};
+
+        /**
+         * Reset the flag that enables point cloud filtration
+         */
         void disableFilterNearObjects() {filterNearObjects_ = false;};
 
     private:

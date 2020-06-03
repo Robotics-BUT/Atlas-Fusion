@@ -12,10 +12,18 @@
 
 namespace AutoDrive::Visualizers {
 
+    /**
+     * Visualization backend (ROS) implementations for visualizing trajectory history as a polyline
+     */
     class TrajectoryVisualizer {
 
     public:
 
+        /**
+         * Constructor
+         * @param node ros node reference
+         * @param context global services container (timestamps, logging, etc.)
+         */
         TrajectoryVisualizer(ros::NodeHandle& node, Context& context)
         : node_{node}
         , context_{context} {

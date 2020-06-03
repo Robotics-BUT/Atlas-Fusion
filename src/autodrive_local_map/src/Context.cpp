@@ -9,13 +9,6 @@ namespace AutoDrive {
         return Context(logger, tfTree, emptyPath);
     }
 
-    Context Context::getValidContext() {
-        LogService logger("/tmp/context.log", LogService::LogLevel::Warning, true, true);
-        LocalMap::TFTree tfTree("imu", logger);
-        std::string emptyPath = "/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/config.yaml";
-        return Context(logger, tfTree, emptyPath);
-    }
-
     Context::timePoint Context::getHighPrecisionTime() {
         auto time = std::chrono::high_resolution_clock::now();
         return time;

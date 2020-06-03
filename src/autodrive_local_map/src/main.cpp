@@ -107,6 +107,8 @@ int main(int argc, char** argv) {
     auto dataFolder = configService.getStringValue({"data_folder"});
     auto maxReplayerRate = configService.getDoubleValue({"map_builder", "max_replayer_rate"});
 
+    auto lidarPlotterMaxDist = configService.getFloatValue({"lidar_img_plotter", "max_distance"});
+
     auto context = AutoDrive::Context(logger, tfTree, calibFolder);
 
     AutoDrive::MapBuilder mapBuilder{
@@ -123,7 +125,9 @@ int main(int argc, char** argv) {
         lasersPerLidar,
         pointsPerLaser,
         keepHistorySecLength,
-        maxReplayerRate};
+        maxReplayerRate,
+        lidarPlotterMaxDist,
+        dataFolder};
 
     mapBuilder.loadData(dataFolder);
     mapBuilder.buildMap();

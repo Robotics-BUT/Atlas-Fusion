@@ -13,10 +13,18 @@
 
 namespace AutoDrive::Visualizers {
 
+    /**
+     * Visualization backend (ROS) implementations for visualizing NN's frustum detections
+     */
     class FrustumVisualizer {
 
     public:
 
+        /**
+         * Constructor
+         * @param node ros node reference
+         * @param context global services container (timestamps, logging, etc.)
+         */
         FrustumVisualizer(ros::NodeHandle& node, Context& context)
         : node_{node}
         , context_{context} {
@@ -38,6 +46,7 @@ namespace AutoDrive::Visualizers {
         std::vector<geometry_msgs::Point> frustumToAxis(std::shared_ptr<const rtl::Frustum<double>> f);
 
         std_msgs::ColorRGBA getColorByClass(DataModels::YoloDetectionClass);
+        std_msgs::ColorRGBA getEmptyColor();
     };
 }
 

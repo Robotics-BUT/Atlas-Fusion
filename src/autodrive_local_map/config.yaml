@@ -3,10 +3,11 @@ logger:
   log_ext: "log"
   log_lvl: 1
 
-data_folder: "/home/default_user/Data/autodrive/1_1_1_1/"
-#data_folder: "/home/autodrive/Data/final/2_1_3_1/"
+#data_folder: "/home/autodrive/Data/final/1_1_1_1/"
+#data_folder: "/home/autodrive/Data/final/2_1_5_3/"
+data_folder: "/home/autodrive/Data/final/1_7/"
 #calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/"
-calibratios_folder: "/home/default_user/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/"
+calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/"
 
 map_builder:
   keep_history_sec_length: 10
@@ -14,7 +15,7 @@ map_builder:
 
 laser_aggregator:
   lasers: 32
-  points_per_laser: 10000
+  points_per_laser: 50000
 
 lidar_aggregator:
   leaf_size: 0.2
@@ -25,6 +26,9 @@ lidar_aggregator:
 self_model:
   kalman_process_noise: 1.0
   kalman_observation_noise: 0.1
+
+lidar_img_plotter:
+  max_distance: 50
 
 pose_logger:
   gnss: 100

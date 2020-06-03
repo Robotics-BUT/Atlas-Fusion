@@ -8,6 +8,9 @@
 
 namespace AutoDrive::Algorithms {
 
+    /**
+     * WORK IN PROGRESS
+     */
     class ObjectDetector {
 
     public:

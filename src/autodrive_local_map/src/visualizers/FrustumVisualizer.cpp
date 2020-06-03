@@ -171,4 +171,9 @@ namespace AutoDrive::Visualizers {
 
         return output;
     }
+
+
+    std_msgs::ColorRGBA FrustumVisualizer::getEmptyColor() {
+        return std_msgs::ColorRGBA{};
+    }
 }

@@ -7,10 +7,20 @@
 namespace AutoDrive {
     namespace DataLoader {
 
+        /**
+         * IMU Data Loader loads and handles data providing for the IMU sensor. It covers the the linear accelerations,
+         * ongular velocities, absolute orientation, magnetic field intensity, atmospheric pressure, global GNSS
+         * positioning and the internal sensor's temperature.
+         */
         class ImuDataLoader : public AbstractDataLoader {
 
         public:
 
+            /**
+             * Constructor
+             * @param context global services container (timestamps, logging, etc.)
+             * @param id identifies which type of data the Data Loader is handling
+             */
             ImuDataLoader(Context& context, ImuLoaderIdentifier id)
             : context_{context}
             , dataLoaderIdentifier_(id) {

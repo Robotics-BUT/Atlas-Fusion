@@ -9,11 +9,19 @@
 namespace AutoDrive {
     namespace DataLoader {
 
+        /**
+         * Lidar Data Loader handles the point cloud scans lazy loading and providing them on demand to the upper
+         * Data Loader instance.
+         */
         class LidarDataLoader : public AbstractDataLoader{
-
 
         public:
 
+            /**
+             *
+             * @param context global services container (timestamps, logging, etc.)
+             * @param id currently identifies the left or right LiDAR sensor
+             */
             LidarDataLoader(Context& context, LidarIdentifier id)
             : context_{context}
             , lidarIdentifier_(id){

@@ -13,10 +13,26 @@
 namespace AutoDrive {
     namespace DataLoader {
 
+
+        /**
+         * Camera Data Loader handles video files lazy loading, calibration parameters loading and the neural network's
+         * detections and provides these data on request to the upper structures.
+         */
         class CameraDataLoader : public AbstractDataLoader {
 
+            /**
+             * Simple structure that represents the frames in the video file, before the video frame is loaded.
+             */
             struct CameraFrame {
 
+                /**
+                 * Constructor
+                 * @param ts Recording timestamp
+                 * @param fId frame position in the video sequence
+                 * @param iTs inner camera's timestamp
+                 * @param tempMin minimal image temp (only for IR frames, for RGB not valid)
+                 * @param tempMax maximal image temp (only for IR frames, for RGB not valid)
+                 */
                 CameraFrame(uint64_t ts, uint32_t fId, uint64_t iTs, double tempMin, double tempMax)
                 : timestamp_(ts)
                 , frameId_(fId)
@@ -36,6 +52,12 @@ namespace AutoDrive {
 
         public:
 
+            /**
+             * Constructor
+             * @param context global services container (timestamps, logging, etc.)
+             * @param id unique identifier of the data loader. Related to the sensor.
+             * @param calibFilePath path to the camera calibration file
+             */
             CameraDataLoader(Context& context, CameraIndentifier id, std::string calibFilePath)
             : context_{context}
             , cameraIdentifier_(id)
@@ -54,7 +76,16 @@ namespace AutoDrive {
             void releaseOldData(timestamp_type keepHistory) override;
             void clear() override;
 
+            /**
+             * Method returns the unique identifier, that identifies Data Loader with specific sensor
+             * @return Data Loader identifier
+             */
             CameraIndentifier getCameraIdentifier() {return cameraIdentifier_;};
+
+            /**
+             * Method returns the calibration parameters for a camera that the Data Loader is responsible for.
+             * @return camera's calibration parameters.
+             */
             std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> getCameraCalibParams();
 
         private:
@@ -66,6 +97,7 @@ namespace AutoDrive {
             std::vector<std::shared_ptr<CameraFrame>> data_;
             std::vector<std::shared_ptr<CameraFrame>>::iterator dataIt_;
             std::vector<std::shared_ptr<CameraFrame>>::iterator releaseIt_;
+            std::pair<int, int> imageWidthHeight_ = {-1, -1};
 
             void loadYoloDetections(const std::string& path) const;
             void loadCameraCalibParams();
