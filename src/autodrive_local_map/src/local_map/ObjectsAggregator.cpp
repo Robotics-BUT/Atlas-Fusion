@@ -26,8 +26,6 @@ namespace AutoDrive::LocalMap {
 
 
         // Match detections
-        unsigned cols = static_cast<int>(previousDetections.size());
-        unsigned rows = static_cast<int>(newDetections.size());
         auto matching = matchDetections(previousDetections, newDetections);
 
         // Fusing old and new together
@@ -47,7 +45,7 @@ namespace AutoDrive::LocalMap {
         {int r = 0; for(const auto& newOne : b) {
 
                 {int c = 0;for(const auto& previousOne : a) {
-                        costs.at(r*cols + c) = - previousOne->getBoundingBox().intersectionOverUnion( newOne->getBoundingBox() );
+                        costs.at(r*cols + c) = static_cast<float>( -previousOne->getBoundingBox().intersectionOverUnion( newOne->getBoundingBox() ));
                         c++;
                     }}
                 r++;
@@ -75,13 +73,13 @@ namespace AutoDrive::LocalMap {
             oldMatched.at(match.second) = true;
         }
 
-        for(int i = 0 ; i < newMatched.size() ; i++) {
+        for(size_t i = 0 ; i < newMatched.size() ; i++) {
             if ( !newMatched.at(i) ) {
                 output.emplace_back( b.at(i) );
             }
         }
 
-        for(int i = 0 ; i < oldMatched.size() ; i++) {
+        for(size_t i = 0 ; i < oldMatched.size() ; i++) {
             if ( !oldMatched.at(i) ) {
                 if( a.at(i)->getTTL() > 1) {
                     output.emplace_back( std::make_shared<const DataModels::LidarDetection>(

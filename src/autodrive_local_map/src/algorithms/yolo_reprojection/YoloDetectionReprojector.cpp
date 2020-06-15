@@ -2,7 +2,7 @@
 
 namespace AutoDrive::Algorithms {
 
-    std::shared_ptr<std::vector<DataModels::YoloDetection>> YoloDetectionReprojector::onNewDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> frustums, rtl::Transformation3D<double> currentCameraTf) {
+    std::shared_ptr<std::vector<DataModels::YoloDetection>> YoloDetectionReprojector::onNewDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> frustums, rtl::RigidTf3D<double> currentCameraTf) {
 
         auto output = std::make_shared<std::vector<DataModels::YoloDetection>>();
 
@@ -33,16 +33,7 @@ namespace AutoDrive::Algorithms {
             points3D.emplace_back(cv::Point3f{static_cast<float>(nbr.x()), static_cast<float>(nbr.y()), static_cast<float>(nbr.z())});
 
             cameraProjector_->projectPoints(points3D, points2D);
-
-//            for(const auto& point : points2D) {
-//                cv::circle(irImg, point, 5, {0});
-//            }
-            cv::rectangle(irImg, points2D.at(0), points2D.at(1), {255});
-
-//            if(static_cast<size_t>(points2D.at(0).x) == 18446744073709551608) {
-//                cv::imshow("bublebum", irImg);
-//                cv::waitKey(0);
-//            }
+            //cv::rectangle(irImg, points2D.at(0), points2D.at(1), {255});
             output->emplace_back(DataModels::YoloDetection{static_cast<int>(points2D.at(0).x),
                                                            static_cast<int>(points2D.at(0).y),
                                                            static_cast<int>(points2D.at(1).x),
@@ -62,7 +53,7 @@ namespace AutoDrive::Algorithms {
         framesCounter_++;
     }
 
-    size_t YoloDetectionReprojector::getCurrentIrFrameNo() const {
+    long int YoloDetectionReprojector::getCurrentIrFrameNo() const {
 
         if(framesCounter_ == -1) {
             context_.logger_.warning("Requested IR Frame when still no frame is available");

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <rtl/Frustum.h>
+#include <rtl/Core.h>
 #include "algorithms/Projector.h"
 #include "algorithms/DetectionsProcessor.h"
 
@@ -23,8 +23,8 @@ const cv::Mat getDistortionNull() {
     );
 }
 
-rtl::Transformation3D<double> getTF(){
-    return rtl::Transformation3D<double>{};
+rtl::RigidTf3D<double> getTF(){
+    return rtl::RigidTf3D<double>{};
 }
 
 TEST(projector_test, initialization) {
@@ -116,7 +116,7 @@ TEST(projector_test, visualization) {
         cv::circle(img, p, 5, {0,0,255}, 1);
     }
 
-    auto f = rtl::Frustum<double>(
+    auto f = rtl::Frustum3D<double>(
             {0,0,0},
             {points3D[0].x, points3D[0].y, points3D[0].z},
             {points3D[1].x, points3D[1].y, points3D[1].z},
@@ -138,8 +138,6 @@ TEST(projector_test, visualization) {
     for(const auto& p : frustum2D) {
         cv::circle(img, p, 7, {0,255,0}, 1);
     }
-    //cv::imshow("bublebum", img);
-    //cv::waitKey(0);
 }
 
 
@@ -164,8 +162,6 @@ TEST(projector_test, circular_pattern_projection) {
     for(const auto& p : points2D) {
         cv::circle(img, p, cnt++, {0, 255, 0}, 1);
     }
-//    cv::imshow("bublebum", img);
-//    cv::waitKey(0);
 
 }
 

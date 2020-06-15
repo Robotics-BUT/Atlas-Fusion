@@ -61,7 +61,7 @@ namespace AutoDrive::Visualizers {
     }
 
 
-    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToGeometryPointVector(std::shared_ptr<const rtl::Frustum<double>> f) {
+    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToGeometryPointVector(std::shared_ptr<const rtl::Frustum3D<double>> f) {
 
         geometry_msgs::Point ntl;
         geometry_msgs::Point ntr;
@@ -120,7 +120,7 @@ namespace AutoDrive::Visualizers {
     }
 
 
-    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToAxis(std::shared_ptr<const rtl::Frustum<double>> f) {
+    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToAxis(std::shared_ptr<const rtl::Frustum3D<double>> f) {
 
         geometry_msgs::Point origin;
         geometry_msgs::Point middle;
@@ -154,13 +154,18 @@ namespace AutoDrive::Visualizers {
                 break;
             case DataModels::ReducedYoloDetectionClasses::kVehicle: // blue
                 output.r = 0.0;
-                output.g = 0.5;
+                output.g = 0.0;
                 output.b = 1.0;
                 break;
             case DataModels::ReducedYoloDetectionClasses::kAnimal:  // green
                 output.r = 0.0;
                 output.g = 1.0;
                 output.b = 0.0;
+                break;
+            case DataModels::ReducedYoloDetectionClasses::kTraffic:  // aqua
+                output.r = 0.0;
+                output.g = 1.0;
+                output.b = 1.0;
                 break;
             case DataModels::ReducedYoloDetectionClasses::kOther:   //yellow
                 output.r = 1.0;

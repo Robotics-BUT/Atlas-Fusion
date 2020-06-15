@@ -7,7 +7,7 @@ namespace AutoDrive::Algorithms {
             std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> scan,
             DataModels::LocalPosition startPose,
             DataModels::LocalPosition poseDiff,
-            rtl::Transformation3D<double> sensorOffsetTf) {
+            rtl::RigidTf3D<double> sensorOffsetTf) {
 
 
         std::vector<std::shared_ptr<DataModels::PointCloudBatch>> output;
@@ -25,11 +25,11 @@ namespace AutoDrive::Algorithms {
             double ratio = static_cast<double>(i) / noOfBatches_;
             auto pose = AutoDrive::DataModels::LocalPosition {
                     {poseDiff.getPosition().x() * (ratio), poseDiff.getPosition().y() * (ratio), poseDiff.getPosition().z() * (ratio)},
-                    {poseDiff.getOrientation().slerp({}, (float)(1-ratio))},
+                    {poseDiff.getOrientation().slerp(rtl::Quaternion<double>::identity(), (float)(1-ratio))},
                     uint64_t(duration * (ratio))
             };
 
-            rtl::Transformation3D<double> movementCompensationTF{pose.getOrientation(), pose.getPosition()};
+            rtl::RigidTf3D<double> movementCompensationTF{pose.getOrientation(), pose.getPosition()};
             uint64_t ts = timeOffset + static_cast<uint64_t>(ratio * duration);
 
             pcl::PointCloud<pcl::PointXYZ> points;
@@ -42,8 +42,8 @@ namespace AutoDrive::Algorithms {
                 }
             }
 
-            rtl::Transformation3D<double> toGlobelFrameTf{endPose.getOrientation(), endPose.getPosition()};
-            rtl::Transformation3D<double> startToEndTf{poseDiff.getOrientation(), poseDiff.getPosition()};
+            rtl::RigidTf3D<double> toGlobelFrameTf{endPose.getOrientation(), endPose.getPosition()};
+            rtl::RigidTf3D<double> startToEndTf{poseDiff.getOrientation(), poseDiff.getPosition()};
             auto finalTF = toGlobelFrameTf(startToEndTf.inverted()(movementCompensationTF(sensorOffsetTf)));
 
             // TODO: Avoid point copying

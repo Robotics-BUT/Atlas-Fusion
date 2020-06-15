@@ -1,8 +1,7 @@
 #pragma once
 #include <opencv2/opencv.hpp>
-#include <rtl/Vector3D.h>
-#include <rtl/Vector2D.h>
-#include <rtl/Transformation3D.h>
+#include <rtl/Core.h>
+#include <rtl/Transformation.h>
 
 namespace AutoDrive::Algorithms {
 
@@ -20,7 +19,7 @@ namespace AutoDrive::Algorithms {
          * @param distortion camera's distortion coefs
          * @param tf reserved
          */
-        Projector(const cv::Mat intrinsic, const cv::Mat distortion, rtl::Transformation3D<double>& tf)
+        Projector(const cv::Mat intrinsic, const cv::Mat distortion, rtl::RigidTf3D<double>& tf)
         : intrinsic_{intrinsic}
         , distortion_{distortion}
         {

@@ -3,7 +3,7 @@
 namespace AutoDrive::DataModels {
 
 
-    rtl::Transformation3D<double> LocalPosition::toTf() const {
+    rtl::RigidTf3D<double> LocalPosition::toTf() const {
         return {getOrientation(), getPosition()};
     }
 

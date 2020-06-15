@@ -86,9 +86,3 @@ add_executable(projector_test projector_test.cpp)
 target_compile_definitions(projector_test PUBLIC TEST_FOLDER="${PROJECT_SOURCE_DIR}/")
 target_link_libraries(projector_test ${all_libs})
 add_test(NAME projector_test COMMAND projector_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
-
-add_executable(quadrature_filter_test quadrature_filter_test.cpp)
-target_compile_definitions(quadrature_filter_test PUBLIC TEST_FOLDER="${PROJECT_SOURCE_DIR}/")
-target_link_libraries(quadrature_filter_test ${all_libs})
-add_test(NAME quadrature_filter_test COMMAND quadrature_filter_test WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

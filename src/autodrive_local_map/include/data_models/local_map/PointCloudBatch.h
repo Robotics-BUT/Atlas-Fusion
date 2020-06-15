@@ -4,7 +4,7 @@
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>
 
-#include <rtl/Transformation3D.h>
+#include <rtl/Transformation.h>
 
 namespace AutoDrive::DataModels {
 
@@ -27,7 +27,7 @@ namespace AutoDrive::DataModels {
          * @param frame sensor's frame
          * @param tf transformation that should be applied on points to get real position in 3D space
          */
-        explicit PointCloudBatch(uint64_t ts, pcl::PointCloud<pcl::PointXYZ> points, std::string frame, rtl::Transformation3D<double> tf)
+        explicit PointCloudBatch(uint64_t ts, pcl::PointCloud<pcl::PointXYZ> points, std::string frame, rtl::RigidTf3D<double> tf)
         : timestamp_{ts}
         , points_{std::move(points)}
         , referenceFrame_{std::move(frame)}
@@ -52,7 +52,7 @@ namespace AutoDrive::DataModels {
          * @param tf second transformation applied on points
          * @return transformed points
          */
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getTransformedPointsWithAnotherTF(rtl::Transformation3D<double>& tf) const;
+        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getTransformedPointsWithAnotherTF(rtl::RigidTf3D<double>& tf) const;
 
         /**
          * Timestamp when the points have been scanned
@@ -76,15 +76,15 @@ namespace AutoDrive::DataModels {
          * Points transformation getter
          * @return transformtaion that should be applied on points to get the real 3D position
          */
-        rtl::Transformation3D<double> getTF() const;
+        rtl::RigidTf3D<double> getTF() const;
 
     private:
         uint64_t timestamp_;
         pcl::PointCloud<pcl::PointXYZ> points_;
         std::string referenceFrame_;
-        rtl::Transformation3D<double> tf_;
+        rtl::RigidTf3D<double> tf_;
 
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> transformPointsByTF( const rtl::Transformation3D<double>& tf, const pcl::PointCloud<pcl::PointXYZ>& pts ) const;
+        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> transformPointsByTF( const rtl::RigidTf3D<double>& tf, const pcl::PointCloud<pcl::PointXYZ>& pts ) const;
     };
 
 }

@@ -2,11 +2,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 
 #include "Context.h"
 
 #include "data_models/yolo/YoloDetection.h"
 #include "data_models/camera/CameraIrFrameDataModel.h"
+#include "data_loader/RecordingConstants.h"
 
 namespace AutoDrive::DataWriters {
 
@@ -31,6 +33,10 @@ namespace AutoDrive::DataWriters {
         , destinationDir_{std::move(destinationDir)}
         , destinationFile_{std::move(destinationFile)} {
 
+            auto directory = destinationDir_ + DataLoader::Folders::kTrainIR;
+            if( !std::filesystem::exists(directory) ) {
+                std::filesystem::create_directory(directory);
+            }
         }
 
         /**

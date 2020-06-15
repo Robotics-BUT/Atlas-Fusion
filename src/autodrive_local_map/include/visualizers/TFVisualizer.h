@@ -35,9 +35,9 @@ namespace AutoDrive::Visualizers {
                 msg.header.stamp = ros::Time::now();
                 msg.header.frame_id = context_.tfTree_.getRootFrameName();
                 msg.child_frame_id = frameName;
-                msg.transform.translation.x = tf.trX();
-                msg.transform.translation.y = tf.trY();
-                msg.transform.translation.z = tf.trZ();
+                msg.transform.translation.x = tf.trVecX();
+                msg.transform.translation.y = tf.trVecY();
+                msg.transform.translation.z = tf.trVecZ();
                 msg.transform.rotation.x = tf.rotQuaternion().x();
                 msg.transform.rotation.y = tf.rotQuaternion().y();
                 msg.transform.rotation.z = tf.rotQuaternion().z();
@@ -47,7 +47,7 @@ namespace AutoDrive::Visualizers {
             broadcaster_->sendTransform(msgVector);
         }
 
-        void updateOriginToRootTf(rtl::Transformation3D<double> tf);
+        void updateOriginToRootTf(rtl::RigidTf3D<double> tf);
 
     protected:
 

@@ -22,8 +22,8 @@ const cv::Mat getDistortionNull() {
     );
 }
 
-rtl::Transformation3D<double> getTF(){
-    return rtl::Transformation3D<double>{};
+rtl::RigidTf3D<double> getTF(){
+    return rtl::RigidTf3D<double>{rtl::Quaternion<double>::identity(), {0.0, 0.0, 0.0}};
 }
 
 std::shared_ptr<AutoDrive::Algorithms::Projector> getProjector() {

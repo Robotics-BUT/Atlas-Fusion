@@ -1,6 +1,6 @@
 #include "algorithms/SelfModel.h"
 
-#include <rtl/Transformation3D.h>
+#include <rtl/Transformation.h>
 
 #include "algorithms/tools.h"
 #include "local_map/Frames.h"
@@ -52,7 +52,7 @@ namespace AutoDrive::Algorithms {
 
         if(poseInitialized_) {
             auto linAccNoGrav = removeGravitationalForceFromLinAcc(data);
-            auto orientatnionTF = rtl::Transformation3D<double>{orientation_,{}};
+            auto orientatnionTF = rtl::RigidTf3D<double>{orientation_,{0.0, 0.0, 0.0}};
             auto rotatedLinAccNoGrav = orientatnionTF(linAccNoGrav);
 
             auto dt = (data->getTimestamp() - lastImuTimestamp_) * 1e-9;
@@ -73,7 +73,6 @@ namespace AutoDrive::Algorithms {
             quaternionToRPY(data->getOrientation(), r, p, y);
             rtl::Quaternion<double> modifiedImuOrientation = rpyToQuaternion(r, p ,getHeading());
             orientation_ = orientation_.slerp(modifiedImuOrientation, 0.001);
-            //orientation_ = data->getOrientation();
         }
 
         lastImuTimestamp_ = data->getTimestamp();
@@ -105,7 +104,7 @@ namespace AutoDrive::Algorithms {
 
     rtl::Vector3D<double> SelfModel::getSpeedVector() const {
         auto speed = rtl::Vector3D<double>{kalmanX_.getVelocity(), kalmanY_.getVelocity(), kalmanZ_.getVelocity()};
-        auto tf = rtl::Transformation3D<double> {orientation_,{}};
+        auto tf = rtl::RigidTf3D<double> {orientation_,{0.0, 0.0, 0.0}};
         return tf.inverted()(speed);
     }
 
@@ -138,8 +137,6 @@ namespace AutoDrive::Algorithms {
 
     std::string SelfModel::getTelemetryString() const {
 
-        auto acc = getAvgAcceleration();
-
         std::stringstream ss;
         ss << "Telemetry:" << std::endl
            << "Pose: " << getPosition().getPosition().x() << " " << getPosition().getPosition().y() << " " << getPosition().getPosition().z() << " m"<< std::endl
@@ -154,7 +151,7 @@ namespace AutoDrive::Algorithms {
 
     DataModels::LocalPosition SelfModel::estimatePositionInTime(const uint64_t time) {
 
-        for(int i = positionHistory_.size()-1; i >= 0  ; i--) {
+        for(long int i = static_cast<long int>(positionHistory_.size())-1; i >= 0  ; i--) {
             if(positionHistory_.at(i).getTimestamp() < time) {
 
                 if(i == 0) {
@@ -205,7 +202,7 @@ namespace AutoDrive::Algorithms {
     std::pair<double, float> SelfModel::speedHeading() {
         double heading = atan2(kalmanY_.getVelocity(), kalmanX_.getVelocity());
         double speed = getSpeedScalar();
-        float validityFactor = static_cast<float>( 1 / ( 1 + std::exp( -1.0 * ( speed - 5.0 ) ) ) );
+        auto validityFactor = static_cast<float>( 1 / ( 1 + std::exp( -1.0 * ( speed - 5.0 ) ) ) );
         return {heading, validityFactor};
     }
 
@@ -244,12 +241,9 @@ namespace AutoDrive::Algorithms {
     DataModels::GlobalPosition SelfModel::gnssPoseToRootFrame(const DataModels::GlobalPosition gnssPose) {
 
         // TODO: validate
-
-        auto tf = rtl::Transformation3D<double>{orientation_,{}};
         auto frameOffset = context_.tfTree_.transformPointFromFrameToFrame({}, LocalMap::Frames::kGnssAntennaRear, LocalMap::Frames::kImuFrame);
-        auto rotatedFramesOffset = tf.inverted()(frameOffset);
 
-        auto gnssOffset = DataModels::LocalPosition{frameOffset, {}, getCurrentTime()};
+        auto gnssOffset = DataModels::LocalPosition{frameOffset, rtl::Quaternion<double>::identity(), getCurrentTime()};
         return DataModels::GlobalPosition::localPoseToGlobalPose(gnssOffset, gnssPose);
     }
 

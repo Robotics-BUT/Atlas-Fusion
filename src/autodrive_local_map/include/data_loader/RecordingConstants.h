@@ -24,6 +24,8 @@ namespace AutoDrive {
 
             const std::string kLidarDepth = "lidar_depth/";
 
+            const std::string kTrainIR = "train_ir/";
+
             const std::vector <std::string> mandatoryFolders{
                     kCameraLeftFrontFolder,
                     kCameraLeftSideFolder,

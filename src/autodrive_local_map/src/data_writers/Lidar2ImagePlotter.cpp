@@ -14,7 +14,7 @@ namespace AutoDrive::DataWriters {
             context_.logger_.warning("points2D vector size is not equal to points3D vector size in Lidar2Image!");
         }
 
-        for(int i = 0 ; i < points2D.size() ; i++) {
+        for(size_t i = 0 ; i < points2D.size() ; i++) {
             image->at<uint8_t >(static_cast<int>(points2D.at(i).y), static_cast<int>(points2D.at(i).x)) = distanceToColor( pointLenght(points3D.at(i)) );
         }
 

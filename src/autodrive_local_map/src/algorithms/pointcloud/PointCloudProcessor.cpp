@@ -17,7 +17,7 @@ namespace AutoDrive::Algorithms {
         return output;
     }
 
-    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudProcessor::transformPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input, rtl::Transformation3D<double> tf)  {
+    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudProcessor::transformPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input, rtl::RigidTf3D<double> tf)  {
 
             auto output = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
             output->reserve(input->size());
@@ -33,7 +33,7 @@ namespace AutoDrive::Algorithms {
             pcl_tf(0,2) = static_cast<float>(rotMat(0, 2));
             pcl_tf(1,2) = static_cast<float>(rotMat(1, 2));
             pcl_tf(2,2) = static_cast<float>(rotMat(2, 2));
-            pcl_tf.translation() << tf.trX(), tf.trY(), tf.trZ();
+            pcl_tf.translation() << tf.trVecX(), tf.trVecY(), tf.trVecZ();
             pcl::transformPointCloud (*input, *output, pcl_tf);
 
             return output;

@@ -45,7 +45,7 @@ namespace AutoDrive::Algorithms {
                 std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> scan,
                 DataModels::LocalPosition startPose,
                 DataModels::LocalPosition endPose,
-                rtl::Transformation3D<double> sensorOffset);
+                rtl::RigidTf3D<double> sensorOffset);
 
         /**
          * Method provides aggregated history for a laser with the given index
@@ -64,8 +64,8 @@ namespace AutoDrive::Algorithms {
     private:
 
         Context& context_;
-        size_t aggPointsNo_;
         size_t noOfLasers_;
+        size_t aggPointsNo_;
 
         std::vector<std::deque<rtl::Vector3D<double>>> aggregators;
 

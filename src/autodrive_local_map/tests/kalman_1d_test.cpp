@@ -6,7 +6,7 @@ TEST(kalman_d1_test, init) {
 
     AutoDrive::Algorithms::Kalman1D kalman(0.1, 0.5);
     EXPECT_EQ(kalman.getPosition(), 0);
-    EXPECT_EQ(kalman.getSpeed(), 0);
+    EXPECT_EQ(kalman.getVelocity(), 0);
 }
 
 
@@ -20,12 +20,12 @@ TEST(kalman_d1_test, iteration) {
             measured_pose = 1.0;
         }
         std::cout << "Iteration " << i+1 << std::endl;
-        std::cout << "Prediciton, states: " << kalman.getPosition() << " " << kalman.getSpeed() << std::endl;
+        std::cout << "Prediciton, states: " << kalman.getPosition() << " " << kalman.getVelocity() << std::endl;
         kalman.predict(dt, 0);
         cv::Mat measurement = (cv::Mat_<double>(2, 1) <<
                                                       measured_pose,  // p
                 0);
-        std::cout << "Measurement, states: " << kalman.getPosition() << " " << kalman.getSpeed() << std::endl;
+        std::cout << "Measurement, states: " << kalman.getPosition() << " " << kalman.getVelocity() << std::endl;
         kalman.correct(measurement);
     }
 }
@@ -45,7 +45,7 @@ TEST(kalman_d1_test, fixed_pose) {
     }
 
     EXPECT_NEAR(kalman.getPosition(), measured_pose, 0.1);
-    EXPECT_NEAR(kalman.getSpeed(), 0, 0.1);
+    EXPECT_NEAR(kalman.getVelocity(), 0, 0.1);
 }
 
 
@@ -66,7 +66,7 @@ TEST(kalman_d1_test, fixed_speed) {
     }
 
     EXPECT_NEAR(kalman.getPosition(), measured_pose, 0.1);
-    EXPECT_NEAR(kalman.getSpeed(), speed, 0.1);
+    EXPECT_NEAR(kalman.getVelocity(), speed, 0.1);
 }
 
 int main(int argc, char **argv){

@@ -3,7 +3,7 @@
 
 namespace AutoDrive::Visualizers {
 
-    void ImuVisualizer::drawImuData(const rtl::Vector3D<double> linAcc, std::string frame, std::string topic) {
+    void ImuVisualizer::drawImuData(const rtl::Vector3D<double> linAcc, std::string /*frame*/, std::string topic) {
 
         if(publishers_.count(topic) == 0) {
             publishers_[topic] = std::make_shared<ros::Publisher>(node_.advertise<sensor_msgs::Imu>( topic, 0));

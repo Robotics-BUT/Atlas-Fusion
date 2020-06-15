@@ -3,8 +3,7 @@
 #include <memory>
 #include <queue>
 
-#include <rtl/Vector3D.h>
-#include <rtl/Quaternion.h>
+#include <rtl/Core.h>
 #include <data_models/imu/ImuGnssDataModel.h>
 
 #include "Context.h"
@@ -30,7 +29,7 @@ namespace AutoDrive::Algorithms {
          */
         SimpleTrajectoryLogger(Context& context, size_t historyLenght)
         : context_{context}
-        , position_{{},{},0}
+        , position_{{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0}
         , historyLenght_{historyLenght} {
 
         }

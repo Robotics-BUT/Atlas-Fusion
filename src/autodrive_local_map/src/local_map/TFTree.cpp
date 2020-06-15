@@ -3,7 +3,7 @@
 namespace AutoDrive::LocalMap {
 
 
-    void TFTree::addFrame(rtl::Transformation3Dd tf, std::string name) {
+    void TFTree::addFrame(rtl::RigidTf3D<double> tf, std::string name) {
 
         if (frameMap_.find(name) != frameMap_.end()) {
             logger_.warning("Unable to insert " + name + " frame to TFTree. Frame already exists.");
@@ -15,9 +15,9 @@ namespace AutoDrive::LocalMap {
     }
 
 
-    rtl::Transformation3Dd TFTree::getTransformationForFrame(const std::string& frameName) {
+    rtl::RigidTf3D<double> TFTree::getTransformationForFrame(const std::string& frameName) {
         if(frameName == rootFrameName_) {
-            return rtl::Transformation3Dd{};
+            return rtl::RigidTf3D<double>{rtl::Quaternion<double>::identity(), {0.0, 0.0, 0.0}};
         }
         return frameMap_.at(frameName);
     }

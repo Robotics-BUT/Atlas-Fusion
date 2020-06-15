@@ -34,19 +34,19 @@ pcl::PointCloud<pcl::PointXYZ> distort(pcl::PointCloud<pcl::PointXYZ> pc, AutoDr
         float z_offset = (float)(distortion.getPosition().z()) * ratio;
 
         rtl::Quaternion<double> zero_rot{};
-        rtl::Quaternion<double> partialRot{zero_rot.eigenQuat().slerp(ratio, rot.eigenQuat())};
+        rtl::Quaternion<double> partialRot{zero_rot.slerp(rot, ratio)};
 
 
-        rtl::Transformation3D<double> tf{partialRot, {x_offset, y_offset, z_offset}};
+        rtl::RigidTf3D<double> tf{partialRot, {x_offset, y_offset, z_offset}};
         tf = tf.inverted();
-        auto rotMat = tf.rotQuaternion().rotMat();
+        auto rotMat = tf.rotMat();
 
         Eigen::Affine3f pcl_tf = Eigen::Affine3f::Identity();
         pcl_tf = Eigen::Affine3f::Identity();
         pcl_tf(0,0) = static_cast<float>(rotMat(0, 0)); pcl_tf(1,0) = static_cast<float>(rotMat(1, 0)); pcl_tf(2,0) = static_cast<float>(rotMat(2, 0));
         pcl_tf(0,1) = static_cast<float>(rotMat(0, 1)); pcl_tf(1,1) = static_cast<float>(rotMat(1, 1)); pcl_tf(2,1) = static_cast<float>(rotMat(2, 1));
         pcl_tf(0,2) = static_cast<float>(rotMat(0, 2)); pcl_tf(1,2) = static_cast<float>(rotMat(1, 2)); pcl_tf(2,2) = static_cast<float>(rotMat(2, 2));
-        pcl_tf.translation() << tf.trX(), tf.trY(), tf.trZ();
+        pcl_tf.translation() << tf.trVecX(), tf.trVecY(), tf.trVecZ();
 
         pcl::PointCloud<pcl::PointXYZ> src;
         src.push_back(pc.at(i));
