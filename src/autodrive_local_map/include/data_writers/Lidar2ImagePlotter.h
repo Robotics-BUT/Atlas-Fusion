@@ -1,8 +1,10 @@
 #pragma once
 
 #include <opencv2/opencv.hpp>
+#include <filesystem>
 
 #include "Context.h"
+#include "data_loader/RecordingConstants.h"
 
 namespace AutoDrive::DataWriters {
 
@@ -28,6 +30,10 @@ namespace AutoDrive::DataWriters {
         , maxDist_{maxDistance}
         , destFolder_{std::move(destFolder)} {
 
+            auto directory = destFolder_ + DataLoader::Folders::kLidarDepth;
+            if( !std::filesystem::exists(directory) ) {
+                std::filesystem::create_directory(directory);
+            }
         }
 
         /**

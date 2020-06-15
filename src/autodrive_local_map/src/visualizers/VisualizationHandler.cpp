@@ -101,7 +101,7 @@ namespace AutoDrive::Visualizers{
     }
 
     void VisualizationHandler::updateOriginToRootTf(const DataModels::LocalPosition& pose) {
-        rtl::Transformation3D tf(pose.getOrientation(), pose.getPosition());
+        rtl::RigidTf3D<double> tf(pose.getOrientation(), pose.getPosition());
         tfTreeVisualizer_.updateOriginToRootTf(tf);
     }
 

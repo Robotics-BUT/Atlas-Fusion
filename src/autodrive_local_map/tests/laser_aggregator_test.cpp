@@ -75,11 +75,11 @@ TEST(laser_aggregator, forward_movement) {
 
     auto data = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(getTestData());
 
-    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, {}, 0};
-    AutoDrive::DataModels::LocalPosition endPose {{1,0,0}, {}, uint64_t(0.1e9)};
+    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, rtl::Quaternion<double>::identity(), 0};
+    AutoDrive::DataModels::LocalPosition endPose {{1,0,0}, rtl::Quaternion<double>::identity(), uint64_t(0.1e9)};
     auto poseDiff = endPose - startPose;
 
-    aggregator.onNewLaserData(data, startPose, poseDiff, {});
+    aggregator.onNewLaserData(data, startPose, poseDiff, rtl::RigidTf3D<double>::identity());
 
 #ifdef VISUALIZE
     auto result = aggregator.getAllAggregatedLasers();

@@ -4,8 +4,9 @@ logger:
   log_lvl: 1
 
 #data_folder: "/home/autodrive/Data/final/1_1_1_1/"
-#data_folder: "/home/autodrive/Data/final/2_1_5_3/"
-data_folder: "/home/autodrive/Data/final/1_7/"
+data_folder: "/home/autodrive/Data/final/2_1_5_3/"
+#data_folder: "/home/autodrive/Data/final/2_1_3_1/"
+#data_folder: "/home/autodrive/Data/final/1_7/"
 #calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/"
 calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/"
 

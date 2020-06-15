@@ -62,7 +62,7 @@ namespace AutoDrive::Algorithms {
     DataModels::GlobalPosition SimpleTrajectoryLogger::gnssPoseToRootFrame(const DataModels::GlobalPosition gnssPose) {
 
         auto gnssOffset = DataModels::LocalPosition{context_.tfTree_.transformPointFromFrameToFrame({}, LocalMap::Frames::kGnssAntennaRear, LocalMap::Frames::kImuFrame),
-                                                    {},
+                                                    rtl::Quaternion<double>::identity(),
                                                     0};
         return DataModels::GlobalPosition::localPoseToGlobalPose(gnssOffset, gnssPose);
     }
@@ -77,7 +77,7 @@ namespace AutoDrive::Algorithms {
         double cr = cos(roll * 0.5);
         double sr = sin(roll * 0.5);
 
-        rtl::Quaternion<double> q;
+        rtl::Quaternion<double> q = rtl::Quaternion<double>::identity();
         q.setW(cy * cp * cr + sy * sp * sr);
         q.setX(cy * cp * sr - sy * sp * cr);
         q.setY(sy * cp * sr + cy * sp * cr);

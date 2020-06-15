@@ -23,10 +23,9 @@ namespace AutoDrive::Algorithms {
             };
 
             std::vector<cv::Point3f> points3D;
-            projector->getPointDirection(points2D, points3D);
+            projector->reverseProjection(points2D, points3D, false);
 
-            float ratio = distance / (( points3D[0].z + points3D[1].z + points3D[2].z + points3D[3].z)/4);
-            auto frustum = rtl::Frustum<double>(
+            auto frustum = rtl::Frustum3D<double>(
                     rtl::Vector3D<double>{0,0,0},
                     rtl::Vector3D<double>{points3D[0].x * distance, points3D[0].y * distance, points3D[0].z * distance},
                     rtl::Vector3D<double>{points3D[1].x * distance, points3D[1].y * distance, points3D[1].z * distance},
@@ -35,10 +34,9 @@ namespace AutoDrive::Algorithms {
                     1.0);
 
             auto tf = context_.tfTree_.getTransformationForFrame(frame);
-            auto tmp = frustum.applyTransformation(tf);
 
             output.push_back(std::make_shared<const DataModels::FrustumDetection>(
-                    std::make_shared<rtl::Frustum<double>>(frustum.applyTransformation(tf)),
+                    std::make_shared<rtl::Frustum3D<double>>(frustum.transformed(tf)),
                     detection.getDetectionConfidence(),
                     detection.getClassConfidence(),
                     detection.getClass()));

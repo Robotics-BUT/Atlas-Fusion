@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rtl/Vector3D.h>
+#include <rtl/Core.h>
 
 #include "Context.h"
 #include "data_models/all.h"
@@ -66,7 +66,7 @@ namespace AutoDrive::Algorithms {
                 DataLoader::CameraIndentifier id,
                 size_t imgWidth,
                 size_t imgHeight,
-                rtl::Transformation3D<double> currentFrameTf,
+                rtl::RigidTf3D<double> currentFrameTf,
                 bool useDistMat = true);
 
     private:
@@ -76,8 +76,8 @@ namespace AutoDrive::Algorithms {
         std::map<DataLoader::LidarIdentifier, pcl::PointCloud<pcl::PointXYZ>> lidarScans_{};
         std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches_;
 
-        void storeLidarDataInRootFrame(std::shared_ptr<DataModels::LidarScanDataModel> data, rtl::Transformation3D<double>& tf);
-        void applyTransformOnPclData(pcl::PointCloud<pcl::PointXYZ>&input, pcl::PointCloud<pcl::PointXYZ>&output, rtl::Transformation3D<double>& tf);
+        void storeLidarDataInRootFrame(std::shared_ptr<DataModels::LidarScanDataModel> data, rtl::RigidTf3D<double>& tf);
+        void applyTransformOnPclData(pcl::PointCloud<pcl::PointXYZ>&input, pcl::PointCloud<pcl::PointXYZ>&output, rtl::RigidTf3D<double>& tf);
 
         void getAllCurrentPointsProjectedToImage(
                 DataLoader::CameraIndentifier id,
@@ -85,7 +85,7 @@ namespace AutoDrive::Algorithms {
                 std::vector<cv::Point3f>& validPoints3D,
                 size_t img_width,
                 size_t img_height,
-                rtl::Transformation3D<double>,
+                rtl::RigidTf3D<double>,
                 bool useDistMat = true);
 
         std::vector<size_t> getIndexesOfPointsInDetection(std::vector<cv::Point2f>& validPoints2D, std::shared_ptr<DataModels::YoloDetection> detection);

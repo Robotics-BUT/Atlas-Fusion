@@ -79,7 +79,7 @@ namespace AutoDrive {
                 DataLoader::timestamp_type keepHistoryLength,
                 double maxReplayerRate,
                 float maxLidar2ImgDist,
-                std::string destinationFolder)
+                std::string& destinationFolder)
         : node_{node}
         , context_{context}
         , gnssPoseLogger_{context, gnssLogPoseNo}
@@ -94,8 +94,8 @@ namespace AutoDrive {
         , rightLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints}
         , globalPointcloudStorage_{context, globalLeafSize}
         , occGrid_{context}
-        , yoloIrReprojector_{context}
         , lidarObjectDetector_{context}
+        , yoloIrReprojector_{context}
         , failChecker_{context}
         , visualizationHandler_{node, context}
         , dataLoader_{context, keepHistoryLength}

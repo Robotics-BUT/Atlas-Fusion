@@ -40,7 +40,7 @@ namespace AutoDrive::Algorithms {
                 std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> scan,
                 DataModels::LocalPosition startPose,
                 DataModels::LocalPosition poseDiff,
-                rtl::Transformation3D<double> sensorOffset);
+                rtl::RigidTf3D<double> sensorOffset);
 
         /**
          * Setter for internal variable that defines number of batches that the input scan will be splitted into.

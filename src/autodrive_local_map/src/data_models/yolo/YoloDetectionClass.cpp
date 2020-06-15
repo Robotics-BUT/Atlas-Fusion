@@ -28,6 +28,9 @@ namespace AutoDrive::DataModels {
             case YoloDetectionClass::kZebra:
             case YoloDetectionClass::kGiraffe:
                 detectionClass = ReducedYoloDetectionClasses::kAnimal; break;
+            case YoloDetectionClass::kTrafficLight:
+            case YoloDetectionClass::kStopSign:
+                detectionClass = ReducedYoloDetectionClasses::kTraffic; break;
             default:
                 break;
         }

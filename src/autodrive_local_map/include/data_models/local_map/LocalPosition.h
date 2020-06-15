@@ -1,8 +1,7 @@
 #pragma once
 
-#include <rtl/Vector3D.h>
-#include <rtl/Quaternion.h>
-#include <rtl/Transformation3D.h>
+#include <rtl/Core.h>
+#include <rtl/Transformation.h>
 
 namespace AutoDrive::DataModels {
 
@@ -72,7 +71,7 @@ namespace AutoDrive::DataModels {
          * Converts 3D orientation nad translation into the 3D transformation
          * @return
          */
-        rtl::Transformation3D<double> toTf() const;
+        rtl::RigidTf3D<double> toTf() const;
 
         /**
          * Nanosecond timestamp getter

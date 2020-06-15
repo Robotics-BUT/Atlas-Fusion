@@ -9,14 +9,6 @@
 namespace AutoDrive::Algorithms {
 
 
-//    void DepthMap::onNewLidarData(std::shared_ptr<DataModels::LidarScanDataModel> data) {
-//
-//        auto lidarFrame = lidarIdentifierToFrame(data->getLidarIdentifier());
-//        auto tf = context_.tfTree_.getTransformationForFrame(lidarFrame);
-//        storeLidarDataInRootFrame(data,tf);
-//    }
-
-
     void DepthMap::updatePointcloudData(std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches) {
         batches_ = batches;
     }
@@ -35,7 +27,6 @@ namespace AutoDrive::Algorithms {
         auto cameraId = data->getCameraIdentifier();
         auto yoloDetections = data->getYoloDetections();
 
-//        if(cameraId == DataLoader::CameraIndentifier::kCameraRightSide) {
 
         std::vector<cv::Point2f> valid2DPoints;
         std::vector<cv::Point3f> valid3DPoints{};
@@ -47,17 +38,7 @@ namespace AutoDrive::Algorithms {
 
                 auto detPointIndexes = getIndexesOfPointsInDetection(valid2DPoints, detection);
 
-//                for (auto &index : detPointIndexes) {
-//                    cv::circle(img, valid2DPoints.at(index), 5, {255, 0, 0});
-//                }
-
-//                for (auto &p : valid2DPoints) {
-//                    cv::circle(img, p, 5, {255, 0, 0});
-//                }
-
                 auto bb = detection->getBoundingBox();
-//                cv::rectangle(img, {static_cast<int>(bb.x1_), static_cast<int>(bb.y1_)},
-//                                   {static_cast<int>(bb.x2_), static_cast<int>(bb.y2_)}, {0, 0, 255}, 5);
 
                 auto distance = getMedianDepthOfPointVector(valid3DPoints, detPointIndexes);
                 if(distance > 0) {
@@ -85,7 +66,7 @@ namespace AutoDrive::Algorithms {
             DataLoader::CameraIndentifier id,
             size_t imgWidth,
             size_t imgHeight,
-            rtl::Transformation3D<double> currentFrameTf,
+            rtl::RigidTf3D<double> currentFrameTf,
             bool useDistMat) {
 
         auto output = std::make_shared<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>>();
@@ -94,20 +75,20 @@ namespace AutoDrive::Algorithms {
     }
 
 
-    void DepthMap::storeLidarDataInRootFrame(std::shared_ptr<DataModels::LidarScanDataModel> data, rtl::Transformation3D<double>& tf) {
+    void DepthMap::storeLidarDataInRootFrame(std::shared_ptr<DataModels::LidarScanDataModel> data, rtl::RigidTf3D<double>& tf) {
 
         auto scan = data->getScan();
         applyTransformOnPclData(*scan, lidarScans_[data->getLidarIdentifier()], tf);
     }
 
 
-    void DepthMap::applyTransformOnPclData(pcl::PointCloud<pcl::PointXYZ>&input, pcl::PointCloud<pcl::PointXYZ>&output, rtl::Transformation3D<double>& tf) {
+    void DepthMap::applyTransformOnPclData(pcl::PointCloud<pcl::PointXYZ>&input, pcl::PointCloud<pcl::PointXYZ>&output, rtl::RigidTf3D<double>& tf) {
         auto rotMat = tf.rotQuaternion().rotMat();
         Eigen::Affine3f pcl_tf = Eigen::Affine3f::Identity();
         pcl_tf(0,0) = static_cast<float>(rotMat(0, 0)); pcl_tf(1,0) = static_cast<float>(rotMat(1, 0)); pcl_tf(2,0) = static_cast<float>(rotMat(2, 0));
         pcl_tf(0,1) = static_cast<float>(rotMat(0, 1)); pcl_tf(1,1) = static_cast<float>(rotMat(1, 1)); pcl_tf(2,1) = static_cast<float>(rotMat(2, 1));
         pcl_tf(0,2) = static_cast<float>(rotMat(0, 2)); pcl_tf(1,2) = static_cast<float>(rotMat(1, 2)); pcl_tf(2,2) = static_cast<float>(rotMat(2, 2));
-        pcl_tf.translation() << tf.trX(), tf.trY(), tf.trZ();
+        pcl_tf.translation() << tf.trVecX(), tf.trVecY(), tf.trVecZ();
         pcl::transformPointCloud (input, output, pcl_tf);
     }
 
@@ -118,7 +99,7 @@ namespace AutoDrive::Algorithms {
             std::vector<cv::Point3f>& validPoints3D,
             size_t img_width,
             size_t img_height,
-            rtl::Transformation3D<double> originToImu,
+            rtl::RigidTf3D<double> originToImu,
             bool useDistMat) {
 
         auto projector = projectors_[id];
@@ -126,7 +107,7 @@ namespace AutoDrive::Algorithms {
 
         pcl::PointCloud<pcl::PointXYZ> destPCL;
         auto imuToCamera = context_.tfTree_.getTransformationForFrame(cameraFrame);
-        rtl::Transformation3D<double> originToCameraTf = (imuToCamera.inverted()(originToImu.inverted()));//imuToCamera.inverted()(originToImu.inverted());
+        rtl::RigidTf3D<double> originToCameraTf = (imuToCamera.inverted()(originToImu.inverted()));//imuToCamera.inverted()(originToImu.inverted());
 
         for(const auto& batch : batches_) {
             destPCL += *(batch->getTransformedPointsWithAnotherTF(originToCameraTf));
@@ -143,14 +124,6 @@ namespace AutoDrive::Algorithms {
                 test.push_back({pnt.x, pnt.y, pnt.z});
             }
         }
-
-//        vis_.drawAggregatedPointcloud(std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(test));
-//        for(int j = 0 ; j < 360; j+=1) {
-//            for (int i = 0; i < 360; i += 1) {
-//                float angle = i * M_PI / 180;
-//                points3D.emplace_back(cv::Point3f{sin(j*M_PI / 180), sin(angle), cos(angle)});
-//            }
-//        }
 
         projector->projectPoints(points3D, points2D, useDistMat);
 

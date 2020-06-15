@@ -1,9 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include <rtl/Quaternion.h>
-#include <rtl/Vector3D.h>
-#include <rtl/Transformation3D.h>
+#include <rtl/Core.h>
+#include <rtl/Transformation.h>
 
 namespace AutoDrive::Algorithms {
 
@@ -27,14 +26,14 @@ namespace AutoDrive::Algorithms {
          */
         rtl::Vector3D<double> removeGravitaionAcceleration(rtl::Vector3D<double> acc) {
 
-            auto tf = rtl::Transformation3D<double>{ orientation_, {0,0,0}};
+            auto tf = rtl::RigidTf3D<double>{ orientation_, {0,0,0}};
             auto grav = tf.inverted()(g_);
             rtl::Vector3D<double> diff = acc - grav;
             return diff;
         }
 
     private:
-        rtl::Quaternion<double> orientation_;
+        rtl::Quaternion<double> orientation_ = rtl::Quaternion<double>::identity();
         rtl::Vector3D<double> g_ = {0.0, 0.0, 9.81};
     };
 

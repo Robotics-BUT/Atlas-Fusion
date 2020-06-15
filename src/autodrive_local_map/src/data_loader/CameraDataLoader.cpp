@@ -23,6 +23,9 @@ namespace AutoDrive::DataLoader {
                     folder = Folders::kCameraRightSideFolder; break;
                 case DataLoader::CameraIndentifier::kCameraIr:
                     folder = Folders::kCameraIr; break;
+                case DataLoader::CameraIndentifier::kErr:
+                    context_.logger_.warning("Error Camera Identifier in CameraDataLoader::loadData(std::string) method");
+                    break;
             }
 
             auto csvContent = readCsv(path + folder + Files::kTimestampFile);
@@ -49,6 +52,9 @@ namespace AutoDrive::DataLoader {
                         } else {
                             context_.logger_.error("Unexpected lenght of camera ir timestamp row: ");
                         }
+                        break;
+                    case DataLoader::CameraIndentifier::kErr:
+                        context_.logger_.warning("Error Camera Identifier in CameraDataLoader::loadData(std::string) method");
                         break;
                 }
             }
@@ -112,6 +118,9 @@ namespace AutoDrive::DataLoader {
 
                     case DataLoader::CameraIndentifier::kCameraIr:
                         cameraFrame = std::make_shared<DataModels::CameraIrFrameDataModel>((*dataIt_)->timestamp_, frame, (*dataIt_)->tempMin_, (*dataIt_)->tempMax_, cameraIdentifier_);
+                        break;
+                    case DataLoader::CameraIndentifier ::kErr:
+                        context_.logger_.warning("Error Camera Identifier in the CameraDataLoader::getNextData() method");
                         break;
                 }
 

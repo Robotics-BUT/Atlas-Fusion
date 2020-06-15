@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rtl/Vector3D.h>
+#include <rtl/Core.h>
 #include <cmath>
 
 #include "LocalPosition.h"

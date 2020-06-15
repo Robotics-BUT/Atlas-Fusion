@@ -57,11 +57,11 @@ pcl::PointCloud<pcl::PointXYZ> distort(pcl::PointCloud<pcl::PointXYZ> pc, AutoDr
         float z_offset = (float) (distortion.getPosition().z()) * ratio;
 
         rtl::Quaternion<double> zero_rot{};
-        rtl::Quaternion<double> partialRot{zero_rot.eigenQuat().slerp(ratio, rot.eigenQuat())};
+        rtl::Quaternion<double> partialRot{zero_rot.slerp(rot, ratio)};
 
-        rtl::Transformation3D<double> tf{partialRot, {x_offset, y_offset, z_offset}};
+        rtl::RigidTf3D <double> tf{partialRot, {x_offset, y_offset, z_offset}};
         tf = tf.inverted();
-        auto rotMat = tf.rotQuaternion().rotMat();
+        auto rotMat = tf.rotMat();
 
         Eigen::Affine3f pcl_tf = Eigen::Affine3f::Identity();
         pcl_tf = Eigen::Affine3f::Identity();
@@ -74,7 +74,7 @@ pcl::PointCloud<pcl::PointXYZ> distort(pcl::PointCloud<pcl::PointXYZ> pc, AutoDr
         pcl_tf(0, 2) = static_cast<float>(rotMat(0, 2));
         pcl_tf(1, 2) = static_cast<float>(rotMat(1, 2));
         pcl_tf(2, 2) = static_cast<float>(rotMat(2, 2));
-        pcl_tf.translation() << tf.trX(), tf.trY(), tf.trZ();
+        pcl_tf.translation() << tf.trVecX(), tf.trVecY(), tf.trVecZ();
 
         pcl::PointCloud<pcl::PointXYZ> src;
         src.push_back(pc.at(i));
@@ -140,7 +140,7 @@ TEST(pointcloud_aggregation, static_aggregation) {
         points.push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
         std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-        auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (0, points, "origin", rtl::Transformation3D<double>{});
+        auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (0, points, "origin", rtl::RigidTf3D<double>::identity());
         batches.push_back(batch);
 
         aggregator.addPointCloudBatches(batches);
@@ -169,7 +169,7 @@ TEST(pointcloud_aggregation, multiple_static_aggregation) {
             points.push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
             std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (j*1e9, points, "origin", rtl::Transformation3D<double>{});
+            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (j*1e9, points, "origin", rtl::RigidTf3D<double>::identity());
             batches.push_back(batch);
 
             aggregator.addPointCloudBatches(batches);
@@ -205,7 +205,7 @@ TEST(pointcloud_aggregation, points_filtration) {
             points.push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
             std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (j*1e9, points, "origin", rtl::Transformation3D<double>{});
+            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (j*1e9, points, "origin", rtl::RigidTf3D<double>::identity());
             batches.push_back(batch);
 
             auto ts = static_cast<uint64_t>(j*1e9);
@@ -251,7 +251,7 @@ TEST(pointcloud_aggregation, forward_movement) {
             };
         }
 
-        auto batches = extrapolator.splitPointCloudToBatches(std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(distTmp), currentPose, poseDiff, {});
+        auto batches = extrapolator.splitPointCloudToBatches(std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(distTmp), currentPose, poseDiff, rtl::RigidTf3D<double>::identity());
         aggregator.addPointCloudBatches(batches);
 
         data += tmp;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rtl/Quaternion.h>
+#include <rtl/Core.h>
 
 #include "data_models/GenericDataModel.h"
 

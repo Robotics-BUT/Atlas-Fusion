@@ -51,11 +51,10 @@ namespace AutoDrive {
 
     void MapBuilder::buildMap() {
 
-        uint64_t dataCounter = 0;
         int64_t last_system_ts = 0;
         uint64_t last_data_ts = 0;
 
-        DataModels::LocalPosition initPose{{},{},0};
+        DataModels::LocalPosition initPose{{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
         visualizationHandler_.updateOriginToRootTf(initPose);
 
         for (size_t i = 0; !dataLoader_.isOnEnd(); i++) {
@@ -98,7 +97,6 @@ namespace AutoDrive {
             if(dataType == DataModels::DataModelTypes::kCameraDataModelType) {
 
                 static int cnt = 0;
-                static int globalPcCnt = 0;
 
                 auto imgData = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
                 auto batches = pointCloudAggregator_.getAllBatches();
@@ -130,12 +128,12 @@ namespace AutoDrive {
                 if(cnt++ >= 3) {
                     auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
                     auto downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud);
-                    globalPointcloudStorage_.addMorePointsToGlobalStorage(downsampledAggregatedPc);
+                    //globalPointcloudStorage_.addMorePointsToGlobalStorage(downsampledAggregatedPc);
 
 
                     auto tunel = pointCloudAggregator_.getPointcloudCutout(pointCloudProcessor_.transformPointcloud(downsampledAggregatedPc, selfModel_.getPosition().toTf().inverted()),
-                                                                           rtl::BoundingBox3f{rtl::Vector3Df{-30.0f, -10.0f, -0.5f},
-                                                                                              rtl::Vector3Df{ 30.0f,  10.0f, 10.0f}});
+                                                                           rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
+                                                                                                     rtl::Vector3D<float>{ 30.0f,  10.0f, 10.0f}});
                     auto downsampledTunel = pointCloudProcessor_.downsamplePointCloud(tunel);
                     auto lidarObstacles = lidarObjectDetector_.detectObstacles(downsampledTunel);
                     localMap_.setLidarDetections(
@@ -156,7 +154,6 @@ namespace AutoDrive {
                 auto irCameraFrame = std::dynamic_pointer_cast<DataModels::CameraIrFrameDataModel>(data);
                 static size_t frameCnt = 0;
 
-                auto imuToCameraTf = context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraIr);
                 auto originToImuTf = selfModel_.getPosition().toTf();
 
                 auto points2Dand3Dpair = depthMap_.getPointsInCameraFoV(

@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <rtl/Frustum3D.h>
+#include <rtl/Core.h>
 
 #include "data_models/yolo/YoloDetection.h"
 
@@ -22,7 +22,7 @@ namespace AutoDrive::DataModels {
          * @param classConfidence NN's confidence of the class of the detection
          * @param cls detection class
          */
-        explicit FrustumDetection(std::shared_ptr<const rtl::Frustum<double>> frustum, float detConfidence, float classConfidence, YoloDetectionClass cls)
+        explicit FrustumDetection(std::shared_ptr<const rtl::Frustum3D<double>> frustum, float detConfidence, float classConfidence, YoloDetectionClass cls)
                 : frustum_{std::move(frustum)}
                 , detConfidence_{detConfidence}
                 , classConfidence_{classConfidence}
@@ -34,7 +34,7 @@ namespace AutoDrive::DataModels {
          * Getter for frustum.
          * @return 3D space structure
          */
-        std::shared_ptr<const rtl::Frustum<double>> getFrustum() const { return frustum_; };
+        std::shared_ptr<const rtl::Frustum3D<double>> getFrustum() const { return frustum_; };
 
         /**
          * NN's confidence of the detection getter
@@ -68,7 +68,7 @@ namespace AutoDrive::DataModels {
 
     private:
 
-        std::shared_ptr<const rtl::Frustum<double>> frustum_;
+        std::shared_ptr<const rtl::Frustum3D<double>> frustum_;
         float detConfidence_;
         float classConfidence_;
         YoloDetectionClass cls_;

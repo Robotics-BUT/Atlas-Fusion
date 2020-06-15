@@ -6,9 +6,8 @@ namespace AutoDrive::Algorithms {
             std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> scan,
             DataModels::LocalPosition startPose,
             DataModels::LocalPosition poseDiff,
-            rtl::Transformation3D<double> sensorOffsetTf) {
+            rtl::RigidTf3D<double> sensorOffsetTf) {
 
-        auto timeOffset = startPose.getTimestamp();
         auto duration = poseDiff.getTimestamp();
         DataModels::LocalPosition endPose {startPose.getPosition() + poseDiff.getPosition(),
                                            startPose.getOrientation() * poseDiff.getOrientation(),
@@ -27,13 +26,13 @@ namespace AutoDrive::Algorithms {
 
             auto pose = AutoDrive::DataModels::LocalPosition {
                     {poseDiff.getPosition().x() * (ratio), poseDiff.getPosition().y() * (ratio), poseDiff.getPosition().z() * (ratio)},
-                    {poseDiff.getOrientation().slerp({}, (float)(1-ratio))},
+                    {poseDiff.getOrientation().slerp(rtl::Quaternion<double>::identity(), (float)(1-ratio))},
                     uint64_t(duration * (ratio))
             };
 
-            rtl::Transformation3D<double> globalTF{endPose.getOrientation(), endPose.getPosition()};
-            rtl::Transformation3D<double> startToEndTf{poseDiff.getOrientation(), poseDiff.getPosition()};
-            rtl::Transformation3D<double> movementCompensationTF{pose.getOrientation(), pose.getPosition()};
+            rtl::RigidTf3D<double> globalTF{endPose.getOrientation(), endPose.getPosition()};
+            rtl::RigidTf3D<double> startToEndTf{poseDiff.getOrientation(), poseDiff.getPosition()};
+            rtl::RigidTf3D<double> movementCompensationTF{pose.getOrientation(), pose.getPosition()};
             auto finalTF = globalTF(startToEndTf.inverted()(movementCompensationTF(sensorOffsetTf)));
 
             for(size_t j = 0 ; j < noOfLasers_ ; j++) {
@@ -58,7 +57,9 @@ namespace AutoDrive::Algorithms {
         output->reserve(aggPointsNo_);
 
         for(const auto& point : aggregators.at(laserNo)) {
-            output->push_back({point.x(), point.y(), point.z()});
+            output->push_back({static_cast<float>(point.x()),
+                               static_cast<float>(point.y()),
+                               static_cast<float>(point.z())});
         }
 
         return output;
@@ -72,7 +73,9 @@ namespace AutoDrive::Algorithms {
 
         for(const auto& aggregator : aggregators) {
             for (const auto &point : aggregator) {
-                output->push_back({point.x(), point.y(), point.z()});
+                output->push_back({static_cast<float>(point.x()),
+                                   static_cast<float>(point.y()),
+                                   static_cast<float>(point.z())});
             }
         }
 

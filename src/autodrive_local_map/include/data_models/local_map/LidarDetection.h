@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rtl/BoundingBox.h>
+#include <rtl/Core.h>
 
 namespace AutoDrive::DataModels {
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "LogService.h"
-#include <rtl/Transformation3D.h>
+#include <rtl/Core.h>
+#include <rtl/Transformation.h>
 #include <map>
 
 
@@ -31,14 +32,14 @@ namespace AutoDrive::LocalMap {
          * @param tf new child transformations
          * @param name new frame name
          */
-        void addFrame(rtl::Transformation3Dd tf, std::string name);
+        void addFrame(rtl::RigidTf3D<double> tf, std::string name);
 
         /**
          * Method returns transformation between the root frame the the child frame
          * @param frameName child frame name
          * @return child transformation
          */
-        rtl::Transformation3Dd getTransformationForFrame(const std::string& frameName);
+        rtl::RigidTf3D<double> getTransformationForFrame(const std::string& frameName);
 
         /**
          * Method returns the vector of all child frame names.
@@ -65,10 +66,10 @@ namespace AutoDrive::LocalMap {
 
         std::string rootFrameName_;
         std::vector<std::string> frameNames_{};
-        std::unordered_map<std::string, rtl::Transformation3Dd> frameMap_{};
+        std::unordered_map<std::string, rtl::RigidTf3D<double>> frameMap_{};
         LogService& logger_;
 
-        const std::unordered_map<std::string, rtl::Transformation3Dd>& getTree() {return frameMap_;};
+        const std::unordered_map<std::string, rtl::RigidTf3D<double>>& getTree() {return frameMap_;};
     };
 
 }

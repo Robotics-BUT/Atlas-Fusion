@@ -4,7 +4,7 @@
 
 TEST(local_pose_test, init) {
 
-    AutoDrive::DataModels::LocalPosition pose{{}, {}, 0};
+    AutoDrive::DataModels::LocalPosition pose{rtl::Vector3D<double>{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
 
     EXPECT_EQ(pose.getPosition().x(), 0);
     EXPECT_EQ(pose.getPosition().y(), 0);
@@ -20,7 +20,7 @@ TEST(local_pose_test, init) {
 
 TEST(local_pose_test, adding) {
 
-    AutoDrive::DataModels::LocalPosition pose{{}, {}, 0};
+    AutoDrive::DataModels::LocalPosition pose{rtl::Vector3D<double>{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
     AutoDrive::DataModels::LocalPosition poseDiff{{1,0,0}, {0.707, 0, 0, 0.707}, 1};
     auto endPose = pose + poseDiff;
 
@@ -51,7 +51,7 @@ TEST(local_pose_test, adding) {
 
 TEST(local_pose_test, substracting) {
 
-    AutoDrive::DataModels::LocalPosition pose{{}, {}, 0};
+    AutoDrive::DataModels::LocalPosition pose{rtl::Vector3D<double>{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
     AutoDrive::DataModels::LocalPosition endPose{{1,0,0}, {0.707, 0, 0, 0.707}, 1};
     auto poseDiff = endPose - pose;
 

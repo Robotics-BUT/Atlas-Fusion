@@ -29,9 +29,9 @@ TEST(kalman_3_test, iteration) {
                   kalman.getPosition().at<double>(0) << " " <<
                   kalman.getPosition().at<double>(1) << " " <<
                   kalman.getPosition().at<double>(2) << " " <<
-                                                            kalman.getVelocity().at<double>(0) << " " <<
-                                                         kalman.getVelocity().at<double>(1) << " " <<
-                                                         kalman.getVelocity().at<double>(2) << std::endl;
+                  kalman.getVelocity().at<double>(0) << " " <<
+                  kalman.getVelocity().at<double>(1) << " " <<
+                  kalman.getVelocity().at<double>(2) << std::endl;
 
         cv::Mat controlInput = (cv::Mat_<double>(3, 1) <<
                 0,
@@ -51,9 +51,9 @@ TEST(kalman_3_test, iteration) {
             kalman.getPosition().at<double>(0) << " " <<
             kalman.getPosition().at<double>(1) << " " <<
             kalman.getPosition().at<double>(2) << " " <<
-                                                      kalman.getVelocity().at<double>(0) << " " <<
-                                                   kalman.getVelocity().at<double>(1) << " " <<
-                                                   kalman.getVelocity().at<double>(2) << std::endl;
+            kalman.getVelocity().at<double>(0) << " " <<
+            kalman.getVelocity().at<double>(1) << " " <<
+            kalman.getVelocity().at<double>(2) << std::endl;
         kalman.correct(measurement);
     }
 }

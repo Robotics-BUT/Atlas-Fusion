@@ -1,6 +1,7 @@
 #include "data_writers/YoloDetectionWriter.h"
 
 #include <opencv2/opencv.hpp>
+#include <data_loader/RecordingConstants.h>
 
 namespace AutoDrive::DataWriters {
 
@@ -35,7 +36,7 @@ namespace AutoDrive::DataWriters {
             std::stringstream ss;
             ss << std::setw(10) << std::setfill('0');
             ss << frameNo << ".txt";
-            outputDetFile.open(destinationDir_ + "train_ir/labels/" + ss.str());
+            outputDetFile.open(destinationDir_ + DataLoader::Folders::kTrainIR + ss.str());
 
             if (!outputDetFile.is_open()) {
                 context_.logger_.warning("Unable to open file for ir yolo training labels");
@@ -71,7 +72,7 @@ namespace AutoDrive::DataWriters {
         ss << std::setw(10) << std::setfill('0');
         ss << frameNo << ".png";
 
-        cv::imwrite(destinationDir_ + "train_ir/images/" + ss.str(), frame->getImage());
+        cv::imwrite(destinationDir_ + DataLoader::Folders::kTrainIR + ss.str(), frame->getImage());
     }
 
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <queue>
-#include <rtl/BoundingBox.h>
+#include <rtl/Core.h>
 
 #include "Context.h"
 #include "data_models/local_map/PointCloudBatch.h"

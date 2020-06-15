@@ -124,7 +124,7 @@ namespace AutoDrive::Algorithms {
         Kalman1D kalmanX_;
         Kalman1D kalmanY_;
         Kalman1D kalmanZ_;
-        rtl::Quaternion<double> orientation_;
+        rtl::Quaternion<double> orientation_ = rtl::Quaternion<double>::identity();
 
         bool poseInitialized_ = false;
         bool orientationInitialized_ = false;

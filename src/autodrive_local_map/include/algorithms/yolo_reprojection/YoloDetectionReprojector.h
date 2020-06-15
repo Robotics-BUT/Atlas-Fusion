@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rtl/Transformation3D.h>
+#include <rtl/Transformation.h>
 
 #include "Context.h"
 #include "algorithms/Projector.h"
@@ -34,7 +34,7 @@ namespace AutoDrive::Algorithms {
          * @param currentCameraTf current camera position
          * @return 2D detection projected into cmaera's plain
          */
-        std::shared_ptr<std::vector<DataModels::YoloDetection>> onNewDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> frustums, rtl::Transformation3D<double> currentCameraTf);
+        std::shared_ptr<std::vector<DataModels::YoloDetection>> onNewDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> frustums, rtl::RigidTf3D<double> currentCameraTf);
 
         /**
          * Setter for an instance of the class that holds the internal camera calibration parameters
@@ -53,7 +53,7 @@ namespace AutoDrive::Algorithms {
          * Getter for number of IR frames passed during the mapping session
          * @return IR frame number
          */
-        size_t getCurrentIrFrameNo() const;
+        long int getCurrentIrFrameNo() const;
 
         /**
          * Getter for last IR frame holded by the class
@@ -72,7 +72,7 @@ namespace AutoDrive::Algorithms {
         Context& context_;
         std::shared_ptr<Projector> cameraProjector_ = nullptr;
 
-        size_t framesCounter_ = -1;
+        long int framesCounter_ = -1;
         std::shared_ptr<DataModels::CameraIrFrameDataModel> lastFrame = nullptr;
 
     };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rtl/Quaternion.h>
+#include <rtl/Core.h>
 
 rtl::Quaternion<double> rpyToQuaternion(double roll, double pitch, double yaw) {
 
@@ -11,7 +11,7 @@ rtl::Quaternion<double> rpyToQuaternion(double roll, double pitch, double yaw) {
     double cr = cos(roll * 0.5);
     double sr = sin(roll * 0.5);
 
-    rtl::Quaternion<double> q;
+    rtl::Quaternion<double> q = rtl::Quaternion<double>::identity();
     q.setW(cy * cp * cr + sy * sp * sr);
     q.setX(cy * cp * sr - sy * sp * cr);
     q.setY(sy * cp * sr + cy * sp * cr);

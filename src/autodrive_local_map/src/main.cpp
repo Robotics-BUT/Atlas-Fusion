@@ -7,8 +7,8 @@
 #include <QDebug>
 #include "MapBuilder.h"
 
-#include <rtl/Vector3D.h>
-#include <rtl/Transformation3D.h>
+#include <rtl/Core.h>
+#include <rtl/Transformation.h>
 
 #include "ConfigService.h"
 #include "Context.h"
@@ -16,10 +16,10 @@
 #include "local_map/Frames.h"
 #include "munkres/munkres.h"
 
-rtl::Transformation3Dd getTFFrameFromConfig(AutoDrive::ConfigService& service, std::string name) {
+rtl::RigidTf3D<double> getTFFrameFromConfig(AutoDrive::ConfigService& service, std::string name) {
     auto translation = service.getVector3DValue<double>({name, "trans"});
     auto rotation = service.getQuaternionValue<double>({name, "rot"});
-    rtl::Transformation3Dd frame{ rotation, translation};
+    rtl::RigidTf3D<double> frame{ rotation, translation};
     return frame;
 }
 

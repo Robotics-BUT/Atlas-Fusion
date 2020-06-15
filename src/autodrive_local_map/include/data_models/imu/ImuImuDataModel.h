@@ -1,9 +1,7 @@
 #pragma once
 
 #include "data_models/GenericDataModel.h"
-
-#include <rtl/Vector3D.h>
-#include <rtl/Quaternion.h>
+#include <rtl/Core.h>
 
 namespace AutoDrive::DataModels {
 

@@ -96,7 +96,8 @@ namespace AutoDrive::DataModels {
         kBike = 1,
         kVehicle = 2,
         kAnimal = 3,
-        kOther = 4,
+        kTraffic = 4,
+        kOther = 5,
     };
 
     ReducedYoloDetectionClasses getReducedDetectionClass(YoloDetectionClass& cls);
