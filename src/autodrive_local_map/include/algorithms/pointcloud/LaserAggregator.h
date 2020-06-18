@@ -4,6 +4,7 @@
 #include "data_models/lidar/LidarScanDataModel.h"
 #include "data_models/local_map/LocalPosition.h"
 
+
 namespace AutoDrive::Algorithms {
 
     /**
@@ -68,7 +69,5 @@ namespace AutoDrive::Algorithms {
         size_t aggPointsNo_;
 
         std::vector<std::deque<rtl::Vector3D<double>>> aggregators;
-
     };
-
 }

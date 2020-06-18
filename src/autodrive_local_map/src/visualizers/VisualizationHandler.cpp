@@ -39,6 +39,23 @@ namespace AutoDrive::Visualizers{
         lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kLidarLaser, LocalMap::Frames::kOrigin);
     }
 
+    void VisualizationHandler::drawLidarApproximations(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls) {
+        visualization_msgs::Marker::_color_type col;
+        col.a = 1;
+        col.r = 0;
+        col.g = 1;
+        col.b = 0;
+        lidarVisualizer_.drawApproximationOnTopic(ls, Topics::kLidarApproximation, LocalMap::Frames::kOrigin, col);
+    }
+
+    void VisualizationHandler::drawLidarApproximationsRoad(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls) {
+        visualization_msgs::Marker::_color_type col;
+        col.a = 1;
+        col.r = 1;
+        col.g = 0;
+        col.b = 0;
+        lidarVisualizer_.drawApproximationOnTopic(ls, Topics::kLidarApproximationRoad, LocalMap::Frames::kOrigin, col);
+    }
 
     void VisualizationHandler::drawPointcloudCutout(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
         lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kCutoutPointcloud, LocalMap::Frames::kImuFrame);

@@ -49,7 +49,9 @@ namespace AutoDrive::Algorithms {
 
             }
         }
+
     }
+
 
     std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> LaserAggregator::getAggregatedLaser(size_t laserNo) {
 
@@ -81,5 +83,4 @@ namespace AutoDrive::Algorithms {
 
         return output;
     }
-
 }
