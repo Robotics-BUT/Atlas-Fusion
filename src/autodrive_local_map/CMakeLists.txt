@@ -56,6 +56,7 @@ set(SOURCES_ALGORITHMS
         src/algorithms/pointcloud/PointCloudAggregator.cpp
         src/algorithms/pointcloud/PointCloudProcessor.cpp
         src/algorithms/pointcloud/LaserAggregator.cpp
+        src/algorithms/pointcloud/LaserSegmenter.cpp
         src/algorithms/pointcloud/GlobalPointcloudStorage.cpp
         src/algorithms/yolo_reprojection/YoloDetectionReprojector.cpp
         src/algorithms/pointcloud/GlobalPointcloudStorage.cpp

@@ -41,6 +41,9 @@ namespace AutoDrive::Visualizers {
         const std::string kGlobalPointCloud = "/autodrive/local_map/lidar/global";
         const std::string kCutoutPointcloud = "/autodrive/local_map/lidar/cutout";
 
+        const std::string kLidarApproximation = "/autodrive/local_map/lidar/approximations";
+        const std::string kLidarApproximationRoad = "/autodrive/local_map/lidar/approximations_road";
+
         const std::string kLidarDetections = "/autodrive/local_map/lidar_detections";
 
         const std::string kTelemetryText = "/autodrive/local_map/telemetry/text";

@@ -34,3 +34,10 @@ lidar_img_plotter:
 pose_logger:
   gnss: 100
   imu: 1000
+
+laser_segmenter:
+  vectorizer_sigma: 0.02
+  segmenter_step: 10
+  segmenter_lower_bound: 0.002
+  segmenter_upper_bound: 0.2
+  segmenter_scaling: 0.01

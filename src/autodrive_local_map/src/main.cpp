@@ -111,6 +111,12 @@ int main(int argc, char** argv) {
 
     auto context = AutoDrive::Context(logger, tfTree, calibFolder);
 
+    auto vectorizer_sigma = configService.getFloatValue({"laser_segmenter", "vectorizer_sigma"});
+    auto segmenter_step = configService.getUInt32Value({"laser_segmenter", "segmenter_step"});
+    auto segmenter_lower_bound = configService.getFloatValue({"laser_segmenter", "segmenter_lower_bound"});
+    auto segmenter_upper_bound = configService.getFloatValue({"laser_segmenter", "segmenter_upper_bound"});
+    auto segmenter_scaling = configService.getFloatValue({"laser_segmenter", "segmenter_scaling"});
+
     AutoDrive::MapBuilder mapBuilder{
         node,
         context,
@@ -127,7 +133,12 @@ int main(int argc, char** argv) {
         keepHistorySecLength,
         maxReplayerRate,
         lidarPlotterMaxDist,
-        dataFolder};
+        dataFolder,
+        vectorizer_sigma,
+        segmenter_step,
+        segmenter_lower_bound,
+        segmenter_upper_bound,
+        segmenter_scaling};
 
     mapBuilder.loadData(dataFolder);
     mapBuilder.buildMap();

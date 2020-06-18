@@ -20,6 +20,44 @@ namespace AutoDrive::Visualizers {
     }
 
 
+    void LidarVisualizer::drawApproximationOnTopic(const std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls, std::string topic, std::string frame, visualization_msgs::Marker::_color_type col){
+        if (ls->empty())
+            return;
+
+        if(publishers_.count(topic) == 0) {
+            publishers_[topic] = std::make_shared<ros::Publisher>(node_.advertise<visualization_msgs::Marker>( topic, 0));
+        }
+
+        visualization_msgs::Marker lineSegments;
+        lineSegments.header.frame_id = frame;
+        lineSegments.header.stamp = ros::Time::now();
+        lineSegments.type = visualization_msgs::Marker::LINE_LIST;
+        lineSegments.action = visualization_msgs::Marker::ADD;
+
+        for (auto &l : *ls) {
+            if (l.beg().hasNaN() || l.end().hasNaN() || l.beg().lengthSquared() > 100000000 || l.end().lengthSquared() > 100000000)
+                continue;
+            geometry_msgs::Point beg, end;
+            beg.x = l.beg().x();
+            beg.y = l.beg().y();
+            beg.z = l.beg().z();
+            lineSegments.points.push_back(beg);
+            end.x = l.end().x();
+            end.y = l.end().y();
+            end.z = l.end().z();
+            lineSegments.points.push_back(end);
+        }
+
+        lineSegments.scale.x = 0.05;
+        lineSegments.scale.y = 0.05;
+        lineSegments.scale.z = 0.05;
+
+        lineSegments.color = col;
+
+        publishers_[topic]->publish(lineSegments);
+    }
+
+
     void LidarVisualizer::drawLidarDetections(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections, std::string topic, std::string frame) {
 
         if(publishers_.count(topic) == 0) {

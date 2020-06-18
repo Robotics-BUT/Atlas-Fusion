@@ -13,6 +13,7 @@
 #include "algorithms/pointcloud/PointCloudProcessor.h"
 #include "algorithms/pointcloud/OccupancyGrid3D.h"
 #include "algorithms/pointcloud/LaserAggregator.h"
+#include "algorithms/pointcloud/LaserSegmenter.h"
 #include "algorithms/pointcloud/GlobalPointcloudStorage.h"
 #include "algorithms/yolo_reprojection/YoloDetectionReprojector.h"
 #include "algorithms/pointcloud/ObjectDetector.h"
@@ -79,7 +80,12 @@ namespace AutoDrive {
                 DataLoader::timestamp_type keepHistoryLength,
                 double maxReplayerRate,
                 float maxLidar2ImgDist,
-                std::string& destinationFolder)
+                std::string& destinationFolder,
+                float vectorizer_sigma,
+                size_t segmenter_step,
+                float segmenter_lower_bound,
+                float segmenter_upper_bound,
+                float segmenter_scaling)
         : node_{node}
         , context_{context}
         , gnssPoseLogger_{context, gnssLogPoseNo}
@@ -92,6 +98,8 @@ namespace AutoDrive {
         , pointCloudProcessor_ {context, leafSize}
         , leftLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints}
         , rightLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints}
+        , leftLaserSegmenter_{context, noOfLaserAggregatedPoints, vectorizer_sigma, segmenter_step, segmenter_lower_bound, segmenter_upper_bound, segmenter_scaling}
+        , rightLaserSegmenter_{context, noOfLaserAggregatedPoints, vectorizer_sigma, segmenter_step, segmenter_lower_bound, segmenter_upper_bound, segmenter_scaling}
         , globalPointcloudStorage_{context, globalLeafSize}
         , occGrid_{context}
         , lidarObjectDetector_{context}
@@ -145,6 +153,10 @@ namespace AutoDrive {
         Algorithms::PointCloudProcessor pointCloudProcessor_;
         Algorithms::LaserAggregator leftLidarLaserAggregator_;
         Algorithms::LaserAggregator rightLidarLaserAggregator_;
+
+        Algorithms::LaserSegmenter leftLaserSegmenter_;
+        Algorithms::LaserSegmenter rightLaserSegmenter_;
+
         Algorithms::GlobalPointcloudStorage globalPointcloudStorage_;
         Algorithms::OccupancyGrid3D occGrid_;
         Algorithms::ObjectDetector lidarObjectDetector_;
@@ -166,6 +178,14 @@ namespace AutoDrive {
         LocalMap::ObjectsAggregator objectAggregator_;
 
         std::map<std::string, std::shared_ptr<DataModels::LidarScanDataModel>> lidarDataHistory_;
+
+        void processRGBCameraData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
+        void processIRCameraData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
+        void processGnssPoseData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
+        void processImuDQuatData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
+        void processImuGnssData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
+        void processImuImuData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
+        void processLidarScanData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
 
         std::string getFrameForData(std::shared_ptr<DataModels::GenericDataModel>);
     };

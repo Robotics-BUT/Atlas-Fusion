@@ -84,6 +84,19 @@ namespace AutoDrive::Visualizers {
         void drawAggregatedLasers(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
 
         /**
+         *
+         * @param ls
+         */
+        void drawLidarApproximations(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls);
+
+        /**
+         *
+         * @param ls
+         */
+        void drawLidarApproximationsRoad(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls);
+
+
+        /**
          * Visualize point cloud aggregated during the entire mapping session
          * @param pc global point cloud map
          */
