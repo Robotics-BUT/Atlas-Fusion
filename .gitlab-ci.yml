@@ -1,4 +1,4 @@
-image: ros_kinetic_image
+image: ros_noetic_image
 
 stages:
   - build
@@ -7,12 +7,12 @@ stages:
 build_job:
 
   tags:
-    - ros_kinetic
+    - ros_noetic
 
   stage: build
 
   variables:
-    GIT_SUBMODULE_STRATEGY: none
+    GIT_SUBMODULE_STRATEGY: recursive
 
   before_script:
     - sed -i "s/https:\\/\\//https:\\/\\/gitlab-ci-token:$CI_BUILD_TOKEN@/g" .gitmodules
@@ -22,7 +22,7 @@ build_job:
 
   script:
     - pwd
-    - source /opt/ros/kinetic/setup.bash
+    - source /opt/ros/noetic/setup.bash
     - cd src/autodrive_local_map
     - mkdir build && cd build
     - cmake ..
@@ -35,7 +35,7 @@ build_job:
 test_job:
 
   tags:
-    - ros_kinetic
+    - ros_noetic
 
   stage: test
 

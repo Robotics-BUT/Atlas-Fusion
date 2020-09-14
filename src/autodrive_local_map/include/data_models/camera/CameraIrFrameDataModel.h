@@ -31,7 +31,7 @@ namespace AutoDrive::DataModels {
                 , tempMax_(tempMax)
                 , cameraIdentifier_{cameraIdentifier} {
             type_ = DataModelTypes::kCameraIrDataModelType;
-            cv::cvtColor(img, image_, CV_BGR2GRAY);
+            cv::cvtColor(img, image_, cv::COLOR_BGR2GRAY);
         }
 
         std::string toString() override;
