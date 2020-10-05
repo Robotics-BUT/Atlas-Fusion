@@ -1,3 +1,3 @@
-# AutoDrive-LocalMap
+# Atlas Fusion
 
-Project implements the AutoDrive local map algorithms
+Project implements the Atlas Fusion local map algorithms
