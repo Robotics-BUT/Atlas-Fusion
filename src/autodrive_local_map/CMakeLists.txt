@@ -128,7 +128,6 @@ target_link_libraries(${PROJECT_NAME}
         ${OpenCV_LIBRARIES}
         ${PCL_LIBRARIES}
         Qt5::Core
-        rtl
         stdc++fs
         yaml-cpp)
 
