@@ -1,5 +1,5 @@
 logger:
-  log_file: "/tmp/autodrive_local_map"
+  log_file: "/tmp/atlas_fusion"
   log_ext: "log"
   log_lvl: 1
 
@@ -7,8 +7,8 @@ logger:
 data_folder: "/home/autodrive/Data/final/2_1_5_3/"
 #data_folder: "/home/autodrive/Data/final/2_1_3_1/"
 #data_folder: "/home/autodrive/Data/final/1_7/"
-#calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/"
-calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/autodrive_local_map/calibrations/"
+#calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/atlas_fusion/calibrations/"
+calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/atlas_fusion/calibrations/"
 
 map_builder:
   keep_history_sec_length: 10

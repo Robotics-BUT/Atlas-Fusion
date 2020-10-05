@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 
     if(argc < 2) {
         std::cerr << "Error: too few input arguments!" << std::endl;
-        std::cerr << " Usage: autodrive_local_map <path_to_config_file>" << std::endl;
+        std::cerr << " Usage: atlas_fusion <path_to_config_file>" << std::endl;
     }
 
     AutoDrive::ConfigService configService(argv[1]);

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(autodrive_local_map)
+project(atlas_fusion)
 
 SET(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
@@ -119,11 +119,11 @@ set(SOURCES_FAIL_CHECK
         src/fail_check/ImuFailChecker.cpp
         src/fail_check/GnssFailChecker.cpp)
 
-add_library(autodrive_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK})
+add_library(atlas_fusion_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK})
 
-add_executable(autodrive_local_map src/main.cpp)
+add_executable(atlas_fusion src/main.cpp)
 target_link_libraries(${PROJECT_NAME}
-        autodrive_srcs
+        atlas_fusion_srcs
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
         ${PCL_LIBRARIES}

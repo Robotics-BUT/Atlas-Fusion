@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>autodrive_local_map</name>
+  <name>atlas_fusion</name>
   <version>0.0.0</version>
-  <description>The autodrive_local_map package</description>
+  <description>The atlas_fusion package</description>
 
-  <maintainer email="xligoc01@stud.feec.vutbr.cz">autodrive</maintainer>
+  <maintainer email="xligoc01@stud.feec.vutbr.cz">atlas_fusion</maintainer>
 
   <license>TODO</license>
 
