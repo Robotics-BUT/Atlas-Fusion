@@ -1,0 +1,157 @@
+FROM ubuntu:20.04
+
+MAINTAINER adam.ligocki@vutbr.cz
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG user=default_user
+ARG cmake_ver=3.15.0
+ARG gcc_ver=10
+ARG ros_ver=noetic
+
+RUN apt update
+RUN apt upgrade -y
+RUN apt install -y sudo
+RUN apt install -y git
+RUN apt install -y wget
+RUN apt install -y x11-apps
+RUN apt install -y terminator
+#RUN apt install -y dbus-x11
+RUN apt install -y libssl-dev
+RUN apt install -y make
+
+
+### Install Compiler
+RUN apt install -y gcc-$gcc_ver g++-$gcc_ver
+RUN ln -s /usr/bin/gcc-$gcc_ver /usr/bin/gcc
+RUN ln -s /usr/bin/g++-$gcc_ver /usr/bin/g++
+
+
+## Install CMake ###
+RUN apt-get purge cmake
+RUN cd /tmp \
+    && wget https://github.com/Kitware/CMake/releases/download/v$cmake_ver/cmake-$cmake_ver.tar.gz \
+    && tar -xzvf cmake-$cmake_ver.tar.gz \
+    && cd cmake-$cmake_ver \
+    && ./bootstrap \
+    && make -j4 \
+    && make install
+
+
+### Locale ###
+RUN apt install -y locales
+RUN locale-gen en_US.UTF-8
+
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+
+
+### set root password ###
+RUN echo "root:root" | chpasswd
+
+
+### create user ###
+RUN useradd --create-home --shell=/bin/bash $user
+RUN adduser $user $user
+RUN echo "$user:$user" | chpasswd
+RUN usermod -aG sudo $user
+RUN echo "$user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+
+### set file system permitions ###
+RUN chown -R $user:$user /home/$user
+
+
+### install mode programs ###
+
+RUN apt install -y vim
+RUN apt install -y htop
+RUN apt install -y mesa-utils
+RUN apt install -y apt-utils
+RUN apt install -y curl 
+RUN apt install -y python3-pip
+
+RUN apt install -y libsdl2-dev
+
+
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt install -y libopencv-dev
+
+
+### install GTest ###
+
+RUN apt install -y libgtest-dev
+WORKDIR /usr/src/gtest
+RUN cmake CMakeLists.txt
+RUN make
+RUN pwd
+RUN ls lib -la
+RUN cp lib/*.a /usr/lib
+RUN mkdir /usr/local/lib/gtest/
+RUN ln -s /usr/lib/libgtest.a /usr/local/lib/gtest/libgtest.a
+RUN ln -s /usr/lib/libgtest_main.a /usr/local/lib/gtest/libgtest_main.a
+
+
+### ROS Installation ### 
+
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+RUN apt update 
+RUN apt install -y ros-$ros_ver-desktop-full
+RUN apt install -y python3-rosinstall 
+RUN apt install -y python3-rosinstall-generator
+
+
+### SSH ####
+RUN apt install -y openssh-server
+RUN mkdir /var/run/sshd
+RUN echo 'root:root' | chpasswd
+RUN sed -i 's/#*PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
+
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd
+
+ENV NOTVISIBLE "in users profile"
+RUN echo "export VISIBLE=now" >> /etc/profile
+EXPOSE 22
+
+
+### Others ###
+
+RUN apt install -y net-tools
+RUN apt install -y tmux
+
+
+### Install Rust ### 
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+RUN echo 'source $HOME/.cargo/env' >> $HOME/.bashrc
+
+
+### Startup Script ###
+
+WORKDIR /usr/bin/
+RUN echo "#!/usr/bin/env bash" >> startup_script.sh
+RUN echo "echo Hello" >> startup_script.sh
+RUN chmod +x startup_script.sh
+
+
+### Final Setup ###
+
+USER $user
+WORKDIR /home/$user
+RUN echo "source /opt/ros/$ros_ver/setup.bash" >> ~/.bashrc
+
+ENTRYPOINT sudo service ssh start ; startup_script.sh ; /usr/bin/terminator
+
+
+### Build and Run
+
+# docker build -f ros_noetic_dockerfile -t ros_noetic_image .
+# export DOCKER_HOME=/home/default_user
+# docker run --cap-add sys_ptrace -it -e DISPLAY=$DISPLAY --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" -v $HOME/Data:$DOCKER_HOME/Data -v $HOME/Software:$DOCKER_HOME/Software -v /media:/media -v $HOME/Developer:$DOCKER_HOME/Developer -v /dev:/dev -i -t -d -P --name ros_noetic_container ros_noetic_image:latest
+
+### Notes:
+#
+# withou --cap-add sys_ptrace option gdl debug has been failing with error 127
+#
+
