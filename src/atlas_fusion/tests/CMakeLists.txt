@@ -9,7 +9,7 @@ enable_testing()
 set(all_libs
         GTest::GTest
         GTest::Main
-        autodrive_srcs
+        atlas_fusion_srcs
         ${catkin_LIBRARIES}
         ${OpenCV_LIBRARIES}
         ${PCL_LIBRARIES}
