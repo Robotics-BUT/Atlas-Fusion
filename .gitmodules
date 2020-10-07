@@ -1,6 +1,6 @@
-[submodule "src/autodrive_local_map/calibrations"]
-	path = src/autodrive_local_map/calibrations
+[submodule "src/atlas_fusion/calibrations"]
+	path = src/atlas_fusion/calibrations
 	url = https://github.com/Robotics-BUT/Brno-Urban-Dataset-Calibrations.git
-[submodule "src/autodrive_local_map/libs/robotic-template-library"]
-	path = src/autodrive_local_map/libs/robotic-template-library
+[submodule "src/atlas_fusion/libs/robotic-template-library"]
+	path = src/atlas_fusion/libs/robotic-template-library
 	url = https://github.com/Robotics-BUT/Robotic-Template-Library.git
