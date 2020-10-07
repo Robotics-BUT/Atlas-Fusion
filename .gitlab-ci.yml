@@ -23,14 +23,14 @@ build_job:
   script:
     - pwd
     - source /opt/ros/noetic/setup.bash
-    - cd src/autodrive_local_map
+    - cd src/atlas_fusion
     - mkdir build && cd build
     - cmake ..
     - make -j4
 
   artifacts:
     paths:
-      - src/autodrive_local_map/build/
+      - src/atlas_fusion/build/
 
 test_job:
 
@@ -43,5 +43,5 @@ test_job:
     - build_job
 
   script:
-    - cd src/autodrive_local_map/build/
+    - cd src/atlas_fusion/build/
     - make test
