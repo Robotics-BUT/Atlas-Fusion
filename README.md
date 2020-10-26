@@ -7,7 +7,9 @@ Project implements the Atlas Fusion local map algorithms.
 ## Prerequisitions
 
 [ROS](https://www.ros.org/) installed
+<br>
 Donwloaded session from our [Brno Urban Dataset](https://github.com/Robotics-BUT/Brno-Urban-Dataset)
+<br>
 [Docker](https://www.docker.com/) installed
 
 ## Environment preparation
@@ -16,13 +18,13 @@ In the ``dockerfile/`` foled you can find the dockerfile with the definition of 
 
 ## Compilation
 
-Inside of the docker container, enter the project's folder and run ``catkin\_make``.
+Inside of the docker container, enter the project's folder and run ``catkin_make``.
 
 It is also recomanded to open entire CMake project in the [CLion](https://www.jetbrains.com/clion/) IDE.
 
 ## Run
 
-Run ``atlas_fusion <path_to_config_file>``, where the config file could be found in ``src\\atlas\_fusion`` folder.
+Run ``atlas_fusion <path_to_config_file>``, where the config file could be found in ``src\atlas_fusion`` folder.
 
 ## Brief Functionality Overview
 
@@ -54,9 +56,6 @@ Example of reprojection of the NN's detections form RGB image into the thermal i
 
 <img src="images/depth_ir_overview.png" width=50%>
 One of the latest features is the projecting 3D point cloud model into the camera frame. In this way we are able to create depth maps (virtual depth cameras).
-
-<br>
-<br>
 
 ## Attribution
 
