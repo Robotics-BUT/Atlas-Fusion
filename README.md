@@ -2,6 +2,11 @@
 
 Project implements the Atlas Fusion local map algorithms.
 
+<img src="images/overview.png" width=50%>
+The main feature of our framework is to build up the model of the surrounding of the autonomous agent and to detect and track objects in this map.
+
+<br>
+
 [Adam Ligocki](https://www.vutbr.cz/en/people/adam-ligocki-154791#navigace-vizitka) · [Aleš Jelínek](https://www.ceitec.cz/ing-ales-jelinek-ph-d/u91705) · [Luděk Žalud](https://scholar.google.com/citations?user=kWXqPAIAAAAJ&hl=en&oi=ao)
 
 ## Prerequisitions
@@ -29,9 +34,6 @@ Run ``atlas_fusion <path_to_config_file>``, where the config file could be found
 ## Brief Functionality Overview
 
 For detail description, please see our [whitepaper](https://arxiv.org/abs/2010.11991).
-
-<img src="images/overview.png" width=50%>
-The main feature of our framework is to build up the model of the surrounding of the autonomous agent and to detect and track objects in this map.
 
 <br>
 <br>
