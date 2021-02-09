@@ -66,14 +66,14 @@ namespace AutoDrive::DataWriters {
          * @param imgHeight rendered image height
          * @return rendered depth image
          */
-        std::shared_ptr<cv::Mat> renderLidarPointsToImg(std::vector<cv::Point2f>, std::vector<cv::Point3f>, int imgWidth, int imgHeight);
+        std::shared_ptr<cv::Mat> renderLidarPointsToImg(std::vector<cv::Point2f>, std::vector<cv::Point3f>, int imgWidth, int imgHeightm, size_t pointSize=1);
 
         /**
          * Method stores image into the file system
          * @param img image to be stored
          * @param frameNo frame number that defines on-disk image name
          */
-        void saveImage(std::shared_ptr<cv::Mat> img, size_t frameNo);
+        void saveImage(std::shared_ptr<cv::Mat> img, size_t frameNo, std::string fileExtention="jpeg");
 
     private:
 

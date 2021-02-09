@@ -35,6 +35,9 @@ namespace AutoDrive::LocalMap {
 
         const std::string kLidarLeft = "lidar_left";
         const std::string kLidarRight = "lidar_right";
+        const std::string kLidarCenter = "lidar_center";
+
+        const std::string kRadarTi = "radar_ti";
 
         const std::string kImuFrame = "imu";
 

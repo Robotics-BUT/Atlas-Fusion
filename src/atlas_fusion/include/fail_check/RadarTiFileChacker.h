@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Brno University of Technology
+ * Copyright 2021 Brno University of Technology
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the "Software"),
@@ -22,53 +22,38 @@
 
 #pragma once
 
+#include "AbstrackFailChecker.h"
+#include "data_models/radar/RadarTiDataModel.h"
 
-namespace AutoDrive::DataLoader {
-
-    /**
-     * Lidar Data Loaders identifiers
-     */
-    enum class LidarIdentifier {
-        kLeftLidar,
-        kRightLidar,
-        kCenterLidar,
-        kNone,
-    };
-
-    enum class RadarIdentifier {
-        kRadarTi,
-    };
+namespace AutoDrive::FailCheck {
 
     /**
-     * Camera Data Loader identifiers
+     * Validates LiDAR point cloud scans. Currently bypassed.
      */
-    enum class CameraIndentifier {
-        kCameraLeftFront,
-        kCameraLeftSide,
-        kCameraRightFront,
-        kCameraRightSide,
-        kCameraIr,
-        kErr,
-    };
+    class RadarTiFailChecker : public AbstrackFailChecker{
 
-    /**
-     * Imu Loader Identifier distinguishes Imu Data Loaders by the data types they are handling
-     */
-    enum class ImuLoaderIdentifier {
-        kDQuat,
-        kGnss,
-        kImu,
-        kMag,
-        kPressure,
-        kTemp,
-        kTime,
-    };
+    public:
 
-    /**
-     * GNSS Loader Identifier distinguishes GNSS Data Loaders by the data types they are handling
-     */
-    enum class GnssLoaderIdentifier {
-        kPose,
-        kTime,
+        RadarTiFailChecker() = delete;
+
+        /**
+         * Constructor
+         * @param context cantainer for global services (timestamps. logging, etc.)
+         */
+        RadarTiFailChecker(Context& context)
+                : AbstrackFailChecker{context}
+        {
+
+        }
+
+        /**
+         * Pipe to provide new sensor data into the Radar Fail Checker
+         * @param data point cloud scan
+         */
+        void onNewData(std::shared_ptr<DataModels::RadarTiDataModel>);
+
+    private:
+
     };
 }
+

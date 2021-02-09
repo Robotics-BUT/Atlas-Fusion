@@ -29,6 +29,7 @@
 #include "GnssFailChecker.h"
 #include "LidarFailChecker.h"
 #include "ImuFailChecker.h"
+#include "RadarTiFileChacker.h"
 
 namespace AutoDrive::FailCheck {
 
@@ -47,9 +48,10 @@ namespace AutoDrive::FailCheck {
             kCameraIr,
             kLidarLeft,
             kLidarRight,
+            kLidarCenter,
             kImu,
             kGnss,
-            kRadar,
+            kRadarTi,
             kErr,
         };
 
@@ -70,10 +72,11 @@ namespace AutoDrive::FailCheck {
 
             failCheckers_[SensorFailCheckID::kLidarLeft] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<LidarFailChecker>(context));
             failCheckers_[SensorFailCheckID::kLidarRight] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<LidarFailChecker>(context));
+            failCheckers_[SensorFailCheckID::kLidarCenter] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<LidarFailChecker>(context));
 
             failCheckers_[SensorFailCheckID::kImu] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<ImuFailChecker>(context));
             failCheckers_[SensorFailCheckID::kGnss] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<GnssFailChecker>(context));
-//            failCheckers_[SensorFailCheckID::kRadar] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<RadarFailChecker>(context));
+            failCheckers_[SensorFailCheckID::kRadarTi] = std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<RadarTiFailChecker>(context));
         }
 
         /**

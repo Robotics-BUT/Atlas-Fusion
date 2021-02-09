@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Brno University of Technology
+ * Copyright 2021 Brno University of Technology
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the "Software"),
@@ -20,64 +20,52 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "data_loader/LidarDataLoader.h"
+#include "data_loader/RadarTiDataLoader.h"
 #include "data_loader/RecordingConstants.h"
 
 namespace AutoDrive {
     namespace DataLoader {
 
 
-        bool LidarDataLoader::loadData(std::string path) {
+        bool RadarTiDataLoader::loadData(std::string path) {
 
             std::string folder;
-            switch (lidarIdentifier_) {
-                case LidarIdentifier::kLeftLidar:
-                    folder = Folders::kLidarLeftFolder;
-                    break;
-                case LidarIdentifier::kRightLidar:
-                    folder = Folders::kLidarRightFolder;
-                    break;
-                case LidarIdentifier::kCenterLidar:
-                    folder = Folders::kLidarCenterFolder;
+            switch (radarIdentifier_) {
+                case RadarIdentifier::kRadarTi:
+                    folder = Folders::kRadarTi;
                     break;
                 default:
-                    context_.logger_.error("Unexpected LiDAR data loader identifier.");
+                    context_.logger_.error("Unexpected Radar data loader identifier.");
                     break;
             }
 
-            auto csvContent = readCsv(path + folder + Files::kTimestampFile);
+            auto csvContent = readCsv(path + folder + Files::kRadarTiScan);
             for (const auto &substrings : csvContent) {
-                size_t timestamp = 0;
-                size_t scan_no = 0;
-                size_t lidar_timestamp = 0;
+                if (substrings.size() >= 2) {
 
-                if (substrings.size() == 2) {
-                    timestamp = std::stoll(substrings[0]);
-                    scan_no = std::stoll(substrings[1]);
-                }
-                else if (substrings.size() == 3) {
-                    timestamp = std::stoll(substrings[0]);
-                    scan_no = std::stoll(substrings[1]);
-                    lidar_timestamp = std::stoll(substrings[2]);
-                }
-                else {
-                    context_.logger_.error("Unexpected lenght of lidar scan data: ");
-                }
+                    size_t timestamp = std::stoull(substrings.at(0));
+                    size_t no_of_measurements = std::stoull(substrings.at(1));
 
-                std::stringstream ss;
-                ss << path + folder + Files::kScanFile << std::setw(6) << std::setfill('0')
-                   << scan_no << Files::kPcdExt;
-                data_.push_back(std::make_shared<DataModels::LidarScanDataModel>(timestamp,
-                                                                                 lidarIdentifier_,
-                                                                                 ss.str(),
-                                                                                 lidar_timestamp));
+                    for (size_t i = 0; i < no_of_measurements; i++) {
+                        size_t offset = 2 + (4 * i);
+                        float x = std::stof(substrings.at(offset + 0));
+                        float y = std::stof(substrings.at(offset + 1));
+                        float z = std::stof(substrings.at(offset + 2));
+                        float vel = std::stof(substrings.at(offset + 3));
+
+                        data_.push_back(std::make_shared<DataModels::RadarTiDataModel>(timestamp, x, y, z, vel));
+                    }
+
+                } else {
+                    context_.logger_.warning("Radar frame to short!");
+                }
             }
             dataIt_ = data_.begin();
             releaseIt_ = dataIt_;
             return true;
         }
 
-        timestamp_type LidarDataLoader::getLowestTimestamp() {
+        timestamp_type RadarTiDataLoader::getLowestTimestamp() {
 
             if(!isOnEnd()) {
                 return (*dataIt_)->getTimestamp();
@@ -85,7 +73,7 @@ namespace AutoDrive {
             return std::numeric_limits<uint64_t>::max();
         }
 
-        std::shared_ptr<DataModels::GenericDataModel> LidarDataLoader::getNextData() {
+        std::shared_ptr<DataModels::GenericDataModel> RadarTiDataLoader::getNextData() {
             if (!isOnEnd()) {
                 auto output = *dataIt_;
                 dataIt_ = std::next(dataIt_,1);
@@ -94,22 +82,22 @@ namespace AutoDrive {
             return std::make_shared<DataModels::ErrorDataModel>();
         }
 
-        std::string LidarDataLoader::toString() {
+        std::string RadarTiDataLoader::toString() {
             std::stringstream ss;
-            ss << "[Lidar Data Loader] : size = " << data_.size();
+            ss << "[Radar Ti Data Loader] : size = " << data_.size();
             return ss.str();
         }
 
-        uint64_t LidarDataLoader::getDataSize() {
+        uint64_t RadarTiDataLoader::getDataSize() {
             return data_.size();
         }
 
-        bool LidarDataLoader::isOnEnd() {
+        bool RadarTiDataLoader::isOnEnd() {
 
             return dataIt_ >= data_.end();
         }
 
-        void LidarDataLoader::setPose(timestamp_type timestamp) {
+        void RadarTiDataLoader::setPose(timestamp_type timestamp) {
             for (dataIt_ = data_.begin(); dataIt_< data_.end() ; dataIt_ = std::next(dataIt_,1)) {
                 if((*dataIt_)->getTimestamp() >= timestamp) {
                     break;
@@ -117,12 +105,12 @@ namespace AutoDrive {
             }
         }
 
-        void LidarDataLoader::releaseOldData(timestamp_type keepHistory) {
+        void RadarTiDataLoader::releaseOldData(timestamp_type keepHistory) {
             auto currentTime = (*dataIt_)->getTimestamp();
             while(releaseIt_ < data_.end()) {
                 auto dataTimestamp = (*releaseIt_)->getTimestamp();
                 if(dataTimestamp + keepHistory < currentTime) {
-                    (*releaseIt_) = std::make_shared<DataModels::LidarScanDataModel>(0, LidarIdentifier::kNone, "", 0);
+                    (*releaseIt_) = std::make_shared<DataModels::RadarTiDataModel>(0, 0.0f, 0.0f, 0.0f, 0.0f);
                     releaseIt_++;
                 } else {
                     break;
@@ -130,7 +118,7 @@ namespace AutoDrive {
             }
         }
 
-        void LidarDataLoader::clear() {
+        void RadarTiDataLoader::clear() {
             data_.clear();
             dataIt_ = data_.begin();
         }

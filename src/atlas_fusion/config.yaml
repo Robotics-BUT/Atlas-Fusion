@@ -3,16 +3,13 @@ logger:
   log_ext: "log"
   log_lvl: 1
 
-#data_folder: "/home/autodrive/Data/final/1_1_1_1/"
-data_folder: "/home/autodrive/Data/final/2_1_5_3/"
-#data_folder: "/home/autodrive/Data/final/2_1_3_1/"
-#data_folder: "/home/autodrive/Data/final/1_7/"
-#calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/atlas_fusion/calibrations/"
-calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/atlas_fusion/calibrations/"
+#data_folder: "/home/default_user/Data/final/test/2_1_3_1/"
+data_folder: "/home/default_user/Data/rec_1_part_1/"
+calibratios_folder: "/home/default_user/Developer/Atlas-Fusion/src/atlas_fusion/calibrations/"
 
 map_builder:
   keep_history_sec_length: 10
-  max_replayer_rate: 1
+  max_replayer_rate: 10
 
 laser_aggregator:
   lasers: 32
@@ -22,7 +19,7 @@ lidar_aggregator:
   leaf_size: 0.2
   global_leaf_size: 1.0
   no_of_batches_per_scan: 100
-  aggretation_time: 0.5
+  aggretation_time: 1.0
 
 self_model:
   kalman_process_noise: 1.0

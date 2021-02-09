@@ -154,6 +154,10 @@ namespace AutoDrive {
 
                 processLidarScanData(data, sensorFrame);
 
+            } else if (dataType == DataModels::DataModelTypes::kRadarTiScanDataModelType) {
+
+                processRadarTiData(data, sensorFrame);
+
             } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {
                 context_.logger_.warning("Received Generic data model from DataLoader");
             } else if (dataType == DataModels::DataModelTypes::kErrorDataModelType) {
@@ -195,12 +199,49 @@ namespace AutoDrive {
                 yoloIRDetectionWriter_.writeIRImageAsTrainData(yoloIrReprojector_.getLastIrFrame(),
                                                                yoloIrReprojector_.getCurrentIrFrameNo());
             }
+
+
+            {
+//                try{
+//                    auto irCameraFrame = std::make_shared<DataModels::CameraIrFrameDataModel>(
+//                            imgData->getTimestamp(),
+//                            imgData->getImage(),
+//                            0.0f,
+//                            100.0f,
+//                            imgData->getCameraIdentifier());
+//                    static size_t frameCnt = 0;
+//
+//                    auto originToImuTf = selfModel_.getPosition().toTf();
+//
+//                    auto points2Dand3Dpair = depthMap_.getPointsInCameraFoV(
+//                            irCameraFrame->getCameraIdentifier(),
+//                            irCameraFrame->getImage().cols,
+//                            irCameraFrame->getImage().rows,
+//                            originToImuTf,
+//                            false);
+//                    auto img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first,
+//                                                                         points2Dand3Dpair->second,
+//                                                                         irCameraFrame->getImage().cols,
+//                                                                         irCameraFrame->getImage().rows, 3);
+//                    lidarIrImgPlotter_.saveImage(img, frameCnt);
+//                    lidarIrImgPlotter_.saveImage(std::make_shared<cv::Mat>(imgData->getImage()), frameCnt, "jpg");
+//                    yoloIrReprojector_.onNewIRFrame(irCameraFrame);
+//                    //visualizationHandler_.drawIRImage(irCameraFrame);
+//                    frameCnt++;
+//                }
+//                catch(std::exception& e) {
+//                    std::cerr << e.what() << std::endl;
+//                }
+            }
+
+
         }
 
         localMap_.setFrustumDetections(frustums, sensorFrame);
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
 
         if(cnt++ >= 3) {
+            cnt = 0;
             auto aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
             auto downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud);
             //globalPointcloudStorage_.addMorePointsToGlobalStorage(downsampledAggregatedPc);
@@ -332,25 +373,31 @@ namespace AutoDrive {
                 for( size_t laserNo = 0 ; laserNo < 32 ; laserNo++) {
                     rightLaserSegmenter_.onLaserData(rightLidarLaserAggregator_.getAggregatedLaser(laserNo), laserNo);
                 }
+            } else if(lidarID == DataLoader::LidarIdentifier::kCenterLidar) {
+                //context_.logger_.error("Center lidar");
             } else {
                 context_.logger_.warning("Unexpected lidar identifier");
             }
 
-            auto approximations = std::make_shared<std::vector<rtl::LineSegment3D<double>>>();
-            auto roadApproximations = std::make_shared<std::vector<rtl::LineSegment3D<double>>>();
-
-            for (auto& approximation : *leftLaserSegmenter_.getAllApproximations()) { approximations->push_back(approximation); }
-            for (auto& approximation : *rightLaserSegmenter_.getAllApproximations()) { approximations->push_back(approximation); }
-
-            for (auto& road : *leftLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
-            for (auto& road : *rightLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
-
-            visualizationHandler_.drawLidarApproximations(approximations);
-            visualizationHandler_.drawLidarApproximationsRoad(roadApproximations);
+//            auto approximations = std::make_shared<std::vector<rtl::LineSegment3D<double>>>();
+//            auto roadApproximations = std::make_shared<std::vector<rtl::LineSegment3D<double>>>();
+//
+//            for (auto& approximation : *leftLaserSegmenter_.getAllApproximations()) { approximations->push_back(approximation); }
+//            for (auto& approximation : *rightLaserSegmenter_.getAllApproximations()) { approximations->push_back(approximation); }
+//
+//            for (auto& road : *leftLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
+//            for (auto& road : *rightLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
+//
+//            visualizationHandler_.drawLidarApproximations(approximations);
+//            visualizationHandler_.drawLidarApproximationsRoad(roadApproximations);
         }
         lidarDataHistory_[sensorFrame] = lidarData;
         visualizationHandler_.drawLidarData(lidarData);
         visualizationHandler_.drawSelf();
+    }
+
+    void MapBuilder::processRadarTiData(std::shared_ptr<DataModels::GenericDataModel> data, std::string& sensorFrame) {
+        int a = 5;
     }
 
 
@@ -384,10 +431,14 @@ namespace AutoDrive {
                         return LocalMap::Frames::kLidarLeft;
                     case DataLoader::LidarIdentifier::kRightLidar:
                         return LocalMap::Frames::kLidarRight;
+                    case DataLoader::LidarIdentifier::kCenterLidar:
+                        return LocalMap::Frames::kLidarCenter;
                     default:
                         context_.logger_.error("Unable to estimate lidar frame!");
                         return LocalMap::Frames::kErr;
                 }
+            case DataModels::DataModelTypes::kRadarTiScanDataModelType:
+                return LocalMap::Frames::kRadarTi;
 
             case DataModels::DataModelTypes::kImuDquatDataModelType:
             case DataModels::DataModelTypes::kImuGnssDataModelType:

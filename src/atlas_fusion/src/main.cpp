@@ -99,6 +99,7 @@ int main(int argc, char** argv) {
                                             AutoDrive::LocalMap::Frames::kGnssAntennaRear,
                                             AutoDrive::LocalMap::Frames::kLidarLeft,
                                             AutoDrive::LocalMap::Frames::kLidarRight,
+                                            AutoDrive::LocalMap::Frames::kLidarCenter,
                                             AutoDrive::LocalMap::Frames::kCameraLeftFront,
                                             AutoDrive::LocalMap::Frames::kCameraLeftSide,
                                             AutoDrive::LocalMap::Frames::kCameraRightFront,

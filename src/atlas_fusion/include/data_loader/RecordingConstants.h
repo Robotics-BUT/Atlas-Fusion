@@ -38,6 +38,7 @@ namespace AutoDrive {
 
             const std::string kLidarLeftFolder = "lidar_left/";
             const std::string kLidarRightFolder = "lidar_right/";
+            const std::string kLidarCenterFolder = "lidar_center/";
 
             const std::string kImuFolder = "imu/";
             const std::string kGnssFolder = "gnss/";
@@ -47,6 +48,8 @@ namespace AutoDrive {
             const std::string kLidarDepth = "lidar_depth/";
 
             const std::string kTrainIR = "train_ir/";
+
+            const std::string kRadarTi = "radar_ti/";
 
             const std::vector <std::string> mandatoryFolders{
                     kCameraLeftFrontFolder,
@@ -80,6 +83,8 @@ namespace AutoDrive {
 
             const std::string kScanFile = "scan";
             const std::string kPcdExt = ".pcd";
+
+            const std::string kRadarTiScan = "scans.txt";
 
             const std::string kCameraLeftFrontCalibYaml = "camera_left_front.yaml";
             const std::string kCameraLeftSideCalibYaml = "camera_left_side.yaml";

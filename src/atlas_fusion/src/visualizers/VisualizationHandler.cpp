@@ -48,6 +48,8 @@ namespace AutoDrive::Visualizers{
             lidarVisualizer_.drawPointcloudOnTopic(scan, Topics::kLidarLeft, LocalMap::Frames::kLidarLeft);
         } else if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kRightLidar) {
             lidarVisualizer_.drawPointcloudOnTopic(scan, Topics::kLidarRight, LocalMap::Frames::kLidarRight);
+        }else if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kCenterLidar) {
+            lidarVisualizer_.drawPointcloudOnTopic(scan, Topics::kLidarCenter, LocalMap::Frames::kLidarCenter);
         }
     }
 

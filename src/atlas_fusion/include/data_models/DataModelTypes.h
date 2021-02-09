@@ -39,6 +39,7 @@ namespace AutoDrive::DataModels {
         kImuTempDataModelType,
         kImuTimeDataModelType,
         kLidarScanDataModelType,
+        kRadarTiScanDataModelType,
         kYoloDetectionDataModelType,
         kGenericDataModelType,
         kErrorDataModelType,

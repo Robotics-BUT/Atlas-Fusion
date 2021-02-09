@@ -133,6 +133,7 @@ namespace AutoDrive {
         , maxReplayerRate_{maxReplayerRate}
         , yoloIRDetectionWriter_{context, destinationFolder + DataLoader::Folders::kYoloFolder, DataLoader::Files::kIrCameraYoloFile}
         , lidarIrImgPlotter_{context, maxLidar2ImgDist, destinationFolder}
+        , lidarRgbLFImgPlotter_{context, maxLidar2ImgDist, destinationFolder}
         , localMap_{context}
         , objectAggregator_{context}
         {
@@ -173,6 +174,7 @@ namespace AutoDrive {
         Algorithms::PointCloudExtrapolator pointCloudExtrapolator_;
         Algorithms::PointCloudAggregator pointCloudAggregator_;
         Algorithms::PointCloudProcessor pointCloudProcessor_;
+
         Algorithms::LaserAggregator leftLidarLaserAggregator_;
         Algorithms::LaserAggregator rightLidarLaserAggregator_;
 
@@ -195,6 +197,7 @@ namespace AutoDrive {
 
         DataWriters::YoloDetectionWriter yoloIRDetectionWriter_;
         DataWriters::Lidar2ImagePlotter lidarIrImgPlotter_;
+        DataWriters::Lidar2ImagePlotter lidarRgbLFImgPlotter_;
 
         LocalMap::LocalMap localMap_;
         LocalMap::ObjectsAggregator objectAggregator_;
@@ -208,6 +211,7 @@ namespace AutoDrive {
         void processImuGnssData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
         void processImuImuData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
         void processLidarScanData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
+        void processRadarTiData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
 
         std::string getFrameForData(std::shared_ptr<DataModels::GenericDataModel>);
     };

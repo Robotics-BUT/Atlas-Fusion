@@ -90,6 +90,7 @@ set(SOURCES_DATA_MODELS
         src/data_models/imu/ImuTempDataModel.cpp
         src/data_models/imu/ImuTimeDataModel.cpp
         src/data_models/lidar/LidarScanDataModel.cpp
+        src/data_models/radar/RadarTiDataModel.cpp
         src/data_models/camera/CameraFrameDataModel.cpp
         src/data_models/camera/CameraIrFrameDataModel.cpp
         src/data_models/yolo/YoloDetectionClass.cpp
@@ -104,7 +105,8 @@ set(SOURCES_DATA_LOADER
         src/data_loader/CameraDataLoader.cpp
         src/data_loader/LidarDataLoader.cpp
         src/data_loader/GnssDataLoader.cpp
-        src/data_loader/ImuDataLoader.cpp )
+        src/data_loader/ImuDataLoader.cpp
+        src/data_loader/RadarTiDataLoader.cpp )
 
 set(SOURCES_DATA_WRITERS
         src/data_writers/YoloDetectionWriter.cpp
@@ -117,7 +119,8 @@ set(SOURCES_FAIL_CHECK
         src/fail_check/CameraIrFailChecker.cpp
         src/fail_check/LidarFailChecker.cpp
         src/fail_check/ImuFailChecker.cpp
-        src/fail_check/GnssFailChecker.cpp)
+        src/fail_check/GnssFailChecker.cpp
+        src/fail_check/RadarTiFileChacker.cpp)
 
 add_library(atlas_fusion_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK})
 

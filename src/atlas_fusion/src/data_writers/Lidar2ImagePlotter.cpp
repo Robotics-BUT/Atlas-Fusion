@@ -28,7 +28,7 @@
 namespace AutoDrive::DataWriters {
 
 
-    std::shared_ptr<cv::Mat> Lidar2ImagePlotter::renderLidarPointsToImg(std::vector<cv::Point2f> points2D, std::vector<cv::Point3f> points3D, int imgWidth, int imgHeight) {
+    std::shared_ptr<cv::Mat> Lidar2ImagePlotter::renderLidarPointsToImg(std::vector<cv::Point2f> points2D, std::vector<cv::Point3f> points3D, int imgWidth, int imgHeight, size_t pointSize) {
 
         auto image = std::make_shared<cv::Mat>(imgHeight, imgWidth, CV_8U, cv::Scalar(0));
 
@@ -38,18 +38,31 @@ namespace AutoDrive::DataWriters {
 
         for(size_t i = 0 ; i < points2D.size() ; i++) {
             image->at<uint8_t >(static_cast<int>(points2D.at(i).y), static_cast<int>(points2D.at(i).x)) = distanceToColor( pointLenght(points3D.at(i)) );
+            if (pointSize > 1) {
+                int padding = static_cast<int>(std::round((pointSize-1)/2));
+                for (int j = -padding ; j <= padding; j ++) {
+                    for (int k = -padding ; k <= padding; k ++) {
+                        if (points2D.at(i).y + j < imgHeight && points2D.at(i).y + j >= 0 &&
+                            points2D.at(i).x + k < imgWidth  && points2D.at(i).x + k >= 0 ) {
+                            image->at<uint8_t>(static_cast<int>(points2D.at(i).y)+j,
+                                               static_cast<int>(points2D.at(i).x)+k) = distanceToColor(pointLenght(points3D.at(i)));
+                        }
+                    }
+                }
+            }
+
         }
 
         return image;
     }
 
 
-    void Lidar2ImagePlotter::saveImage(std::shared_ptr<cv::Mat> img, size_t frameNo) {
+    void Lidar2ImagePlotter::saveImage(std::shared_ptr<cv::Mat> img, size_t frameNo, std::string fileExtention) {
 
         std::stringstream pathStream;
 
         pathStream << std::setw(6) << std::setfill('0');
-        pathStream << destFolder_ + DataLoader::Folders::kLidarDepth << "frame" << frameNo << ".jpeg";
+        pathStream << destFolder_ + DataLoader::Folders::kLidarDepth << "frame" << frameNo << "." << fileExtention;
 
         cv::imwrite(pathStream.str(), *img);
     }
