@@ -120,29 +120,37 @@ namespace AutoDrive {
 
             if(dataType == DataModels::DataModelTypes::kCameraDataModelType) {
 
-                processRGBCameraData(data, sensorFrame);
+                mut imgData = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
+                processRGBCameraData(imgData, sensorFrame);
+                cache_.setNewRGBFrame(imgData);
 
             } else if (dataType == DataModels::DataModelTypes::kCameraIrDataModelType) {
 
-                processIRCameraData(data, sensorFrame);
+                mut irCameraFrame = std::dynamic_pointer_cast<DataModels::CameraIrFrameDataModel>(data);
+                processIRCameraData(irCameraFrame, sensorFrame);
+                cache_.setNewIRFrame(irCameraFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kGnssPositionDataModelType) {
 
-                processGnssPoseData(data, sensorFrame);
+                mut poseData = std::dynamic_pointer_cast<DataModels::GnssPoseDataModel>(data);
+                processGnssPoseData(poseData, sensorFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kGnssTimeDataModelType) {
 
             } else if (dataType == DataModels::DataModelTypes::kImuDquatDataModelType) {
 
-                processImuDQuatData(data, sensorFrame);
+                mut dQuatData = std::dynamic_pointer_cast<DataModels::ImuDquatDataModel>(data);
+                processImuDQuatData(dQuatData, sensorFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kImuGnssDataModelType) {
 
-                processImuGnssData(data, sensorFrame);
+                mut poseData = std::dynamic_pointer_cast<DataModels::ImuGnssDataModel>(data);
+                processImuGnssData(poseData, sensorFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kImuImuDataModelType) {
 
-                processImuImuData(data, sensorFrame);
+                mut imuData = std::dynamic_pointer_cast<DataModels::ImuImuDataModel>(data);
+                processImuImuData(imuData, sensorFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kImuMagDataModelType) {
 
@@ -154,11 +162,15 @@ namespace AutoDrive {
 
             } else if (dataType == DataModels::DataModelTypes::kLidarScanDataModelType) {
 
-                processLidarScanData(data, sensorFrame);
+                mut lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
+                lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_, std::placeholders::_1));
+                processLidarScanData(lidarData, sensorFrame);
+                cache_.setNewLidarScan(lidarData);
 
             } else if (dataType == DataModels::DataModelTypes::kRadarTiScanDataModelType) {
 
-                processRadarTiData(data, sensorFrame);
+                let radarData = std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data);
+                processRadarTiData(radarData, sensorFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {
                 context_.logger_.warning("Received Generic data model from DataLoader");
@@ -176,10 +188,9 @@ namespace AutoDrive {
     }
 
 
-    void MapBuilder::processRGBCameraData(std::shared_ptr<DataModels::GenericDataModel> data, std::string& sensorFrame) {
-        static int cnt = 0;
+    void MapBuilder::processRGBCameraData(std::shared_ptr<DataModels::CameraFrameDataModel> imgData, std::string& sensorFrame) {
 
-        mut imgData = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
+        static int cnt = 0;
         mut batches = pointCloudAggregator_.getAllBatches();
         depthMap_.updatePointcloudData(batches);
 
@@ -257,11 +268,6 @@ namespace AutoDrive {
             mut aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
             mut downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud);
 
-            if (context_.getFunctionalityFlags().global_lidar_aggregation_) {
-                globalPointcloudStorage_.addMorePointsToGlobalStorage(downsampledAggregatedPc);
-                visualizationHandler_.drawGlobalPointcloud(globalPointcloudStorage_.getEntirePointcloud());
-            }
-
             mut tunel = pointCloudAggregator_.getPointcloudCutout(pointCloudProcessor_.transformPointcloud(downsampledAggregatedPc, selfModel_.getPosition().toTf().inverted()),
                                                                    rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
                                                                                              rtl::Vector3D<float>{ 30.0f,  10.0f, 10.0f}});
@@ -282,12 +288,9 @@ namespace AutoDrive {
     }
 
 
-    void MapBuilder::processIRCameraData(std::shared_ptr<DataModels::GenericDataModel> data, std::string& sensorFrame) {
-        mut irCameraFrame = std::dynamic_pointer_cast<DataModels::CameraIrFrameDataModel>(data);
-        cache_.setNewIRFrame(irCameraFrame);
+    void MapBuilder::processIRCameraData(std::shared_ptr<DataModels::CameraIrFrameDataModel> irCameraFrame, std::string& sensorFrame) {
 
         mut originToImuTf = selfModel_.getPosition().toTf();
-
         mut points2Dand3Dpair = depthMap_.getPointsInCameraFoV(
                 irCameraFrame->getCameraIdentifier(),
                 irCameraFrame->getImage().cols,
@@ -303,8 +306,8 @@ namespace AutoDrive {
     }
 
 
-    void MapBuilder::processGnssPoseData(std::shared_ptr<DataModels::GenericDataModel> data, std::string& sensorFrame) {
-        mut poseData = std::dynamic_pointer_cast<DataModels::GnssPoseDataModel>(data);
+    void MapBuilder::processGnssPoseData(std::shared_ptr<DataModels::GnssPoseDataModel> poseData, std::string& sensorFrame) {
+
         gnssPoseLogger_.onGnssPose(poseData);
         selfModel_.onGnssPose(poseData);
 
@@ -321,21 +324,18 @@ namespace AutoDrive {
     }
 
 
-    void MapBuilder::processImuDQuatData(std::shared_ptr<DataModels::GenericDataModel> data, std::string& sensorFrame) {
-        mut dQuatData = std::dynamic_pointer_cast<DataModels::ImuDquatDataModel>(data);
+    void MapBuilder::processImuDQuatData(std::shared_ptr<DataModels::ImuDquatDataModel> dQuatData, std::string& sensorFrame) {
         selfModel_.onImuDquatData(dQuatData);
     }
 
 
-    void MapBuilder::processImuGnssData(std::shared_ptr<DataModels::GenericDataModel> data, std::string& sensorFrame) {
-        mut poseData = std::dynamic_pointer_cast<DataModels::ImuGnssDataModel>(data);
+    void MapBuilder::processImuGnssData(std::shared_ptr<DataModels::ImuGnssDataModel> poseData, std::string& sensorFrame) {
         imuPoseLogger_.onImuGps(poseData);
         visualizationHandler_.drawImuGpsTrajectory(imuPoseLogger_.getPositionHistory());
     }
 
 
-    void MapBuilder::processImuImuData(std::shared_ptr<DataModels::GenericDataModel> data, std::string& sensorFrame) {
-        mut imuData = std::dynamic_pointer_cast<DataModels::ImuImuDataModel>(data);
+    void MapBuilder::processImuImuData(std::shared_ptr<DataModels::ImuImuDataModel> imuData, std::string& sensorFrame) {
 
         imuProcessor_.setOrientation(imuData->getOrientation());
         mut linAccNoGrav = imuProcessor_.removeGravitaionAcceleration(imuData->getLinearAcc());
@@ -345,84 +345,113 @@ namespace AutoDrive {
     }
 
 
-    void MapBuilder::processLidarScanData(std::shared_ptr<DataModels::GenericDataModel> data, std::string& sensorFrame) {
-        mut lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
-        lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_, std::placeholders::_1));
+    void MapBuilder::processLidarScanData(std::shared_ptr<DataModels::LidarScanDataModel> lidarData, std::string& sensorFrame) {
 
-        mut lidarID = lidarData->getLidarIdentifier();
-
-        if (lidarDataHistory_.count(sensorFrame) > 0) {
-
-            mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);
-            mut lastLidarTimestamp = (lidarDataHistory_[sensorFrame])->getTimestamp();
-            mut poseBefore = selfModel_.estimatePositionInTime( lastLidarTimestamp );
-            mut poseNow = selfModel_.getPosition();
-            mut poseDiff = poseNow-poseBefore;
-
-            if (context_.getFunctionalityFlags().short_term_lidar_aggregation_) {
-                mut downsampledScan = pointCloudProcessor_.downsamplePointCloud(lidarData->getScan());
-                mut batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan,
-                                                                                poseBefore,
-                                                                                poseDiff,
-                                                                                lidarTF);
-                pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
-                pointCloudAggregator_.addPointCloudBatches(batches);
-            }
-
-
-            if (Lidar_Laser_Approx_And_Seg) {
-                if (lidarID == DataLoader::LidarIdentifier::kLeftLidar) {
-
-                    size_t laserNo = 5;
-                    leftLidarLaserAggregator_.onNewLaserData(lidarData->getRawScan(), poseBefore, poseDiff, lidarTF);
-                    mut aggregatedLaser = leftLidarLaserAggregator_.getAggregatedLaser(laserNo);
-                    mut laserApproximation = leftLaserSegmenter_.getApproximation(laserNo);
-
-                    leftLaserSegmenter_.clear();
-                    for (size_t laserNo = 0; laserNo < 32; laserNo++) {
-                        leftLaserSegmenter_.onLaserData(leftLidarLaserAggregator_.getAggregatedLaser(laserNo), laserNo);
-                    }
-
-                    visualizationHandler_.drawAggregatedLasers(aggregatedLaser);
-
-                } else if (lidarID == DataLoader::LidarIdentifier::kRightLidar) {
-                    rightLidarLaserAggregator_.onNewLaserData(lidarData->getRawScan(), poseBefore, poseDiff, lidarTF);
-                    rightLaserSegmenter_.clear();
-                    for (size_t laserNo = 0; laserNo < 32; laserNo++) {
-                        rightLaserSegmenter_.onLaserData(rightLidarLaserAggregator_.getAggregatedLaser(laserNo),
-                                                         laserNo);
-                    }
-                } else if (lidarID == DataLoader::LidarIdentifier::kCenterLidar) {
-                    // Central lidar provides incompatible data.
-                } else {
-                    context_.logger_.warning("Unexpected lidar identifier");
-                }
-
-                mut approximations = std::make_shared<std::vector<rtl::LineSegment3D<double>>>();
-                mut roadApproximations = std::make_shared<std::vector<rtl::LineSegment3D<double>>>();
-
-                for (mut& approximation : *leftLaserSegmenter_.getAllApproximations()) { approximations->push_back(approximation); }
-                for (mut& approximation : *rightLaserSegmenter_.getAllApproximations()) { approximations->push_back(approximation); }
-
-                for (mut& road : *leftLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
-                for (mut& road : *rightLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
-
-                visualizationHandler_.drawLidarApproximations(approximations);
-                visualizationHandler_.drawLidarApproximationsRoad(roadApproximations);
-            }
+        let lidarID = lidarData->getLidarIdentifier();
+        if (cache_.getLidarScanNo(lidarID) > 0) {
+            aggregateLidar(lidarData);
+            approximateLidar(lidarData);
         }
-        lidarDataHistory_[sensorFrame] = lidarData;
         visualizationHandler_.drawLidarData(lidarData);
         visualizationHandler_.drawSelf();
     }
 
-    void MapBuilder::processRadarTiData(std::shared_ptr<DataModels::GenericDataModel> data, std::string& sensorFrame) {
+    void MapBuilder::processRadarTiData(std::shared_ptr<DataModels::RadarTiDataModel> data, std::string& sensorFrame) {
         let radarData = std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data);
         visualizationHandler_.drawRadarTiObjects(radarData->getObjects());
     }
 
 
-    std::string MapBuilder::getFrameForData(std::shared_ptr<DataModels::GenericDataModel> data) {
+
+    void MapBuilder::generateDepthMapForIR() {
+
+    }
+
+    void MapBuilder::projectRGBDetectionsToIR() {
+
+    }
+
+    void MapBuilder::aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel>& lidarData) {
+
+        let lidarID = lidarData->getLidarIdentifier();
+        let sensorFrame = getFrameForData(lidarData);
+
+        mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);
+        let lastLidarTimestamp = (cache_.getLidarScan(lidarID))->getTimestamp();
+        mut poseBefore = selfModel_.estimatePositionInTime( lastLidarTimestamp );
+        mut poseNow = selfModel_.getPosition();
+        mut poseDiff = poseNow-poseBefore;
+
+        if (Short_Term_Lidar_Aggregation) {
+            mut downsampledScan = pointCloudProcessor_.downsamplePointCloud(lidarData->getScan());
+            mut batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan, poseBefore, poseDiff, lidarTF);
+            pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
+            pointCloudAggregator_.addPointCloudBatches(batches);
+        }
+
+        if (Global_Lidar_Aggregation && Short_Term_Lidar_Aggregation) {
+            mut aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
+            mut downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud);
+            globalPointcloudStorage_.addMorePointsToGlobalStorage(downsampledAggregatedPc);
+            visualizationHandler_.drawGlobalPointcloud(globalPointcloudStorage_.getEntirePointcloud());
+        }
+    }
+
+
+    void MapBuilder::approximateLidar(const std::shared_ptr<DataModels::LidarScanDataModel>& lidarData) {
+
+        let lidarID = lidarData->getLidarIdentifier();
+        let sensorFrame = getFrameForData(lidarData);
+
+        mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);
+        let lastLidarTimestamp = (cache_.getLidarScan(lidarID))->getTimestamp();
+        mut poseBefore = selfModel_.estimatePositionInTime( lastLidarTimestamp );
+        mut poseNow = selfModel_.getPosition();
+        mut poseDiff = poseNow-poseBefore;
+
+        if (Lidar_Laser_Approx_And_Seg) {
+            if (lidarID == DataLoader::LidarIdentifier::kLeftLidar) {
+
+                size_t laserNo = 5;
+                leftLidarLaserAggregator_.onNewLaserData(lidarData->getRawScan(), poseBefore, poseDiff, lidarTF);
+                mut aggregatedLaser = leftLidarLaserAggregator_.getAggregatedLaser(laserNo);
+                mut laserApproximation = leftLaserSegmenter_.getApproximation(laserNo);
+
+                leftLaserSegmenter_.clear();
+                for (size_t i = 0; i < 32; i++) {
+                    leftLaserSegmenter_.onLaserData(leftLidarLaserAggregator_.getAggregatedLaser(i), i);
+                }
+                visualizationHandler_.drawAggregatedLasers(aggregatedLaser);
+
+            } else if (lidarID == DataLoader::LidarIdentifier::kRightLidar) {
+                rightLidarLaserAggregator_.onNewLaserData(lidarData->getRawScan(), poseBefore, poseDiff, lidarTF);
+                rightLaserSegmenter_.clear();
+                for (size_t laserNo = 0; laserNo < 32; laserNo++) {
+                    rightLaserSegmenter_.onLaserData(rightLidarLaserAggregator_.getAggregatedLaser(laserNo),
+                                                     laserNo);
+                }
+            } else if (lidarID == DataLoader::LidarIdentifier::kCenterLidar) {
+                // Central lidar provides incompatible data.
+            } else {
+                context_.logger_.warning("Unexpected lidar identifier");
+            }
+
+            mut approximations = std::make_shared<std::vector<rtl::LineSegment3D<double>>>();
+            mut roadApproximations = std::make_shared<std::vector<rtl::LineSegment3D<double>>>();
+
+            for (mut& approximation : *leftLaserSegmenter_.getAllApproximations()) { approximations->push_back(approximation); }
+            for (mut& approximation : *rightLaserSegmenter_.getAllApproximations()) { approximations->push_back(approximation); }
+
+            for (mut& road : *leftLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
+            for (mut& road : *rightLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
+
+            visualizationHandler_.drawLidarApproximations(approximations);
+            visualizationHandler_.drawLidarApproximationsRoad(roadApproximations);
+        }
+    }
+
+
+    std::string MapBuilder::getFrameForData(const std::shared_ptr<DataModels::GenericDataModel>& data) {
         let type = data->getType();
         switch (type) {
 

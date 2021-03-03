@@ -207,18 +207,21 @@ namespace AutoDrive {
 
         Algorithms::SimpleImageProcessor simpleImageProcessor_;
 
-        std::map<std::string, std::shared_ptr<DataModels::LidarScanDataModel>> lidarDataHistory_;
+        void processRGBCameraData(std::shared_ptr<DataModels::CameraFrameDataModel>, std::string&);
+        void processIRCameraData(std::shared_ptr<DataModels::CameraIrFrameDataModel>, std::string&);
+        void processGnssPoseData(std::shared_ptr<DataModels::GnssPoseDataModel>, std::string&);
+        void processImuDQuatData(std::shared_ptr<DataModels::ImuDquatDataModel>, std::string&);
+        void processImuGnssData(std::shared_ptr<DataModels::ImuGnssDataModel>, std::string&);
+        void processImuImuData(std::shared_ptr<DataModels::ImuImuDataModel>, std::string&);
+        void processLidarScanData(std::shared_ptr<DataModels::LidarScanDataModel>, std::string&);
+        void processRadarTiData(std::shared_ptr<DataModels::RadarTiDataModel>, std::string&);
 
-        void processRGBCameraData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
-        void processIRCameraData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
-        void processGnssPoseData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
-        void processImuDQuatData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
-        void processImuGnssData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
-        void processImuImuData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
-        void processLidarScanData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
-        void processRadarTiData(std::shared_ptr<DataModels::GenericDataModel>, std::string&);
+        void generateDepthMapForIR();
+        void projectRGBDetectionsToIR();
+        void aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel>&);
+        void approximateLidar(const std::shared_ptr<DataModels::LidarScanDataModel>&);
 
-        std::string getFrameForData(std::shared_ptr<DataModels::GenericDataModel>);
+        std::string getFrameForData(const std::shared_ptr<DataModels::GenericDataModel>&);
     };
 
 }
