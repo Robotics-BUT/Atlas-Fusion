@@ -57,6 +57,23 @@ AutoDrive::LocalMap::TFTree buildTFTree(std::string rootFrame, std::vector<std::
     return tfTree;
 }
 
+AutoDrive::FunctionalityFlags loadFunctionalityFlags(AutoDrive::ConfigService& confService) {
+    AutoDrive::FunctionalityFlags ffEntity(
+            confService.getBoolValue({"functionalities","generate_depth_map_for_ir"}),
+    confService.getBoolValue({"functionalities","rgb_to_ir_detection_projection"}),
+            confService.getBoolValue({"functionalities","short_term_lidar_aggregation"}),
+            confService.getBoolValue({"functionalities","lidar_laser_approximations_and_segmentation"}),
+            confService.getBoolValue({"functionalities","global_lidar_aggregation"}),
+            confService.getBoolValue({"visualizations","visualization_global_enable"}),
+            confService.getBoolValue({"visualizations","rgb_camera_visualization"}),
+            confService.getBoolValue({"visualizations","ir_camera_visualization"}),
+            confService.getBoolValue({"visualizations","lidar_visualization"}),
+            confService.getBoolValue({"visualizations","imu_visualization"}),
+            confService.getBoolValue({"visualizations","gnss_visualization"}),
+            confService.getBoolValue({"visualizations","radar_visualization"}));
+    return ffEntity;
+}
+
 
 int main(int argc, char** argv) {
 
@@ -100,6 +117,7 @@ int main(int argc, char** argv) {
                                             AutoDrive::LocalMap::Frames::kLidarLeft,
                                             AutoDrive::LocalMap::Frames::kLidarRight,
                                             AutoDrive::LocalMap::Frames::kLidarCenter,
+                                            AutoDrive::LocalMap::Frames::kRadarTi,
                                             AutoDrive::LocalMap::Frames::kCameraLeftFront,
                                             AutoDrive::LocalMap::Frames::kCameraLeftSide,
                                             AutoDrive::LocalMap::Frames::kCameraRightFront,
@@ -132,7 +150,8 @@ int main(int argc, char** argv) {
 
     auto lidarPlotterMaxDist = configService.getFloatValue({"lidar_img_plotter", "max_distance"});
 
-    auto context = AutoDrive::Context(logger, tfTree, calibFolder);
+    auto functionalityFlags = loadFunctionalityFlags(configService);
+    auto context = AutoDrive::Context(logger, tfTree, calibFolder, functionalityFlags);
 
     auto vectorizer_sigma = configService.getFloatValue({"laser_segmenter", "vectorizer_sigma"});
     auto segmenter_step = configService.getUInt32Value({"laser_segmenter", "segmenter_step"});

@@ -60,7 +60,6 @@ namespace AutoDrive::Algorithms {
             output.push_back(std::make_shared<const DataModels::FrustumDetection>(
                     std::make_shared<rtl::Frustum3D<double>>(frustum.transformed(tf)),
                     detection.getDetectionConfidence(),
-                    detection.getClassConfidence(),
                     detection.getClass()));
         }
         return output;

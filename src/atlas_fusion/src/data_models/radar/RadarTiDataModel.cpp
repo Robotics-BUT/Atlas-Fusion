@@ -29,8 +29,7 @@ namespace AutoDrive::DataModels {
     std::string RadarTiDataModel::toString() {
         std::stringstream ss;
         ss << "[Radar Ti Scan Data Model] :"
-        " pose: "<< pose_.x() << " " << pose_.y() << " " << pose_.z() <<
-        " vel:  " << velocity_;
+              " no of objects: " << objects_.size();
         return ss.str();
     }
 }

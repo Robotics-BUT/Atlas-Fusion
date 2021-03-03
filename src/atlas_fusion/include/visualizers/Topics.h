@@ -69,6 +69,8 @@ namespace AutoDrive::Visualizers {
 
         const std::string kLidarDetections = "/autodrive/local_map/lidar_detections";
 
+        const std::string kRadarTiObjects = "/autodrive/local_map/radar_ti_data";
+
         const std::string kTelemetryText = "/autodrive/local_map/telemetry/text";
         const std::string kSpeedTopic = "/autodrive/local_map/speed";
 

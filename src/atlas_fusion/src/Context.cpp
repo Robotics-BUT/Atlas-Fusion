@@ -28,7 +28,7 @@ namespace AutoDrive {
         LogService logger("", LogService::LogLevel::Off, false, false);
         LocalMap::TFTree tfTree("", logger);
         std::string emptyPath = "";
-        return Context(logger, tfTree, emptyPath);
+        return Context(logger, tfTree, emptyPath, FunctionalityFlags{});
     }
 
     Context::timePoint Context::getHighPrecisionTime() {

@@ -33,6 +33,7 @@
 #include "data_models/camera/CameraIrFrameDataModel.h"
 #include "data_models/DataModelTypes.h"
 #include "data_models/local_map/LidarDetection.h"
+#include "data_models/radar/RadarTiDataModel.h"
 
 #include "Topics.h"
 #include "Context.h"
@@ -44,6 +45,7 @@
 #include "TFVisualizer.h"
 #include "FrustumVisualizer.h"
 #include "TelemetryVisualizer.h"
+#include "RadarVisualizer.h"
 
 #include "TrajectoryVisualizer.h"
 
@@ -72,7 +74,8 @@ namespace AutoDrive::Visualizers {
         , tfTreeVisualizer_(node, context)
         , trajectoryVisualizer_(node, context)
         , frustumVisualizer_(node, context)
-        , telemetryVisualizer_(node, context) {
+        , telemetryVisualizer_(node, context)
+        , radarVisualizer_(node, context) {
             testCubePublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kTestCubeTopic, 0 );
             selfPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kSelf, 0);
         }
@@ -218,6 +221,12 @@ namespace AutoDrive::Visualizers {
          */
         void drawTelemetry(std::string telemetryText);
 
+        /**
+         * Draws radar ti scan data
+         * @param vector of detected objects; x,y,z pose and radial velocity
+         */
+        void drawRadarTiObjects(const std::vector<DataModels::RadarTiDataModel::Object>& objects);
+
     private:
 
         ros::NodeHandle& node_;
@@ -234,6 +243,7 @@ namespace AutoDrive::Visualizers {
         TrajectoryVisualizer trajectoryVisualizer_;
         FrustumVisualizer frustumVisualizer_;
         TelemetryVisualizer telemetryVisualizer_;
+        RadarVisualizer radarVisualizer_;
 
         visualization_msgs::Marker getTestCube() const;
         visualization_msgs::Marker getSelfCube() const;

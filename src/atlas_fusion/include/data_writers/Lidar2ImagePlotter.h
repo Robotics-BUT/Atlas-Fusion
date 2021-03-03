@@ -52,9 +52,14 @@ namespace AutoDrive::DataWriters {
         , maxDist_{maxDistance}
         , destFolder_{std::move(destFolder)} {
 
-            auto directory = destFolder_ + DataLoader::Folders::kLidarDepth;
-            if( !std::filesystem::exists(directory) ) {
-                std::filesystem::create_directory(directory);
+            destFolder_ += DataLoader::Folders::kOutputFolder;
+            if( !std::filesystem::exists(destFolder_) ) {
+                std::filesystem::create_directory(destFolder_);
+            }
+
+            destFolder_ += DataLoader::Folders::kOutputDepthMap;
+            if( !std::filesystem::exists(destFolder_) ) {
+                std::filesystem::create_directory(destFolder_);
             }
         }
 
@@ -73,7 +78,7 @@ namespace AutoDrive::DataWriters {
          * @param img image to be stored
          * @param frameNo frame number that defines on-disk image name
          */
-        void saveImage(std::shared_ptr<cv::Mat> img, size_t frameNo, std::string fileExtention="jpeg");
+        void saveImage(std::shared_ptr<cv::Mat> img, size_t frameNo, const std::string& sufix, const std::string& fileExtention);
 
     private:
 

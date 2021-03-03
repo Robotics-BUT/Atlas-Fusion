@@ -30,9 +30,10 @@ namespace AutoDrive::DataWriters {
     void YoloDetectionWriter::writeDetections(std::shared_ptr<std::vector<DataModels::YoloDetection>> detections, size_t frameNo) {
 
         if(!outputFile_.is_open()) {
-            openFile(destinationDir_ + destinationFile_);
+            auto file_path = destinationDir_ + destinationFile_;
+            openFile(file_path);
             if(!outputFile_.is_open()) {
-                context_.logger_.warning("Unable to open " + destinationDir_ + destinationFile_ + " file");
+                context_.logger_.warning("Unable to open " + file_path + " file");
                 return;
             }
         }
@@ -44,7 +45,6 @@ namespace AutoDrive::DataWriters {
                         << detection.getBoundingBox().x2_ << ", "
                         << detection.getBoundingBox().y2_ << ", "
                         << detection.getDetectionConfidence() << ", "
-                        << detection.getClassConfidence() << ", "
                         << static_cast<int>(detection.getDetectionClass()) << std::endl;
         }
     }
@@ -58,7 +58,9 @@ namespace AutoDrive::DataWriters {
             std::stringstream ss;
             ss << std::setw(10) << std::setfill('0');
             ss << frameNo << ".txt";
-            outputDetFile.open(destinationDir_ + DataLoader::Folders::kTrainIR + ss.str());
+
+            auto file_path = destinationDir_ + ss.str();
+            outputDetFile.open(file_path);
 
             if (!outputDetFile.is_open()) {
                 context_.logger_.warning("Unable to open file for ir yolo training labels");
@@ -94,7 +96,9 @@ namespace AutoDrive::DataWriters {
         ss << std::setw(10) << std::setfill('0');
         ss << frameNo << ".png";
 
-        cv::imwrite(destinationDir_ + DataLoader::Folders::kTrainIR + ss.str(), frame->getImage());
+        auto file_path = destinationDir_ + ss.str();
+
+        cv::imwrite(file_path, frame->getImage());
     }
 
 

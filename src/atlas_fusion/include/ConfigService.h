@@ -90,7 +90,13 @@ namespace AutoDrive {
          * @param keys Vector of keys that are used to access the value.
          * @return bool value that is corresponding to the given keys
          */
-        bool getBoolValue(const std::vector<std::string>& keys) { return getNode(keys).as<bool >(); }
+        bool getBoolValue(const std::vector<std::string>& keys) {
+            const auto value = getStringValue(keys);
+            if (value == "True" || value == "true" || value == "1") {
+                return true;
+            }
+            return false;
+        }
 
         /**
          * Method extracts the the array of values, represented as a std::vector. Type is defined via the template.

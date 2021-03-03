@@ -51,6 +51,10 @@ namespace AutoDrive {
 
             const std::string kRadarTi = "radar_ti/";
 
+            const std::string kOutputFolder = "output/";
+            const std::string kOutputYoloFolder = "yolo/";
+            const std::string kOutputDepthMap = "depth_map/";
+
             const std::vector <std::string> mandatoryFolders{
                     kCameraLeftFrontFolder,
                     kCameraLeftSideFolder,

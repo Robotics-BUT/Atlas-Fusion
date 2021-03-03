@@ -39,6 +39,7 @@
 #include "algorithms/pointcloud/GlobalPointcloudStorage.h"
 #include "algorithms/yolo_reprojection/YoloDetectionReprojector.h"
 #include "algorithms/pointcloud/ObjectDetector.h"
+#include "algorithms/image_processing/SimpleImageProcessor.h"
 
 #include "data_loader/RecordingConstants.h"
 #include "data_loader/DataLoader.h"
@@ -48,6 +49,7 @@
 #include "visualizers/VisualizationHandler.h"
 
 #include "Context.h"
+#include "DataCache.h"
 
 #include "local_map/LocalMap.h"
 #include "local_map/ObjectsAggregator.h"
@@ -131,7 +133,7 @@ namespace AutoDrive {
         , dataLoader_{context, keepHistoryLength}
         , keepHistoryLength_{keepHistoryLength}
         , maxReplayerRate_{maxReplayerRate}
-        , yoloIRDetectionWriter_{context, destinationFolder + DataLoader::Folders::kYoloFolder, DataLoader::Files::kIrCameraYoloFile}
+        , yoloIRDetectionWriter_{context, destinationFolder + DataLoader::Folders::kOutputFolder, DataLoader::Files::kIrCameraYoloFile}
         , lidarIrImgPlotter_{context, maxLidar2ImgDist, destinationFolder}
         , lidarRgbLFImgPlotter_{context, maxLidar2ImgDist, destinationFolder}
         , localMap_{context}
@@ -162,6 +164,7 @@ namespace AutoDrive {
 
         ros::NodeHandle& node_;
         Context& context_;
+        DataCache cache_;
 
         Algorithms::SimpleTrajectoryLogger gnssPoseLogger_;
         Algorithms::SimpleTrajectoryLogger imuPoseLogger_;
@@ -201,6 +204,8 @@ namespace AutoDrive {
 
         LocalMap::LocalMap localMap_;
         LocalMap::ObjectsAggregator objectAggregator_;
+
+        Algorithms::SimpleImageProcessor simpleImageProcessor_;
 
         std::map<std::string, std::shared_ptr<DataModels::LidarScanDataModel>> lidarDataHistory_;
 

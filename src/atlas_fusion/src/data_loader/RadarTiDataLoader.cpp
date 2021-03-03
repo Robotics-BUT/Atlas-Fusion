@@ -46,15 +46,16 @@ namespace AutoDrive {
                     size_t timestamp = std::stoull(substrings.at(0));
                     size_t no_of_measurements = std::stoull(substrings.at(1));
 
+                    std::vector<DataModels::RadarTiDataModel::Object> objects;
                     for (size_t i = 0; i < no_of_measurements; i++) {
                         size_t offset = 2 + (4 * i);
                         float x = std::stof(substrings.at(offset + 0));
                         float y = std::stof(substrings.at(offset + 1));
                         float z = std::stof(substrings.at(offset + 2));
                         float vel = std::stof(substrings.at(offset + 3));
-
-                        data_.push_back(std::make_shared<DataModels::RadarTiDataModel>(timestamp, x, y, z, vel));
+                        objects.emplace_back(DataModels::RadarTiDataModel::Object{{x,y,z}, vel});
                     }
+                    data_.push_back(std::make_shared<DataModels::RadarTiDataModel>(timestamp, objects));
 
                 } else {
                     context_.logger_.warning("Radar frame to short!");
@@ -110,7 +111,7 @@ namespace AutoDrive {
             while(releaseIt_ < data_.end()) {
                 auto dataTimestamp = (*releaseIt_)->getTimestamp();
                 if(dataTimestamp + keepHistory < currentTime) {
-                    (*releaseIt_) = std::make_shared<DataModels::RadarTiDataModel>(0, 0.0f, 0.0f, 0.0f, 0.0f);
+                    (*releaseIt_) = std::make_shared<DataModels::RadarTiDataModel>(0);
                     releaseIt_++;
                 } else {
                     break;

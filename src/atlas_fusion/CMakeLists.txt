@@ -41,7 +41,8 @@ include_directories(
 set(SOURCES
         src/MapBuilder.cpp
         src/LogService.cpp
-        src/Context.cpp)
+        src/Context.cpp
+        src/DataCache.cpp)
 
 set(SOURCES_ALGORITHMS
         src/algorithms/SimpleTrajectoryLogger.cpp
@@ -61,7 +62,8 @@ set(SOURCES_ALGORITHMS
         src/algorithms/yolo_reprojection/YoloDetectionReprojector.cpp
         src/algorithms/pointcloud/GlobalPointcloudStorage.cpp
         src/algorithms/pointcloud/ObjectDetector.cpp
-        src/algorithms/SelfModel.cpp)
+        src/algorithms/SelfModel.cpp
+        src/algorithms/image_processing/SimpleImageProcessor.cpp)
 
 set(SOURCES_LOCAL_MAP
         src/local_map/TFTree.cpp
@@ -77,7 +79,8 @@ set(SOURCES_VISUALIZERS
         src/visualizers/TrajectoryVisualizer.cpp
         src/visualizers/TFVisualizer.cpp
         src/visualizers/FrustumVisualizer.cpp
-        src/visualizers/TelemetryVisualizer.cpp)
+        src/visualizers/TelemetryVisualizer.cpp
+        src/visualizers/RadarVisualizer.cpp)
 
 set(SOURCES_DATA_MODELS
         src/data_models/gnss/GnssTimeDataModel.cpp
@@ -120,7 +123,7 @@ set(SOURCES_FAIL_CHECK
         src/fail_check/LidarFailChecker.cpp
         src/fail_check/ImuFailChecker.cpp
         src/fail_check/GnssFailChecker.cpp
-        src/fail_check/RadarTiFileChacker.cpp)
+        src/fail_check/RadarTiFileChacker.cpp src/algorithms/image_processing/SimpleImageProcessor.cpp include/algorithms/image_processing/SimpleImageProcessor.h)
 
 add_library(atlas_fusion_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK})
 

@@ -3,8 +3,8 @@ logger:
   log_ext: "log"
   log_lvl: 1
 
-#data_folder: "/home/default_user/Data/final/test/2_1_3_1/"
-data_folder: "/home/default_user/Data/rec_1_part_1/"
+data_folder: "/home/default_user/Data/bud_s3/3_1_3_4/"
+#data_folder: "/home/default_user/Data/rec_2_part_1/"
 calibratios_folder: "/home/default_user/Developer/Atlas-Fusion/src/atlas_fusion/calibrations/"
 
 map_builder:
@@ -38,3 +38,19 @@ laser_segmenter:
   segmenter_lower_bound: 0.002
   segmenter_upper_bound: 0.2
   segmenter_scaling: 0.01
+
+functionalities:
+  generate_depth_map_for_ir: true
+  rgb_to_ir_detection_projection: true
+  short_term_lidar_aggregation: true
+  lidar_laser_approximations_and_segmentation: false
+  global_lidar_aggregation: false
+
+visualizations:
+  visualization_global_enable: true
+  rgb_camera_visualization: true
+  ir_camera_visualization: true
+  lidar_visualization: true
+  imu_visualization: true
+  gnss_visualization: true
+  radar_visualization: true

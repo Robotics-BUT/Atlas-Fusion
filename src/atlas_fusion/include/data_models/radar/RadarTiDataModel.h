@@ -34,37 +34,62 @@ namespace AutoDrive::DataModels {
 
     public:
 
+        class Object {
+
+        public:
+
+            Object(rtl::Vector3f pose, float velocity)
+                    : pose_{pose}
+                    , velocity_{velocity} {}
+
+            /**
+             * Get position of detected object
+             * @return postion
+             */
+            inline const rtl::Vector3f& getPose() const { return pose_; };
+
+            /**
+             * Get position of detected object
+             * @return postion
+             */
+            inline float getVelocity() const { return velocity_; };
+
+        private:
+            rtl::Vector3f pose_;
+            float velocity_;
+        };
+
+
         /**
          * Constructor
          * @param timestamp recording session timestamp
-         * @param pose x
-         * @param pose y
-         * @param pose z
-         * @param radial speed
+         * @param vector of scanned objects
          */
-        RadarTiDataModel(uint64_t timestamp, float x, float y, float z, float vel)
+        RadarTiDataModel(const uint64_t timestamp, const std::vector<Object>& objects)
                 : GenericDataModel(timestamp)
-                , pose_{x, y, z}
-                , velocity_{vel} {
+                , objects_{objects} {
+            type_ = DataModelTypes::kRadarTiScanDataModelType;
+        }
+
+        /**
+         * Constructor
+         * @param timestamp recording session timestamp
+         */
+        RadarTiDataModel(const uint64_t timestamp)
+                : GenericDataModel(timestamp)
+                , objects_{} {
             type_ = DataModelTypes::kRadarTiScanDataModelType;
         }
 
         std::string toString() override;
 
         /**
-         * Get position of detected object
+         * Get vector of all objects detected by the scan
          * @return postion
          */
-        inline rtl::Vector3f getPose() const { return pose_; };
-
-        /**
-         * Get position of detected object
-         * @return postion
-         */
-        inline float getVelocity() const { return velocity_; };
+        inline const std::vector<Object>& getObjects() const { return objects_; };
 
     private:
-        rtl::Vector3f pose_;
-        float velocity_;
+        std::vector<Object> objects_;
     };
 }

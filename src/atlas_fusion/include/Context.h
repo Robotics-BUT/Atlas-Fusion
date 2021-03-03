@@ -27,6 +27,7 @@
 
 #include "LogService.h"
 #include "local_map/TFTree.h"
+#include "FunctionalityFlags.h"
 
 namespace AutoDrive {
 
@@ -40,16 +41,19 @@ namespace AutoDrive {
 
         using timePoint = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
 
-        explicit Context(LogService &logger, LocalMap::TFTree &tfTree, std::string& calibFolder)
+        explicit Context(LogService &logger, LocalMap::TFTree &tfTree, const std::string& calibFolder, const FunctionalityFlags& fFlags)
                 : logger_{logger}
                 , tfTree_{tfTree}
-                , calibFolder_{calibFolder}{
+                , calibFolder_{calibFolder}
+                , fFlags_{fFlags}{
 
         }
 
         LogService &logger_;
         LocalMap::TFTree &tfTree_;
         const std::string& calibFolder_;
+        const FunctionalityFlags& fFlags_;
+
 
         /**
          * Method prepares the context that does not contains any usefull information. It is used only for the purpose
@@ -69,5 +73,11 @@ namespace AutoDrive {
         * @return system time in millsec
         */
         static double highPrecisionTimeToMilliseconds( std::chrono::duration<long, std::ratio<1, 1000000000>> t);
+
+        /**
+        * Method returns flags, that defines activated software functionalities
+        * @return functionality flag class instance
+        */
+        const FunctionalityFlags& getFunctionalityFlags() const {return fFlags_;};
     };
 }

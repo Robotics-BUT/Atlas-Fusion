@@ -61,7 +61,6 @@ namespace AutoDrive::Algorithms {
                                                            static_cast<int>(points2D.at(1).x),
                                                            static_cast<int>(points2D.at(1).y),
                                                            frustum->getDetectionConfidence(),
-                                                           frustum->getClassConfidence(),
                                                            frustum->getClass()});
         }
         return output;

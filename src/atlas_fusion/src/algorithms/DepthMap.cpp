@@ -67,12 +67,13 @@ namespace AutoDrive::Algorithms {
                     DataModels::BoundingBox2D bbx{static_cast<float>(bb.x1_), static_cast<float>(bb.y1_),
                                                   static_cast<float>(bb.x2_), static_cast<float>(bb.y2_)};
                     DataModels::YoloDetection3D detection3D{bbx, distance, detection->getDetectionConfidence(),
-                                                            detection->getClassConfidence(),
                                                             detection->getDetectionClass()};
                     detection3D.addParent(data);
                     output->push_back(detection3D);
                 }
             }
+        }else {
+            context_.logger_.warning("No valid points for estimating YOLO detection depth.");
         }
 
         return output;

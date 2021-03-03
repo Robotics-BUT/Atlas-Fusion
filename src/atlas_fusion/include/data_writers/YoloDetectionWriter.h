@@ -55,9 +55,13 @@ namespace AutoDrive::DataWriters {
         , destinationDir_{std::move(destinationDir)}
         , destinationFile_{std::move(destinationFile)} {
 
-            auto directory = destinationDir_ + DataLoader::Folders::kTrainIR;
-            if( !std::filesystem::exists(directory) ) {
-                std::filesystem::create_directory(directory);
+            if( !std::filesystem::exists(destinationDir_) ) {
+                std::filesystem::create_directory(destinationDir_);
+            }
+
+            destinationDir_ = destinationDir_ + DataLoader::Folders::kYoloFolder;
+            if( !std::filesystem::exists(destinationDir_) ) {
+                std::filesystem::create_directory(destinationDir_);
             }
         }
 

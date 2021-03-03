@@ -57,12 +57,12 @@ namespace AutoDrive::DataWriters {
     }
 
 
-    void Lidar2ImagePlotter::saveImage(std::shared_ptr<cv::Mat> img, size_t frameNo, std::string fileExtention) {
+    void Lidar2ImagePlotter::saveImage(std::shared_ptr<cv::Mat> img, size_t frameNo, const std::string& sufix, const std::string& fileExtention) {
 
         std::stringstream pathStream;
 
         pathStream << std::setw(6) << std::setfill('0');
-        pathStream << destFolder_ + DataLoader::Folders::kLidarDepth << "frame" << frameNo << "." << fileExtention;
+        pathStream << destFolder_ << "frame" << frameNo << sufix << "." << fileExtention;
 
         cv::imwrite(pathStream.str(), *img);
     }
