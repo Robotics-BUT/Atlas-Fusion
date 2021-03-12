@@ -31,7 +31,7 @@
 
 #include "local_map/Frames.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     /**
      * Visualization backend (ROS) implementations for visualizing transformation tree

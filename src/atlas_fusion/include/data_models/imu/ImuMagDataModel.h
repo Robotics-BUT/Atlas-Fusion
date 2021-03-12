@@ -26,7 +26,7 @@
 
 #include <rtl/Core.h>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * 3D magnetic field indensity data model measured by IMU

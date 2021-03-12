@@ -24,7 +24,7 @@
 
 #include "Context.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * WORK IN PROGRESS

@@ -24,7 +24,7 @@
 
 #include "data_models/GenericDataModel.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * GNSS time frame data received by the GNSS Receiver

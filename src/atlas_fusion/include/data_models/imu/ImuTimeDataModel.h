@@ -24,7 +24,7 @@
 
 #include "data_models/GenericDataModel.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Time Data Model that represents inner IMU time

@@ -25,7 +25,7 @@
 #include "AbstrackFailChecker.h"
 #include "data_models/camera/CameraFrameDataModel.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
     /**
      * Validates RGB camera frame data. Currently bypassed.

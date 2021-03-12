@@ -24,7 +24,7 @@
 #include "data_models/yolo/YoloDetection.h"
 #include <memory>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Simple 2D bounding box representation
@@ -60,11 +60,10 @@ namespace AutoDrive::DataModels {
          * @param classConfidence confidence of the detected dlass
          * @param cls detection class
          */
-        explicit YoloDetection3D(BoundingBox2D bb, float distance, float detConfidence, float classConfidence, YoloDetectionClass cls)
+        explicit YoloDetection3D(BoundingBox2D bb, float distance, float detConfidence, YoloDetectionClass cls)
         : bb_{bb}
         , distance_{distance}
         , detConfidence_{detConfidence}
-        , classConfidence_{classConfidence}
         , cls_{cls} {
 
         }
@@ -86,12 +85,6 @@ namespace AutoDrive::DataModels {
          * @return confidence of the detection
          */
         float getDetectionConfidence() const {return detConfidence_;};
-
-        /**
-         * NN's confidence about the detected class getter
-         * @return confience of the estimated class of the detection
-         */
-        float getClassConfidence() const {return classConfidence_;};
 
         /**
          * Detection class getter
@@ -116,7 +109,6 @@ namespace AutoDrive::DataModels {
         BoundingBox2D bb_;
         float distance_;
         float detConfidence_;
-        float classConfidence_;
         YoloDetectionClass cls_;
         std::vector<std::shared_ptr<DataModels::GenericDataModel>> parents_;
 

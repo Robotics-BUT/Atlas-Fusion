@@ -3,16 +3,13 @@ logger:
   log_ext: "log"
   log_lvl: 1
 
-#data_folder: "/home/autodrive/Data/final/1_1_1_1/"
-data_folder: "/home/autodrive/Data/final/2_1_5_3/"
-#data_folder: "/home/autodrive/Data/final/2_1_3_1/"
-#data_folder: "/home/autodrive/Data/final/1_7/"
-#calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/atlas_fusion/calibrations/"
-calibratios_folder: "/home/autodrive/Developer/autodrive-localmap/src/atlas_fusion/calibrations/"
+data_folder: "/home/default_user/Data/bud_s3/3_1_3_4/"
+#data_folder: "/home/default_user/Data/rec_2_part_1/"
+calibratios_folder: "/home/default_user/Developer/Atlas-Fusion/src/atlas_fusion/calibrations/"
 
 map_builder:
   keep_history_sec_length: 10
-  max_replayer_rate: 1
+  max_replayer_rate: 0.5
 
 laser_aggregator:
   lasers: 32
@@ -22,11 +19,11 @@ lidar_aggregator:
   leaf_size: 0.2
   global_leaf_size: 1.0
   no_of_batches_per_scan: 100
-  aggretation_time: 0.5
+  aggretation_time: 1.0
 
 self_model:
   kalman_process_noise: 1.0
-  kalman_observation_noise: 0.1
+  kalman_observation_noise: 1.0
 
 lidar_img_plotter:
   max_distance: 50
@@ -41,3 +38,19 @@ laser_segmenter:
   segmenter_lower_bound: 0.002
   segmenter_upper_bound: 0.2
   segmenter_scaling: 0.01
+
+functionalities:
+  generate_depth_map_for_ir: false
+  rgb_to_ir_detection_projection: false
+  short_term_lidar_aggregation: false
+  lidar_laser_approximations_and_segmentation: false
+  global_lidar_aggregation: false
+
+visualizations:
+  visualization_global_enable: true
+  rgb_camera_visualization: true
+  ir_camera_visualization: true
+  lidar_visualization: true
+  imu_visualization: true
+  gnss_visualization: true
+  radar_visualization: true

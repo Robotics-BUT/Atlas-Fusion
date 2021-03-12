@@ -24,7 +24,7 @@
 
 #include "local_map/Frames.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
 
     void GnssVisualizer::drawGnssPose(const std::shared_ptr<DataModels::GnssPoseDataModel> data) const {

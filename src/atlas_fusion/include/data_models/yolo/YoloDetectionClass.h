@@ -22,7 +22,7 @@
 
 #pragma once
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Full list of COCO dataset labels used for the video-yolo inference.

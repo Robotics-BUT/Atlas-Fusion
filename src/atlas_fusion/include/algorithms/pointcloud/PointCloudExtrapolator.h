@@ -28,7 +28,7 @@
 #include "data_models/local_map/PointCloudBatch.h"
 #include "data_models/local_map/LocalPosition.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Point Cloud Extrapolator takes point cloud scan on the input and based on the given poisition in which the the

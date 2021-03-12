@@ -27,7 +27,7 @@
 
 #include "data_models/GenericDataModel.h"
 
-namespace AutoDrive::DataModels{
+namespace AtlasFusion::DataModels{
 
     /**
      * Yolo Detection is a simple representation of a single object detection on the image data by the YOLO NN.
@@ -58,10 +58,9 @@ namespace AutoDrive::DataModels{
          * @param classConfidence NN's confidence that the class have been identified correctly
          * @param cls detection class
          */
-        explicit YoloDetection(int x1, int y1, int x2, int y2, float detConfidence, float classConfidence, YoloDetectionClass cls)
+        explicit YoloDetection(int x1, int y1, int x2, int y2, float detConfidence, YoloDetectionClass cls)
         : bbox_{x1, y1, x2, y2}
         , detConfidence_(detConfidence)
-        , classConfidence_(classConfidence)
         , detClass_(cls) {
 
         };
@@ -79,12 +78,6 @@ namespace AutoDrive::DataModels{
         float getDetectionConfidence() const { return detConfidence_; };
 
         /**
-         * Getter for detection class confidence
-         * @return score of the NN's detection class confidence
-         */
-        float getClassConfidence() const { return classConfidence_; };
-
-        /**
          * Getter for most probable class of the detection
          * @return detection's class
          */
@@ -94,7 +87,6 @@ namespace AutoDrive::DataModels{
 
         YoloDetectionBBox bbox_;
         float detConfidence_;
-        float classConfidence_;
         YoloDetectionClass detClass_;
     };
 }

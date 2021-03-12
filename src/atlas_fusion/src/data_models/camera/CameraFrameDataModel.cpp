@@ -23,7 +23,7 @@
 #include "data_models/camera/CameraFrameDataModel.h"
 #include <sstream>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     std::string CameraFrameDataModel::toString() {
         std::stringstream ss;

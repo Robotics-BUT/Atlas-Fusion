@@ -27,9 +27,9 @@
 
 const cv::Mat getIntrinsic() {
     return (cv::Mat_<double> (3,3) <<
-            1.3763974496214614e+03, 0.0000000000000000e+00, 9.5923661859185984e+02,
-            0.0000000000000000e+00, 1.3771721669205588e+03, 5.7674337567054886e+02,
-            0.0000000000000000e+00, 0.0000000000000000e+00, 1.0000000000000000e+00
+        1.3763974496214614e+03, 0.0000000000000000e+00, 9.5923661859185984e+02,
+        0.0000000000000000e+00, 1.3771721669205588e+03, 5.7674337567054886e+02,
+        0.0000000000000000e+00, 0.0000000000000000e+00, 1.0000000000000000e+00
     );
 }
 
@@ -39,9 +39,23 @@ const cv::Mat getDistortion() {
     );
 }
 
+const cv::Mat getIntrinsicIR() {
+    return (cv::Mat_<double> (3,3) <<
+        5.2640790081811531e+02, 0.0000000000000000e+00, 3.2873021894218374e+02,
+        0.0000000000000000e+00, 5.2616047137164196e+02, 2.6606656491425667e+02,
+        0.0000000000000000e+00, 0.0000000000000000e+00, 1.0000000000000000e+00
+    );
+}
+
+const cv::Mat getDistortionIR() {
+    return (cv::Mat_<double> (1,5) <<
+        -2.9218591630293017e-01, 1.0967035799564277e-01, -1.7002587844859012e-03, -3.0185250977213937e-03, -2.9409489363612488e-02
+    );
+}
+
 const cv::Mat getDistortionNull() {
     return (cv::Mat_<double> (1,5) <<
-       0,0,0,0,0
+        0,0,0,0,0
     );
 }
 
@@ -52,13 +66,13 @@ rtl::RigidTf3D<double> getTF(){
 TEST(projector_test, initialization) {
 
     auto tf = getTF();
-    AutoDrive::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
+    AtlasFusion::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
 }
 
 TEST(projector_test, simple_projection) {
 
     auto tf = getTF();
-    AutoDrive::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
+    AtlasFusion::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
 
     std::vector<cv::Point2f> points2D;
     std::vector<cv::Point3f> points3D{
@@ -78,7 +92,7 @@ TEST(projector_test, simple_projection) {
 TEST(projector_test, reverse_projection) {
 
     auto tf = getTF();
-    AutoDrive::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
+    AtlasFusion::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
 
     float distance = 10;
     std::vector<cv::Point3f> points3D{
@@ -113,7 +127,7 @@ TEST(projector_test, reverse_projection) {
 TEST(projector_test, visualization) {
 
     auto tf = getTF();
-    AutoDrive::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
+    AtlasFusion::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
 
     cv::Mat img(1080, 1920, CV_8UC3);
     std::vector<cv::Point2f> points2D{
@@ -167,7 +181,7 @@ TEST(projector_test, visualization) {
 TEST(projector_test, circular_pattern_projection) {
 
     auto tf = getTF();
-    AutoDrive::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
+    AtlasFusion::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
 
     std::vector<cv::Point2f> points2D;
     std::vector<cv::Point3f> points3D;
@@ -185,6 +199,39 @@ TEST(projector_test, circular_pattern_projection) {
         cv::circle(img, p, cnt++, {0, 255, 0}, 1);
     }
 
+}
+
+TEST(projector_test, ir_to_rgb_projection) {
+
+    auto tf = getTF();
+    AtlasFusion::Algorithms::Projector projector_ir(getIntrinsicIR(), getDistortionIR(), tf);
+    AtlasFusion::Algorithms::Projector projector_rgb(getIntrinsic(), getDistortion(), tf);
+
+    float distance = 30;
+    std::vector<cv::Point2f> points2D{
+            {0,0},
+            {639,0},
+            {0,511},
+            {639,511},
+    };
+
+    std::vector<cv::Point3f> pointDir;
+    projector_ir.reverseProjection(points2D, pointDir);
+    for (const auto& point : pointDir) {
+        std::cout << point.x << " " << point.y << " " << point.z << std::endl;
+    }
+
+    for (auto& point : pointDir) {
+        point.x *= distance/point.z;
+        point.y *= distance/point.z;
+        point.z *= distance/point.z;
+    }
+
+    points2D.clear();
+    projector_rgb.projectPoints(pointDir, points2D);
+    for (const auto& point : points2D) {
+        std::cout << point.x << " " << point.y << std::endl;
+    }
 }
 
 

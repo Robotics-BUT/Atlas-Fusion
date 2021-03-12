@@ -22,7 +22,7 @@
 
 #include "algorithms/DetectionsProcessor.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     void DetectionsProcessor::addProjector(std::shared_ptr<Projector> projector, std::string id) {
         projectors_[id] = std::move(projector);
@@ -60,7 +60,6 @@ namespace AutoDrive::Algorithms {
             output.push_back(std::make_shared<const DataModels::FrustumDetection>(
                     std::make_shared<rtl::Frustum3D<double>>(frustum.transformed(tf)),
                     detection.getDetectionConfidence(),
-                    detection.getClassConfidence(),
                     detection.getClass()));
         }
         return output;

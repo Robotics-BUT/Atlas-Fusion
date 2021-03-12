@@ -24,7 +24,7 @@
 
 #include <rtl/Core.h>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Lidar Detection represents obstacle detected in the point cloud by the 3D bounding box

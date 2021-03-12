@@ -24,7 +24,7 @@
 
 #include "data_models/GenericDataModel.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * XSens IMU contains also a GNSS receiver. IMU GNSS Data Model represents global WGS84 position

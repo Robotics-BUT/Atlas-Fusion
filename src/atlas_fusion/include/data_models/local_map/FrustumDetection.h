@@ -26,7 +26,7 @@
 
 #include "data_models/yolo/YoloDetection.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
 
     /**
@@ -44,10 +44,9 @@ namespace AutoDrive::DataModels {
          * @param classConfidence NN's confidence of the class of the detection
          * @param cls detection class
          */
-        explicit FrustumDetection(std::shared_ptr<const rtl::Frustum3D<double>> frustum, float detConfidence, float classConfidence, YoloDetectionClass cls)
+        explicit FrustumDetection(std::shared_ptr<const rtl::Frustum3D<double>> frustum, float detConfidence, YoloDetectionClass cls)
                 : frustum_{std::move(frustum)}
                 , detConfidence_{detConfidence}
-                , classConfidence_{classConfidence}
                 , cls_{cls} {
 
         }
@@ -63,12 +62,6 @@ namespace AutoDrive::DataModels {
          * @return confidence of the detection
          */
         float getDetectionConfidence() const {return detConfidence_;};
-
-        /**
-         * NN's confidence of the detection class getter
-         * @return confidence of the detected class
-         */
-        float getClassConfidence() const {return classConfidence_;};
 
         /**
          * Detection class getter
@@ -92,7 +85,6 @@ namespace AutoDrive::DataModels {
 
         std::shared_ptr<const rtl::Frustum3D<double>> frustum_;
         float detConfidence_;
-        float classConfidence_;
         YoloDetectionClass cls_;
         std::vector<std::shared_ptr<DataModels::GenericDataModel>> parents_;
 

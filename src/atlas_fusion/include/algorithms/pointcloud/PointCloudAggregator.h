@@ -29,7 +29,7 @@
 #include "data_models/local_map/PointCloudBatch.h"
 #include "data_models/local_map/LocalPosition.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Point Cloud Aggregator is a class designed to accept point cloud batches on the input, and to keep this batch in

@@ -25,7 +25,7 @@
 #include "Context.h"
 #include "data_models/GenericDataModel.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
     /**
      * Abstract Fail Checker defines interface for other inherited Fail Checkers

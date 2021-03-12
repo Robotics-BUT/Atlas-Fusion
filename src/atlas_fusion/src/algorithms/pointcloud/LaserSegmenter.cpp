@@ -22,7 +22,7 @@
 
 #include "algorithms/pointcloud/LaserSegmenter.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
 
     void LaserSegmenter::onLaserData(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> laserData, size_t laserNo) {

@@ -31,7 +31,7 @@
 #include "data_models/camera/CameraIrFrameDataModel.h"
 #include "data_models/yolo/YoloDetection.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Yolo Detection Reporojector is responsible for a reprojecting yolo (neural network generaly speaking] detections
@@ -54,7 +54,7 @@ namespace AutoDrive::Algorithms {
          * Projects new NN's detections into the plane of a given camera
          * @param frustums 3D frustums detected by the neural network
          * @param currentCameraTf current camera position
-         * @return 2D detection projected into cmaera's plain
+         * @return 2D detection projected into camera's plain
          */
         std::shared_ptr<std::vector<DataModels::YoloDetection>> onNewDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> frustums, rtl::RigidTf3D<double> currentCameraTf);
 
@@ -63,31 +63,6 @@ namespace AutoDrive::Algorithms {
          * @param projector is able to projects 3D points into camera's plane
          */
         void setupCameraProjector(std::shared_ptr<Projector> projector) {cameraProjector_ = projector;}
-
-        /**
-         * Method counts the number of IR frames that have passed during the mapping session and hold the frame in the
-         * memory
-         * @param frame IR camera frame
-         */
-        void onNewIRFrame(std::shared_ptr<DataModels::CameraIrFrameDataModel> frame);
-
-        /**
-         * Getter for number of IR frames passed during the mapping session
-         * @return IR frame number
-         */
-        long int getCurrentIrFrameNo() const;
-
-        /**
-         * Getter for last IR frame holded by the class
-         * @return IR frame
-         */
-        std::shared_ptr<DataModels::CameraIrFrameDataModel> getLastIrFrame() const;
-
-        /**
-         * Getter for dimensions of the IR frame
-         * @return width and height of the IR frame
-         */
-        std::pair<int, int> getLastIrFrameWidthHeight() const;
 
     private:
 

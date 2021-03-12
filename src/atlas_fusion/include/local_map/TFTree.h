@@ -27,7 +27,7 @@
 #include <map>
 
 
-namespace AutoDrive::LocalMap {
+namespace AtlasFusion::LocalMap {
 
     /**
      * Transformation Tree holds and allows simple searching in the transformation graph between the sensor frames, and

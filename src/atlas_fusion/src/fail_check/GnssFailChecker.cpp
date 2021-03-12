@@ -22,7 +22,7 @@
 
 #include "fail_check/GnssFailChecker.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
 
     void GnssFailChecker::onNewData(std::shared_ptr<DataModels::GnssPoseDataModel> /*data*/) {

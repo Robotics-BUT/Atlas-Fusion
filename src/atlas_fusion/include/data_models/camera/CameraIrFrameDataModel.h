@@ -26,9 +26,10 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 
+#include "data_models/all.h"
 #include "data_loader/DataLoaderIdentifiers.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Camera IR Frame Data Model represents the thermal image captured by the IR camera. Contains timestamp, image
@@ -46,10 +47,11 @@ namespace AutoDrive::DataModels {
          * @param tempMax minimal temperature measured on image
          * @param cameraIdentifier unique camera identifier
          */
-        CameraIrFrameDataModel(uint64_t timestamp, cv::Mat img, double tempMin, double tempMax, DataLoader::CameraIndentifier cameraIdentifier)
+        CameraIrFrameDataModel(uint64_t timestamp, cv::Mat img, double tempMin, double tempMax, const DataLoader::CameraIndentifier& cameraIdentifier, const std::vector<std::shared_ptr<YoloDetection>>& yolo)
                 : GenericDataModel(timestamp)
                 , tempMin_(tempMin)
                 , tempMax_(tempMax)
+                , yoloDetections_(yolo)
                 , cameraIdentifier_{cameraIdentifier} {
             type_ = DataModelTypes::kCameraIrDataModelType;
             cv::cvtColor(img, image_, cv::COLOR_BGR2GRAY);
@@ -70,6 +72,18 @@ namespace AutoDrive::DataModels {
         std::pair<double, double> getTemp() {return std::pair<double, double>{tempMin_, tempMax_};};
 
         /**
+         * Vector of NN's detections
+         * @return NN's detections
+         */
+        std::vector<std::shared_ptr<YoloDetection>> getYoloDetections() {return yoloDetections_;};
+
+        /**
+         * NN's detections setter
+         * @param detections
+         */
+        void setYoloDetections(std::vector<std::shared_ptr<YoloDetection>>& detections) {yoloDetections_ = detections;};
+
+        /**
          * Camera sensor identifier
          * @return unique camera sensor identifier
          */
@@ -80,6 +94,7 @@ namespace AutoDrive::DataModels {
         cv::Mat image_;
         double tempMin_;
         double tempMax_;
+        std::vector<std::shared_ptr<YoloDetection>> yoloDetections_{} ;
         DataLoader::CameraIndentifier cameraIdentifier_;
     };
 }

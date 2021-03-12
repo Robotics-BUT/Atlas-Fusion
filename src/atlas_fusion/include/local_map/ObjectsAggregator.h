@@ -25,7 +25,7 @@
 #include "Context.h"
 #include "data_models/local_map/LidarDetection.h"
 
-namespace AutoDrive::LocalMap {
+namespace AtlasFusion::LocalMap {
 
     /**
      * Objects Aggregator handles the objects pairing and tracking. Currently still in development

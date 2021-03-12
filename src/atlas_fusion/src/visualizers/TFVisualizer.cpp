@@ -23,7 +23,7 @@
 #include "visualizers/TFVisualizer.h"
 #include <sstream>
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     void TFVisualizer::updateOriginToRootTf(rtl::RigidTf3D<double> tf) {
 

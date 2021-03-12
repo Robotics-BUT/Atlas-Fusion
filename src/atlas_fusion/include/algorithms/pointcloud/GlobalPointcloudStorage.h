@@ -29,7 +29,7 @@
 
 #include "algorithms/pointcloud/PointCloudProcessor.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      *  Class is designed as a container for asynchronous point cloud aggregation during the entire mapping session

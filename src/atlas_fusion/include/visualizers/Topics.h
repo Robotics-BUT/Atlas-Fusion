@@ -25,7 +25,7 @@
 #include <iostream>
 #include <string>
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     namespace Topics {
         const std::string kTestCubeTopic = "/autodrive/local_map/test_cube";
@@ -33,6 +33,7 @@ namespace AutoDrive::Visualizers {
 
         const std::string kLidarLeft = "/autodrive/local_map/lidar/left";
         const std::string kLidarRight = "/autodrive/local_map/lidar/right";
+        const std::string kLidarCenter = "/autodrive/local_map/lidar/center";
         const std::string kImuTopic = "/autodrive/local_map/imu/imu";
         const std::string kImuAvgTopic = "/autodrive/local_map/imu/imu_avg";
         const std::string kGnssTopic = "/autodrive/local_map/gnss/pose_text";
@@ -67,6 +68,8 @@ namespace AutoDrive::Visualizers {
         const std::string kLidarApproximationRoad = "/autodrive/local_map/lidar/approximations_road";
 
         const std::string kLidarDetections = "/autodrive/local_map/lidar_detections";
+
+        const std::string kRadarTiObjects = "/autodrive/local_map/radar_ti_data";
 
         const std::string kTelemetryText = "/autodrive/local_map/telemetry/text";
         const std::string kSpeedTopic = "/autodrive/local_map/speed";

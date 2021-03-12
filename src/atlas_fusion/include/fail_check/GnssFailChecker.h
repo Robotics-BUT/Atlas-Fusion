@@ -26,7 +26,7 @@
 #include "data_models/gnss/GnssPoseDataModel.h"
 #include "data_models/gnss/GnssTimeDataModel.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
     /**
      * Validates GNSS receiver data packets. Currently bypassed.

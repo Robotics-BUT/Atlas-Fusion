@@ -28,7 +28,7 @@
 
 #include "Context.h"
 
-namespace AutoDrive::LocalMap {
+namespace AtlasFusion::LocalMap {
 
     /**
      * Local Map is a container that aggregates information that defines created 3D map.

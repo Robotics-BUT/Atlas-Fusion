@@ -22,7 +22,7 @@
 
 #include "algorithms/pointcloud/LaserAggregator.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     void LaserAggregator::onNewLaserData(
             std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> scan,
@@ -46,7 +46,7 @@ namespace AutoDrive::Algorithms {
 
             double ratio = (float)i / (float)pointsPerLaser;
 
-            auto pose = AutoDrive::DataModels::LocalPosition {
+            auto pose = AtlasFusion::DataModels::LocalPosition {
                     {poseDiff.getPosition().x() * (ratio), poseDiff.getPosition().y() * (ratio), poseDiff.getPosition().z() * (ratio)},
                     {poseDiff.getOrientation().slerp(rtl::Quaternion<double>::identity(), (float)(1-ratio))},
                     uint64_t(duration * (ratio))

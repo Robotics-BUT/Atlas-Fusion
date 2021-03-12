@@ -42,7 +42,7 @@ pcl::PointCloud<pcl::PointXYZ> getTestData() {
     return output;
 }
 
-pcl::PointCloud<pcl::PointXYZ> distort(pcl::PointCloud<pcl::PointXYZ> pc, AutoDrive::DataModels::LocalPosition distortion) {
+pcl::PointCloud<pcl::PointXYZ> distort(pcl::PointCloud<pcl::PointXYZ> pc, AtlasFusion::DataModels::LocalPosition distortion) {
 
     pcl::PointCloud<pcl::PointXYZ> output;
     auto rot = distortion.getOrientation();
@@ -80,13 +80,13 @@ pcl::PointCloud<pcl::PointXYZ> distort(pcl::PointCloud<pcl::PointXYZ> pc, AutoDr
     return output;
 }
 
-AutoDrive::DataModels::LocalPosition getPoseDiff(AutoDrive::DataModels::LocalPosition poseStart,
-                                                 AutoDrive::DataModels::LocalPosition poseEnd) {
+AtlasFusion::DataModels::LocalPosition getPoseDiff(AtlasFusion::DataModels::LocalPosition poseStart,
+                                                   AtlasFusion::DataModels::LocalPosition poseEnd) {
 
-    return AutoDrive::DataModels::LocalPosition{{poseEnd.getPosition().x() - poseStart.getPosition().x(),
+    return AtlasFusion::DataModels::LocalPosition{{poseEnd.getPosition().x() - poseStart.getPosition().x(),
                                                  poseEnd.getPosition().y() - poseStart.getPosition().y(),
                                                  poseEnd.getPosition().z() - poseStart.getPosition().z()},
-                                                {poseEnd.getOrientation() * poseStart.getOrientation().inverted()},
+                                                  {poseEnd.getOrientation() * poseStart.getOrientation().inverted()},
                                                 poseEnd.getTimestamp() - poseStart.getTimestamp()};
 }
 
@@ -123,14 +123,14 @@ VisualizerExt visualizer;
 #endif
 
 TEST(pointcloud_extrapolation, init) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator{context, N};
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::Algorithms::PointCloudExtrapolator extrapolator{context, N};
 }
 
 
 TEST(pointcloud_extrapolation, forward_movement) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator{context, N};
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::Algorithms::PointCloudExtrapolator extrapolator{context, N};
 
 
     auto data = getTestData();
@@ -139,8 +139,8 @@ TEST(pointcloud_extrapolation, forward_movement) {
         std::cout << "Point " << i+1 << ": " << data.at(i).x << " " << data.at(i).y << " " << data.at(i).z << std::endl;
     }
 
-    AutoDrive::DataModels::LocalPosition startPose {{1,0,0}, {}, 0};
-    AutoDrive::DataModels::LocalPosition endPose {{2,0,0}, {}, 0};
+    AtlasFusion::DataModels::LocalPosition startPose {{1, 0, 0}, {}, 0};
+    AtlasFusion::DataModels::LocalPosition endPose {{2, 0, 0}, {}, 0};
     auto poseDiff = getPoseDiff(startPose, endPose);
 
 
@@ -148,10 +148,10 @@ TEST(pointcloud_extrapolation, forward_movement) {
               << startPose.getOrientation().x() << " " << startPose.getOrientation().y() << " " << startPose.getOrientation().z() << " " << startPose.getOrientation().w() << std::endl;
     std::cout << "Pose end: " << endPose.getPosition().x() << " " << endPose.getPosition().y() << " " << endPose.getPosition().z() << " | "
               << endPose.getOrientation().x() << " " << endPose.getOrientation().y() << " " << endPose.getOrientation().z() << " " << endPose.getOrientation().w() << std::endl;
-    auto startPlusDiff=AutoDrive::DataModels::LocalPosition{{startPose.getPosition().x() + poseDiff.getPosition().x(),
+    auto startPlusDiff=AtlasFusion::DataModels::LocalPosition{{startPose.getPosition().x() + poseDiff.getPosition().x(),
                                                              startPose.getPosition().y() + poseDiff.getPosition().y(),
                                                              startPose.getPosition().z() + poseDiff.getPosition().z()},
-                                                            {startPose.getOrientation() * poseDiff.getOrientation()},
+                                                              {startPose.getOrientation() * poseDiff.getOrientation()},
                                                             startPose.getTimestamp() + poseDiff.getTimestamp()};
     std::cout << "Pose Start * pose diff: " << startPlusDiff.getPosition().x() << " " << startPlusDiff.getPosition().y() << " " << startPlusDiff.getPosition().z() << " | "
               << startPlusDiff.getOrientation().x() << " " << startPlusDiff.getOrientation().y() << " " << startPlusDiff.getOrientation().z() << " " << startPlusDiff.getOrientation().w() << std::endl;
@@ -190,14 +190,14 @@ TEST(pointcloud_extrapolation, forward_movement) {
 
 
 TEST(pointcloud_extrapolation, rotation_left) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator{context, N};
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::Algorithms::PointCloudExtrapolator extrapolator{context, N};
 
     auto data = getTestData();
 
 
-    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, {1,0,0,0}, 0};
-    AutoDrive::DataModels::LocalPosition endPose {{0,0,0}, {0.707, 0, 0, 0.707}, 0};
+    AtlasFusion::DataModels::LocalPosition startPose {{0, 0, 0}, {1, 0, 0, 0}, 0};
+    AtlasFusion::DataModels::LocalPosition endPose {{0, 0, 0}, {0.707, 0, 0, 0.707}, 0};
     auto poseDiff = getPoseDiff(startPose, endPose);
     auto data_dist = distort(data, poseDiff);
 

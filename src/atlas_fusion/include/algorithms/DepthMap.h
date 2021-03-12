@@ -33,7 +33,7 @@
 #include "data_models/local_map/LocalPosition.h"
 
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      *  Depth Map class covers the point cloud data projection into the given camera's sensor plane, and allows to

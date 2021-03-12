@@ -22,7 +22,7 @@
 
 #include "algorithms/Projector.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
 
     void Projector::projectPoints(const std::vector<cv::Point3f>& src, std::vector<cv::Point2f>& dest, bool useDist) {

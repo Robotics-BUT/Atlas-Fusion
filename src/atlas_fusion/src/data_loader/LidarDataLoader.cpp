@@ -23,7 +23,7 @@
 #include "data_loader/LidarDataLoader.h"
 #include "data_loader/RecordingConstants.h"
 
-namespace AutoDrive {
+namespace AtlasFusion {
     namespace DataLoader {
 
 
@@ -37,23 +37,40 @@ namespace AutoDrive {
                 case LidarIdentifier::kRightLidar:
                     folder = Folders::kLidarRightFolder;
                     break;
+                case LidarIdentifier::kCenterLidar:
+                    folder = Folders::kLidarCenterFolder;
+                    break;
                 default:
+                    context_.logger_.error("Unexpected LiDAR data loader identifier.");
                     break;
             }
 
             auto csvContent = readCsv(path + folder + Files::kTimestampFile);
             for (const auto &substrings : csvContent) {
-                if (substrings.size() == 3) {
-                    std::stringstream ss;
-                    ss << path + folder + Files::kScanFile << std::setw(6) << std::setfill('0')
-                       << std::stoll(substrings[1]) << Files::kPcdExt;
-                    data_.push_back(std::make_shared<DataModels::LidarScanDataModel>(std::stoll(substrings[0]),
-                                                                          lidarIdentifier_,
-                                                                          ss.str(),
-                                                                          std::stoll(substrings[2])));
-                } else {
+                size_t timestamp = 0;
+                size_t scan_no = 0;
+                size_t lidar_timestamp = 0;
+
+                if (substrings.size() == 2) {
+                    timestamp = std::stoll(substrings[0]);
+                    scan_no = std::stoll(substrings[1]);
+                }
+                else if (substrings.size() == 3) {
+                    timestamp = std::stoll(substrings[0]);
+                    scan_no = std::stoll(substrings[1]);
+                    lidar_timestamp = std::stoll(substrings[2]);
+                }
+                else {
                     context_.logger_.error("Unexpected lenght of lidar scan data: ");
                 }
+
+                std::stringstream ss;
+                ss << path + folder + Files::kScanFile << std::setw(6) << std::setfill('0')
+                   << scan_no << Files::kPcdExt;
+                data_.push_back(std::make_shared<DataModels::LidarScanDataModel>(timestamp,
+                                                                                 lidarIdentifier_,
+                                                                                 ss.str(),
+                                                                                 lidar_timestamp));
             }
             dataIt_ = data_.begin();
             releaseIt_ = dataIt_;

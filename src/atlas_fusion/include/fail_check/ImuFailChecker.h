@@ -32,7 +32,7 @@
 #include "data_models/imu/ImuTempDataModel.h"
 #include "data_models/imu/ImuTimeDataModel.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
     /**
      * Validates IMU data packets. Currently bypassed.

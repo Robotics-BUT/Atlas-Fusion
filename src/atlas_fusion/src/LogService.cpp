@@ -22,7 +22,7 @@
 
 #include "LogService.h"
 
-namespace AutoDrive {
+namespace AtlasFusion {
 
 
     bool LogService::openFile() {

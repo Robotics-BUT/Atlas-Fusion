@@ -24,7 +24,7 @@
 
 
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     std::string CameraIrFrameDataModel::toString() {
         std::stringstream ss;

@@ -26,7 +26,7 @@
 
 TEST(local_pose_test, init) {
 
-    AutoDrive::DataModels::LocalPosition pose{rtl::Vector3D<double>{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
+    AtlasFusion::DataModels::LocalPosition pose{rtl::Vector3D<double>{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
 
     EXPECT_EQ(pose.getPosition().x(), 0);
     EXPECT_EQ(pose.getPosition().y(), 0);
@@ -42,8 +42,8 @@ TEST(local_pose_test, init) {
 
 TEST(local_pose_test, adding) {
 
-    AutoDrive::DataModels::LocalPosition pose{rtl::Vector3D<double>{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
-    AutoDrive::DataModels::LocalPosition poseDiff{{1,0,0}, {0.707, 0, 0, 0.707}, 1};
+    AtlasFusion::DataModels::LocalPosition pose{rtl::Vector3D<double>{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
+    AtlasFusion::DataModels::LocalPosition poseDiff{{1, 0, 0}, {0.707, 0, 0, 0.707}, 1};
     auto endPose = pose + poseDiff;
 
     EXPECT_EQ(endPose.getPosition().x(), 1);
@@ -73,8 +73,8 @@ TEST(local_pose_test, adding) {
 
 TEST(local_pose_test, substracting) {
 
-    AutoDrive::DataModels::LocalPosition pose{rtl::Vector3D<double>{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
-    AutoDrive::DataModels::LocalPosition endPose{{1,0,0}, {0.707, 0, 0, 0.707}, 1};
+    AtlasFusion::DataModels::LocalPosition pose{rtl::Vector3D<double>{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
+    AtlasFusion::DataModels::LocalPosition endPose{{1, 0, 0}, {0.707, 0, 0, 0.707}, 1};
     auto poseDiff = endPose - pose;
 
     EXPECT_EQ(poseDiff.getPosition().x(), 1);
@@ -92,8 +92,8 @@ TEST(local_pose_test, substracting) {
 
 TEST(local_pose_test, diff_cycle) {
 
-    AutoDrive::DataModels::LocalPosition pose{{1.1, 3.2, 6.7}, {0.458, -0.222, -0.430, 0.746}, 50};
-    AutoDrive::DataModels::LocalPosition endPose{{4.5,6.7,2.7}, {0.783, 0.330, -0.508, 0.141}, 150};
+    AtlasFusion::DataModels::LocalPosition pose{{1.1, 3.2, 6.7}, {0.458, -0.222, -0.430, 0.746}, 50};
+    AtlasFusion::DataModels::LocalPosition endPose{{4.5, 6.7, 2.7}, {0.783, 0.330, -0.508, 0.141}, 150};
     auto poseDiff = endPose - pose;
     auto newPose = pose + poseDiff;
 

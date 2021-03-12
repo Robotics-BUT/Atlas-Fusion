@@ -30,7 +30,7 @@
 
 #include "local_map/Frames.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
 
 

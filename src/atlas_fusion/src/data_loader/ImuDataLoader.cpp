@@ -25,7 +25,7 @@
 #include <iostream>
 #include <limits>
 
-namespace AutoDrive {
+namespace AtlasFusion {
     namespace DataLoader {
 
 

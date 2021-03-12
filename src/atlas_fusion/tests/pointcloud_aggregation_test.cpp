@@ -55,17 +55,17 @@ pcl::PointCloud<pcl::PointXYZ> getTestData() {
 }
 
 
-AutoDrive::DataModels::LocalPosition getPoseDiff(AutoDrive::DataModels::LocalPosition poseStart,
-                                                 AutoDrive::DataModels::LocalPosition poseEnd) {
+AtlasFusion::DataModels::LocalPosition getPoseDiff(AtlasFusion::DataModels::LocalPosition poseStart,
+                                                   AtlasFusion::DataModels::LocalPosition poseEnd) {
 
-    return AutoDrive::DataModels::LocalPosition{{poseEnd.getPosition().x() - poseStart.getPosition().x(),
+    return AtlasFusion::DataModels::LocalPosition{{poseEnd.getPosition().x() - poseStart.getPosition().x(),
                                                  poseEnd.getPosition().y() - poseStart.getPosition().y(),
                                                  poseEnd.getPosition().z() - poseStart.getPosition().z()},
-                                                {poseEnd.getOrientation() * poseStart.getOrientation().inverted()},
+                                                  {poseEnd.getOrientation() * poseStart.getOrientation().inverted()},
                                                 poseEnd.getTimestamp() - poseStart.getTimestamp()};
 }
 
-pcl::PointCloud<pcl::PointXYZ> distort(pcl::PointCloud<pcl::PointXYZ> pc, AutoDrive::DataModels::LocalPosition distortion, size_t cycle) {
+pcl::PointCloud<pcl::PointXYZ> distort(pcl::PointCloud<pcl::PointXYZ> pc, AtlasFusion::DataModels::LocalPosition distortion, size_t cycle) {
 
     pcl::PointCloud<pcl::PointXYZ> output;
     auto rot = distortion.getOrientation();
@@ -146,13 +146,13 @@ VisualizerAgg visualizer;
 
 
 TEST(pointcloud_aggregation, init) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 1.0};
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::Algorithms::PointCloudAggregator aggregator{context, 1.0};
 }
 
 TEST(pointcloud_aggregation, static_aggregation) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 1.0};
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::Algorithms::PointCloudAggregator aggregator{context, 1.0};
 
     auto data = getTestData();
 
@@ -161,8 +161,8 @@ TEST(pointcloud_aggregation, static_aggregation) {
         pcl::PointCloud<pcl::PointXYZ> points;
         points.push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
-        std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-        auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (0, points, "origin", rtl::RigidTf3D<double>::identity());
+        std::vector<std::shared_ptr<AtlasFusion::DataModels::PointCloudBatch>> batches;
+        auto batch = std::make_shared<AtlasFusion::DataModels::PointCloudBatch> (0, points, "origin", rtl::RigidTf3D<double>::identity());
         batches.push_back(batch);
 
         aggregator.addPointCloudBatches(batches);
@@ -179,8 +179,8 @@ TEST(pointcloud_aggregation, static_aggregation) {
 
 
 TEST(pointcloud_aggregation, multiple_static_aggregation) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 1.0};
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::Algorithms::PointCloudAggregator aggregator{context, 1.0};
 
     for(size_t j = 0 ; j < M ; j++) {
         auto data = getTestData();
@@ -190,8 +190,8 @@ TEST(pointcloud_aggregation, multiple_static_aggregation) {
             pcl::PointCloud<pcl::PointXYZ> points;
             points.push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
-            std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (j*1e9, points, "origin", rtl::RigidTf3D<double>::identity());
+            std::vector<std::shared_ptr<AtlasFusion::DataModels::PointCloudBatch>> batches;
+            auto batch = std::make_shared<AtlasFusion::DataModels::PointCloudBatch> (j * 1e9, points, "origin", rtl::RigidTf3D<double>::identity());
             batches.push_back(batch);
 
             aggregator.addPointCloudBatches(batches);
@@ -215,8 +215,8 @@ TEST(pointcloud_aggregation, multiple_static_aggregation) {
 
 
 TEST(pointcloud_aggregation, points_filtration) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::Algorithms::PointCloudAggregator aggregator{context, 0.99};
 
     for(size_t j = 0 ; j < M ; j++) {
         auto data = getTestData();
@@ -226,8 +226,8 @@ TEST(pointcloud_aggregation, points_filtration) {
             pcl::PointCloud<pcl::PointXYZ> points;
             points.push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
-            std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (j*1e9, points, "origin", rtl::RigidTf3D<double>::identity());
+            std::vector<std::shared_ptr<AtlasFusion::DataModels::PointCloudBatch>> batches;
+            auto batch = std::make_shared<AtlasFusion::DataModels::PointCloudBatch> (j * 1e9, points, "origin", rtl::RigidTf3D<double>::identity());
             batches.push_back(batch);
 
             auto ts = static_cast<uint64_t>(j*1e9);
@@ -248,12 +248,12 @@ TEST(pointcloud_aggregation, points_filtration) {
 
 
 TEST(pointcloud_aggregation, forward_movement) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, N);
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::Algorithms::PointCloudAggregator aggregator{context, 0.99};
+    AtlasFusion::Algorithms::PointCloudExtrapolator extrapolator(context, N);
 
-    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, {}, 0};
-    AutoDrive::DataModels::LocalPosition oneStepPose {{1,0,0}, {}, uint64_t(0.1e9)};
+    AtlasFusion::DataModels::LocalPosition startPose {{0, 0, 0}, {}, 0};
+    AtlasFusion::DataModels::LocalPosition oneStepPose {{1, 0, 0}, {}, uint64_t(0.1e9)};
     auto poseDiff = getPoseDiff(startPose, oneStepPose);
 
     pcl::PointCloud<pcl::PointXYZ> data;
@@ -266,7 +266,7 @@ TEST(pointcloud_aggregation, forward_movement) {
 
         auto currentPose = startPose;
         for(size_t j = 0 ; j < i ; j++) {
-            currentPose = AutoDrive::DataModels::LocalPosition{
+            currentPose = AtlasFusion::DataModels::LocalPosition{
                     currentPose.getPosition() + poseDiff.getPosition(),
                     currentPose.getOrientation() * poseDiff.getOrientation(),
                     currentPose.getTimestamp() + poseDiff.getTimestamp()
@@ -296,12 +296,12 @@ TEST(pointcloud_aggregation, forward_movement) {
 
 
 TEST(pointcloud_aggregation, rotation_movement) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, N);
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::Algorithms::PointCloudAggregator aggregator{context, 0.99};
+    AtlasFusion::Algorithms::PointCloudExtrapolator extrapolator(context, N);
 
-    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, {}, 0};
-    AutoDrive::DataModels::LocalPosition oneStepPose {{0,0,0}, {0.707, 0, 0, 0.707}, uint64_t(0.1e9)};
+    AtlasFusion::DataModels::LocalPosition startPose {{0, 0, 0}, {}, 0};
+    AtlasFusion::DataModels::LocalPosition oneStepPose {{0, 0, 0}, {0.707, 0, 0, 0.707}, uint64_t(0.1e9)};
     auto poseDiff = getPoseDiff(startPose, oneStepPose);
 
     pcl::PointCloud<pcl::PointXYZ> data;
@@ -314,7 +314,7 @@ TEST(pointcloud_aggregation, rotation_movement) {
 
         auto currentPose = startPose;
         for(size_t j = 0 ; j < i ; j++) {
-            currentPose = AutoDrive::DataModels::LocalPosition{
+            currentPose = AtlasFusion::DataModels::LocalPosition{
                     currentPose.getPosition() + poseDiff.getPosition(),
                     currentPose.getOrientation() * poseDiff.getOrientation(),
                     currentPose.getTimestamp() + poseDiff.getTimestamp()
@@ -352,12 +352,12 @@ TEST(pointcloud_aggregation, rotation_movement) {
 
 
 TEST(pointcloud_aggregation, translation_and_rotation) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, N);
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::Algorithms::PointCloudAggregator aggregator{context, 0.99};
+    AtlasFusion::Algorithms::PointCloudExtrapolator extrapolator(context, N);
 
-    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, {}, 0};
-    AutoDrive::DataModels::LocalPosition oneStepPose {{1,1,0}, {0.707, 0, 0, 0.707}, uint64_t(0.1e9)};
+    AtlasFusion::DataModels::LocalPosition startPose {{0, 0, 0}, {}, 0};
+    AtlasFusion::DataModels::LocalPosition oneStepPose {{1, 1, 0}, {0.707, 0, 0, 0.707}, uint64_t(0.1e9)};
     auto poseDiff = getPoseDiff(startPose, oneStepPose);
 
     pcl::PointCloud<pcl::PointXYZ> data;
@@ -370,7 +370,7 @@ TEST(pointcloud_aggregation, translation_and_rotation) {
 
         auto currentPose = startPose;
         for(size_t j = 0 ; j < i ; j++) {
-            currentPose = AutoDrive::DataModels::LocalPosition{
+            currentPose = AtlasFusion::DataModels::LocalPosition{
                     currentPose.getPosition() + poseDiff.getPosition(),
                     currentPose.getOrientation() * poseDiff.getOrientation(),
                     currentPose.getTimestamp() + poseDiff.getTimestamp()

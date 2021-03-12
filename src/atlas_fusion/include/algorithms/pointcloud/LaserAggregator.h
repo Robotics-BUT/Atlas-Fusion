@@ -26,7 +26,7 @@
 #include "data_models/local_map/LocalPosition.h"
 
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Class designed to accept the point cloud scan and to split it into N separated lases and to remember M points

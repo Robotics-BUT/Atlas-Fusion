@@ -31,7 +31,7 @@
 #include "data_loader/DataLoaderIdentifiers.h"
 #include "Context.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Detections Processors hendles the data transformation from the raw 2D neural network detection with the estimated

@@ -30,10 +30,11 @@
 #include "LidarDataLoader.h"
 #include "GnssDataLoader.h"
 #include "ImuDataLoader.h"
+#include "RadarTiDataLoader.h"
 #include "AbstractDataLoader.h"
 #include "Context.h"
 
-namespace AutoDrive {
+namespace AtlasFusion {
     namespace DataLoader {
 
         /**
@@ -59,6 +60,7 @@ namespace AutoDrive {
             , cameraIrDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraIr, context.calibFolder_+Files::kCameraIrCalibYaml))
             , leftLidarDataLoader_(std::make_shared<LidarDataLoader>(context, LidarIdentifier::kLeftLidar))
             , rightLidarDataLoader_(std::make_shared<LidarDataLoader>(context, LidarIdentifier::kRightLidar))
+            , centerLidarDataLoader_(std::make_shared<LidarDataLoader>(context, LidarIdentifier::kCenterLidar))
             , gnssPoseDataLoader_(std::make_shared<GnssDataLoader>(context, GnssLoaderIdentifier::kPose))
             , gnssTimeDataLoader_(std::make_shared<GnssDataLoader>(context, GnssLoaderIdentifier::kTime))
             , imuDquatDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kDQuat))
@@ -68,6 +70,7 @@ namespace AutoDrive {
             , imuPressDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kPressure))
             , imuTempDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kTemp))
             , imuTimeDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kTime))
+            , radarTiDataLoader_(std::make_shared<RadarTiDataLoader>(context, RadarIdentifier::kRadarTi))
             , context_{context}
             , keepHistoryLength_(keepHistoryLength) {
 
@@ -79,6 +82,7 @@ namespace AutoDrive {
                         cameraIrDataLoader_,
                         leftLidarDataLoader_,
                         rightLidarDataLoader_,
+                        centerLidarDataLoader_,
                         gnssPoseDataLoader_,
                         gnssTimeDataLoader_,
                         imuDquatDataLoader_,
@@ -88,6 +92,7 @@ namespace AutoDrive {
                         imuPressDataLoader_,
                         imuTempDataLoader_,
                         imuTimeDataLoader_,
+                        radarTiDataLoader_,
                 };
 
                 cameraDataLoaders_ = {
@@ -133,6 +138,7 @@ namespace AutoDrive {
 
             std::shared_ptr<LidarDataLoader> leftLidarDataLoader_;
             std::shared_ptr<LidarDataLoader> rightLidarDataLoader_;
+            std::shared_ptr<LidarDataLoader> centerLidarDataLoader_;
 
             std::shared_ptr<GnssDataLoader> gnssPoseDataLoader_;
             std::shared_ptr<GnssDataLoader> gnssTimeDataLoader_;
@@ -144,6 +150,8 @@ namespace AutoDrive {
             std::shared_ptr<ImuDataLoader> imuPressDataLoader_;
             std::shared_ptr<ImuDataLoader> imuTempDataLoader_;
             std::shared_ptr<ImuDataLoader> imuTimeDataLoader_;
+
+            std::shared_ptr<RadarTiDataLoader> radarTiDataLoader_;
 
             std::vector<std::shared_ptr<AbstractDataLoader>> dataLoaders_;
             std::vector<std::shared_ptr<CameraDataLoader>> cameraDataLoaders_;

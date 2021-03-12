@@ -23,7 +23,7 @@
 #pragma once
 
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     enum class DataModelTypes {
         kCameraDataModelType,
@@ -39,6 +39,7 @@ namespace AutoDrive::DataModels {
         kImuTempDataModelType,
         kImuTimeDataModelType,
         kLidarScanDataModelType,
+        kRadarTiScanDataModelType,
         kYoloDetectionDataModelType,
         kGenericDataModelType,
         kErrorDataModelType,

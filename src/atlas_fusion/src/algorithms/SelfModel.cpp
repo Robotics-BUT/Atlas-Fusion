@@ -27,7 +27,7 @@
 #include "algorithms/tools.h"
 #include "local_map/Frames.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /// Hooks
     void SelfModel::onGnssPose(std::shared_ptr<DataModels::GnssPoseDataModel> data) {

@@ -37,9 +37,11 @@
 #include "data_models/imu/ImuTimeDataModel.h"
 
 #include "data_models/lidar/LidarScanDataModel.h"
+#include "data_models/radar/RadarTiDataModel.h"
 
 #include "data_models/camera/CameraFrameDataModel.h"
 #include "data_models/camera/CameraIrFrameDataModel.h"
+#include "data_models/camera/DepthMapDataModel.h"
 #include "data_models/camera/CameraCalibrationParamsDataModel.h"
 
 #include "ErrorDataModel.h"

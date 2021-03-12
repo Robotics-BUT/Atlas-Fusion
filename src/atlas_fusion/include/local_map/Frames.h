@@ -25,7 +25,7 @@
 #include <iostream>
 #include <string>
 
-namespace AutoDrive::LocalMap {
+namespace AtlasFusion::LocalMap {
 
     /**
      * Frames defines the names of the sensor's local coordinates systems.
@@ -35,6 +35,9 @@ namespace AutoDrive::LocalMap {
 
         const std::string kLidarLeft = "lidar_left";
         const std::string kLidarRight = "lidar_right";
+        const std::string kLidarCenter = "lidar_center";
+
+        const std::string kRadarTi = "radar_ti";
 
         const std::string kImuFrame = "imu";
 

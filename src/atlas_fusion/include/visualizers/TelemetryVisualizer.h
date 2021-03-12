@@ -24,7 +24,7 @@
 
 #include "Context.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     /**
      * Visualization backend (ROS) implementations for visualizing telemetry text

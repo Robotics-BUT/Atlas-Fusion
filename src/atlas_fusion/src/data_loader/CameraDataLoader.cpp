@@ -28,7 +28,7 @@
 #include "data_loader/RecordingConstants.h"
 #include "ConfigService.h"
 
-namespace AutoDrive::DataLoader {
+namespace AtlasFusion::DataLoader {
 
         bool CameraDataLoader::loadData(std::string path) {
 
@@ -105,7 +105,8 @@ namespace AutoDrive::DataLoader {
             if(cameraIdentifier_ == DataLoader::CameraIndentifier::kCameraLeftFront ||
                cameraIdentifier_ == DataLoader::CameraIndentifier::kCameraLeftSide ||
                cameraIdentifier_ == DataLoader::CameraIndentifier::kCameraRightFront ||
-               cameraIdentifier_ == DataLoader::CameraIndentifier::kCameraRightSide) {
+               cameraIdentifier_ == DataLoader::CameraIndentifier::kCameraRightSide ||
+               cameraIdentifier_ == DataLoader::CameraIndentifier::kCameraIr) {
                     std::string yoloFile = folder.replace(folder.find('/'),std::string("/").length(),".txt");
                     loadYoloDetections(path + Folders::kYoloFolder + yoloFile);
             }
@@ -135,11 +136,10 @@ namespace AutoDrive::DataLoader {
                     case DataLoader::CameraIndentifier::kCameraRightFront:
                     case DataLoader::CameraIndentifier::kCameraRightSide:
                         cameraFrame = std::make_shared<DataModels::CameraFrameDataModel>((*dataIt_)->timestamp_, frame, (*dataIt_)->innerTimestamp_, cameraIdentifier_, (*dataIt_)->detections_);
-
                         break;
 
                     case DataLoader::CameraIndentifier::kCameraIr:
-                        cameraFrame = std::make_shared<DataModels::CameraIrFrameDataModel>((*dataIt_)->timestamp_, frame, (*dataIt_)->tempMin_, (*dataIt_)->tempMax_, cameraIdentifier_);
+                        cameraFrame = std::make_shared<DataModels::CameraIrFrameDataModel>((*dataIt_)->timestamp_, frame, (*dataIt_)->tempMin_, (*dataIt_)->tempMax_, cameraIdentifier_, (*dataIt_)->detections_);
                         break;
                     case DataLoader::CameraIndentifier ::kErr:
                         context_.logger_.warning("Error Camera Identifier in the CameraDataLoader::getNextData() method");
@@ -205,22 +205,22 @@ namespace AutoDrive::DataLoader {
 
             if(!csvContent.empty()) {
                 for (const auto& detection : csvContent) {
-                    if(detection.size() != 8) {
+                    if(detection.size() != 7) {
                         context_.logger_.warning("Unexpected lenght of yolo detection in csv");
                         continue;
                     }
 
                     size_t frame_id = std::stoul(detection[0]);
-                    auto x1 = std::stod(detection[1]) * imageWidthHeight_.first;
-                    auto y1 = std::stod(detection[2]) * imageWidthHeight_.second;
+                    auto cx = std::stod(detection[1]) * imageWidthHeight_.first;
+                    auto cy = std::stod(detection[2]) * imageWidthHeight_.second;
                     auto w = std::stod(detection[3]) * imageWidthHeight_.first;
                     auto h = std::stod(detection[4]) * imageWidthHeight_.second;
                     if(frame_id < data_.size()) {
                         data_.at(frame_id)->detections_.push_back(std::make_shared<DataModels::YoloDetection>(
-                                x1, y1,
-                                x1 + w, y1 + h,
-                                std::stof(detection[5]), std::stof(detection[6]),
-                                static_cast<DataModels::YoloDetectionClass>(std::stoi(detection[7]))));
+                                cx - w/2, cy - h/2,
+                                cx + w/2, cy + h/2,
+                                std::stof(detection[5]),
+                                static_cast<DataModels::YoloDetectionClass>(std::stoi(detection[6]))));
                     }
                 }
             }

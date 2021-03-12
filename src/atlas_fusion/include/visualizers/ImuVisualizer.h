@@ -29,7 +29,7 @@
 #include "Context.h"
 #include "data_models/imu/ImuImuDataModel.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     /**
      * Visualization backend (ROS) implementations for visualizing IMU measurements

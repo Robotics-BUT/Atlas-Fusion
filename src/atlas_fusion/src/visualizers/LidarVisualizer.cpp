@@ -25,7 +25,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include "local_map/Frames.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     void LidarVisualizer::drawPointcloudOnTopic(const std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc, std::string topic, std::string frame) {
 

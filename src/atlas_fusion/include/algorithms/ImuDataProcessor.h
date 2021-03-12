@@ -26,7 +26,7 @@
 #include <rtl/Core.h>
 #include <rtl/Transformation.h>
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Imu Data Processor is responsible for a removing gravitation force from the meashured IMU data

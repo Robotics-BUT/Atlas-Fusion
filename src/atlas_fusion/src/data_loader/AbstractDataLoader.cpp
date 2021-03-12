@@ -25,7 +25,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace AutoDrive {
+namespace AtlasFusion {
     namespace DataLoader {
 
 

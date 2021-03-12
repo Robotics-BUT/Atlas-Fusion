@@ -148,7 +148,7 @@ ENTRYPOINT sudo service ssh start ; startup_script.sh ; /usr/bin/terminator
 
 # docker build -f ros_noetic_dockerfile -t ros_noetic_image .
 # export DOCKER_HOME=/home/default_user
-# docker run --cap-add sys_ptrace -it -e DISPLAY=$DISPLAY --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" -v $HOME/Data:$DOCKER_HOME/Data -v $HOME/Software:$DOCKER_HOME/Software -v /media:/media -v $HOME/Developer:$DOCKER_HOME/Developer -v /dev:/dev -i -t -d -P --name ros_noetic_container ros_noetic_image:latest
+# docker run --network=host --cap-add sys_ptrace -it -e DISPLAY=$DISPLAY --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" -v $HOME/Data:$DOCKER_HOME/Data -v $HOME/Software:$DOCKER_HOME/Software -v /media:/media -v $HOME/Developer:$DOCKER_HOME/Developer -v /dev:/dev -i -t -d -P --name ros_noetic_container ros_noetic_image:latest
 
 ### Notes:
 #

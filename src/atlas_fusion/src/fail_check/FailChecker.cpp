@@ -23,7 +23,7 @@
 #include "fail_check/FailChecker.h"
 #include "local_map/Frames.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
 
     void FailChecker::onNewData(std::shared_ptr<DataModels::GenericDataModel> data, SensorFailCheckID sensorID){
@@ -50,6 +50,11 @@ namespace AutoDrive::FailCheck {
             case DataModels::DataModelTypes::kLidarScanDataModelType:
                 sensor = failCheckers_[sensorID];
                 std::dynamic_pointer_cast<LidarFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data));
+                break;
+
+            case DataModels::DataModelTypes::kRadarTiScanDataModelType:
+                sensor = failCheckers_[sensorID];
+                std::dynamic_pointer_cast<RadarTiFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data));
                 break;
 
 
@@ -125,6 +130,10 @@ namespace AutoDrive::FailCheck {
             return SensorFailCheckID::kLidarLeft;
         } else if(frame == LocalMap::Frames::kLidarRight) {
             return SensorFailCheckID::kLidarRight;
+        } else if(frame == LocalMap::Frames::kLidarCenter) {
+            return SensorFailCheckID::kLidarCenter;
+        } else if(frame == LocalMap::Frames::kRadarTi) {
+            return SensorFailCheckID::kRadarTi;
         } else if(frame == LocalMap::Frames::kGnssAntennaRear) {
             return SensorFailCheckID::kGnss;
         } else if(frame == LocalMap::Frames::kImuFrame) {

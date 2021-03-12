@@ -30,7 +30,7 @@
 #include "rtl/seg/IA_Segmenter.h"
 #include "rtl/Vectorization.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     class LaserSegmenter {
 

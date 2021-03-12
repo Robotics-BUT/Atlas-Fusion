@@ -24,7 +24,7 @@
 
 #include <sstream>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     std::string ImuTempDataModel::toString() {
         std::stringstream ss;

@@ -22,7 +22,7 @@
 
 #include "fail_check/ImuFailChecker.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
 
     void ImuFailChecker::onNewData(std::shared_ptr<DataModels::ImuDquatDataModel> /*data*/) {

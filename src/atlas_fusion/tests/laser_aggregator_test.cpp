@@ -85,20 +85,20 @@ VisualizerAgg visualizerLaser;
 
 
 TEST(laser_aggregator, init) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    auto aggregator = AutoDrive::Algorithms::LaserAggregator(context, LASERS, N);
+    auto context = AtlasFusion::Context::getEmptyContext();
+    auto aggregator = AtlasFusion::Algorithms::LaserAggregator(context, LASERS, N);
 }
 
 
 
 TEST(laser_aggregator, forward_movement) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    auto aggregator = AutoDrive::Algorithms::LaserAggregator(context, LASERS, N);
+    auto context = AtlasFusion::Context::getEmptyContext();
+    auto aggregator = AtlasFusion::Algorithms::LaserAggregator(context, LASERS, N);
 
     auto data = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(getTestData());
 
-    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, rtl::Quaternion<double>::identity(), 0};
-    AutoDrive::DataModels::LocalPosition endPose {{1,0,0}, rtl::Quaternion<double>::identity(), uint64_t(0.1e9)};
+    AtlasFusion::DataModels::LocalPosition startPose {{0, 0, 0}, rtl::Quaternion<double>::identity(), 0};
+    AtlasFusion::DataModels::LocalPosition endPose {{1, 0, 0}, rtl::Quaternion<double>::identity(), uint64_t(0.1e9)};
     auto poseDiff = endPose - startPose;
 
     aggregator.onNewLaserData(data, startPose, poseDiff, rtl::RigidTf3D<double>::identity());
