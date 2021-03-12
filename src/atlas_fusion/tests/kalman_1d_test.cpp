@@ -26,7 +26,7 @@
 
 TEST(kalman_d1_test, init) {
 
-    AutoDrive::Algorithms::Kalman1D kalman(0.1, 0.5);
+    AtlasFusion::Algorithms::Kalman1D kalman(0.1, 0.5);
     EXPECT_EQ(kalman.getPosition(), 0);
     EXPECT_EQ(kalman.getVelocity(), 0);
 }
@@ -34,7 +34,7 @@ TEST(kalman_d1_test, init) {
 
 TEST(kalman_d1_test, iteration) {
 
-    AutoDrive::Algorithms::Kalman1D kalman{0.1, 0.5};
+    AtlasFusion::Algorithms::Kalman1D kalman{0.1, 0.5};
     double measured_pose = 0;
     double dt = 0.1;
     for (int i = 0 ; i < 20 ; i++) {
@@ -55,7 +55,7 @@ TEST(kalman_d1_test, iteration) {
 
 TEST(kalman_d1_test, fixed_pose) {
 
-    AutoDrive::Algorithms::Kalman1D kalman{0.1, 0.5};
+    AtlasFusion::Algorithms::Kalman1D kalman{0.1, 0.5};
     double measured_pose = 10;
     double dt = 0.1;
     for (int i = 0 ; i < 1000 ; i++) {
@@ -73,7 +73,7 @@ TEST(kalman_d1_test, fixed_pose) {
 
 TEST(kalman_d1_test, fixed_speed) {
 
-    AutoDrive::Algorithms::Kalman1D kalman{0.1, 0.5};
+    AtlasFusion::Algorithms::Kalman1D kalman{0.1, 0.5};
     double dt = 0.1;
     double speed = 1;
     double measured_pose = 0;

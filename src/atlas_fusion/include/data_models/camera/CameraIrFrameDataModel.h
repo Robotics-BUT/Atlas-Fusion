@@ -29,7 +29,7 @@
 #include "data_models/all.h"
 #include "data_loader/DataLoaderIdentifiers.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Camera IR Frame Data Model represents the thermal image captured by the IR camera. Contains timestamp, image

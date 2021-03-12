@@ -25,7 +25,7 @@
 #include <rtl/Core.h>
 #include <rtl/Transformation.h>
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Projector class holds the information about inner camera parameters and provides 3D to 2D and backward

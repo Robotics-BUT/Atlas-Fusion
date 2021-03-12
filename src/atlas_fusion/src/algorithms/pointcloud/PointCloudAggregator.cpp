@@ -22,7 +22,7 @@
 
 #include "algorithms/pointcloud/PointCloudAggregator.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     void PointCloudAggregator::addPointCloudBatches(std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches) {
         for (const auto& batch : batches) {

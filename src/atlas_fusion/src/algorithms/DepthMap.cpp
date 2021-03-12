@@ -28,7 +28,7 @@
 #include <data_models/local_map/LocalPosition.h>
 #include "local_map/Frames.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
 
     void DepthMap::updatePointcloudData(std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches) {

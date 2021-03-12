@@ -24,7 +24,7 @@
 
 #include <sstream>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     std::string RadarTiDataModel::toString() {
         std::stringstream ss;

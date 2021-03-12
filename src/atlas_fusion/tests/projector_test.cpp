@@ -66,13 +66,13 @@ rtl::RigidTf3D<double> getTF(){
 TEST(projector_test, initialization) {
 
     auto tf = getTF();
-    AutoDrive::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
+    AtlasFusion::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
 }
 
 TEST(projector_test, simple_projection) {
 
     auto tf = getTF();
-    AutoDrive::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
+    AtlasFusion::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
 
     std::vector<cv::Point2f> points2D;
     std::vector<cv::Point3f> points3D{
@@ -92,7 +92,7 @@ TEST(projector_test, simple_projection) {
 TEST(projector_test, reverse_projection) {
 
     auto tf = getTF();
-    AutoDrive::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
+    AtlasFusion::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
 
     float distance = 10;
     std::vector<cv::Point3f> points3D{
@@ -127,7 +127,7 @@ TEST(projector_test, reverse_projection) {
 TEST(projector_test, visualization) {
 
     auto tf = getTF();
-    AutoDrive::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
+    AtlasFusion::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
 
     cv::Mat img(1080, 1920, CV_8UC3);
     std::vector<cv::Point2f> points2D{
@@ -181,7 +181,7 @@ TEST(projector_test, visualization) {
 TEST(projector_test, circular_pattern_projection) {
 
     auto tf = getTF();
-    AutoDrive::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
+    AtlasFusion::Algorithms::Projector projector(getIntrinsic(), getDistortion(), tf);
 
     std::vector<cv::Point2f> points2D;
     std::vector<cv::Point3f> points3D;
@@ -204,8 +204,8 @@ TEST(projector_test, circular_pattern_projection) {
 TEST(projector_test, ir_to_rgb_projection) {
 
     auto tf = getTF();
-    AutoDrive::Algorithms::Projector projector_ir(getIntrinsicIR(), getDistortionIR(), tf);
-    AutoDrive::Algorithms::Projector projector_rgb(getIntrinsic(), getDistortion(), tf);
+    AtlasFusion::Algorithms::Projector projector_ir(getIntrinsicIR(), getDistortionIR(), tf);
+    AtlasFusion::Algorithms::Projector projector_rgb(getIntrinsic(), getDistortion(), tf);
 
     float distance = 30;
     std::vector<cv::Point2f> points2D{

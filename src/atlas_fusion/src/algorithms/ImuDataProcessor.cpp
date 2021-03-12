@@ -23,7 +23,7 @@
 #include "algorithms/ImuDataProcessor.h"
 
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
 
 

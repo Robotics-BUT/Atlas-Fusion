@@ -48,33 +48,33 @@ rtl::RigidTf3D<double> getTF(){
     return rtl::RigidTf3D<double>{rtl::Quaternion<double>::identity(), {0.0, 0.0, 0.0}};
 }
 
-std::shared_ptr<AutoDrive::Algorithms::Projector> getProjector() {
+std::shared_ptr<AtlasFusion::Algorithms::Projector> getProjector() {
     auto tf = getTF();
-    return std::make_shared<AutoDrive::Algorithms::Projector>(getIntrinsic(), getDistortion(), tf);
+    return std::make_shared<AtlasFusion::Algorithms::Projector>(getIntrinsic(), getDistortion(), tf);
 }
 
 
 TEST(depth_map_test, initialization) {
-    auto context = AutoDrive::Context::getEmptyContext();
-    auto depthMap = AutoDrive::Algorithms::DepthMap(context);
+    auto context = AtlasFusion::Context::getEmptyContext();
+    auto depthMap = AtlasFusion::Algorithms::DepthMap(context);
 }
 
 TEST(depth_map_test, add_projector) {
 
-    auto context = AutoDrive::Context::getEmptyContext();
-    auto depthMap = AutoDrive::Algorithms::DepthMap(context);
+    auto context = AtlasFusion::Context::getEmptyContext();
+    auto depthMap = AtlasFusion::Algorithms::DepthMap(context);
 
-    depthMap.addProjector(getProjector(), AutoDrive::DataLoader::CameraIndentifier::kCameraLeftFront);
+    depthMap.addProjector(getProjector(), AtlasFusion::DataLoader::CameraIndentifier::kCameraLeftFront);
 }
 
 
 TEST(depth_map_test, on_lidar_data) {
 
-//    auto context = AutoDrive::Context::getValidContext();
-//    auto depthMap = AutoDrive::Algorithms::DepthMap(context);
-//    depthMap.addProjector(getProjector(), AutoDrive::DataLoader::CameraIndentifier::kCameraLeftFront);
+//    auto context = AtlasFusion::Context::getValidContext();
+//    auto depthMap = AtlasFusion::Algorithms::DepthMap(context);
+//    depthMap.addProjector(getProjector(), AtlasFusion::DataLoader::CameraIndentifier::kCameraLeftFront);
 //
-//    auto scan = std::make_shared<AutoDrive::DataModels::LidarScanDataModel>(0, AutoDrive::DataLoader::LidarIdentifier::kRightLidar, "", 0);
+//    auto scan = std::make_shared<AtlasFusion::DataModels::LidarScanDataModel>(0, AtlasFusion::DataLoader::LidarIdentifier::kRightLidar, "", 0);
 //    scan->addPointToScan(pcl::PointXYZ{10,0,0});
 //
 //    depthMap.onNewLidarData(scan);

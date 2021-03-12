@@ -24,7 +24,7 @@
 
 #include <iostream>
 
-namespace AutoDrive {
+namespace AtlasFusion {
 
 
     class FunctionalityFlags {

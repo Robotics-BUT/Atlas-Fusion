@@ -23,7 +23,7 @@
 #include "visualizers/ImuVisualizer.h"
 #include "local_map/Frames.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     void ImuVisualizer::drawImuData(const rtl::Vector3D<double> linAcc, std::string /*frame*/, std::string topic) {
 

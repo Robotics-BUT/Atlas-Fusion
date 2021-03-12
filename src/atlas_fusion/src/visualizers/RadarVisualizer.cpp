@@ -3,7 +3,7 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <visualization_msgs/Marker.h>
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     void RadarVisualizer::drawRadarDetectionsOnTopic(const std::vector<DataModels::RadarTiDataModel::Object>& objects, std::string topic, std::string frame) {
 

@@ -26,7 +26,7 @@
 #include <memory>
 #include "data_models/lidar/LidarScanDataModel.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Lidar Filter class encapsulates simple tools that allows to filter input point cloud data that comes directly

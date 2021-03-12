@@ -25,7 +25,7 @@
 #include <cmath>
 #include "data_models/GenericDataModel.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * GNSS Pose Data Model encapsulates global WGS84 position measured by GNSS receiver with differential antenna and

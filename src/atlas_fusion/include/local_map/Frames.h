@@ -25,7 +25,7 @@
 #include <iostream>
 #include <string>
 
-namespace AutoDrive::LocalMap {
+namespace AtlasFusion::LocalMap {
 
     /**
      * Frames defines the names of the sensor's local coordinates systems.

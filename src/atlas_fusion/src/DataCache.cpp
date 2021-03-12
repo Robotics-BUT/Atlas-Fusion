@@ -1,11 +1,16 @@
 #include "DataCache.h"
 #include "RustStyle.h"
 
-namespace AutoDrive{
+namespace AtlasFusion{
 
     void DataCache::setNewIRFrame(const std::shared_ptr<DataModels::CameraIrFrameDataModel> frame) {
         let id = frame->getCameraIdentifier();
-        irFrames_.insert({id, frame});
+
+        if (irFrames_.count(id) == 0) {
+            irFrames_.insert({id, frame});
+        }
+        irFrames_.at(id) = frame;
+
         if (irFramesCounter_.count(id) == 0) {
             irFramesCounter_[id] = 0;
         } else {
@@ -20,7 +25,7 @@ namespace AutoDrive{
         return nullptr;
     }
 
-    size_t DataCache::getIRFrameNo(DataLoader::CameraIndentifier id) {
+    int DataCache::getIRFrameNo(DataLoader::CameraIndentifier id) {
         if (irFramesCounter_.count(id) == 0) {
             return -1;
         }
@@ -30,7 +35,13 @@ namespace AutoDrive{
 
     void DataCache::setNewRGBFrame(std::shared_ptr<DataModels::CameraFrameDataModel> frame) {
         let id = frame->getCameraIdentifier();
-        rgbFrames_.insert({id, frame});
+
+        if (rgbFrames_.count(id) == 0) {
+            rgbFrames_.insert({id, frame});
+        }
+        rgbFrames_.at(id) = frame;
+
+
         if (rgbFramesCounter_.count(id) == 0) {
             rgbFramesCounter_[id] = 0;
         } else {
@@ -45,7 +56,7 @@ namespace AutoDrive{
         return nullptr;
     }
 
-    size_t DataCache::getRGBFrameNo(DataLoader::CameraIndentifier id) {
+    int DataCache::getRGBFrameNo(DataLoader::CameraIndentifier id) {
         if (rgbFramesCounter_.count(id) == 0) {
             return -1;
         }
@@ -53,9 +64,14 @@ namespace AutoDrive{
     }
 
     /* LiDARs */
-    void DataCache::setNewLidarScan(std::shared_ptr<DataModels::LidarScanDataModel> frame) {
-        let id = frame->getLidarIdentifier();
-        lidarScans_.insert({id, frame});
+    void DataCache::setNewLidarScan(std::shared_ptr<DataModels::LidarScanDataModel> scan) {
+        let id = scan->getLidarIdentifier();
+
+        if (lidarScans_.count(id) == 0) {
+            lidarScans_.insert({id, scan});
+        }
+        lidarScans_.at(id) = scan;
+
         if (lidarScansCounter_.count(id) == 0) {
             lidarScansCounter_[id] = 0;
         } else {
@@ -70,7 +86,7 @@ namespace AutoDrive{
         return nullptr;
     }
 
-    size_t DataCache::getLidarScanNo(DataLoader::LidarIdentifier id) {
+    int DataCache::getLidarScanNo(DataLoader::LidarIdentifier id) {
         if (lidarScansCounter_.count(id) == 0) {
             return -1;
         }
@@ -78,9 +94,14 @@ namespace AutoDrive{
     }
 
     /* Depth Map */
-    void DataCache::setNewDepthMap(std::shared_ptr<DataModels::CameraFrameDataModel> map) {
+    void DataCache::setNewDepthMap(std::shared_ptr<DataModels::DepthMapDataModel> map) {
         let id = map->getCameraIdentifier();
-        depthMaps_.insert({id, map});
+
+        if (depthMaps_.count(id) == 0) {
+            depthMaps_.insert({id, map});
+        }
+        depthMaps_.at(id) = map;
+
         if (depthMapsCounter_.count(id) == 0) {
             depthMapsCounter_[id] = 0;
         } else {
@@ -88,14 +109,14 @@ namespace AutoDrive{
         }
     }
 
-    std::shared_ptr<DataModels::CameraFrameDataModel> DataCache::getDepthMap(DataLoader::CameraIndentifier id) {
+    std::shared_ptr<DataModels::DepthMapDataModel> DataCache::getDepthMap(DataLoader::CameraIndentifier id) {
         if (depthMaps_.find(id) != depthMaps_.end()) {
             return depthMaps_.at(id);
         }
         return nullptr;
     }
 
-    size_t DataCache::getDepthMapScanNo(DataLoader::CameraIndentifier id) {
+    int DataCache::getDepthMapNo(DataLoader::CameraIndentifier id) {
         if (depthMapsCounter_.count(id) == 0) {
             return -1;
         }

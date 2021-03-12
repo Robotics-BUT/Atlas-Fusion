@@ -23,7 +23,7 @@
 #pragma once
 
 
-namespace AutoDrive::DataLoader {
+namespace AtlasFusion::DataLoader {
 
     /**
      * Lidar Data Loaders identifiers

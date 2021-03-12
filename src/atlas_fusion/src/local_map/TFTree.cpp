@@ -22,7 +22,7 @@
 
 #include "local_map/TFTree.h"
 
-namespace AutoDrive::LocalMap {
+namespace AtlasFusion::LocalMap {
 
 
     void TFTree::addFrame(rtl::RigidTf3D<double> tf, std::string name) {

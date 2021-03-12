@@ -22,7 +22,7 @@
 
 #include "fail_check/RadarTiFileChacker.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
 
     void RadarTiFailChecker::onNewData(std::shared_ptr<DataModels::RadarTiDataModel> /*data*/) {

@@ -25,7 +25,7 @@
 #include "data_models/GenericDataModel.h"
 #include <rtl/Core.h>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Single detection done by mm-wave TI Radar

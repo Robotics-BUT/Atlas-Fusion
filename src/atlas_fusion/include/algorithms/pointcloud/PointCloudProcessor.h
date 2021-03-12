@@ -28,7 +28,7 @@
 
 #include "Context.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Point Cloud Processor encapsulates simple operations on point clouds, like downsampling or applying the

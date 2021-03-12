@@ -22,7 +22,7 @@
 
 #pragma once
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     /**
      * Visualization color structure

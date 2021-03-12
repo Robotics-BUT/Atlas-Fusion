@@ -22,7 +22,7 @@
 
 #include "data_models/yolo/YoloDetectionClass.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     ReducedYoloDetectionClasses getReducedDetectionClass(YoloDetectionClass& cls) {
 

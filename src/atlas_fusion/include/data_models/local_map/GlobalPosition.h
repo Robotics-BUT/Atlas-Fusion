@@ -27,7 +27,7 @@
 
 #include "LocalPosition.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Global Position represents WGS84 global position

@@ -29,7 +29,7 @@
 #include "local_map/TFTree.h"
 #include "FunctionalityFlags.h"
 
-namespace AutoDrive {
+namespace AtlasFusion {
 
     /**
      *  Context is as container, that provides access to the global singleton instances that available for the

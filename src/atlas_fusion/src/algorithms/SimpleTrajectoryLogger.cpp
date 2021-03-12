@@ -23,7 +23,7 @@
 #include "algorithms/SimpleTrajectoryLogger.h"
 #include "local_map/Frames.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
 
 

@@ -28,7 +28,7 @@
 #include <memory>
 #include <vector>
 
-namespace AutoDrive {
+namespace AtlasFusion {
     namespace DataLoader {
 
         typedef uint64_t timestamp_type;

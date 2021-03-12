@@ -31,7 +31,7 @@
 #include "data_models/DataModelTypes.h"
 #include "data_loader/DataLoaderIdentifiers.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Camera Frame Data Model represents single RGB frame captured by the camera

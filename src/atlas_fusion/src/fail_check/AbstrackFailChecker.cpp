@@ -22,7 +22,7 @@
 
 #include "fail_check/AbstrackFailChecker.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
     float AbstrackFailChecker::getSensorStatus() {
         return sensorStatus_;

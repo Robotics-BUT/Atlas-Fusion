@@ -25,7 +25,7 @@
 #include "AbstrackFailChecker.h"
 #include "data_models/radar/RadarTiDataModel.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
     /**
      * Validates LiDAR point cloud scans. Currently bypassed.

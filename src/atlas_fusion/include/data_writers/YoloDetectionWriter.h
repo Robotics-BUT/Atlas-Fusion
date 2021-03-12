@@ -32,7 +32,7 @@
 #include "data_models/camera/CameraIrFrameDataModel.h"
 #include "data_loader/RecordingConstants.h"
 
-namespace AutoDrive::DataWriters {
+namespace AtlasFusion::DataWriters {
 
     /**
      * Yolo Detection Writer is used to store reprojected neural networks detections from one camera to another on the
@@ -55,6 +55,7 @@ namespace AutoDrive::DataWriters {
         , destinationDir_{std::move(destinationDir)}
         , destinationFile_{std::move(destinationFile)} {
 
+            destinationDir_ += DataLoader::Folders::kOutputFolder;
             if( !std::filesystem::exists(destinationDir_) ) {
                 std::filesystem::create_directory(destinationDir_);
             }

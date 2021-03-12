@@ -63,7 +63,7 @@ set(SOURCES_ALGORITHMS
         src/algorithms/pointcloud/GlobalPointcloudStorage.cpp
         src/algorithms/pointcloud/ObjectDetector.cpp
         src/algorithms/SelfModel.cpp
-        src/algorithms/image_processing/SimpleImageProcessor.cpp)
+        src/algorithms/image_processing/SimpleImageHandler.cpp)
 
 set(SOURCES_LOCAL_MAP
         src/local_map/TFTree.cpp
@@ -96,6 +96,7 @@ set(SOURCES_DATA_MODELS
         src/data_models/radar/RadarTiDataModel.cpp
         src/data_models/camera/CameraFrameDataModel.cpp
         src/data_models/camera/CameraIrFrameDataModel.cpp
+        src/data_models/camera/DepthMapDataModel.cpp
         src/data_models/yolo/YoloDetectionClass.cpp
         src/data_models/local_map/LocalPosition.cpp
         src/data_models/local_map/PointCloudBatch.cpp
@@ -113,7 +114,8 @@ set(SOURCES_DATA_LOADER
 
 set(SOURCES_DATA_WRITERS
         src/data_writers/YoloDetectionWriter.cpp
-        src/data_writers/Lidar2ImagePlotter.cpp)
+        src/data_writers/Lidar2ImagePlotter.cpp
+        src/data_writers/ImageWriter.cpp)
 
 set(SOURCES_FAIL_CHECK
         src/fail_check/AbstrackFailChecker.cpp
@@ -123,7 +125,7 @@ set(SOURCES_FAIL_CHECK
         src/fail_check/LidarFailChecker.cpp
         src/fail_check/ImuFailChecker.cpp
         src/fail_check/GnssFailChecker.cpp
-        src/fail_check/RadarTiFileChacker.cpp src/algorithms/image_processing/SimpleImageProcessor.cpp include/algorithms/image_processing/SimpleImageProcessor.h)
+        src/fail_check/RadarTiFileChacker.cpp src/algorithms/image_processing/SimpleImageHandler.cpp include/algorithms/image_processing/SimpleImageHandler.h)
 
 add_library(atlas_fusion_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK})
 

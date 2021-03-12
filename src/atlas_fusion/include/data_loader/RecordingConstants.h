@@ -25,7 +25,7 @@
 #include <iostream>
 #include <vector>
 
-namespace AutoDrive {
+namespace AtlasFusion {
     namespace DataLoader {
         namespace Folders {
 

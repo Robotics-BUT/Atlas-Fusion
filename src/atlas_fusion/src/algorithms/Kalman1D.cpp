@@ -22,7 +22,7 @@
 
 #include "algorithms/Kalman1D.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     void Kalman1D::predict(double dt, double u) {
         auto A = getTransitionMatrix(dt);

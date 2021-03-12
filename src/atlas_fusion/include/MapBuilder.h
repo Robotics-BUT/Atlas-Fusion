@@ -39,12 +39,14 @@
 #include "algorithms/pointcloud/GlobalPointcloudStorage.h"
 #include "algorithms/yolo_reprojection/YoloDetectionReprojector.h"
 #include "algorithms/pointcloud/ObjectDetector.h"
-#include "algorithms/image_processing/SimpleImageProcessor.h"
+#include "algorithms/image_processing/SimpleImageHandler.h"
 
 #include "data_loader/RecordingConstants.h"
 #include "data_loader/DataLoader.h"
+
 #include "data_writers/YoloDetectionWriter.h"
 #include "data_writers/Lidar2ImagePlotter.h"
+#include "data_writers/ImageWriter.h"
 
 #include "visualizers/VisualizationHandler.h"
 
@@ -58,7 +60,7 @@
 
 #include "fail_check/all.h"
 
-namespace AutoDrive {
+namespace AtlasFusion {
 
     /**
      *  Map Builder is a container that is used for data and pipeline handling. The class provides simple interface
@@ -133,11 +135,13 @@ namespace AutoDrive {
         , dataLoader_{context, keepHistoryLength}
         , keepHistoryLength_{keepHistoryLength}
         , maxReplayerRate_{maxReplayerRate}
-        , yoloIRDetectionWriter_{context, destinationFolder + DataLoader::Folders::kOutputFolder, DataLoader::Files::kIrCameraYoloFile}
+        , imageWriter_{context, destinationFolder}
+        , yoloIRDetectionWriter_{context, destinationFolder, DataLoader::Files::kIrCameraYoloFile}
         , lidarIrImgPlotter_{context, maxLidar2ImgDist, destinationFolder}
         , lidarRgbLFImgPlotter_{context, maxLidar2ImgDist, destinationFolder}
         , localMap_{context}
         , objectAggregator_{context}
+        , simpleImageProcessor_{context}
         {
 
             lidarFilter_.enableFilterNearObjects();
@@ -198,6 +202,7 @@ namespace AutoDrive {
         DataLoader::timestamp_type keepHistoryLength_;
         double maxReplayerRate_;
 
+        DataWriters::ImageWriter imageWriter_;
         DataWriters::YoloDetectionWriter yoloIRDetectionWriter_;
         DataWriters::Lidar2ImagePlotter lidarIrImgPlotter_;
         DataWriters::Lidar2ImagePlotter lidarRgbLFImgPlotter_;
@@ -205,7 +210,7 @@ namespace AutoDrive {
         LocalMap::LocalMap localMap_;
         LocalMap::ObjectsAggregator objectAggregator_;
 
-        Algorithms::SimpleImageProcessor simpleImageProcessor_;
+        Algorithms::SimpleImageHandler simpleImageProcessor_;
 
         void processRGBCameraData(std::shared_ptr<DataModels::CameraFrameDataModel>, std::string&);
         void processIRCameraData(std::shared_ptr<DataModels::CameraIrFrameDataModel>, std::string&);
@@ -216,8 +221,8 @@ namespace AutoDrive {
         void processLidarScanData(std::shared_ptr<DataModels::LidarScanDataModel>, std::string&);
         void processRadarTiData(std::shared_ptr<DataModels::RadarTiDataModel>, std::string&);
 
-        void generateDepthMapForIR();
-        void projectRGBDetectionsToIR();
+        void generateDepthMapForLastIR(std::shared_ptr<DataModels::CameraFrameDataModel> rgbImg);
+        void projectRGBDetectionsToIR(std::shared_ptr<DataModels::CameraFrameDataModel> imgData, std::vector<std::shared_ptr<const DataModels::FrustumDetection>> frustums);
         void aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel>&);
         void approximateLidar(const std::shared_ptr<DataModels::LidarScanDataModel>&);
 

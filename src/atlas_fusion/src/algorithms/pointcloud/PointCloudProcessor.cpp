@@ -24,7 +24,7 @@
 
 #include <pcl/common/transforms.h>
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
 
     std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudProcessor::downsamplePointCloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input) {

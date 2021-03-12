@@ -33,7 +33,7 @@
 #include "Topics.h"
 #include "data_models/local_map/LidarDetection.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     /**
      * Visualization backend (ROS) implementations for visualizing point cloud structures, like raw lidar scans or

@@ -25,7 +25,7 @@
 #include "data_models/GenericDataModel.h"
 #include <rtl/Core.h>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * IMU-IMU Data Model represents the Xsens data packet that provides linear accelerations, angular velocities and

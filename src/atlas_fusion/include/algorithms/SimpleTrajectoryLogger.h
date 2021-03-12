@@ -34,7 +34,7 @@
 #include "data_models/local_map/GlobalPosition.h"
 #include "data_models/local_map/LocalPosition.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Simple Trajectory Logger is dedicated to convert GNSS data into local position w.r.t. the local anchor and to

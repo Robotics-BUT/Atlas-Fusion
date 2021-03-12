@@ -25,7 +25,7 @@
 #include <rtl/Core.h>
 #include <rtl/Transformation.h>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Local Position represents metric position and orientation in the 3D space

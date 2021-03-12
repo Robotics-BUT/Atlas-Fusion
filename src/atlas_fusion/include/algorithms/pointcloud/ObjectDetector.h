@@ -28,7 +28,7 @@
 #include "Context.h"
 #include "data_models/local_map/LidarDetection.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * WORK IN PROGRESS

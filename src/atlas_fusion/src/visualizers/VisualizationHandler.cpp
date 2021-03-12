@@ -27,7 +27,7 @@
 #include "local_map/Frames.h"
 #include "visualizers/VisualizationStructures.h"
 
-namespace AutoDrive::Visualizers{
+namespace AtlasFusion::Visualizers{
 
 
     void VisualizationHandler::drawTestingCube() const{

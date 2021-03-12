@@ -25,7 +25,7 @@
 
 #include "data_loader/RecordingConstants.h"
 
-namespace AutoDrive::DataWriters {
+namespace AtlasFusion::DataWriters {
 
 
     std::shared_ptr<cv::Mat> Lidar2ImagePlotter::renderLidarPointsToImg(std::vector<cv::Point2f> points2D, std::vector<cv::Point3f> points3D, int imgWidth, int imgHeight, size_t pointSize) {
@@ -55,18 +55,6 @@ namespace AutoDrive::DataWriters {
 
         return image;
     }
-
-
-    void Lidar2ImagePlotter::saveImage(std::shared_ptr<cv::Mat> img, size_t frameNo, const std::string& sufix, const std::string& fileExtention) {
-
-        std::stringstream pathStream;
-
-        pathStream << std::setw(6) << std::setfill('0');
-        pathStream << destFolder_ << "frame" << frameNo << sufix << "." << fileExtention;
-
-        cv::imwrite(pathStream.str(), *img);
-    }
-
 
     uint8_t Lidar2ImagePlotter::distanceToColor(float dist) {
 

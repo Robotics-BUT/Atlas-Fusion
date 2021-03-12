@@ -25,7 +25,7 @@
 #include <opencv2/video/tracking.hpp>
 #include <iostream>
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Wrapper around the OpenCV Kalman filter implementations. Models position and velocity in 1D space

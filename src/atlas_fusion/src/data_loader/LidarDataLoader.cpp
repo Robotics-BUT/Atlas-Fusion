@@ -23,7 +23,7 @@
 #include "data_loader/LidarDataLoader.h"
 #include "data_loader/RecordingConstants.h"
 
-namespace AutoDrive {
+namespace AtlasFusion {
     namespace DataLoader {
 
 

@@ -23,7 +23,7 @@
 #include "fail_check/FailChecker.h"
 #include "local_map/Frames.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
 
     void FailChecker::onNewData(std::shared_ptr<DataModels::GenericDataModel> data, SensorFailCheckID sensorID){

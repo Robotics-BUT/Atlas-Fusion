@@ -25,7 +25,7 @@
 #include "AbstrackFailChecker.h"
 #include "data_models/camera/CameraIrFrameDataModel.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
     /**
      * Validates IR camera frame data. Currently bypassed.

@@ -33,7 +33,7 @@
 #include "data_loader/DataLoaderIdentifiers.h"
 
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Lidar Scan Data Model is a wrapper around the LiDAR scan loaded as a raw data from the record session.

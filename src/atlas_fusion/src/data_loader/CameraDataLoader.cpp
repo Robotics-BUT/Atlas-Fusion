@@ -28,7 +28,7 @@
 #include "data_loader/RecordingConstants.h"
 #include "ConfigService.h"
 
-namespace AutoDrive::DataLoader {
+namespace AtlasFusion::DataLoader {
 
         bool CameraDataLoader::loadData(std::string path) {
 

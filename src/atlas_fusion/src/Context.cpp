@@ -22,7 +22,7 @@
 
 #include "Context.h"
 
-namespace AutoDrive {
+namespace AtlasFusion {
 
     Context Context::getEmptyContext() {
         LogService logger("", LogService::LogLevel::Off, false, false);

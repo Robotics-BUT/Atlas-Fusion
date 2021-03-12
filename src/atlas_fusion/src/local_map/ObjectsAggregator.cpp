@@ -23,7 +23,7 @@
 #include "local_map/ObjectsAggregator.h"
 #include "munkres/munkres.h"
 
-namespace AutoDrive::LocalMap {
+namespace AtlasFusion::LocalMap {
 
     std::vector<std::shared_ptr<const DataModels::LidarDetection>> ObjectsAggregator::aggregateLidarDetections(
             std::vector<std::shared_ptr<const DataModels::LidarDetection>> previousDetections,

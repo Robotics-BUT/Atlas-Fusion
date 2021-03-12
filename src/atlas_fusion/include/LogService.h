@@ -26,7 +26,7 @@
 #include <string>
 #include <fstream>
 
-namespace AutoDrive {
+namespace AtlasFusion {
 
     /**
      *  Log Service, the class that is used as a global logger.

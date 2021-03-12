@@ -33,7 +33,7 @@
 #include "data_models/camera/CameraFrameDataModel.h"
 #include "data_models/camera/CameraIrFrameDataModel.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     /**
      * Visualization backend (ROS) implementations for visualizing camera data

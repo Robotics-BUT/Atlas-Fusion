@@ -24,7 +24,7 @@
 
 #include "local_map/Frames.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
 
     void TrajectoryVisualizer::drawRawTrajectory(std::deque<DataModels::LocalPosition> data) const {

@@ -25,7 +25,7 @@
 #include <iostream>
 #include <string>
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     namespace Topics {
         const std::string kTestCubeTopic = "/autodrive/local_map/test_cube";

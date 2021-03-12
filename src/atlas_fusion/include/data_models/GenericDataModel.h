@@ -27,7 +27,7 @@
 #include <memory>
 #include "DataModelTypes.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Generic Data Model works as a base class for all the data model classes.

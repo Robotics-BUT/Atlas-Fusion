@@ -29,7 +29,7 @@
 #include "data_loader/DataLoaderIdentifiers.h"
 #include "Context.h"
 
-namespace AutoDrive {
+namespace AtlasFusion {
     namespace DataLoader {
 
         /**

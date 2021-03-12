@@ -24,7 +24,7 @@
 #include "data_models/yolo/YoloDetection.h"
 #include <memory>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Simple 2D bounding box representation

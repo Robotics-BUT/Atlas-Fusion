@@ -32,7 +32,7 @@
 #include "data_models/DataModelTypes.h"
 #include "Context.h"
 
-namespace AutoDrive {
+namespace AtlasFusion {
     namespace DataLoader {
 
 

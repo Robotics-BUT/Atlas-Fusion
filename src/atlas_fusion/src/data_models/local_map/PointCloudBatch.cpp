@@ -22,7 +22,7 @@
 
 #include "data_models/local_map/PointCloudBatch.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
 
     std::shared_ptr<const pcl::PointCloud<pcl::PointXYZ>> PointCloudBatch::getPoints() const {

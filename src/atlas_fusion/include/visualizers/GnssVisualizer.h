@@ -29,7 +29,7 @@
 #include "Topics.h"
 #include "data_models/gnss/GnssPoseDataModel.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     /**
      * Visualization backend (ROS) implementations for visualizing GNSS receiver data

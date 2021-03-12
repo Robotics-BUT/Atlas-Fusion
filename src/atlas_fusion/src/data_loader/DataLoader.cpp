@@ -30,7 +30,7 @@
 #include <iomanip>
 #include <local_map/Frames.h>
 
-namespace AutoDrive {
+namespace AtlasFusion {
     namespace DataLoader {
 
         bool DataLoader::loadData(std::string path) {

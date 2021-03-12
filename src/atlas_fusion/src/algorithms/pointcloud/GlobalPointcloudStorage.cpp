@@ -22,7 +22,7 @@
 
 #include "algorithms/pointcloud/GlobalPointcloudStorage.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     void GlobalPointcloudStorage::addMorePointsToGlobalStorage(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
 

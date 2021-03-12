@@ -22,7 +22,7 @@
 
 #include "algorithms/LidarFilter.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
 
 }

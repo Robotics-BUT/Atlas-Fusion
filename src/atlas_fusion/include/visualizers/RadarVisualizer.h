@@ -5,7 +5,7 @@
 #include "Topics.h"
 #include "data_models/radar//RadarTiDataModel.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     class RadarVisualizer {
 

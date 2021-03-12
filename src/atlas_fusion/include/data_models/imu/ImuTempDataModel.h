@@ -24,7 +24,7 @@
 
 #include "data_models/GenericDataModel.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * IMU's internall temperature data model

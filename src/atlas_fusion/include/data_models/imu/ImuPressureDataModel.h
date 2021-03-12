@@ -25,7 +25,7 @@
 #include "data_models/GenericDataModel.h"
 
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Pressure Data Model represents atmospheric pressure measured in the given time

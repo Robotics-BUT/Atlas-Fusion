@@ -32,7 +32,7 @@
 #include "Context.h"
 #include "VisualizationStructures.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     /**
      * Visualization backend (ROS) implementations for visualizing trajectory history as a polyline

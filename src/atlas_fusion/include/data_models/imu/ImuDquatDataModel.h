@@ -26,7 +26,7 @@
 
 #include "data_models/GenericDataModel.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Imu Delta Quaterion represents the absolute orientation diff from last measurement

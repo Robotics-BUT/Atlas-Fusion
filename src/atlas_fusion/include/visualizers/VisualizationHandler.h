@@ -49,7 +49,7 @@
 
 #include "TrajectoryVisualizer.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     /**
      * The wrapper over the visualization backend. This class is the only way, how to Local Map could be visualized in

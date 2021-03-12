@@ -35,7 +35,7 @@
 
 #include "algorithms/ImuDataProcessor.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     /**
      * Self Model takes care about the sensor-equipped motion modeling. It combines the GNNS and IMU measurements

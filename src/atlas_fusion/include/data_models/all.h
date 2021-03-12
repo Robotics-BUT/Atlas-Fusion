@@ -41,6 +41,7 @@
 
 #include "data_models/camera/CameraFrameDataModel.h"
 #include "data_models/camera/CameraIrFrameDataModel.h"
+#include "data_models/camera/DepthMapDataModel.h"
 #include "data_models/camera/CameraCalibrationParamsDataModel.h"
 
 #include "ErrorDataModel.h"

@@ -31,7 +31,7 @@
 #include "ImuFailChecker.h"
 #include "RadarTiFileChacker.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
     /**
      * Fail Checker encapsulates the fail checking for all the sensors via the single API

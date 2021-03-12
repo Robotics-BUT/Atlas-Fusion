@@ -22,7 +22,7 @@
 
 #include "algorithms/DetectionsProcessor.h"
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
     void DetectionsProcessor::addProjector(std::shared_ptr<Projector> projector, std::string id) {
         projectors_[id] = std::move(projector);

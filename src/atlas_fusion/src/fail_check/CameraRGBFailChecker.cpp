@@ -22,7 +22,7 @@
 
 #include "fail_check/CameraRGBFailChecker.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
 
     void CameraRGBFailChecker::onNewData(std::shared_ptr<DataModels::CameraFrameDataModel> /*data*/) {

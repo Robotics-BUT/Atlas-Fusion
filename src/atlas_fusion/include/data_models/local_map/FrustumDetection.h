@@ -26,7 +26,7 @@
 
 #include "data_models/yolo/YoloDetection.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
 
     /**

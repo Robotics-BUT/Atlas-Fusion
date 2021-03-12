@@ -22,7 +22,7 @@
 
 #include "local_map/LocalMap.h"
 
-namespace AutoDrive::LocalMap {
+namespace AtlasFusion::LocalMap {
 
 
     void LocalMap::setFrustumDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> detections, std::string sensorFrame) {

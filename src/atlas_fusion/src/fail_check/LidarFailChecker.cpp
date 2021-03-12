@@ -22,7 +22,7 @@
 
 #include "fail_check/LidarFailChecker.h"
 
-namespace AutoDrive::FailCheck {
+namespace AtlasFusion::FailCheck {
 
 
     void LidarFailChecker::onNewData(std::shared_ptr<DataModels::LidarScanDataModel> /*data*/) {

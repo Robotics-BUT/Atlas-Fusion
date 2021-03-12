@@ -28,7 +28,7 @@
 #include "Context.h"
 #include "data_loader/RecordingConstants.h"
 
-namespace AutoDrive::DataWriters {
+namespace AtlasFusion::DataWriters {
 
     /**
      * Lidar to Image Plotter handler the simple 2D rendering of the given points into the image matrix and it is able
@@ -73,12 +73,7 @@ namespace AutoDrive::DataWriters {
          */
         std::shared_ptr<cv::Mat> renderLidarPointsToImg(std::vector<cv::Point2f>, std::vector<cv::Point3f>, int imgWidth, int imgHeightm, size_t pointSize=1);
 
-        /**
-         * Method stores image into the file system
-         * @param img image to be stored
-         * @param frameNo frame number that defines on-disk image name
-         */
-        void saveImage(std::shared_ptr<cv::Mat> img, size_t frameNo, const std::string& sufix, const std::string& fileExtention);
+
 
     private:
 

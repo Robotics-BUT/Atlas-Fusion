@@ -28,7 +28,7 @@
 
 #include <rtl/Transformation.h>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Point Cloud Batch represents small part of the LiDAR scan. Splitting scans into batches is used during the

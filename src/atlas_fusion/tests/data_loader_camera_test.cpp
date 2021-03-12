@@ -33,20 +33,20 @@
 
 TEST(data_loader_camera_test, load_camera_rgb)
 {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::DataLoader::CameraDataLoader dataLoader(context, AutoDrive::DataLoader::CameraIndentifier::kCameraLeftFront, "");
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::DataLoader::CameraDataLoader dataLoader(context, AtlasFusion::DataLoader::CameraIndentifier::kCameraLeftFront, "");
     dataLoader.loadData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),500);
 
-    auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
-    EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraDataModelType);
+    auto data = std::dynamic_pointer_cast<AtlasFusion::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
+    EXPECT_EQ(data->getType(), AtlasFusion::DataModels::DataModelTypes::kCameraDataModelType);
     EXPECT_EQ(data->getTimestamp(), 1568186745453388439);
     auto frame = data->getImage();
     EXPECT_EQ(frame.rows, 1200);
     EXPECT_EQ(frame.cols, 1920);
 
-    data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
-    EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraDataModelType);
+    data = std::dynamic_pointer_cast<AtlasFusion::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
+    EXPECT_EQ(data->getType(), AtlasFusion::DataModels::DataModelTypes::kCameraDataModelType);
     EXPECT_EQ(data->getTimestamp(), 1568186745553488239);
     frame = data->getImage();
     EXPECT_EQ(frame.rows, 1200);
@@ -56,13 +56,13 @@ TEST(data_loader_camera_test, load_camera_rgb)
 
 TEST(data_loader_camera_test, load_ir_camera_ir)
 {
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::DataLoader::CameraDataLoader dataLoader(context, AutoDrive::DataLoader::CameraIndentifier::kCameraIr, "");
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::DataLoader::CameraDataLoader dataLoader(context, AtlasFusion::DataLoader::CameraIndentifier::kCameraIr, "");
     dataLoader.loadData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),500);
 
-    auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraIrFrameDataModel>(dataLoader.getNextData());
-    EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraIrDataModelType);
+    auto data = std::dynamic_pointer_cast<AtlasFusion::DataModels::CameraIrFrameDataModel>(dataLoader.getNextData());
+    EXPECT_EQ(data->getType(), AtlasFusion::DataModels::DataModelTypes::kCameraIrDataModelType);
     EXPECT_EQ(data->getTimestamp(), 1568186745426675402);
     EXPECT_NEAR(data->getTemp().first, -29.65, TEST_ERR_TOLERANCE);
     EXPECT_NEAR(data->getTemp().second, 20.74, TEST_ERR_TOLERANCE);
@@ -70,8 +70,8 @@ TEST(data_loader_camera_test, load_ir_camera_ir)
     EXPECT_EQ(frame.rows, 512);
     EXPECT_EQ(frame.cols, 640);
 
-    data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraIrFrameDataModel>(dataLoader.getNextData());
-    EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraIrDataModelType);
+    data = std::dynamic_pointer_cast<AtlasFusion::DataModels::CameraIrFrameDataModel>(dataLoader.getNextData());
+    EXPECT_EQ(data->getType(), AtlasFusion::DataModels::DataModelTypes::kCameraIrDataModelType);
     EXPECT_EQ(data->getTimestamp(), 1568186745463015536);
     EXPECT_NEAR(data->getTemp().first, -29.65, TEST_ERR_TOLERANCE);
     EXPECT_NEAR(data->getTemp().second, 20.74, TEST_ERR_TOLERANCE);
@@ -83,8 +83,8 @@ TEST(data_loader_camera_test, load_ir_camera_ir)
 
 TEST(data_loader_camera_test, load_camera_get_timestamp) {
 
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::DataLoader::CameraDataLoader dataLoader(context, AutoDrive::DataLoader::CameraIndentifier::kCameraLeftFront, "");
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::DataLoader::CameraDataLoader dataLoader(context, AtlasFusion::DataLoader::CameraIndentifier::kCameraLeftFront, "");
     dataLoader.loadData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
@@ -105,8 +105,8 @@ TEST(data_loader_camera_test, load_camera_get_timestamp) {
 
 TEST(data_loader_camera_test, load_camera_set_pose) {
 
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::DataLoader::CameraDataLoader dataLoader(context, AutoDrive::DataLoader::CameraIndentifier::kCameraLeftFront, "");
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::DataLoader::CameraDataLoader dataLoader(context, AtlasFusion::DataLoader::CameraIndentifier::kCameraLeftFront, "");
     dataLoader.loadData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
@@ -130,20 +130,20 @@ TEST(data_loader_camera_test, load_camera_set_pose) {
 
 TEST(data_loader_camera_test, load_camera_yolo_detections) {
 
-    auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::DataLoader::CameraDataLoader dataLoader(context, AutoDrive::DataLoader::CameraIndentifier::kCameraLeftFront, "");
+    auto context = AtlasFusion::Context::getEmptyContext();
+    AtlasFusion::DataLoader::CameraDataLoader dataLoader(context, AtlasFusion::DataLoader::CameraIndentifier::kCameraLeftFront, "");
     dataLoader.loadData(DATA_FOLDER);
 
 
-    auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
-    EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraDataModelType);
+    auto data = std::dynamic_pointer_cast<AtlasFusion::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
+    EXPECT_EQ(data->getType(), AtlasFusion::DataModels::DataModelTypes::kCameraDataModelType);
     EXPECT_EQ(data->getTimestamp(), 1568186745453388439);
-    data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
-    EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraDataModelType);
+    data = std::dynamic_pointer_cast<AtlasFusion::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
+    EXPECT_EQ(data->getType(), AtlasFusion::DataModels::DataModelTypes::kCameraDataModelType);
     EXPECT_EQ(data->getTimestamp(), 1568186745553488239);
 
-    data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
-    EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraDataModelType);
+    data = std::dynamic_pointer_cast<AtlasFusion::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
+    EXPECT_EQ(data->getType(), AtlasFusion::DataModels::DataModelTypes::kCameraDataModelType);
     EXPECT_EQ(data->getTimestamp(), 1568186745653588039);
     auto yoloDet = data->getYoloDetections();
     EXPECT_EQ(yoloDet.size(), 1);
@@ -154,8 +154,8 @@ TEST(data_loader_camera_test, load_camera_yolo_detections) {
     EXPECT_NEAR(yoloDet.at(0)->getDetectionConfidence(), 0.81889998912811279, TEST_ERR_TOLERANCE);
     EXPECT_NEAR(yoloDet.at(0)->getClassConfidence(), 0.9966999888420105, TEST_ERR_TOLERANCE);
 
-    data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
-    EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraDataModelType);
+    data = std::dynamic_pointer_cast<AtlasFusion::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
+    EXPECT_EQ(data->getType(), AtlasFusion::DataModels::DataModelTypes::kCameraDataModelType);
     EXPECT_EQ(data->getTimestamp(), 1568186745753687839);
     yoloDet = data->getYoloDetections();
     EXPECT_EQ(yoloDet.size(), 1);
@@ -166,8 +166,8 @@ TEST(data_loader_camera_test, load_camera_yolo_detections) {
     EXPECT_NEAR(yoloDet.at(0)->getDetectionConfidence(), 0.83819997310638428, TEST_ERR_TOLERANCE);
     EXPECT_NEAR(yoloDet.at(0)->getClassConfidence(), 0.99409997463226318, TEST_ERR_TOLERANCE);
 
-    data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
-    EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraDataModelType);
+    data = std::dynamic_pointer_cast<AtlasFusion::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
+    EXPECT_EQ(data->getType(), AtlasFusion::DataModels::DataModelTypes::kCameraDataModelType);
     EXPECT_EQ(data->getTimestamp(), 1568186745853787639);
     yoloDet = data->getYoloDetections();
     EXPECT_EQ(yoloDet.size(), 1);
@@ -179,8 +179,8 @@ TEST(data_loader_camera_test, load_camera_yolo_detections) {
     EXPECT_NEAR(yoloDet.at(0)->getClassConfidence(), 0.99750000238418579, TEST_ERR_TOLERANCE);
 
     while(!dataLoader.isOnEnd()) {
-        data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
-        EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraDataModelType);
+        data = std::dynamic_pointer_cast<AtlasFusion::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
+        EXPECT_EQ(data->getType(), AtlasFusion::DataModels::DataModelTypes::kCameraDataModelType);
 
         yoloDet = data->getYoloDetections();
         if(yoloDet.size() > 1) {

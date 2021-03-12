@@ -35,7 +35,7 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/search/impl/search.hpp>
 
-namespace AutoDrive::Algorithms {
+namespace AtlasFusion::Algorithms {
 
 
     std::vector<std::shared_ptr<const DataModels::LidarDetection>> ObjectDetector::detectObstacles(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {

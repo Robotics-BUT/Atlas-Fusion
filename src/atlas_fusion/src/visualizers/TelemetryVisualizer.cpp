@@ -24,7 +24,7 @@
 
 #include "visualization_msgs/Marker.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
 
     void TelemetryVisualizer::drawTelemetryAsText(std::string& telemetryText, std::string frame, std::string topic) {

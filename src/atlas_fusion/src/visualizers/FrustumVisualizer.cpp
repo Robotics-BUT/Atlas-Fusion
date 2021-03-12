@@ -23,7 +23,7 @@
 #include "visualizers/FrustumVisualizer.h"
 #include "local_map/Frames.h"
 
-namespace AutoDrive::Visualizers {
+namespace AtlasFusion::Visualizers {
 
     void FrustumVisualizer::visualizeFrustumDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> detections) {
 

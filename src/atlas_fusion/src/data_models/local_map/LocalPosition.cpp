@@ -22,7 +22,7 @@
 
 #include "data_models/local_map/LocalPosition.h"
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
 
     rtl::RigidTf3D<double> LocalPosition::toTf() const {

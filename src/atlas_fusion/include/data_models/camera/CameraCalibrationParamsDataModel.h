@@ -24,7 +24,7 @@
 
 #include <opencv2/opencv.hpp>
 
-namespace AutoDrive::DataModels {
+namespace AtlasFusion::DataModels {
 
     /**
      * Camera Calibration Parameters Data Model keeps information about the image dimensions, camera calibration matrix

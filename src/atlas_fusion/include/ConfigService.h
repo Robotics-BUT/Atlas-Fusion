@@ -25,7 +25,7 @@
 #include <iostream>
 #include <yaml-cpp/yaml.h>
 
-namespace AutoDrive {
+namespace AtlasFusion {
 
     /**
      *  Config Service is a class used to read out the startup configuration from the yaml file.

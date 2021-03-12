@@ -24,7 +24,7 @@
 
 #include "GenericDataModel.h"
 
-namespace AutoDrive::DataModels{
+namespace AtlasFusion::DataModels{
 
     /**
      * Error Data Model is used for representation of the missing data or other unexpected event.

@@ -27,7 +27,7 @@
 
 #include "data_models/GenericDataModel.h"
 
-namespace AutoDrive::DataModels{
+namespace AtlasFusion::DataModels{
 
     /**
      * Yolo Detection is a simple representation of a single object detection on the image data by the YOLO NN.

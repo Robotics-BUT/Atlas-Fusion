@@ -24,7 +24,7 @@
 
 #include "data_loader/RecordingConstants.h"
 
-namespace AutoDrive {
+namespace AtlasFusion {
     namespace DataLoader {
 
         bool GnssDataLoader::loadData(std::string path) {
