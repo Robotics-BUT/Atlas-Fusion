@@ -2,12 +2,19 @@
 
 Project implements the Atlas Fusion local map algorithms.
 
+<img src="images/overview.png" width=50%>
+The main feature of our framework is to build up the model of the surrounding of the autonomous agent and to detect and track objects in this map.
+
+<br>
+
 [Adam Ligocki](https://www.vutbr.cz/en/people/adam-ligocki-154791#navigace-vizitka) · [Aleš Jelínek](https://www.ceitec.cz/ing-ales-jelinek-ph-d/u91705) · [Luděk Žalud](https://scholar.google.com/citations?user=kWXqPAIAAAAJ&hl=en&oi=ao)
 
 ## Prerequisitions
 
 [ROS](https://www.ros.org/) installed
+<br>
 Donwloaded session from our [Brno Urban Dataset](https://github.com/Robotics-BUT/Brno-Urban-Dataset)
+<br>
 [Docker](https://www.docker.com/) installed
 
 ## Environment preparation
@@ -16,20 +23,17 @@ In the ``dockerfile/`` foled you can find the dockerfile with the definition of 
 
 ## Compilation
 
-Inside of the docker container, enter the project's folder and run ``catkin\_make``.
+Inside of the docker container, enter the project's folder and run ``catkin_make``.
 
 It is also recomanded to open entire CMake project in the [CLion](https://www.jetbrains.com/clion/) IDE.
 
 ## Run
 
-Run ``atlas_fusion <path_to_config_file>``, where the config file could be found in ``src\\atlas\_fusion`` folder.
+Run ``atlas_fusion <path_to_config_file>``, where the config file could be found in ``src\atlas_fusion`` folder.
 
 ## Brief Functionality Overview
 
 For detail description, please see our [whitepaper](https://arxiv.org/abs/2010.11991).
-
-<img src="images/overview.png" width=50%>
-The main feature of our framework is to build up the model of the surrounding of the autonomous agent and to detect and track objects in this map.
 
 <br>
 <br>
@@ -55,9 +59,6 @@ Example of reprojection of the NN's detections form RGB image into the thermal i
 <img src="images/depth_ir_overview.png" width=50%>
 One of the latest features is the projecting 3D point cloud model into the camera frame. In this way we are able to create depth maps (virtual depth cameras).
 
-<br>
-<br>
-
 ## Attribution
 
 If you have used our data, please cite our original [paper](https://arxiv.org/abs/2010.11991)
@@ -65,3 +66,7 @@ If you have used our data, please cite our original [paper](https://arxiv.org/ab
 ## Acknowledgement
 
 The research was supported by ECSEL JU under the project H2020 737469 AutoDrive - Advancing fail-aware, fail-safe, and fail-operational electronic components, systems, and architectures for fully automated driving to make future mobility safer, affordable, and end-user acceptable. This research has been financially supported by the Ministry of Education, Youth and Sports of the Czech republic under the project CEITEC 2020 (LQ1601).
+
+This work was supported by TACR project TN01000024, National Competence Center - Cybernetics and Artificial Intelligence.
+
+The work has been performed in the project NewControl: Integrated, Fail-Operational, Cognitive Perception, Planning and Control Systems for Highly Automated Vehicles, under grant agreement No 826653/8A19006. The work was co-funded by grants of Ministry of Education, Youth and Sports of the Czech Republic and  Electronic Component Systems for European Leadership Joint Undertaking (ECSEL JU).
