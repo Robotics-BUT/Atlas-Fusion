@@ -58,6 +58,7 @@ namespace AtlasFusion {
             , cameraRightFrontDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraRightFront, context.calibFolder_+Files::kCameraRightFrontCalibYaml))
             , cameraRightSideDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraRightSide, context.calibFolder_+Files::kCameraRightSideCalibYaml))
             , cameraIrDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraIr, context.calibFolder_+Files::kCameraIrCalibYaml))
+            , cameraVirtualDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraVirtual, context.calibFolder_+Files::kCameraVirtualCalibYaml))
             , leftLidarDataLoader_(std::make_shared<LidarDataLoader>(context, LidarIdentifier::kLeftLidar))
             , rightLidarDataLoader_(std::make_shared<LidarDataLoader>(context, LidarIdentifier::kRightLidar))
             , centerLidarDataLoader_(std::make_shared<LidarDataLoader>(context, LidarIdentifier::kCenterLidar))
@@ -101,6 +102,7 @@ namespace AtlasFusion {
                         cameraRightFrontDataLoader_,
                         cameraRightSideDataLoader_,
                         cameraIrDataLoader_,
+                        cameraVirtualDataLoader_,
                 };
             }
 
@@ -133,8 +135,8 @@ namespace AtlasFusion {
             std::shared_ptr<CameraDataLoader> cameraLeftSideDataLoader_;
             std::shared_ptr<CameraDataLoader> cameraRightFrontDataLoader_;
             std::shared_ptr<CameraDataLoader> cameraRightSideDataLoader_;
-
             std::shared_ptr<CameraDataLoader> cameraIrDataLoader_;
+            std::shared_ptr<CameraDataLoader> cameraVirtualDataLoader_;
 
             std::shared_ptr<LidarDataLoader> leftLidarDataLoader_;
             std::shared_ptr<LidarDataLoader> rightLidarDataLoader_;

@@ -48,6 +48,7 @@ namespace AtlasFusion::DataLoader {
         kCameraRightFront,
         kCameraRightSide,
         kCameraIr,
+        kCameraVirtual,
         kErr,
     };
 

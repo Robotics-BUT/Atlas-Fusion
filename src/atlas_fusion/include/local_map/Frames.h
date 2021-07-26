@@ -46,6 +46,7 @@ namespace AtlasFusion::LocalMap {
         const std::string kCameraRightFront = "camera_right_front";
         const std::string kCameraRightSide = "camera_right_side";
         const std::string kCameraIr = "camera_ir";
+        const std::string kCameraVirtual = "camera_virtual";
 
         const std::string kGnssAntennaFront = "gnss_front";
         const std::string kGnssAntennaRear = "gnss_rear";

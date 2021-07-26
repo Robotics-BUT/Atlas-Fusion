@@ -59,11 +59,14 @@ set(SOURCES_ALGORITHMS
         src/algorithms/pointcloud/LaserAggregator.cpp
         src/algorithms/pointcloud/LaserSegmenter.cpp
         src/algorithms/pointcloud/GlobalPointcloudStorage.cpp
+        src/algorithms/pointcloud/OccupancyGrid3D.cpp
         src/algorithms/yolo_reprojection/YoloDetectionReprojector.cpp
         src/algorithms/pointcloud/GlobalPointcloudStorage.cpp
         src/algorithms/pointcloud/ObjectDetector.cpp
         src/algorithms/SelfModel.cpp
-        src/algorithms/image_processing/SimpleImageHandler.cpp)
+        src/algorithms/image_processing/SimpleImageHandler.cpp
+
+        )
 
 set(SOURCES_LOCAL_MAP
         src/local_map/TFTree.cpp

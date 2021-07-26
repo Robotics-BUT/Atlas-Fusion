@@ -74,7 +74,7 @@ namespace AtlasFusion::DataModels {
          * @param tf second transformation applied on points
          * @return transformed points
          */
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getTransformedPointsWithAnotherTF(rtl::RigidTf3D<double>& tf) const;
+        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getTransformedPointsWithAnotherTF(const rtl::RigidTf3D<double>& tf) const;
 
         /**
          * Timestamp when the points have been scanned

@@ -73,6 +73,8 @@ namespace AtlasFusion::Algorithms {
          * @return point cloud in global coordinate system
          */
         std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getAggregatedPointCloud();
+        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getAggregatedPointCloudRaw();
+        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getAggregatedPointCloudWithTf(const rtl::RigidTf3D<double>& tf);
 
         /**
          * Method filters out all the points that are out of given bounding box.

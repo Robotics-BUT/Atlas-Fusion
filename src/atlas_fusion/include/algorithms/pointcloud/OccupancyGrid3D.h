@@ -23,6 +23,11 @@
 #pragma once
 
 #include "Context.h"
+#include <opencv2/opencv.hpp>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+
+#include <rtl/Core.h>
 
 namespace AtlasFusion::Algorithms {
 
@@ -33,14 +38,41 @@ namespace AtlasFusion::Algorithms {
 
     public:
 
+        class BirdViewParams {
+        public:
+            BirdViewParams(float left_margin, float right_margin, float front_margin, float back_margin, float cell_size) :
+                    left_margin_{left_margin},
+                    right_margin_{right_margin},
+                    front_margin_{front_margin},
+                    back_margin_{back_margin},
+                    cell_size_{cell_size} {}
+            float left_margin() const {return left_margin_;}
+            float right_margin() const {return right_margin_;}
+            float front_margin() const {return front_margin_;}
+            float back_margin() const {return back_margin_;}
+            float cell_size() const {return cell_size_;}
+        private:
+            float left_margin_;
+            float right_margin_;
+            float front_margin_;
+            float back_margin_;
+            float cell_size_;
+        };
+
         explicit OccupancyGrid3D(Context& context)
         : context_{context} {
 
         }
 
+        [[nodiscard]] cv::Mat create_bird_view_from_data(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> data, const BirdViewParams& bird_view_params) const;
+
     private:
+
+        std::shared_ptr<std::vector<rtl::Vector3D<int>>> point_clout_to_image_coords(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> data, const BirdViewParams& c) const;
+        rtl::Vector3D<int> pc_point_to_image_coords(const pcl::PointXYZ& point, const BirdViewParams& bird_view_params) const;
 
         Context& context_;
 
+        uint8_t heightToColor(float height, float minH, float maxH) const;
     };
 }

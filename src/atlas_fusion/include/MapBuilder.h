@@ -221,6 +221,7 @@ namespace AtlasFusion {
         void processLidarScanData(std::shared_ptr<DataModels::LidarScanDataModel>, std::string&);
         void processRadarTiData(std::shared_ptr<DataModels::RadarTiDataModel>, std::string&);
 
+        void generateDepthMapForRGBFrame(std::shared_ptr<DataModels::CameraFrameDataModel> rgbImg);
         void generateDepthMapForLastIR(std::shared_ptr<DataModels::CameraFrameDataModel> rgbImg);
         void projectRGBDetectionsToIR(std::shared_ptr<DataModels::CameraFrameDataModel> imgData, std::vector<std::shared_ptr<const DataModels::FrustumDetection>> frustums);
         void aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel>&);

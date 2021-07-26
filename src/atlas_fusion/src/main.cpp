@@ -60,8 +60,11 @@ AtlasFusion::LocalMap::TFTree buildTFTree(std::string rootFrame, std::vector<std
 AtlasFusion::FunctionalityFlags loadFunctionalityFlags(AtlasFusion::ConfigService& confService) {
     AtlasFusion::FunctionalityFlags ffEntity(
             confService.getBoolValue({"functionalities","generate_depth_map_for_ir"}),
-    confService.getBoolValue({"functionalities","rgb_to_ir_detection_projection"}),
+            confService.getBoolValue({"functionalities","generate_depth_map_for_rgb_left_front"}),
+            confService.getBoolValue({"functionalities","generate_depth_map_for_rgb_virtual"}),
+            confService.getBoolValue({"functionalities","rgb_to_ir_detection_projection"}),
             confService.getBoolValue({"functionalities","short_term_lidar_aggregation"}),
+            confService.getBoolValue({"functionalities", "use_only_central_lidar"}),
             confService.getBoolValue({"functionalities","lidar_laser_approximations_and_segmentation"}),
             confService.getBoolValue({"functionalities","global_lidar_aggregation"}),
             confService.getBoolValue({"visualizations","visualization_global_enable"}),
@@ -122,7 +125,8 @@ int main(int argc, char** argv) {
                                             AtlasFusion::LocalMap::Frames::kCameraLeftSide,
                                             AtlasFusion::LocalMap::Frames::kCameraRightFront,
                                             AtlasFusion::LocalMap::Frames::kCameraRightSide,
-                                            AtlasFusion::LocalMap::Frames::kCameraIr};
+                                            AtlasFusion::LocalMap::Frames::kCameraIr,
+                                            AtlasFusion::LocalMap::Frames::kCameraVirtual};
     auto calibFolder = configService.getStringValue({"calibratios_folder"});
     auto tfTree = buildTFTree(
              rootFrame,

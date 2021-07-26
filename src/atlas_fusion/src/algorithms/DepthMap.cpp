@@ -208,6 +208,8 @@ namespace AtlasFusion::Algorithms {
                 return LocalMap::Frames::kCameraRightSide;
             case DataLoader::CameraIndentifier::kCameraIr:
                 return LocalMap::Frames::kCameraIr;
+            case DataLoader::CameraIndentifier::kCameraVirtual:
+                return LocalMap::Frames::kCameraVirtual;
             default:
                 context_.logger_.warning("Unexpected camera ID type in depth map");
                 return LocalMap::Frames::kOrigin;

@@ -31,5 +31,7 @@ namespace AtlasFusion::DataWriters {
     private:
         Context& context_;
         std::string destFolder_;
+
+        void check_subdir_exists(const std::string& subdir);
     };
 }

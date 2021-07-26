@@ -34,8 +34,11 @@ namespace AtlasFusion {
         FunctionalityFlags() = default;
 
         FunctionalityFlags(bool generate_depth_map_for_ir,
+                           bool generate_depth_map_for_rgb_left_front,
+                           bool generate_depth_map_for_rgb_virtual,
                            bool rgb_to_ir_detection_projection,
                            bool short_term_lidar_aggregation,
+                           bool use_only_central_lidar,
                            bool lidar_laser_approximations_and_segmentation,
                            bool global_lidar_aggregation,
                            bool visualization_global_enable,
@@ -46,8 +49,11 @@ namespace AtlasFusion {
                            bool gnss_visualization,
                            bool radar_visualization) :
                 generate_depth_map_for_ir_{generate_depth_map_for_ir},
+                generate_depth_map_for_rgb_left_front_{generate_depth_map_for_rgb_left_front},
+                generate_depth_map_for_rgb_virtual_{generate_depth_map_for_rgb_virtual},
                 rgb_to_ir_detection_projection_{rgb_to_ir_detection_projection},
                 short_term_lidar_aggregation_{short_term_lidar_aggregation},
+                use_only_central_lidar_{use_only_central_lidar},
                 lidar_laser_approximations_and_segmentation_{lidar_laser_approximations_and_segmentation},
                 global_lidar_aggregation_{global_lidar_aggregation},
                 visualization_global_enable_{visualization_global_enable},
@@ -61,8 +67,11 @@ namespace AtlasFusion {
         }
 
         const bool generate_depth_map_for_ir_ = false;
+        const bool generate_depth_map_for_rgb_left_front_ = false;
+        const bool generate_depth_map_for_rgb_virtual_ = false;
         const bool rgb_to_ir_detection_projection_ = false;
         const bool short_term_lidar_aggregation_ = false;
+        const bool use_only_central_lidar_ = false;
         const bool lidar_laser_approximations_and_segmentation_ = false;
         const bool global_lidar_aggregation_ = false;
         const bool visualization_global_enable_ = false;

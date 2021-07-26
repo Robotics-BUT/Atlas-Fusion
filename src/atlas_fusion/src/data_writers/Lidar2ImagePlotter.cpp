@@ -37,7 +37,10 @@ namespace AtlasFusion::DataWriters {
         }
 
         for(size_t i = 0 ; i < points2D.size() ; i++) {
-            image->at<uint8_t >(static_cast<int>(points2D.at(i).y), static_cast<int>(points2D.at(i).x)) = distanceToColor( pointLenght(points3D.at(i)) );
+            image->at<uint8_t >(static_cast<int>(points2D.at(i).y), static_cast<int>(points2D.at(i).x)) = std::max(distanceToColor( pointLenght(points3D.at(i))),
+                                                                                                                   image->at<uint8_t >(static_cast<int>(points2D.at(i).y),
+                                                                                                                                       static_cast<int>(points2D.at(i).x)));
+
             if (pointSize > 1) {
                 int padding = static_cast<int>(std::round((pointSize-1)/2));
                 for (int j = -padding ; j <= padding; j ++) {
@@ -45,7 +48,9 @@ namespace AtlasFusion::DataWriters {
                         if (points2D.at(i).y + j < imgHeight && points2D.at(i).y + j >= 0 &&
                             points2D.at(i).x + k < imgWidth  && points2D.at(i).x + k >= 0 ) {
                             image->at<uint8_t>(static_cast<int>(points2D.at(i).y)+j,
-                                               static_cast<int>(points2D.at(i).x)+k) = distanceToColor(pointLenght(points3D.at(i)));
+                                               static_cast<int>(points2D.at(i).x)+k) = std::max(distanceToColor(pointLenght(points3D.at(i))),
+                                                                                                                    image->at<uint8_t>(static_cast<int>(points2D.at(i).y)+j,
+                                                                                                                                       static_cast<int>(points2D.at(i).x)+k));
                         }
                     }
                 }
