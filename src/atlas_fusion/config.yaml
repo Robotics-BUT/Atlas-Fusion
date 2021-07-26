@@ -42,9 +42,13 @@ laser_segmenter:
 functionalities:
   generate_depth_map_for_ir: false
   rgb_to_ir_detection_projection: false
-  short_term_lidar_aggregation: false
+  short_term_lidar_aggregation: true
   lidar_laser_approximations_and_segmentation: false
   global_lidar_aggregation: false
+  use_only_central_lidar: false
+  generate_depth_map_for_rgb_virtual: false
+  generate_depth_map_for_rgb_left_front: false
+
 
 visualizations:
   visualization_global_enable: true

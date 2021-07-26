@@ -71,8 +71,7 @@ namespace AtlasFusion::Visualizers {
             msg.markers.emplace_back(obj);
         }
         radarTiMaxObjectVisCount_ = object_count;
-        std::cout << object_count << " " << radarTiMaxObjectVisCount_ << std::endl;
-
+        
         publishers_[topic]->publish(msg);
     }
 }
