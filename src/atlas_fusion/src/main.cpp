@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
                                             AutoDrive::LocalMap::Frames::kCameraRightFront,
                                             AutoDrive::LocalMap::Frames::kCameraRightSide,
                                             AutoDrive::LocalMap::Frames::kCameraIr};
-    auto calibFolder = configService.getStringValue({"calibratios_folder"});
+    auto calibFolder = configService.getStringValue({"calibrations_folder"});
     auto tfTree = buildTFTree(
              rootFrame,
              childFrames,
@@ -136,7 +136,7 @@ int main(int argc, char** argv) {
     auto leafSize = configService.getFloatValue({"lidar_aggregator", "leaf_size"});
     auto globalLeafSize = configService.getFloatValue({"lidar_aggregator", "global_leaf_size"});
     auto batchesPerScan = configService.getUInt32Value({"lidar_aggregator", "no_of_batches_per_scan"});
-    auto aggretationTime = configService.getFloatValue({"lidar_aggregator", "aggretation_time"});
+    auto aggretationTime = configService.getFloatValue({"lidar_aggregator", "aggregation_time"});
 
     auto selfModelProcessNoise = configService.getFloatValue({"self_model", "kalman_process_noise"});
     auto selfModelObservationNoise = configService.getFloatValue({"self_model", "kalman_observation_noise"});
