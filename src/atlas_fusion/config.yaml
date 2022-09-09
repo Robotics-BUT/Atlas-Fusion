@@ -5,7 +5,7 @@ logger:
 
 data_folder: "/home/default_user/Data/bud_s3/3_1_3_4/"
 #data_folder: "/home/default_user/Data/rec_2_part_1/"
-calibratios_folder: "/home/default_user/Developer/Atlas-Fusion/src/atlas_fusion/calibrations/"
+calibrations_folder: "/home/default_user/Developer/Atlas-Fusion/src/atlas_fusion/calibrations/"
 
 map_builder:
   keep_history_sec_length: 10
@@ -19,7 +19,7 @@ lidar_aggregator:
   leaf_size: 0.2
   global_leaf_size: 1.0
   no_of_batches_per_scan: 100
-  aggretation_time: 1.0
+  aggregation_time: 1.0
 
 self_model:
   kalman_process_noise: 1.0

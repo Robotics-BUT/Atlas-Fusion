@@ -152,7 +152,7 @@ TEST(data_loader_camera_test, load_camera_yolo_detections) {
     EXPECT_EQ(yoloDet.at(0)->getBoundingBox().x2_, 379);
     EXPECT_EQ(yoloDet.at(0)->getBoundingBox().y2_, 582);
     EXPECT_NEAR(yoloDet.at(0)->getDetectionConfidence(), 0.81889998912811279, TEST_ERR_TOLERANCE);
-    EXPECT_NEAR(yoloDet.at(0)->getClassConfidence(), 0.9966999888420105, TEST_ERR_TOLERANCE);
+    EXPECT_NEAR(yoloDet.at(0)->getDetectionConfidence(), 0.9966999888420105, TEST_ERR_TOLERANCE);
 
     data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
     EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraDataModelType);
@@ -164,7 +164,7 @@ TEST(data_loader_camera_test, load_camera_yolo_detections) {
     EXPECT_EQ(yoloDet.at(0)->getBoundingBox().x2_, 369);
     EXPECT_EQ(yoloDet.at(0)->getBoundingBox().y2_, 580);
     EXPECT_NEAR(yoloDet.at(0)->getDetectionConfidence(), 0.83819997310638428, TEST_ERR_TOLERANCE);
-    EXPECT_NEAR(yoloDet.at(0)->getClassConfidence(), 0.99409997463226318, TEST_ERR_TOLERANCE);
+    EXPECT_NEAR(yoloDet.at(0)->getDetectionConfidence(), 0.99409997463226318, TEST_ERR_TOLERANCE);
 
     data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
     EXPECT_EQ(data->getType(), AutoDrive::DataModels::DataModelTypes::kCameraDataModelType);
@@ -176,7 +176,7 @@ TEST(data_loader_camera_test, load_camera_yolo_detections) {
     EXPECT_EQ(yoloDet.at(0)->getBoundingBox().x2_, 352);
     EXPECT_EQ(yoloDet.at(0)->getBoundingBox().y2_, 583);
     EXPECT_NEAR(yoloDet.at(0)->getDetectionConfidence(), 0.80430001020431519, TEST_ERR_TOLERANCE);
-    EXPECT_NEAR(yoloDet.at(0)->getClassConfidence(), 0.99750000238418579, TEST_ERR_TOLERANCE);
+    EXPECT_NEAR(yoloDet.at(0)->getDetectionConfidence(), 0.99750000238418579, TEST_ERR_TOLERANCE);
 
     while(!dataLoader.isOnEnd()) {
         data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());

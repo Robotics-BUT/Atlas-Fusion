@@ -6,7 +6,7 @@
 
   <maintainer email="xligoc01@stud.feec.vutbr.cz">atlas_fusion</maintainer>
 
-  <license>TODO</license>
+  <license>MIT</license>
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>roscpp</build_depend>
