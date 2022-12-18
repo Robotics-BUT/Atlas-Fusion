@@ -50,10 +50,7 @@ namespace AutoDrive::DataModels {
          * @param lidarTimestamp internal sensor's timestamp
          */
         LidarScanDataModel(uint64_t timestamp, DataLoader::LidarIdentifier id, std::string scan_path, uint64_t lidarTimestamp)
-                : GenericDataModel(timestamp)
-                , identifier_(id)
-                , scan_path_(scan_path)
-                , innerLidarTimestamp_(lidarTimestamp){
+                : GenericDataModel(timestamp), identifier_(id), scan_path_(scan_path), innerLidarTimestamp_(lidarTimestamp) {
             type_ = DataModelTypes::kLidarScanDataModelType;
         };
 
@@ -63,31 +60,31 @@ namespace AutoDrive::DataModels {
          * Method lazy loads scan from the storage applies filters and returns it as a point cloud
          * @return point cloud of the scan
          */
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getScan();
+        std::shared_ptr<pcl::PointCloud < pcl::PointXYZ>> getScan();
 
         /**
          * Method lazy loads unfiltered scan from the storage, returns it as a point cloud
          * @return unfiltered scan
          */
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getRawScan();
+        std::shared_ptr<pcl::PointCloud < pcl::PointXYZ>> getRawScan();
 
         /**
          * Inner LiDAR timestamp
          * @return sensor's timestamp
          */
-        uint64_t getInnerTimestamp() {return innerLidarTimestamp_;};
+        uint64_t getInnerTimestamp() const { return innerLidarTimestamp_; };
 
         /**
          * Get the left/right lidar identifier
          * @return unique identifier of the lidar scanner that has captured this scan
          */
-        DataLoader::LidarIdentifier getLidarIdentifier() {return identifier_;};
+        DataLoader::LidarIdentifier getLidarIdentifier() const { return identifier_; };
 
         /**
          * Set up filtration function that will be applied on point cloud
          * @param fnc point cloud filtration function
          */
-        void registerFilter(std::function<void(pcl::PointCloud<pcl::PointXYZ>&)> fnc) { filter_ = fnc; };
+        void registerFilter(std::function<void(pcl::PointCloud < pcl::PointXYZ > &)> fnc) { filter_ = fnc; };
 
         /**
          * Add more points into the scan
@@ -98,10 +95,10 @@ namespace AutoDrive::DataModels {
     private:
 
         DataLoader::LidarIdentifier identifier_;
-        pcl::PointCloud<pcl::PointXYZ> scan_{};
-        pcl::PointCloud<pcl::PointXYZ> filteredScan_{};
+        pcl::PointCloud <pcl::PointXYZ> scan_{};
+        pcl::PointCloud <pcl::PointXYZ> filteredScan_{};
         std::string scan_path_;
         uint64_t innerLidarTimestamp_;
-        std::function<void(pcl::PointCloud<pcl::PointXYZ>&)> filter_ = nullptr;
+        std::function<void(pcl::PointCloud < pcl::PointXYZ > &)> filter_ = nullptr;
     };
 }

@@ -26,7 +26,7 @@
 namespace AutoDrive::FailCheck {
 
 
-    void FailChecker::onNewData(std::shared_ptr<DataModels::GenericDataModel> data, SensorFailCheckID sensorID){
+    void FailChecker::onNewData(const std::shared_ptr<DataModels::GenericDataModel>& data, SensorFailCheckID sensorID){
 
         if(failCheckers_.count(sensorID) == 0) {
             context_.logger_.warning("Unable to find fail checker for sensor");
@@ -115,7 +115,7 @@ namespace AutoDrive::FailCheck {
     }
 
 
-    FailChecker::SensorFailCheckID FailChecker::frameToFailcheckID(std::string frame) {
+    FailChecker::SensorFailCheckID FailChecker::frameToFailcheckID(const std::string& frame) {
         if(frame == LocalMap::Frames::kCameraLeftFront) {
             return SensorFailCheckID::kCameraLeftFront;
         } else if(frame == LocalMap::Frames::kCameraLeftSide) {

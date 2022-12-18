@@ -34,10 +34,9 @@
 namespace AutoDrive {
 
 
-    void MapBuilder::loadData(const std::string& dataFolder) {
-        visualizationHandler_.drawTestingCube();
-
-        dataLoader_.loadData(dataFolder);
+    void MapBuilder::loadData() {
+        // Load all data through all available data loaders
+        dataLoader_.loadData(destinationFolder_);
         std::cout << "Total No. of loaded data: " << dataLoader_.getDataSize() << std::endl;
 
         std::vector<std::string> cameraFrames = {
@@ -48,20 +47,17 @@ namespace AutoDrive {
                 LocalMap::Frames::kCameraIr,
         };
 
-        for(let& frame : cameraFrames) {
+        // Additionally propagate the individual camera calibration parameters
+        for (let &frame: cameraFrames) {
             mut cameraID = dataLoader_.getCameraIDfromFrame(frame);
             mut params = dataLoader_.getCameraCalibDataForCameraID(cameraID);
             mut tf = context_.tfTree_.getTransformationForFrame(frame);
 
-            if(params->getType() == DataModels::DataModelTypes::kCameraCalibrationParamsDataModelType) {
-                mut paramModel = std::dynamic_pointer_cast<DataModels::CameraCalibrationParamsDataModel>(params);
-                visualizationHandler_.setCameraCalibParamsForCameraId(paramModel, frame);
+            if (params.getType() == DataModels::DataModelTypes::kCameraCalibrationParamsDataModelType) {
+                visualizationHandler_.setCameraCalibParamsForCameraId(params, frame);
 
-                mut intrinsicParams = paramModel->getMatIntrinsicParams();
-                mut distortionParams =  paramModel->getMatDistortionParams();
-
-                mut projector = std::make_shared<Algorithms::Projector>(intrinsicParams, distortionParams, tf);
-                if(frame == LocalMap::Frames::kCameraIr) {
+                mut projector = std::make_shared<Algorithms::Projector>(params.getMatIntrinsicParams(), params.getMatDistortionParams(), tf);
+                if (frame == LocalMap::Frames::kCameraIr) {
                     yoloIrReprojector_.setupCameraProjector(projector);
                 }
 
@@ -74,15 +70,13 @@ namespace AutoDrive {
     }
 
     void MapBuilder::buildMap() {
-
         int64_t last_system_ts = 0;
         uint64_t last_data_ts = 0;
 
         DataModels::LocalPosition initPose{{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
         visualizationHandler_.updateOriginToRootTf(initPose);
 
-        for (size_t i = 0; !dataLoader_.isOnEnd(); i++) {
-
+        while (!dataLoader_.isOnEnd()) {
             mut data = dataLoader_.getNextData();
             mut data_ts = data->getTimestamp();
 
@@ -90,20 +84,19 @@ namespace AutoDrive {
             ss << data_ts << " " << data->toString();
             context_.logger_.debug(ss.str());
 
-            if(last_system_ts == 0) {
+            if (last_system_ts == 0) {
                 last_system_ts = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                 last_data_ts = data_ts;
             }
 
-            while(true) {
+            while (true) {
                 mut system_ts = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                if((data_ts - last_data_ts) < (system_ts - last_system_ts)*maxReplayerRate_) {
+                if ((data_ts - last_data_ts) < (system_ts - last_system_ts) * (uint64_t) maxReplayerRate_) {
                     last_data_ts = data_ts;
                     last_system_ts = system_ts;
                     break;
                 }
             }
-
 
             mut dataType = data->getType();
             mut sensorFrame = getFrameForData(data);
@@ -111,14 +104,14 @@ namespace AutoDrive {
             failChecker_.onNewData(data, sensorFailCheckID);
             mut sensorScore = failChecker_.getSensorStatus(sensorFailCheckID);
 
-            if(sensorScore < 0.9) {
+            if (sensorScore < 0.9) {
                 context_.logger_.warning("Sensor Score is too low");
                 continue;
             }
 
             /* ... data processing ... */
 
-            if(dataType == DataModels::DataModelTypes::kCameraDataModelType) {
+            if (dataType == DataModels::DataModelTypes::kCameraDataModelType) {
 
                 mut imgData = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
                 processRGBCameraData(imgData, sensorFrame);
@@ -127,30 +120,30 @@ namespace AutoDrive {
             } else if (dataType == DataModels::DataModelTypes::kCameraIrDataModelType) {
 
                 mut irCameraFrame = std::dynamic_pointer_cast<DataModels::CameraIrFrameDataModel>(data);
-                processIRCameraData(irCameraFrame, sensorFrame);
+                processIRCameraData(irCameraFrame);
                 cache_.setNewIRFrame(irCameraFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kGnssPositionDataModelType) {
 
                 mut poseData = std::dynamic_pointer_cast<DataModels::GnssPoseDataModel>(data);
-                processGnssPoseData(poseData, sensorFrame);
+                processGnssPoseData(poseData);
 
             } else if (dataType == DataModels::DataModelTypes::kGnssTimeDataModelType) {
 
             } else if (dataType == DataModels::DataModelTypes::kImuDquatDataModelType) {
 
                 mut dQuatData = std::dynamic_pointer_cast<DataModels::ImuDquatDataModel>(data);
-                processImuDQuatData(dQuatData, sensorFrame);
+                processImuDQuatData(dQuatData);
 
             } else if (dataType == DataModels::DataModelTypes::kImuGnssDataModelType) {
 
                 mut poseData = std::dynamic_pointer_cast<DataModels::ImuGnssDataModel>(data);
-                processImuGnssData(poseData, sensorFrame);
+                processImuGnssData(poseData);
 
             } else if (dataType == DataModels::DataModelTypes::kImuImuDataModelType) {
 
                 mut imuData = std::dynamic_pointer_cast<DataModels::ImuImuDataModel>(data);
-                processImuImuData(imuData, sensorFrame);
+                processImuImuData(imuData);
 
             } else if (dataType == DataModels::DataModelTypes::kImuMagDataModelType) {
 
@@ -163,14 +156,15 @@ namespace AutoDrive {
             } else if (dataType == DataModels::DataModelTypes::kLidarScanDataModelType) {
 
                 mut lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
-                lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_, std::placeholders::_1));
-                processLidarScanData(lidarData, sensorFrame);
+                lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_,
+                                                    std::placeholders::_1));
+                processLidarScanData(lidarData);
                 cache_.setNewLidarScan(lidarData);
 
             } else if (dataType == DataModels::DataModelTypes::kRadarTiScanDataModelType) {
 
                 let radarData = std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data);
-                processRadarTiData(radarData, sensorFrame);
+                processRadarTiData(radarData);
 
             } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {
                 context_.logger_.warning("Received Generic data model from DataLoader");
@@ -188,12 +182,11 @@ namespace AutoDrive {
     }
 
 
-    void MapBuilder::processRGBCameraData(std::shared_ptr<DataModels::CameraFrameDataModel> imgData, std::string& sensorFrame) {
+    void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData, const std::string &sensorFrame) {
 
         static int cnt = 0;
         mut batches = pointCloudAggregator_.getAllBatches();
-        depthMap_.updatePointcloudData(batches);
-
+        depthMap_.updatePointCloudData(batches);
 
         mut detections3D = depthMap_.onNewCameraData(imgData, selfModel_.getPosition());
         mut frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
@@ -204,45 +197,32 @@ namespace AutoDrive {
                 mut imuToCameraTf = context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraIr);
                 mut reprojectedYoloDetections = yoloIrReprojector_.onNewDetections(frustums, imuToCameraTf.inverted());
 
-                if (!reprojectedYoloDetections->empty()) {
+                if (!reprojectedYoloDetections.empty()) {
                     mut imgWidthHeight = yoloIrReprojector_.getLastIrFrameWidthHeight();
-                    yoloIRDetectionWriter_.writeDetections(reprojectedYoloDetections,
-                                                           yoloIrReprojector_.getCurrentIrFrameNo());
-                    yoloIRDetectionWriter_.writeDetectionsAsTrainData(reprojectedYoloDetections,
-                                                                      yoloIrReprojector_.getCurrentIrFrameNo(),
-                                                                      imgWidthHeight.first, imgWidthHeight.second);
-                    yoloIRDetectionWriter_.writeIRImageAsTrainData(yoloIrReprojector_.getLastIrFrame(),
-                                                                   yoloIrReprojector_.getCurrentIrFrameNo());
+                    yoloIRDetectionWriter_.writeDetections(reprojectedYoloDetections, yoloIrReprojector_.getCurrentIrFrameNo());
+                    yoloIRDetectionWriter_.writeDetectionsAsTrainData(reprojectedYoloDetections, yoloIrReprojector_.getCurrentIrFrameNo(), imgWidthHeight.first,
+                                                                      imgWidthHeight.second);
+                    yoloIRDetectionWriter_.writeIRImageAsTrainData(yoloIrReprojector_.getLastIrFrame(), yoloIrReprojector_.getCurrentIrFrameNo());
                 }
 
 
                 if (Depth_Map_For_IR) {
                     try {
-                        mut irCameraFrame = std::make_shared<DataModels::CameraIrFrameDataModel>(
-                                imgData->getTimestamp(),
-                                imgData->getImage(),
-                                0.0f,
-                                100.0f,
-                                imgData->getCameraIdentifier(),
-                                std::vector<std::shared_ptr<DataModels::YoloDetection>>{});
+                        mut irCameraFrame = DataModels::CameraIrFrameDataModel(imgData->getTimestamp(), imgData->getImage(), 0.0f, 100.0f, imgData->getCameraIdentifier(),
+                                                                               std::vector<DataModels::YoloDetection>{});
                         static size_t frameCnt = 0;
 
                         mut originToImuTf = selfModel_.getPosition().toTf();
 
-                        mut points2Dand3Dpair = depthMap_.getPointsInCameraFoV(
-                                irCameraFrame->getCameraIdentifier(),
-                                irCameraFrame->getImage().cols,
-                                irCameraFrame->getImage().rows,
-                                originToImuTf,
-                                false);
-                        mut img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first,
-                                                                             points2Dand3Dpair->second,
-                                                                             irCameraFrame->getImage().cols,
-                                                                             irCameraFrame->getImage().rows, 3);
+                        mut points2Dand3Dpair = depthMap_.getPointsInCameraFoV(irCameraFrame.getCameraIdentifier(), irCameraFrame.getImage().cols, irCameraFrame.getImage().rows,
+                                                                               originToImuTf, false);
+                        mut img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first, points2Dand3Dpair->second, irCameraFrame.getImage().cols,
+                                                                            irCameraFrame.getImage().rows, 3);
 
                         if (yoloIrReprojector_.getCurrentIrFrameNo() > 0) {
                             lidarIrImgPlotter_.saveImage(img, frameCnt, "_depth", "png");
-                            mut rgb_cutout = simpleImageProcessor_.convertLeftFrontRGBToIrFieldOfView(imgData->getImage());
+                            mut rgb_cutout = simpleImageProcessor_.convertLeftFrontRGBToIrFieldOfView(
+                                    imgData->getImage());
                             lidarIrImgPlotter_.saveImage(std::make_shared<cv::Mat>(rgb_cutout), frameCnt,
                                                          "_rgb", "jpeg");
                             lidarIrImgPlotter_.saveImage(
@@ -263,22 +243,19 @@ namespace AutoDrive {
         localMap_.setFrustumDetections(frustums, sensorFrame);
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
 
-        if(cnt++ >= 3) {
+        if (cnt++ >= 3) {
             cnt = 0;
-            mut aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
-            mut downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud);
+            mut aggregatedPointCloud = pointCloudAggregator_.getAggregatedPointCloud();
+            mut downSampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointCloud);
 
-            mut tunel = pointCloudAggregator_.getPointcloudCutout(pointCloudProcessor_.transformPointcloud(downsampledAggregatedPc, selfModel_.getPosition().toTf().inverted()),
-                                                                   rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
-                                                                                             rtl::Vector3D<float>{ 30.0f,  10.0f, 10.0f}});
-            mut downsampledTunel = pointCloudProcessor_.downsamplePointCloud(tunel);
-            mut lidarObstacles = lidarObjectDetector_.detectObstacles(downsampledTunel);
-            localMap_.setLidarDetections(
-                    objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(),
-                                                               lidarObstacles));
+            mut tunel = pointCloudAggregator_.getPointcloudCutout(pointCloudProcessor_.transformPointcloud(downSampledAggregatedPc, selfModel_.getPosition().toTf().inverted()),
+                                                                  rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
+                                                                                            rtl::Vector3D<float>{30.0f, 10.0f, 10.0f}});
+            mut downSampledTunel = pointCloudProcessor_.downsamplePointCloud(tunel);
+            mut lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunel);
+            localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
 
-
-            visualizationHandler_.drawAggregatedPointcloud(downsampledAggregatedPc);
+            visualizationHandler_.drawAggregatedPointcloud(downSampledAggregatedPc);
             visualizationHandler_.drawLidarDetection(lidarObstacles);
             visualizationHandler_.drawPointcloudCutout(tunel);
             visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
@@ -288,7 +265,7 @@ namespace AutoDrive {
     }
 
 
-    void MapBuilder::processIRCameraData(std::shared_ptr<DataModels::CameraIrFrameDataModel> irCameraFrame, std::string& sensorFrame) {
+    void MapBuilder::processIRCameraData(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &irCameraFrame) {
 
         mut originToImuTf = selfModel_.getPosition().toTf();
         mut points2Dand3Dpair = depthMap_.getPointsInCameraFoV(
@@ -298,15 +275,16 @@ namespace AutoDrive {
                 originToImuTf,
                 false);
         mut img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first,
-                                                             points2Dand3Dpair->second,
-                                                             irCameraFrame->getImage().cols,
-                                                             irCameraFrame->getImage().rows);
+                                                            points2Dand3Dpair->second,
+                                                            irCameraFrame->getImage().cols,
+                                                            irCameraFrame->getImage().rows);
         yoloIrReprojector_.onNewIRFrame(irCameraFrame);
         visualizationHandler_.drawIRImage(irCameraFrame);
     }
 
 
-    void MapBuilder::processGnssPoseData(std::shared_ptr<DataModels::GnssPoseDataModel> poseData, std::string& sensorFrame) {
+    void
+    MapBuilder::processGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel> &poseData) {
 
         gnssPoseLogger_.onGnssPose(poseData);
         selfModel_.onGnssPose(poseData);
@@ -324,18 +302,19 @@ namespace AutoDrive {
     }
 
 
-    void MapBuilder::processImuDQuatData(std::shared_ptr<DataModels::ImuDquatDataModel> dQuatData, std::string& sensorFrame) {
+    void MapBuilder::processImuDQuatData(const std::shared_ptr<DataModels::ImuDquatDataModel> &dQuatData) {
         selfModel_.onImuDquatData(dQuatData);
     }
 
 
-    void MapBuilder::processImuGnssData(std::shared_ptr<DataModels::ImuGnssDataModel> poseData, std::string& sensorFrame) {
+    void
+    MapBuilder::processImuGnssData(const std::shared_ptr<DataModels::ImuGnssDataModel> &poseData) {
         imuPoseLogger_.onImuGps(poseData);
         visualizationHandler_.drawImuGpsTrajectory(imuPoseLogger_.getPositionHistory());
     }
 
 
-    void MapBuilder::processImuImuData(std::shared_ptr<DataModels::ImuImuDataModel> imuData, std::string& sensorFrame) {
+    void MapBuilder::processImuImuData(const std::shared_ptr<DataModels::ImuImuDataModel> &imuData) {
 
         imuProcessor_.setOrientation(imuData->getOrientation());
         mut linAccNoGrav = imuProcessor_.removeGravitaionAcceleration(imuData->getLinearAcc());
@@ -345,10 +324,10 @@ namespace AutoDrive {
     }
 
 
-    void MapBuilder::processLidarScanData(std::shared_ptr<DataModels::LidarScanDataModel> lidarData, std::string& sensorFrame) {
+    void MapBuilder::processLidarScanData(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
 
         let lidarID = lidarData->getLidarIdentifier();
-        if (cache_.getLidarScanNo(lidarID) > 0) {
+        if (cache_.getLidarScan(lidarID) != nullptr) {
             aggregateLidar(lidarData);
             approximateLidar(lidarData);
         }
@@ -356,11 +335,10 @@ namespace AutoDrive {
         visualizationHandler_.drawSelf();
     }
 
-    void MapBuilder::processRadarTiData(std::shared_ptr<DataModels::RadarTiDataModel> data, std::string& sensorFrame) {
+    void MapBuilder::processRadarTiData(const std::shared_ptr<DataModels::RadarTiDataModel> &data) {
         let radarData = std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data);
         visualizationHandler_.drawRadarTiObjects(radarData->getObjects());
     }
-
 
 
     void MapBuilder::generateDepthMapForIR() {
@@ -371,16 +349,18 @@ namespace AutoDrive {
 
     }
 
-    void MapBuilder::aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel>& lidarData) {
+    void MapBuilder::aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
 
         let lidarID = lidarData->getLidarIdentifier();
         let sensorFrame = getFrameForData(lidarData);
 
         mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);
-        let lastLidarTimestamp = (cache_.getLidarScan(lidarID))->getTimestamp();
-        mut poseBefore = selfModel_.estimatePositionInTime( lastLidarTimestamp );
+        let scan = (cache_.getLidarScan(lidarID));
+        if (scan == nullptr) return;
+        let lastLidarTimestamp = scan->getTimestamp();
+        mut poseBefore = selfModel_.estimatePositionInTime(lastLidarTimestamp);
         mut poseNow = selfModel_.getPosition();
-        mut poseDiff = poseNow-poseBefore;
+        mut poseDiff = poseNow - poseBefore;
 
         if (Short_Term_Lidar_Aggregation) {
             mut downsampledScan = pointCloudProcessor_.downsamplePointCloud(lidarData->getScan());
@@ -398,16 +378,18 @@ namespace AutoDrive {
     }
 
 
-    void MapBuilder::approximateLidar(const std::shared_ptr<DataModels::LidarScanDataModel>& lidarData) {
+    void MapBuilder::approximateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
 
         let lidarID = lidarData->getLidarIdentifier();
         let sensorFrame = getFrameForData(lidarData);
 
         mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);
-        let lastLidarTimestamp = (cache_.getLidarScan(lidarID))->getTimestamp();
-        mut poseBefore = selfModel_.estimatePositionInTime( lastLidarTimestamp );
+        let scan = (cache_.getLidarScan(lidarID));
+        if (scan == nullptr) return;
+        let lastLidarTimestamp = scan->getTimestamp();
+        mut poseBefore = selfModel_.estimatePositionInTime(lastLidarTimestamp);
         mut poseNow = selfModel_.getPosition();
-        mut poseDiff = poseNow-poseBefore;
+        mut poseDiff = poseNow - poseBefore;
 
         if (Lidar_Laser_Approx_And_Seg) {
             if (lidarID == DataLoader::LidarIdentifier::kLeftLidar) {
@@ -439,11 +421,15 @@ namespace AutoDrive {
             mut approximations = std::make_shared<std::vector<rtl::LineSegment3D<double>>>();
             mut roadApproximations = std::make_shared<std::vector<rtl::LineSegment3D<double>>>();
 
-            for (mut& approximation : *leftLaserSegmenter_.getAllApproximations()) { approximations->push_back(approximation); }
-            for (mut& approximation : *rightLaserSegmenter_.getAllApproximations()) { approximations->push_back(approximation); }
+            for (mut &approximation: *leftLaserSegmenter_.getAllApproximations()) {
+                approximations->push_back(approximation);
+            }
+            for (mut &approximation: *rightLaserSegmenter_.getAllApproximations()) {
+                approximations->push_back(approximation);
+            }
 
-            for (mut& road : *leftLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
-            for (mut& road : *rightLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
+            for (mut &road: *leftLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
+            for (mut &road: *rightLaserSegmenter_.getAllRoads()) { roadApproximations->push_back(road); }
 
             visualizationHandler_.drawLidarApproximations(approximations);
             visualizationHandler_.drawLidarApproximationsRoad(roadApproximations);
@@ -451,12 +437,12 @@ namespace AutoDrive {
     }
 
 
-    std::string MapBuilder::getFrameForData(const std::shared_ptr<DataModels::GenericDataModel>& data) {
+    std::string MapBuilder::getFrameForData(const std::shared_ptr<DataModels::GenericDataModel> &data) {
         let type = data->getType();
         switch (type) {
 
             case DataModels::DataModelTypes::kCameraDataModelType:
-                switch(std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data)->getCameraIdentifier()) {
+                switch (std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data)->getCameraIdentifier()) {
                     case DataLoader::CameraIndentifier::kCameraLeftFront:
                         return LocalMap::Frames::kCameraLeftFront;
                     case DataLoader::CameraIndentifier::kCameraLeftSide:
@@ -474,7 +460,7 @@ namespace AutoDrive {
                 return LocalMap::Frames::kCameraIr;
 
             case DataModels::DataModelTypes::kLidarScanDataModelType:
-                switch(std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data)->getLidarIdentifier()) {
+                switch (std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data)->getLidarIdentifier()) {
                     case DataLoader::LidarIdentifier::kLeftLidar:
                         return LocalMap::Frames::kLidarLeft;
                     case DataLoader::LidarIdentifier::kRightLidar:

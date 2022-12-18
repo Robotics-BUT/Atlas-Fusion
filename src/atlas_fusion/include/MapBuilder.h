@@ -89,65 +89,66 @@ namespace AutoDrive {
          *  @param destinationFolder folder where the output data will be writen
          */
         explicit MapBuilder(
-                ros::NodeHandle& node,
-                Context& context,
-                uint32_t gnssLogPoseNo,
-                uint32_t imuLogPoseNo,
-                float selfModelProcessNoise,
-                float selfModelObservationNoise,
-                float leafSize,
-                float globalLeafSize,
-                uint32_t noOfBatchesPerScan,
-                float liadrAggregationTime,
-                uint32_t noOfLasersPerLidar,
-                uint32_t noOfLaserAggregatedPoints,
-                DataLoader::timestamp_type keepHistoryLength,
-                double maxReplayerRate,
-                float maxLidar2ImgDist,
-                std::string& destinationFolder,
-                float vectorizer_sigma,
-                size_t segmenter_step,
-                float segmenter_lower_bound,
-                float segmenter_upper_bound,
-                float segmenter_scaling)
-        : node_{node}
-        , context_{context}
-        , gnssPoseLogger_{context, gnssLogPoseNo}
-        , imuPoseLogger_{context, imuLogPoseNo}
-        , selfModel_{context, selfModelProcessNoise, selfModelObservationNoise}
-        , depthMap_{context}
-        , detectionProcessor_{context}
-        , pointCloudExtrapolator_{context, noOfBatchesPerScan}
-        , pointCloudAggregator_{context, liadrAggregationTime}
-        , pointCloudProcessor_ {context, leafSize}
-        , leftLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints}
-        , rightLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints}
-        , leftLaserSegmenter_{context, noOfLaserAggregatedPoints, vectorizer_sigma, segmenter_step, segmenter_lower_bound, segmenter_upper_bound, segmenter_scaling}
-        , rightLaserSegmenter_{context, noOfLaserAggregatedPoints, vectorizer_sigma, segmenter_step, segmenter_lower_bound, segmenter_upper_bound, segmenter_scaling}
-        , globalPointcloudStorage_{context, globalLeafSize}
-        , occGrid_{context}
-        , lidarObjectDetector_{context}
-        , yoloIrReprojector_{context}
-        , failChecker_{context}
-        , visualizationHandler_{node, context}
-        , dataLoader_{context, keepHistoryLength}
-        , keepHistoryLength_{keepHistoryLength}
-        , maxReplayerRate_{maxReplayerRate}
-        , yoloIRDetectionWriter_{context, destinationFolder + DataLoader::Folders::kOutputFolder, DataLoader::Files::kIrCameraYoloFile}
-        , lidarIrImgPlotter_{context, maxLidar2ImgDist, destinationFolder}
-        , lidarRgbLFImgPlotter_{context, maxLidar2ImgDist, destinationFolder}
-        , localMap_{context}
-        , objectAggregator_{context}
-        {
-
+                ros::NodeHandle &node,
+                Context &context,
+                const uint32_t gnssLogPoseNo,
+                const uint32_t imuLogPoseNo,
+                const float selfModelProcessNoise,
+                const float selfModelObservationNoise,
+                const float leafSize,
+                const float globalLeafSize,
+                const uint32_t noOfBatchesPerScan,
+                const float liadrAggregationTime,
+                const uint32_t noOfLasersPerLidar,
+                const uint32_t noOfLaserAggregatedPoints,
+                const DataLoader::timestamp_type keepHistoryLength,
+                const double maxReplayerRate,
+                const float maxLidar2ImgDist,
+                const std::string &destinationFolder,
+                const float vectorizer_sigma,
+                const size_t segmenter_step,
+                const float segmenter_lower_bound,
+                const float segmenter_upper_bound,
+                const float segmenter_scaling)
+                : node_{node},
+                  context_{context},
+                  destinationFolder_{destinationFolder},
+                  gnssPoseLogger_{context, gnssLogPoseNo},
+                  imuPoseLogger_{context, imuLogPoseNo},
+                  selfModel_{context, selfModelProcessNoise, selfModelObservationNoise},
+                  depthMap_{context},
+                  detectionProcessor_{context},
+                  pointCloudExtrapolator_{context, noOfBatchesPerScan},
+                  pointCloudAggregator_{context, liadrAggregationTime},
+                  pointCloudProcessor_{context, leafSize},
+                  leftLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints},
+                  rightLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints},
+                  leftLaserSegmenter_{context, noOfLaserAggregatedPoints, vectorizer_sigma, segmenter_step,
+                                      segmenter_lower_bound, segmenter_upper_bound, segmenter_scaling},
+                  rightLaserSegmenter_{context, noOfLaserAggregatedPoints, vectorizer_sigma, segmenter_step,
+                                       segmenter_lower_bound, segmenter_upper_bound, segmenter_scaling},
+                  globalPointcloudStorage_{context, globalLeafSize},
+                  occGrid_{context},
+                  lidarObjectDetector_{context},
+                  yoloIrReprojector_{context},
+                  failChecker_{context},
+                  visualizationHandler_{node, context},
+                  dataLoader_{context, keepHistoryLength},
+                  keepHistoryLength_{keepHistoryLength},
+                  maxReplayerRate_{maxReplayerRate},
+                  yoloIRDetectionWriter_{context, destinationFolder + DataLoader::Folders::kOutputFolder,
+                                         DataLoader::Files::kIrCameraYoloFile},
+                  lidarIrImgPlotter_{context, maxLidar2ImgDist, destinationFolder},
+                  lidarRgbLFImgPlotter_{context, maxLidar2ImgDist, destinationFolder},
+                  localMap_{context},
+                  objectAggregator_{context} {
             lidarFilter_.enableFilterNearObjects();
         }
 
         /**
-         *  Loads the common structured data from the folder defined by the input argument
-         *  @param path system path to the folder, where offline data are stored
+         *  Loads the common structured data from the folder defined in the MapBuilder constructor
          */
-        void loadData(const std::string& path);
+        void loadData();
 
         /**
          *  Method runs the main data processing pipeline. Map Builder class reads raw data one by one and creates the
@@ -162,8 +163,9 @@ namespace AutoDrive {
 
     private:
 
-        ros::NodeHandle& node_;
-        Context& context_;
+        ros::NodeHandle &node_;
+        Context &context_;
+        std::string destinationFolder_;
         DataCache cache_;
 
         Algorithms::SimpleTrajectoryLogger gnssPoseLogger_;
@@ -207,21 +209,31 @@ namespace AutoDrive {
 
         Algorithms::SimpleImageProcessor simpleImageProcessor_;
 
-        void processRGBCameraData(std::shared_ptr<DataModels::CameraFrameDataModel>, std::string&);
-        void processIRCameraData(std::shared_ptr<DataModels::CameraIrFrameDataModel>, std::string&);
-        void processGnssPoseData(std::shared_ptr<DataModels::GnssPoseDataModel>, std::string&);
-        void processImuDQuatData(std::shared_ptr<DataModels::ImuDquatDataModel>, std::string&);
-        void processImuGnssData(std::shared_ptr<DataModels::ImuGnssDataModel>, std::string&);
-        void processImuImuData(std::shared_ptr<DataModels::ImuImuDataModel>, std::string&);
-        void processLidarScanData(std::shared_ptr<DataModels::LidarScanDataModel>, std::string&);
-        void processRadarTiData(std::shared_ptr<DataModels::RadarTiDataModel>, std::string&);
+        void processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &, const std::string &);
+
+        void processIRCameraData(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &);
+
+        void processGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel>&);
+
+        void processImuDQuatData(const std::shared_ptr<DataModels::ImuDquatDataModel>&);
+
+        void processImuGnssData(const std::shared_ptr<DataModels::ImuGnssDataModel>&);
+
+        void processImuImuData(const std::shared_ptr<DataModels::ImuImuDataModel>&);
+
+        void processLidarScanData(const std::shared_ptr<DataModels::LidarScanDataModel>&);
+
+        void processRadarTiData(const std::shared_ptr<DataModels::RadarTiDataModel>&);
 
         void generateDepthMapForIR();
-        void projectRGBDetectionsToIR();
-        void aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel>&);
-        void approximateLidar(const std::shared_ptr<DataModels::LidarScanDataModel>&);
 
-        std::string getFrameForData(const std::shared_ptr<DataModels::GenericDataModel>&);
+        void projectRGBDetectionsToIR();
+
+        void aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &);
+
+        void approximateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &);
+
+        std::string getFrameForData(const std::shared_ptr<DataModels::GenericDataModel> &);
     };
 
 }

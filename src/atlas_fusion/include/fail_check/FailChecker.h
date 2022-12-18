@@ -84,7 +84,7 @@ namespace AutoDrive::FailCheck {
          * @param data sensor data packet
          * @param sensor identifier of the sensor
          */
-        void onNewData(std::shared_ptr<DataModels::GenericDataModel> data, SensorFailCheckID sensor);
+        void onNewData(const std::shared_ptr<DataModels::GenericDataModel>& data, SensorFailCheckID sensor);
 
         /**
          * Returns the reliability of the given sensro
@@ -98,7 +98,7 @@ namespace AutoDrive::FailCheck {
          * @param frame name of sensor frame
          * @return Fail Checker specific sensor identifier
          */
-        SensorFailCheckID frameToFailcheckID(std::string frame);
+        SensorFailCheckID frameToFailcheckID(const std::string& frame);
 
     protected:
 

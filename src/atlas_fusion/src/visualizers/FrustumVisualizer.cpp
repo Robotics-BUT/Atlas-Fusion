@@ -25,7 +25,7 @@
 
 namespace AutoDrive::Visualizers {
 
-    void FrustumVisualizer::visualizeFrustumDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> detections) {
+    void FrustumVisualizer::visualizeFrustumDetections(const std::vector<DataModels::FrustumDetection>& detections) {
 
         static size_t maxMarkerNo = 0;
         visualization_msgs::MarkerArray msg;
@@ -42,12 +42,12 @@ namespace AutoDrive::Visualizers {
             marker.type = visualization_msgs::Marker::LINE_LIST;
             marker.action = visualization_msgs::Marker::ADD;
 
-            marker.points = frustumToGeometryPointVector(detection->getFrustum());
+            marker.points = frustumToGeometryPointVector(detection.getFrustum());
 
             marker.scale.x = 0.1;
             marker.scale.y = 0.1;
             marker.scale.z = 0.1;
-            marker.color = getColorByClass(detection->getClass());
+            marker.color = getColorByClass(detection.getClass());
             msg.markers.push_back(marker);
 
             // Frustum Axis

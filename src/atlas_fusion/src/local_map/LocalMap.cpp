@@ -22,22 +22,23 @@
 
 #include "local_map/LocalMap.h"
 
+#include <utility>
+
 namespace AutoDrive::LocalMap {
 
 
-    void LocalMap::setFrustumDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> detections, std::string sensorFrame) {
-        frustumsDetections_[sensorFrame] = detections;
+    void LocalMap::setFrustumDetections(std::vector<DataModels::FrustumDetection> detections, const std::string &sensorFrame) {
+        frustumsDetections_[sensorFrame] = std::move(detections);
     }
 
 
-
     void LocalMap::setLidarDetections(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections) {
-        lidarDetections_ = detections;
+        lidarDetections_ = std::move(detections);
     }
 
 
     void LocalMap::setObjects(std::vector<std::shared_ptr<DataModels::Object>> objects) {
-        objects_ = objects;
+        objects_ = std::move(objects);
     }
 
 
@@ -49,17 +50,15 @@ namespace AutoDrive::LocalMap {
     }
 
 
-    std::vector<std::shared_ptr<const DataModels::FrustumDetection>> LocalMap::getFrustumDetections() {
-
-        std::vector<std::shared_ptr<const DataModels::FrustumDetection>> output;
-        for(auto it = frustumsDetections_.begin(); it != frustumsDetections_.end(); it++){
-            for(auto& frustum : it->second) {
+    std::vector<DataModels::FrustumDetection> LocalMap::getFrustumDetections() {
+        std::vector<DataModels::FrustumDetection> output;
+        for (auto &frustumsDetection: frustumsDetections_) {
+            for (auto &frustum: frustumsDetection.second) {
                 output.push_back(frustum);
             }
         }
         return output;
     }
-
 
 
     std::vector<std::shared_ptr<const DataModels::LidarDetection>> LocalMap::getLidarDetections() {

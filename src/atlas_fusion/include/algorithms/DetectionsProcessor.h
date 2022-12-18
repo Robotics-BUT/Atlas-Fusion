@@ -56,7 +56,7 @@ namespace AutoDrive::Algorithms {
          * @param frame camera identifier
          * @return list of 3D frustum data models
          */
-        std::vector<std::shared_ptr<const DataModels::FrustumDetection>> onNew3DYoloDetections(std::shared_ptr<std::vector<DataModels::YoloDetection3D>> detections3D, std::string frame);
+        std::vector<DataModels::FrustumDetection> onNew3DYoloDetections(const std::vector<DataModels::YoloDetection3D>& detections3D, const std::string& frame);
 
         /**
          * Inserter of a camera projector class instances
@@ -64,7 +64,7 @@ namespace AutoDrive::Algorithms {
          * into 2D
          * @param id camera identifier
          */
-        void addProjector(std::shared_ptr<Projector> projector, std::string id);
+        void addProjector(std::shared_ptr<Projector> projector, const std::string& id);
 
     private:
 

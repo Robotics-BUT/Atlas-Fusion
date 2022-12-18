@@ -26,57 +26,55 @@
 #include "RecordingConstants.h"
 #include "Context.h"
 
-namespace AutoDrive {
-    namespace DataLoader {
+namespace AutoDrive::DataLoader {
+
+    /**
+     * IMU Data Loader loads and handles data providing for the IMU sensor. It covers the the linear accelerations,
+     * ongular velocities, absolute orientation, magnetic field intensity, atmospheric pressure, global GNSS
+     * positioning and the internal sensor's temperature.
+     */
+    class ImuDataLoader : public AbstractDataLoader {
+
+    public:
 
         /**
-         * IMU Data Loader loads and handles data providing for the IMU sensor. It covers the the linear accelerations,
-         * ongular velocities, absolute orientation, magnetic field intensity, atmospheric pressure, global GNSS
-         * positioning and the internal sensor's temperature.
+         * Constructor
+         * @param context global services container (timestamps, logging, etc.)
+         * @param id identifies which type of data the Data Loader is handling
          */
-        class ImuDataLoader : public AbstractDataLoader {
+        ImuDataLoader(Context& context, ImuLoaderIdentifier id)
+        : context_{context}
+        , dataLoaderIdentifier_(id) {
+                data_.clear();
+                dataIt_ = data_.begin();
+        }
 
-        public:
+        bool loadData(const std::string& path) override;
+        timestamp_type getLowestTimestamp() override;
+        std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
+        std::string toString() override;
+        uint64_t getDataSize() override;
+        bool isOnEnd() override;
+        void setPose(timestamp_type) override;
+        void releaseOldData(timestamp_type keepHistory) override;
+        void clear() override;
 
-            /**
-             * Constructor
-             * @param context global services container (timestamps, logging, etc.)
-             * @param id identifies which type of data the Data Loader is handling
-             */
-            ImuDataLoader(Context& context, ImuLoaderIdentifier id)
-            : context_{context}
-            , dataLoaderIdentifier_(id) {
-                    data_.clear();
-                    dataIt_ = data_.begin();
-            }
+    private:
 
-            bool loadData(std::string path) override;
-            timestamp_type getLowestTimestamp() override;
-            std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
-            std::string toString() override;
-            uint64_t getDataSize() override;
-            bool isOnEnd() override;
-            void setPose(timestamp_type) override;
-            void releaseOldData(timestamp_type keepHistory) override;
-            void clear() override;
+        Context& context_;
+        ImuLoaderIdentifier dataLoaderIdentifier_;
 
-        private:
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> data_;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>>::iterator dataIt_;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>>::iterator releaseIt_;
 
-            Context& context_;
-            ImuLoaderIdentifier dataLoaderIdentifier_;
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuDquatData(const std::string& path);
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuGnssData(const std::string& path);
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuImuData(const std::string& path);
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuMagData(const std::string& path);
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuPressureData(const std::string& path);
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuTempData(const std::string& path);
+        std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuTimeData(const std::string& path);
+    };
 
-            std::vector<std::shared_ptr<DataModels::GenericDataModel>> data_;
-            std::vector<std::shared_ptr<DataModels::GenericDataModel>>::iterator dataIt_;
-            std::vector<std::shared_ptr<DataModels::GenericDataModel>>::iterator releaseIt_;
-
-            std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuDquatData(std::string& path);
-            std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuGnssData(std::string& path);
-            std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuImuData(std::string& path);
-            std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuMagData(std::string& path);
-            std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuPressureData(std::string& path);
-            std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuTempData(std::string& path);
-            std::vector<std::shared_ptr<DataModels::GenericDataModel>> loadImuTimeData(std::string& path);
-        };
-
-    }
 }

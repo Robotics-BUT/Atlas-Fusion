@@ -29,46 +29,44 @@
 #include "data_loader/DataLoaderIdentifiers.h"
 #include "Context.h"
 
-namespace AutoDrive {
-    namespace DataLoader {
+namespace AutoDrive::DataLoader {
+
+    /**
+     * Radar Data Loader handles the radar scans
+     * Data Loader instance.
+     */
+    class RadarTiDataLoader : public AbstractDataLoader{
+
+    public:
 
         /**
-         * Radar Data Loader handles the radar scans
-         * Data Loader instance.
+         *
+         * @param context global services container (timestamps, logging, etc.)
+         * @param id radar type identifier
          */
-        class RadarTiDataLoader : public AbstractDataLoader{
+        RadarTiDataLoader(Context& context, RadarIdentifier id)
+                : context_{context}
+                , radarIdentifier_(id){
+            data_.clear();
+            dataIt_ = data_.begin();
+        }
 
-        public:
+        bool loadData(const std::string& path) override;
+        timestamp_type getLowestTimestamp() override;
+        std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
+        std::string toString() override;
+        uint64_t getDataSize() override;
+        bool isOnEnd() override;
+        void setPose(timestamp_type) override;
+        void releaseOldData(timestamp_type keepHistory) override;
+        void clear() override;
 
-            /**
-             *
-             * @param context global services container (timestamps, logging, etc.)
-             * @param id radar type identifier
-             */
-            RadarTiDataLoader(Context& context, RadarIdentifier id)
-                    : context_{context}
-                    , radarIdentifier_(id){
-                data_.clear();
-                dataIt_ = data_.begin();
-            }
+    private:
+        Context& context_;
+        RadarIdentifier radarIdentifier_;
+        std::vector<std::shared_ptr<DataModels::RadarTiDataModel>> data_;
+        std::vector<std::shared_ptr<DataModels::RadarTiDataModel>>::iterator dataIt_;
+        std::vector<std::shared_ptr<DataModels::RadarTiDataModel>>::iterator releaseIt_;
 
-            bool loadData(std::string path) override;
-            timestamp_type getLowestTimestamp() override;
-            std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
-            std::string toString() override;
-            uint64_t getDataSize() override;
-            bool isOnEnd() override;
-            void setPose(timestamp_type) override;
-            void releaseOldData(timestamp_type keepHistory) override;
-            void clear() override;
-
-        private:
-            Context& context_;
-            RadarIdentifier radarIdentifier_;
-            std::vector<std::shared_ptr<DataModels::RadarTiDataModel>> data_;
-            std::vector<std::shared_ptr<DataModels::RadarTiDataModel>>::iterator dataIt_;
-            std::vector<std::shared_ptr<DataModels::RadarTiDataModel>>::iterator releaseIt_;
-
-        };
-    }
+    };
 }

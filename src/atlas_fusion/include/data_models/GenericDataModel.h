@@ -40,7 +40,7 @@ namespace AutoDrive::DataModels {
          * Constructor
          * @param timestamp nanosecond timestamp that identifies time position of the data
          */
-        GenericDataModel(uint64_t timestamp)
+        explicit GenericDataModel(uint64_t timestamp)
         : timestamp_(timestamp)
         , type_(DataModelTypes::kGenericDataModelType) {
 
@@ -62,7 +62,7 @@ namespace AutoDrive::DataModels {
          * Method returns the data model timestamp
          * @return nanosecond timestamp
          */
-        uint64_t getTimestamp() { return timestamp_; };
+        uint64_t getTimestamp() const { return timestamp_; };
 
         /**
          * Returns all the data models (data) that are related to this one
@@ -72,7 +72,7 @@ namespace AutoDrive::DataModels {
 
     protected:
 
-        const uint64_t timestamp_;
+        uint64_t timestamp_;
         DataModelTypes type_;
         std::vector<std::shared_ptr<GenericDataModel>> parents_{};
     };

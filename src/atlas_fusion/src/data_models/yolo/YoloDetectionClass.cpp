@@ -24,7 +24,7 @@
 
 namespace AutoDrive::DataModels {
 
-    ReducedYoloDetectionClasses getReducedDetectionClass(YoloDetectionClass& cls) {
+    ReducedYoloDetectionClasses getReducedDetectionClass(const YoloDetectionClass& cls) {
 
         auto detectionClass = ReducedYoloDetectionClasses::kOther;
         switch(cls) {

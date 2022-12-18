@@ -39,7 +39,7 @@ namespace AutoDrive::Algorithms {
 
     /**
      * Self Model takes care about the sensor-equipped motion modeling. It combines the GNNS and IMU measurements
-     * to estimate best effort position that is later used in the mapping apgorithms
+     * to estimate best effort position that is later used in the mapping algorithms
      */
     class SelfModel {
 
@@ -64,19 +64,19 @@ namespace AutoDrive::Algorithms {
          * Input pipe for new GNSS data
          * @param data GNSS data frame
          */
-        void onGnssPose(std::shared_ptr<DataModels::GnssPoseDataModel> data);
+        void onGnssPose(const std::shared_ptr<DataModels::GnssPoseDataModel>& data);
 
         /**
          * Input pipe for new IMU data
          * @param data IMU data frame
          */
-        void onImuImuData(std::shared_ptr<DataModels::ImuImuDataModel> data);
+        void onImuImuData(const std::shared_ptr<DataModels::ImuImuDataModel>& data);
 
         /**
          * Input pipe for new IMU (orientation change) data
          * @param data IMU (orientation change) data frame
          */
-        void onImuDquatData(std::shared_ptr<DataModels::ImuDquatDataModel> data);
+        void onImuDquatData(const std::shared_ptr<DataModels::ImuDquatDataModel>& data);
 
         /**
          * Getter for current position in the global coordinate systems
@@ -164,13 +164,13 @@ namespace AutoDrive::Algorithms {
         uint64_t lastDquatTimestamp_{};
 
 
-        std::pair<double, float> validHeading(std::shared_ptr<DataModels::GnssPoseDataModel> data);
+        std::pair<double, float> validHeading(const std::shared_ptr<DataModels::GnssPoseDataModel>& data);
         std::pair<double, float> speedHeading();
-        std::pair<double, float> fuseHeadings(std::shared_ptr<DataModels::GnssPoseDataModel> data);
+        std::pair<double, float> fuseHeadings(const std::shared_ptr<DataModels::GnssPoseDataModel>& data);
         float estimateSlerpFactor(float, float);
         void updateOrientation(double heading);
 
-        DataModels::GlobalPosition gnssPoseToRootFrame(DataModels::GlobalPosition);
+        DataModels::GlobalPosition gnssPoseToRootFrame(const DataModels::GlobalPosition&);
 
         rtl::Vector3D<double> removeGravitationalForceFromLinAcc( std::shared_ptr<DataModels::ImuImuDataModel> data);
         uint64_t getCurrentTime() const;

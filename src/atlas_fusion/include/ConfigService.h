@@ -23,6 +23,7 @@
 #pragma once
 
 #include <iostream>
+#include <utility>
 #include <yaml-cpp/yaml.h>
 
 namespace AutoDrive {
@@ -38,8 +39,8 @@ namespace AutoDrive {
 
     public:
 
-        ConfigService(std::string&& configPath)
-        : confPath_(configPath) {
+        ConfigService(std::string  configPath)
+        : confPath_(std::move(configPath)) {
 
         };
 

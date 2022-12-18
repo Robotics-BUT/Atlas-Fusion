@@ -56,17 +56,17 @@ namespace AutoDrive::Algorithms {
          * The bathes will be remembered until the next update.
          * @param batches Vector of the shared pointers of the point cloud batches, that the Depth Map will reprojection.
          */
-        void updatePointcloudData(std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches);
+        void updatePointCloudData(std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches);
 
         /**
          * Method receives the RGB camera frame that also contains neural network detections and projects point cloud
-         * into these NN's detections. All the points that do not matches any detections are removed, and base od the
-         * matched points for each detection there is estimated the distance of the detection from the camera's frame.
+         * into these NN's detections. All the points that do not match any detections are removed, and based on the
+         * matched points for each detection there is  the distance of the detection from the camera's frame estimated.
          * @param data The RGB image with all the parameters and the neural network detections
          * @param imuPose a precise position of the center of the frame in the given time
          * @return The vector of detections wih estimated distances
          */
-        std::shared_ptr<std::vector<DataModels::YoloDetection3D>> onNewCameraData(std::shared_ptr<DataModels::CameraFrameDataModel> data, DataModels::LocalPosition imuPose);
+        std::vector<DataModels::YoloDetection3D> onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel>& data, const DataModels::LocalPosition& imuPose);
 
         /**
          * Adds a new instance of the Projector to the Depth Map's arsenal. These projectors are used to project point
@@ -110,7 +110,7 @@ namespace AutoDrive::Algorithms {
                 rtl::RigidTf3D<double>,
                 bool useDistMat = true);
 
-        std::vector<size_t> getIndexesOfPointsInDetection(std::vector<cv::Point2f>& validPoints2D, std::shared_ptr<DataModels::YoloDetection> detection);
+        std::vector<size_t> getIndexesOfPointsInDetection(const std::vector<cv::Point2f>& validPoints2D, const DataModels::YoloDetection& detection);
 
         float getMedianDepthOfPointVector(std::vector<cv::Point3f>& points, std::vector<size_t>& indexes);
         std::string cameraIdentifierToFrame(DataLoader::CameraIndentifier id);

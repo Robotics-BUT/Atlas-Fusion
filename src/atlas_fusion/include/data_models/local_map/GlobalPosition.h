@@ -147,7 +147,7 @@ namespace AutoDrive::DataModels {
          * @param globalOrigin WGS position of the local origin
          * @return WGS84 position of the input local offset
          */
-        static GlobalPosition localPoseToGlobalPose(LocalPosition localOffset, GlobalPosition globalOrigin) {
+        static GlobalPosition localPoseToGlobalPose(const LocalPosition& localOffset, GlobalPosition globalOrigin) {
 
             const double step = 0.001f;
             auto g1 = GlobalPosition(globalOrigin.getLatitude() + step, globalOrigin.getLongitude() + step, 0, 0);

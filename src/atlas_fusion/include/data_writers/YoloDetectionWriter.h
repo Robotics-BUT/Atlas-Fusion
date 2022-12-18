@@ -70,7 +70,7 @@ namespace AutoDrive::DataWriters {
          * @param detections vector of the detection to be writen
          * @param frameNo frame number that detections corresponds to
          */
-        void writeDetections(std::shared_ptr<std::vector<DataModels::YoloDetection>> detections, size_t frameNo);
+        void writeDetections(const std::vector<DataModels::YoloDetection>& detections, size_t frameNo);
 
         /**
          * Method writes data in the format COCO dataset, so it is compatible with YOLO input
@@ -79,14 +79,14 @@ namespace AutoDrive::DataWriters {
          * @param image_width image width
          * @param image_height image height
          */
-        void writeDetectionsAsTrainData(std::shared_ptr<std::vector<DataModels::YoloDetection>> detections, size_t frameNo, int image_width, int image_height);
+        void writeDetectionsAsTrainData(const std::vector<DataModels::YoloDetection>& detections, size_t frameNo, int image_width, int image_height);
 
         /**
          * Method stores IR image on the dist in the format that is compatible with YOLO training data
          * @param frame IR image frame
          * @param frameNo IR image frame number
          */
-        void writeIRImageAsTrainData(std::shared_ptr<DataModels::CameraIrFrameDataModel> frame, size_t frameNo);
+        void writeIRImageAsTrainData(const std::shared_ptr<DataModels::CameraIrFrameDataModel>& frame, size_t frameNo);
 
         /**
          * Changes location where the data should be stored

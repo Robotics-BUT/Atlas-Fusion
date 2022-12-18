@@ -48,11 +48,11 @@ namespace AutoDrive::DataModels {
          * @param cameraIdentifier camera sensor identifier
          * @param yolo neural network's detections
          */
-        CameraFrameDataModel(uint64_t timestamp, cv::Mat img, uint64_t innerTs, DataLoader::CameraIndentifier cameraIdentifier, std::vector<std::shared_ptr<YoloDetection>>& yolo)
+        CameraFrameDataModel(uint64_t timestamp, cv::Mat img, uint64_t innerTs, DataLoader::CameraIndentifier cameraIdentifier, std::vector<YoloDetection>& yolo)
         : GenericDataModel(timestamp)
         , image_(img)
         , innerCameraTimestamp_(innerTs)
-        , yoloDetections_(std::move(yolo))
+        , yoloDetections_(yolo)
         , cameraIdentifier_(cameraIdentifier) {
             type_ = DataModelTypes::kCameraDataModelType;
         }
@@ -63,7 +63,7 @@ namespace AutoDrive::DataModels {
          * Image getter
          * @return opencv image
          */
-        cv::Mat getImage() {return image_;};
+        cv::Mat getImage() const {return image_;};
 
         /**
          * inner camera getter
@@ -75,13 +75,13 @@ namespace AutoDrive::DataModels {
          * Vector of NN's detections
          * @return NN's detections
          */
-        std::vector<std::shared_ptr<YoloDetection>> getYoloDetections() {return yoloDetections_;};
+        std::vector<YoloDetection> getYoloDetections() {return yoloDetections_;};
 
         /**
          * NN's detections setter
          * @param detections
          */
-        void setYoloDetections(std::vector<std::shared_ptr<YoloDetection>>& detections) {yoloDetections_ = detections;};
+        void setYoloDetections(std::vector<YoloDetection>& detections) {yoloDetections_ = detections;};
 
         /**
          * Unique camera sensor identifier getter
@@ -93,7 +93,7 @@ namespace AutoDrive::DataModels {
 
         cv::Mat image_;
         uint64_t innerCameraTimestamp_;
-        std::vector<std::shared_ptr<YoloDetection>> yoloDetections_{} ;
+        std::vector<YoloDetection> yoloDetections_{} ;
         DataLoader::CameraIndentifier cameraIdentifier_;
 
     };

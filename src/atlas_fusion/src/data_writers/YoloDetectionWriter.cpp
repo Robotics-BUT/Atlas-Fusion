@@ -27,7 +27,7 @@
 
 namespace AutoDrive::DataWriters {
 
-    void YoloDetectionWriter::writeDetections(std::shared_ptr<std::vector<DataModels::YoloDetection>> detections, size_t frameNo) {
+    void YoloDetectionWriter::writeDetections(const std::vector<DataModels::YoloDetection>& detections, size_t frameNo) {
 
         if(!outputFile_.is_open()) {
             auto file_path = destinationDir_ + destinationFile_;
@@ -38,7 +38,7 @@ namespace AutoDrive::DataWriters {
             }
         }
         
-        for (const auto& detection : *detections) {
+        for (const auto& detection : detections) {
             outputFile_ << frameNo << ", "
                         << detection.getBoundingBox().x1_ << ", "
                         << detection.getBoundingBox().y1_ << ", "
@@ -50,9 +50,9 @@ namespace AutoDrive::DataWriters {
     }
 
 
-    void YoloDetectionWriter::writeDetectionsAsTrainData(std::shared_ptr<std::vector<DataModels::YoloDetection>> detections, size_t frameNo, int image_width, int image_height) {
+    void YoloDetectionWriter::writeDetectionsAsTrainData(const std::vector<DataModels::YoloDetection>& detections, size_t frameNo, int image_width, int image_height) {
 
-        if(!detections->empty()) {
+        if(!detections.empty()) {
 
             std::ofstream outputDetFile;
             std::stringstream ss;
@@ -67,7 +67,7 @@ namespace AutoDrive::DataWriters {
                 return;
             }
 
-            for (const auto &detection : *detections) {
+            for (const auto &detection : detections) {
 
                 int x1 = std::min(std::max(detection.getBoundingBox().x1_, 0), image_width-2);
                 int y1 = std::min(std::max(detection.getBoundingBox().y1_, 0), image_width-2);
@@ -90,7 +90,7 @@ namespace AutoDrive::DataWriters {
     }
 
 
-    void YoloDetectionWriter::writeIRImageAsTrainData(std::shared_ptr<DataModels::CameraIrFrameDataModel> frame, size_t frameNo) {
+    void YoloDetectionWriter::writeIRImageAsTrainData(const std::shared_ptr<DataModels::CameraIrFrameDataModel>& frame, size_t frameNo) {
 
         std::stringstream ss;
         ss << std::setw(10) << std::setfill('0');

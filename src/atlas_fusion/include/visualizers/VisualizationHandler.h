@@ -138,7 +138,7 @@ namespace AutoDrive::Visualizers {
          * Render RGB image in the visialization engine
          * @param data image data
          */
-        void drawRGBImage(std::shared_ptr<DataModels::CameraFrameDataModel> data);
+        void drawRGBImage(const std::shared_ptr<DataModels::CameraFrameDataModel>& data);
 
         /**
          * Render IR image in the visialization engine
@@ -198,16 +198,16 @@ namespace AutoDrive::Visualizers {
         /**
          * Setups the camera calibration parameters for specific camera sensor. Used for projecting 3D scene into the
          * image plain in the visualization engine
-         * @param params caibration params
+         * @param params calibration params
          * @param frame camera sensor identifier
          */
-        void setCameraCalibParamsForCameraId(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, std::string frame);
+        void setCameraCalibParamsForCameraId(DataModels::CameraCalibrationParamsDataModel& params, const std::string& frame);
 
         /**
          * Draw frustum detections in 3D
          * @param detections frustum detections
          */
-        void drawFrustumDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> detections);
+        void drawFrustumDetections(const std::vector<DataModels::FrustumDetection>& detections);
 
         /**
          * Draw lidar detections in 3D space

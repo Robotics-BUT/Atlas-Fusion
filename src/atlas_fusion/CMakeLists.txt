@@ -8,34 +8,28 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG " ${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
-## Find catkin and any catkin packages
 find_package(OpenCV REQUIRED)
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs tf2 tf2_msgs tf2_ros tf2_geometry_msgs image_transport cv_bridge)
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs tf2 tf2_msgs tf2_ros tf2_geometry_msgs image_transport cv_bridge actionlib)
 find_package(Qt5 COMPONENTS Core REQUIRED)
 find_package(PCL 1.7 REQUIRED COMPONENTS)
 find_package(Yaml-cpp)
 
 
-## Declare a catkin package
 catkin_package()
 
-## Build talker and listener
+add_subdirectory(libs/robotic-template-library)
 include_directories(
         include
         ${catkin_INCLUDE_DIRS}
         ${OpenCV_INCLUDE_DIRS}
         ${Qt5_INCLUDE_DIRS}
         ${PCL_INCLUDE_DIRS}
+        libs/robotic-template-library/include
+        libs/munkres/include
 )
 
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
-
-add_subdirectory(libs/robotic-template-library)
-include_directories(
-        libs/robotic-template-library/include
-        libs/munkres/include
-)
 
 
 set(SOURCES
@@ -109,7 +103,7 @@ set(SOURCES_DATA_LOADER
         src/data_loader/LidarDataLoader.cpp
         src/data_loader/GnssDataLoader.cpp
         src/data_loader/ImuDataLoader.cpp
-        src/data_loader/RadarTiDataLoader.cpp )
+        src/data_loader/RadarTiDataLoader.cpp)
 
 set(SOURCES_DATA_WRITERS
         src/data_writers/YoloDetectionWriter.cpp
@@ -123,7 +117,9 @@ set(SOURCES_FAIL_CHECK
         src/fail_check/LidarFailChecker.cpp
         src/fail_check/ImuFailChecker.cpp
         src/fail_check/GnssFailChecker.cpp
-        src/fail_check/RadarTiFileChacker.cpp src/algorithms/image_processing/SimpleImageProcessor.cpp include/algorithms/image_processing/SimpleImageProcessor.h)
+        src/fail_check/RadarTiFileChacker.cpp
+        src/algorithms/image_processing/SimpleImageProcessor.cpp
+        include/algorithms/image_processing/SimpleImageProcessor.h)
 
 add_library(atlas_fusion_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK})
 

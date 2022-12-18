@@ -28,46 +28,45 @@
 #include "data_models/all.h"
 #include "Context.h"
 
-namespace AutoDrive {
-    namespace DataLoader {
+namespace AutoDrive::DataLoader {
+
+    /**
+     * Lidar Data Loader handles the point cloud scans lazy loading and providing them on demand to the upper
+     * Data Loader instance.
+     */
+    class   LidarDataLoader : public AbstractDataLoader{
+
+    public:
 
         /**
-         * Lidar Data Loader handles the point cloud scans lazy loading and providing them on demand to the upper
-         * Data Loader instance.
+         *
+         * @param context global services container (timestamps, logging, etc.)
+         * @param id currently identifies the left or right LiDAR sensor
          */
-        class LidarDataLoader : public AbstractDataLoader{
+        LidarDataLoader(Context& context, LidarIdentifier id)
+        : context_{context}
+        , lidarIdentifier_(id){
+            data_.clear();
+            dataIt_ = data_.begin();
+        }
 
-        public:
+        bool loadData(const std::string& path) override;
+        timestamp_type getLowestTimestamp() override;
+        std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
+        std::string toString() override;
+        uint64_t getDataSize() override;
+        bool isOnEnd() override;
+        void setPose(timestamp_type) override;
+        void releaseOldData(timestamp_type keepHistory) override;
+        void clear() override;
 
-            /**
-             *
-             * @param context global services container (timestamps, logging, etc.)
-             * @param id currently identifies the left or right LiDAR sensor
-             */
-            LidarDataLoader(Context& context, LidarIdentifier id)
-            : context_{context}
-            , lidarIdentifier_(id){
-                data_.clear();
-                dataIt_ = data_.begin();
-            }
+    private:
+        Context& context_;
+        LidarIdentifier lidarIdentifier_;
+        std::vector<std::shared_ptr<DataModels::LidarScanDataModel>> data_;
+        std::vector<std::shared_ptr<DataModels::LidarScanDataModel>>::iterator dataIt_;
+        std::vector<std::shared_ptr<DataModels::LidarScanDataModel>>::iterator releaseIt_;
 
-            bool loadData(std::string path) override;
-            timestamp_type getLowestTimestamp() override;
-            std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
-            std::string toString() override;
-            uint64_t getDataSize() override;
-            bool isOnEnd() override;
-            void setPose(timestamp_type) override;
-            void releaseOldData(timestamp_type keepHistory) override;
-            void clear() override;
-
-        private:
-            Context& context_;
-            LidarIdentifier lidarIdentifier_;
-            std::vector<std::shared_ptr<DataModels::LidarScanDataModel>> data_;
-            std::vector<std::shared_ptr<DataModels::LidarScanDataModel>>::iterator dataIt_;
-            std::vector<std::shared_ptr<DataModels::LidarScanDataModel>>::iterator releaseIt_;
-
-        };
-    }
+    };
 }
+

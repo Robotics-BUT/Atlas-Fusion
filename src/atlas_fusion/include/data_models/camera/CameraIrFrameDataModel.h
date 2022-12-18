@@ -47,12 +47,9 @@ namespace AutoDrive::DataModels {
          * @param tempMax minimal temperature measured on image
          * @param cameraIdentifier unique camera identifier
          */
-        CameraIrFrameDataModel(uint64_t timestamp, cv::Mat img, double tempMin, double tempMax, const DataLoader::CameraIndentifier& cameraIdentifier, const std::vector<std::shared_ptr<YoloDetection>>& yolo)
-                : GenericDataModel(timestamp)
-                , tempMin_(tempMin)
-                , tempMax_(tempMax)
-                , yoloDetections_(yolo)
-                , cameraIdentifier_{cameraIdentifier} {
+        CameraIrFrameDataModel(uint64_t timestamp, cv::Mat img, double tempMin, double tempMax, const DataLoader::CameraIndentifier &cameraIdentifier,
+                               const std::vector<YoloDetection> &yolo)
+                : GenericDataModel(timestamp), tempMin_(tempMin), tempMax_(tempMax), yoloDetections_(yolo), cameraIdentifier_{cameraIdentifier} {
             type_ = DataModelTypes::kCameraIrDataModelType;
             cv::cvtColor(img, image_, cv::COLOR_BGR2GRAY);
         }
@@ -63,38 +60,38 @@ namespace AutoDrive::DataModels {
          * IR Image getter
          * @return thermal image (grayscale)
          */
-        cv::Mat getImage() {return image_;};
+        cv::Mat getImage() { return image_; };
 
         /**
          * Minimal and maximal temperatures captured on the thermal image
          * @return min and max temperatures on the image
          */
-        std::pair<double, double> getTemp() {return std::pair<double, double>{tempMin_, tempMax_};};
+        std::pair<double, double> getTemp() { return std::pair<double, double>{tempMin_, tempMax_}; };
 
         /**
          * Vector of NN's detections
          * @return NN's detections
          */
-        std::vector<std::shared_ptr<YoloDetection>> getYoloDetections() {return yoloDetections_;};
+        std::vector<YoloDetection> getYoloDetections() { return yoloDetections_; };
 
         /**
          * NN's detections setter
          * @param detections
          */
-        void setYoloDetections(std::vector<std::shared_ptr<YoloDetection>>& detections) {yoloDetections_ = detections;};
+        void setYoloDetections(std::vector<YoloDetection> &detections) { yoloDetections_ = detections; };
 
         /**
          * Camera sensor identifier
          * @return unique camera sensor identifier
          */
-        DataLoader::CameraIndentifier getCameraIdentifier() { return cameraIdentifier_;};
+        DataLoader::CameraIndentifier getCameraIdentifier() { return cameraIdentifier_; };
 
     private:
 
         cv::Mat image_;
         double tempMin_;
         double tempMax_;
-        std::vector<std::shared_ptr<YoloDetection>> yoloDetections_{} ;
+        std::vector<YoloDetection> yoloDetections_{};
         DataLoader::CameraIndentifier cameraIdentifier_;
     };
 }

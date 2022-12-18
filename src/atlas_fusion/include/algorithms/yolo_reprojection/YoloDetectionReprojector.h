@@ -24,6 +24,8 @@
 
 #include <rtl/Transformation.h>
 
+#include <utility>
+
 #include "Context.h"
 #include "algorithms/Projector.h"
 
@@ -56,13 +58,13 @@ namespace AutoDrive::Algorithms {
          * @param currentCameraTf current camera position
          * @return 2D detection projected into cmaera's plain
          */
-        std::shared_ptr<std::vector<DataModels::YoloDetection>> onNewDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> frustums, rtl::RigidTf3D<double> currentCameraTf);
+        std::vector<DataModels::YoloDetection> onNewDetections(const std::vector<DataModels::FrustumDetection>& frustums, const rtl::RigidTf3D<double>& currentCameraTf);
 
         /**
          * Setter for an instance of the class that holds the internal camera calibration parameters
          * @param projector is able to projects 3D points into camera's plane
          */
-        void setupCameraProjector(std::shared_ptr<Projector> projector) {cameraProjector_ = projector;}
+        void setupCameraProjector(std::shared_ptr<Projector> projector) {cameraProjector_ = std::move(projector);}
 
         /**
          * Method counts the number of IR frames that have passed during the mapping session and hold the frame in the

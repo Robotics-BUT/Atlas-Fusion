@@ -116,7 +116,7 @@ namespace AutoDrive::Visualizers{
     }
 
 
-    void VisualizationHandler::drawRGBImage(const std::shared_ptr<DataModels::CameraFrameDataModel> data) {
+    void VisualizationHandler::drawRGBImage(const std::shared_ptr<DataModels::CameraFrameDataModel>& data) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().rgb_camera_visualization_) {return;}
@@ -213,11 +213,11 @@ namespace AutoDrive::Visualizers{
         tfTreeVisualizer_.updateOriginToRootTf(tf);
     }
 
-    void VisualizationHandler::setCameraCalibParamsForCameraId(std::shared_ptr<DataModels::CameraCalibrationParamsDataModel> params, std::string frame) {
+    void VisualizationHandler::setCameraCalibParamsForCameraId(DataModels::CameraCalibrationParamsDataModel& params, const std::string& frame) {
         cameraVisualizer_.setCameraParams(frame, params);
     }
 
-    void VisualizationHandler::drawFrustumDetections(std::vector<std::shared_ptr<const DataModels::FrustumDetection>> detections) {
+    void VisualizationHandler::drawFrustumDetections(const std::vector<DataModels::FrustumDetection>& detections) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         frustumVisualizer_.visualizeFrustumDetections(detections);
     }

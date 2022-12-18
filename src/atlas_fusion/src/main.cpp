@@ -77,18 +77,6 @@ AutoDrive::FunctionalityFlags loadFunctionalityFlags(AutoDrive::ConfigService& c
 
 int main(int argc, char** argv) {
 
-
-    int cols =3;
-    int rows = 4;
-    std::vector<int> M = {2, 2, 1,
-                          1, 2, 2,
-                          2, 1, 2,
-                          2, 2, 2};
-    auto f = [&](unsigned r, unsigned c) { return M[r * cols + c]; };
-    auto matching = Munkres::munkres_algorithm<int>(rows, cols, f);
-
-    const std::string imuFrameName = "imu";
-
     if(argc < 2) {
         std::cerr << "Error: too few input arguments!" << std::endl;
         std::cerr << " Usage: atlas_fusion <path_to_config_file>" << std::endl;
@@ -122,7 +110,8 @@ int main(int argc, char** argv) {
                                             AutoDrive::LocalMap::Frames::kCameraLeftSide,
                                             AutoDrive::LocalMap::Frames::kCameraRightFront,
                                             AutoDrive::LocalMap::Frames::kCameraRightSide,
-                                            AutoDrive::LocalMap::Frames::kCameraIr};
+                                            AutoDrive::LocalMap::Frames::kCameraIr
+                                             };
     auto calibFolder = configService.getStringValue({"calibrations_folder"});
     auto tfTree = buildTFTree(
              rootFrame,
@@ -136,7 +125,7 @@ int main(int argc, char** argv) {
     auto leafSize = configService.getFloatValue({"lidar_aggregator", "leaf_size"});
     auto globalLeafSize = configService.getFloatValue({"lidar_aggregator", "global_leaf_size"});
     auto batchesPerScan = configService.getUInt32Value({"lidar_aggregator", "no_of_batches_per_scan"});
-    auto aggretationTime = configService.getFloatValue({"lidar_aggregator", "aggregation_time"});
+    auto aggregationTime = configService.getFloatValue({"lidar_aggregator", "aggregation_time"});
 
     auto selfModelProcessNoise = configService.getFloatValue({"self_model", "kalman_process_noise"});
     auto selfModelObservationNoise = configService.getFloatValue({"self_model", "kalman_observation_noise"});
@@ -169,7 +158,7 @@ int main(int argc, char** argv) {
         leafSize,
         globalLeafSize,
         batchesPerScan,
-        aggretationTime,
+        aggregationTime,
         lasersPerLidar,
         pointsPerLaser,
         keepHistorySecLength,
@@ -182,7 +171,7 @@ int main(int argc, char** argv) {
         segmenter_upper_bound,
         segmenter_scaling};
 
-    mapBuilder.loadData(dataFolder);
+    mapBuilder.loadData();
     mapBuilder.buildMap();
     mapBuilder.clearData();
 

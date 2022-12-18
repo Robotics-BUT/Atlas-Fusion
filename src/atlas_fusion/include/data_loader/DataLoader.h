@@ -34,12 +34,11 @@
 #include "AbstractDataLoader.h"
 #include "Context.h"
 
-namespace AutoDrive {
-    namespace DataLoader {
+namespace AutoDrive::DataLoader {
 
         /**
          * Data Loader works as a frontend for the entire data loading sections this class creates the only one bridge
-         * between the intancess that reads data from data source and the data processin pipeline. Data Loader owns all
+         * between the instances that reads data from data source and the data processing pipeline. Data Loader owns all
          * the sensor specific data loaders and handles the data providing in the correct time order.
          */
         class DataLoader : public AbstractDataLoader {
@@ -53,58 +52,58 @@ namespace AutoDrive {
              * before it will be removed
              */
             DataLoader(Context& context, timestamp_type keepHistoryLength)
-            : cameraLeftFrontDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraLeftFront, context.calibFolder_+Files::kCameraLeftFrontCalibYaml))
-            , cameraLeftSideDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraLeftSide, context.calibFolder_+Files::kCameraLeftSideCalibYaml))
-            , cameraRightFrontDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraRightFront, context.calibFolder_+Files::kCameraRightFrontCalibYaml))
-            , cameraRightSideDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraRightSide, context.calibFolder_+Files::kCameraRightSideCalibYaml))
-            , cameraIrDataLoader_(std::make_shared<CameraDataLoader>(context, CameraIndentifier::kCameraIr, context.calibFolder_+Files::kCameraIrCalibYaml))
-            , leftLidarDataLoader_(std::make_shared<LidarDataLoader>(context, LidarIdentifier::kLeftLidar))
-            , rightLidarDataLoader_(std::make_shared<LidarDataLoader>(context, LidarIdentifier::kRightLidar))
-            , centerLidarDataLoader_(std::make_shared<LidarDataLoader>(context, LidarIdentifier::kCenterLidar))
-            , gnssPoseDataLoader_(std::make_shared<GnssDataLoader>(context, GnssLoaderIdentifier::kPose))
-            , gnssTimeDataLoader_(std::make_shared<GnssDataLoader>(context, GnssLoaderIdentifier::kTime))
-            , imuDquatDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kDQuat))
-            , imuGnssDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kGnss))
-            , imuImuDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kImu))
-            , imuMagDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kMag))
-            , imuPressDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kPressure))
-            , imuTempDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kTemp))
-            , imuTimeDataLoader_(std::make_shared<ImuDataLoader>(context, ImuLoaderIdentifier::kTime))
-            , radarTiDataLoader_(std::make_shared<RadarTiDataLoader>(context, RadarIdentifier::kRadarTi))
+            : cameraLeftFrontDataLoader_(CameraDataLoader(context, CameraIndentifier::kCameraLeftFront, context.calibFolder_+Files::kCameraLeftFrontCalibYaml))
+            , cameraLeftSideDataLoader_(CameraDataLoader(context, CameraIndentifier::kCameraLeftSide, context.calibFolder_+Files::kCameraLeftSideCalibYaml))
+            , cameraRightFrontDataLoader_(CameraDataLoader(context, CameraIndentifier::kCameraRightFront, context.calibFolder_+Files::kCameraRightFrontCalibYaml))
+            , cameraRightSideDataLoader_(CameraDataLoader(context, CameraIndentifier::kCameraRightSide, context.calibFolder_+Files::kCameraRightSideCalibYaml))
+            , cameraIrDataLoader_(CameraDataLoader(context, CameraIndentifier::kCameraIr, context.calibFolder_+Files::kCameraIrCalibYaml))
+            , leftLidarDataLoader_(LidarDataLoader(context, LidarIdentifier::kLeftLidar))
+            , rightLidarDataLoader_(LidarDataLoader(context, LidarIdentifier::kRightLidar))
+            , centerLidarDataLoader_(LidarDataLoader(context, LidarIdentifier::kCenterLidar))
+            , gnssPoseDataLoader_(GnssDataLoader(context, GnssLoaderIdentifier::kPose))
+            , gnssTimeDataLoader_(GnssDataLoader(context, GnssLoaderIdentifier::kTime))
+            , imuDquatDataLoader_(ImuDataLoader(context, ImuLoaderIdentifier::kDQuat))
+            , imuGnssDataLoader_(ImuDataLoader(context, ImuLoaderIdentifier::kGnss))
+            , imuImuDataLoader_(ImuDataLoader(context, ImuLoaderIdentifier::kImu))
+            , imuMagDataLoader_(ImuDataLoader(context, ImuLoaderIdentifier::kMag))
+            , imuPressDataLoader_(ImuDataLoader(context, ImuLoaderIdentifier::kPressure))
+            , imuTempDataLoader_(ImuDataLoader(context, ImuLoaderIdentifier::kTemp))
+            , imuTimeDataLoader_(ImuDataLoader(context, ImuLoaderIdentifier::kTime))
+            , radarTiDataLoader_(RadarTiDataLoader(context, RadarIdentifier::kRadarTi))
             , context_{context}
             , keepHistoryLength_(keepHistoryLength) {
 
                 dataLoaders_ = {
-                        cameraLeftFrontDataLoader_,
-                        cameraLeftSideDataLoader_,
-                        cameraRightFrontDataLoader_,
-                        cameraRightSideDataLoader_,
-                        cameraIrDataLoader_,
-                        leftLidarDataLoader_,
-                        rightLidarDataLoader_,
-                        centerLidarDataLoader_,
-                        gnssPoseDataLoader_,
-                        gnssTimeDataLoader_,
-                        imuDquatDataLoader_,
-                        imuGnssDataLoader_,
-                        imuImuDataLoader_,
-                        imuMagDataLoader_,
-                        imuPressDataLoader_,
-                        imuTempDataLoader_,
-                        imuTimeDataLoader_,
-                        radarTiDataLoader_,
+                        &cameraLeftFrontDataLoader_,
+                        &cameraLeftSideDataLoader_,
+                        &cameraRightFrontDataLoader_,
+                        &cameraRightSideDataLoader_,
+                        &cameraIrDataLoader_,
+                        &leftLidarDataLoader_,
+                        &rightLidarDataLoader_,
+                        &centerLidarDataLoader_,
+                        &gnssPoseDataLoader_,
+                        &gnssTimeDataLoader_,
+                        &imuDquatDataLoader_,
+                        &imuGnssDataLoader_,
+                        &imuImuDataLoader_,
+                        &imuMagDataLoader_,
+                        &imuPressDataLoader_,
+                        &imuTempDataLoader_,
+                        &imuTimeDataLoader_,
+                        &radarTiDataLoader_,
                 };
 
                 cameraDataLoaders_ = {
-                        cameraLeftFrontDataLoader_,
-                        cameraLeftSideDataLoader_,
-                        cameraRightFrontDataLoader_,
-                        cameraRightSideDataLoader_,
-                        cameraIrDataLoader_,
+                        &cameraLeftFrontDataLoader_,
+                        &cameraLeftSideDataLoader_,
+                        &cameraRightFrontDataLoader_,
+                        &cameraRightSideDataLoader_,
+                        &cameraIrDataLoader_,
                 };
             }
 
-            bool loadData(std::string path) override;
+            bool loadData(const std::string& path) override;
             timestamp_type getLowestTimestamp() override;
             std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
             std::string toString() override;
@@ -125,43 +124,42 @@ namespace AutoDrive {
              * @param id camera sensor identifier
              * @return calibration data for given camera sensor
              */
-            std::shared_ptr<DataModels::GenericDataModel> getCameraCalibDataForCameraID(CameraIndentifier id);
+            DataModels::CameraCalibrationParamsDataModel getCameraCalibDataForCameraID(CameraIndentifier id);
 
         private:
 
-            std::shared_ptr<CameraDataLoader> cameraLeftFrontDataLoader_;
-            std::shared_ptr<CameraDataLoader> cameraLeftSideDataLoader_;
-            std::shared_ptr<CameraDataLoader> cameraRightFrontDataLoader_;
-            std::shared_ptr<CameraDataLoader> cameraRightSideDataLoader_;
+            CameraDataLoader cameraLeftFrontDataLoader_;
+            CameraDataLoader cameraLeftSideDataLoader_;
+            CameraDataLoader cameraRightFrontDataLoader_;
+            CameraDataLoader cameraRightSideDataLoader_;
 
-            std::shared_ptr<CameraDataLoader> cameraIrDataLoader_;
+            CameraDataLoader cameraIrDataLoader_;
 
-            std::shared_ptr<LidarDataLoader> leftLidarDataLoader_;
-            std::shared_ptr<LidarDataLoader> rightLidarDataLoader_;
-            std::shared_ptr<LidarDataLoader> centerLidarDataLoader_;
+            LidarDataLoader leftLidarDataLoader_;
+            LidarDataLoader rightLidarDataLoader_;
+            LidarDataLoader centerLidarDataLoader_;
 
-            std::shared_ptr<GnssDataLoader> gnssPoseDataLoader_;
-            std::shared_ptr<GnssDataLoader> gnssTimeDataLoader_;
+            GnssDataLoader gnssPoseDataLoader_;
+            GnssDataLoader gnssTimeDataLoader_;
 
-            std::shared_ptr<ImuDataLoader> imuDquatDataLoader_;
-            std::shared_ptr<ImuDataLoader> imuGnssDataLoader_;
-            std::shared_ptr<ImuDataLoader> imuImuDataLoader_;
-            std::shared_ptr<ImuDataLoader> imuMagDataLoader_;
-            std::shared_ptr<ImuDataLoader> imuPressDataLoader_;
-            std::shared_ptr<ImuDataLoader> imuTempDataLoader_;
-            std::shared_ptr<ImuDataLoader> imuTimeDataLoader_;
+            ImuDataLoader imuDquatDataLoader_;
+            ImuDataLoader imuGnssDataLoader_;
+            ImuDataLoader imuImuDataLoader_;
+            ImuDataLoader imuMagDataLoader_;
+            ImuDataLoader imuPressDataLoader_;
+            ImuDataLoader imuTempDataLoader_;
+            ImuDataLoader imuTimeDataLoader_;
 
-            std::shared_ptr<RadarTiDataLoader> radarTiDataLoader_;
+            RadarTiDataLoader radarTiDataLoader_;
 
-            std::vector<std::shared_ptr<AbstractDataLoader>> dataLoaders_;
-            std::vector<std::shared_ptr<CameraDataLoader>> cameraDataLoaders_;
+            std::vector<AbstractDataLoader*> dataLoaders_;
+            std::vector<CameraDataLoader*> cameraDataLoaders_;
 
 
             Context& context_;
             timestamp_type keepHistoryLength_;
 
-            bool checkRecordConsistency(std::string& path);
-            bool loadRecord(std::string& path);
+            bool checkRecordConsistency(const std::string& path);
+            bool loadRecord(const std::string& path);
         };
     }
-}
