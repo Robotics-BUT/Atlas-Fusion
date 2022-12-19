@@ -42,36 +42,31 @@ namespace AutoDrive::Algorithms {
 
         GlobalPointcloudStorage() = delete;
 
-       /**
-        * Constructor
-        * @param context contains global services, like logger, TF tree or calibration loader
-        * @param leafSize leaf size of the output point cloud
-        */
-        GlobalPointcloudStorage(Context& context, float leafSize)
-                : context_{context}
-                , processor_{context, leafSize} {
-
-            globalStorage_ = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
-        }
+        /**
+         * Constructor
+         * @param context contains global services, like logger, TF tree or calibration loader
+         * @param leafSize leaf size of the output point cloud
+         */
+        GlobalPointcloudStorage(Context &context, float leafSize) : context_{context}, processor_{context, leafSize} {}
 
         /**
          * Method accepts new point clouds and aggregates them into the global model
          * @param pc new points
          */
-        void addMorePointsToGlobalStorage(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
+        void addMorePointsToGlobalStorage(pcl::PointCloud<pcl::PointXYZ>::Ptr pc);
 
         /**
          * Getter for all the currently aggregated points.
          * @return donwsampled global point cloud map with a leaf size defined from constructor
          */
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getEntirePointcloud();
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getEntirePointcloud();
 
     private:
 
-        Context& context_;
+        Context &context_;
 
         PointCloudProcessor processor_;
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> globalStorage_;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr globalStorage_{};
     };
 
 }

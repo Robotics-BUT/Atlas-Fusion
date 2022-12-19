@@ -31,9 +31,9 @@
 namespace AutoDrive::Algorithms {
 
     /**
-     * Point Cloud Extrapolator takes point cloud scan on the input and based on the given poisition in which the the
-     * scanner was at the very beginning of the scanning and at very end in splits the scan into N batches and linearly
-     * interpolates points's poisition. In this way the lidar-motion undistortion is done.
+     * Point Cloud Extrapolator takes point cloud scan on the input and based on the given position in which the the
+     * scanner was at the very beginning of the scanning and at very end it splits the scan into N batches and linearly
+     * interpolates point's position. In this way the lidar-motion undistortion is done.
      */
     class PointCloudExtrapolator {
 
@@ -44,11 +44,7 @@ namespace AutoDrive::Algorithms {
          * @param context global services container, like time, TF tree, etc.
          * @param noOfBatcher number of batches the scan will be splitted into
          */
-        explicit PointCloudExtrapolator(Context& context, size_t noOfBatcher)
-        : context_{context}
-        , noOfBatches_{noOfBatcher} {
-
-        }
+        explicit PointCloudExtrapolator(Context &context, uint32_t noOfBatches) : context_{context}, noOfBatches_{noOfBatches} {}
 
         /**
          * Process single scan and performs lidar-motion undistortion
@@ -59,27 +55,20 @@ namespace AutoDrive::Algorithms {
          * @return Returns the vector of shared pointers on batches that represents the undistorted input scan
          */
         std::vector<std::shared_ptr<DataModels::PointCloudBatch>> splitPointCloudToBatches(
-                std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> scan,
-                DataModels::LocalPosition startPose,
-                DataModels::LocalPosition poseDiff,
-                rtl::RigidTf3D<double> sensorOffset);
+                const pcl::PointCloud<pcl::PointXYZ>::Ptr &scan,
+                const DataModels::LocalPosition &startPose,
+                const DataModels::LocalPosition &poseDiff,
+                const rtl::RigidTf3D<double> &sensorOffset);
 
         /**
-         * Setter for internal variable that defines number of batches that the input scan will be splitted into.
-         * @param n nubmer of batches
+         * Setter for internal variable that defines number of batches that the input scan will be split into.
+         * @param n number of batches
          */
-        void setNoOfBatches(size_t n) {noOfBatches_ = n;};
+        void setNoOfBatches(size_t n) { noOfBatches_ = n; };
 
     private:
-
-        Context& context_;
-        size_t noOfBatches_;
-
-        DataModels::LocalPosition interpolateLocalPosition(
-                DataModels::LocalPosition& begin,
-                DataModels::LocalPosition& end,
-                float ratio);
-
+        Context &context_;
+        uint32_t noOfBatches_;
     };
 
 }

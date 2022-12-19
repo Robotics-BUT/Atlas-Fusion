@@ -40,16 +40,16 @@
 //#define VISUALIZE
 
 float getRandFloat() {
-    return static_cast<float>( ( ( ( rand()%200 ) - 100 ) / 100.0 ) * NOISE_AMP );
+    return static_cast<float>((((rand() % 200) - 100) / 100.0) * NOISE_AMP );
 }
 
 pcl::PointCloud<pcl::PointXYZ> getTestData() {
     pcl::PointCloud<pcl::PointXYZ> output;
 
-    for(int i = 0 ; i < N ; i++) {
-        double step = 2*M_PI / N;
+    for (int i = 0; i < N; i++) {
+        double step = 2 * M_PI / N;
         double angle = step * i;
-        output.push_back({(float)std::cos(angle) + getRandFloat() + 5, (float)-sin(angle) + getRandFloat() , getRandFloat()});
+        output.push_back({(float) std::cos(angle) + getRandFloat() + 5, (float) -sin(angle) + getRandFloat(), getRandFloat()});
     }
     return output;
 }
@@ -81,7 +81,7 @@ pcl::PointCloud<pcl::PointXYZ> distort(pcl::PointCloud<pcl::PointXYZ> pc, AutoDr
         rtl::Quaternion<double> zero_rot{};
         rtl::Quaternion<double> partialRot{zero_rot.slerp(rot, ratio)};
 
-        rtl::RigidTf3D <double> tf{partialRot, {x_offset, y_offset, z_offset}};
+        rtl::RigidTf3D<double> tf{partialRot, {x_offset, y_offset, z_offset}};
         tf = tf.inverted();
         auto rotMat = tf.rotMat();
 
@@ -110,22 +110,19 @@ pcl::PointCloud<pcl::PointXYZ> distort(pcl::PointCloud<pcl::PointXYZ> pc, AutoDr
 }
 
 
-
-
-
 class VisualizerAgg {
 
 public:
     VisualizerAgg() {
         int argc = 0;
-        char* argv[] = {0};
+        char *argv[] = {0};
 
         ros::init(argc, argv, "autodrive_localmap");
         node_ = new ros::NodeHandle();
         pc_publisher_ = node_->advertise<sensor_msgs::PointCloud2>("pointcloud_aggregation", 0);
     }
 
-    void publishPointcloud(pcl::PointCloud<pcl::PointXYZ>& pc) {
+    void publishPointcloud(pcl::PointCloud<pcl::PointXYZ> &pc) {
         sensor_msgs::PointCloud2 msg;
         pcl::toROSMsg(pc, msg);
 
@@ -134,9 +131,10 @@ public:
         msg.header.seq = 0;
         pc_publisher_.publish(msg);
     }
+
 private:
 
-    ros::NodeHandle* node_;
+    ros::NodeHandle *node_;
     ros::Publisher pc_publisher_;
 };
 
@@ -156,13 +154,13 @@ TEST(pointcloud_aggregation, static_aggregation) {
 
     auto data = getTestData();
 
-    for(size_t i = 0 ; i < data.size() ; i++) {
+    for (size_t i = 0; i < data.size(); i++) {
 
-        pcl::PointCloud<pcl::PointXYZ> points;
-        points.push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
+        pcl::PointCloud<pcl::PointXYZ>::Ptr points{};
+        points->push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
         std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-        auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (0, points, "origin", rtl::RigidTf3D<double>::identity());
+        auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(0, points, "origin", rtl::RigidTf3D<double>::identity());
         batches.push_back(batch);
 
         aggregator.addPointCloudBatches(batches);
@@ -182,16 +180,16 @@ TEST(pointcloud_aggregation, multiple_static_aggregation) {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 1.0};
 
-    for(size_t j = 0 ; j < M ; j++) {
+    for (size_t j = 0; j < M; j++) {
         auto data = getTestData();
 
-        for(size_t i = 0 ; i < data.size() ; i++) {
+        for (size_t i = 0; i < data.size(); i++) {
 
-            pcl::PointCloud<pcl::PointXYZ> points;
-            points.push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
+            pcl::PointCloud<pcl::PointXYZ>::Ptr points{};
+            points->push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
             std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (j*1e9, points, "origin", rtl::RigidTf3D<double>::identity());
+            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(j * 1e9, points, "origin", rtl::RigidTf3D<double>::identity());
             batches.push_back(batch);
 
             aggregator.addPointCloudBatches(batches);
@@ -199,7 +197,7 @@ TEST(pointcloud_aggregation, multiple_static_aggregation) {
     }
 
     auto aggregatedPC = aggregator.getAggregatedPointCloud();
-    EXPECT_EQ(aggregatedPC->size(), N*M);
+    EXPECT_EQ(aggregatedPC->size(), N * M);
 
 
 #ifdef VISUALIZE
@@ -218,19 +216,19 @@ TEST(pointcloud_aggregation, points_filtration) {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
 
-    for(size_t j = 0 ; j < M ; j++) {
+    for (size_t j = 0; j < M; j++) {
         auto data = getTestData();
 
-        for(size_t i = 0 ; i < data.size() ; i++) {
+        for (size_t i = 0; i < data.size(); i++) {
 
-            pcl::PointCloud<pcl::PointXYZ> points;
-            points.push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
+            pcl::PointCloud<pcl::PointXYZ>::Ptr points{};
+            points->push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
             std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch> (j*1e9, points, "origin", rtl::RigidTf3D<double>::identity());
+            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(j * 1e9, points, "origin", rtl::RigidTf3D<double>::identity());
             batches.push_back(batch);
 
-            auto ts = static_cast<uint64_t>(j*1e9);
+            auto ts = static_cast<uint64_t>(j * 1e9);
             aggregator.filterOutBatches(ts);
             aggregator.addPointCloudBatches(batches);
         }
@@ -246,26 +244,25 @@ TEST(pointcloud_aggregation, points_filtration) {
 }
 
 
-
 TEST(pointcloud_aggregation, forward_movement) {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
     AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, N);
 
-    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, {}, 0};
-    AutoDrive::DataModels::LocalPosition oneStepPose {{1,0,0}, {}, uint64_t(0.1e9)};
+    AutoDrive::DataModels::LocalPosition startPose{{0, 0, 0}, {}, 0};
+    AutoDrive::DataModels::LocalPosition oneStepPose{{1, 0, 0}, {}, uint64_t(0.1e9)};
     auto poseDiff = getPoseDiff(startPose, oneStepPose);
 
     pcl::PointCloud<pcl::PointXYZ> data;
     pcl::PointCloud<pcl::PointXYZ> distData;
     pcl::PointCloud<pcl::PointXYZ> undistData;
 
-    for(size_t i = 0 ; i < M ; i ++) {
+    for (size_t i = 0; i < M; i++) {
         auto tmp = getTestData();
         auto distTmp = distort(tmp, poseDiff, i);
 
         auto currentPose = startPose;
-        for(size_t j = 0 ; j < i ; j++) {
+        for (size_t j = 0; j < i; j++) {
             currentPose = AutoDrive::DataModels::LocalPosition{
                     currentPose.getPosition() + poseDiff.getPosition(),
                     currentPose.getOrientation() * poseDiff.getOrientation(),
@@ -273,7 +270,7 @@ TEST(pointcloud_aggregation, forward_movement) {
             };
         }
 
-        auto batches = extrapolator.splitPointCloudToBatches(std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(distTmp), currentPose, poseDiff, rtl::RigidTf3D<double>::identity());
+        auto batches = extrapolator.splitPointCloudToBatches(distTmp.makeShared(), currentPose, poseDiff, rtl::RigidTf3D<double>::identity());
         aggregator.addPointCloudBatches(batches);
 
         data += tmp;
@@ -282,7 +279,7 @@ TEST(pointcloud_aggregation, forward_movement) {
 
 
     auto aggregatedPC = aggregator.getAggregatedPointCloud();
-    EXPECT_EQ(aggregatedPC->size(), N*M);
+    EXPECT_EQ(aggregatedPC->size(), N * M);
 
 #ifdef VISUALIZE
     visualizer.publishPointcloud(data);
@@ -300,20 +297,20 @@ TEST(pointcloud_aggregation, rotation_movement) {
     AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
     AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, N);
 
-    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, {}, 0};
-    AutoDrive::DataModels::LocalPosition oneStepPose {{0,0,0}, {0.707, 0, 0, 0.707}, uint64_t(0.1e9)};
+    AutoDrive::DataModels::LocalPosition startPose{{0, 0, 0}, {}, 0};
+    AutoDrive::DataModels::LocalPosition oneStepPose{{0, 0, 0}, {0.707, 0, 0, 0.707}, uint64_t(0.1e9)};
     auto poseDiff = getPoseDiff(startPose, oneStepPose);
 
     pcl::PointCloud<pcl::PointXYZ> data;
     pcl::PointCloud<pcl::PointXYZ> distData;
     pcl::PointCloud<pcl::PointXYZ> undistData;
 
-    for(size_t i = 0 ; i < M ; i ++) {
+    for (size_t i = 0; i < M; i++) {
         auto tmp = getTestData();
         auto distTmp = distort(tmp, poseDiff, i);
 
         auto currentPose = startPose;
-        for(size_t j = 0 ; j < i ; j++) {
+        for (size_t j = 0; j < i; j++) {
             currentPose = AutoDrive::DataModels::LocalPosition{
                     currentPose.getPosition() + poseDiff.getPosition(),
                     currentPose.getOrientation() * poseDiff.getOrientation(),
@@ -321,10 +318,10 @@ TEST(pointcloud_aggregation, rotation_movement) {
             };
         }
 
-        auto batches = extrapolator.splitPointCloudToBatches(std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(distTmp), currentPose, poseDiff, {});
+        auto batches = extrapolator.splitPointCloudToBatches(distTmp.makeShared(), currentPose, poseDiff, {});
         aggregator.addPointCloudBatches(batches);
 
-        for (const auto& batch : batches) {
+        for (const auto &batch: batches) {
             undistData += *(batch->getTransformedPoints());
         }
 
@@ -334,7 +331,7 @@ TEST(pointcloud_aggregation, rotation_movement) {
 
 
     auto aggregatedPC = aggregator.getAggregatedPointCloud();
-    EXPECT_EQ(aggregatedPC->size(), N*M);
+    EXPECT_EQ(aggregatedPC->size(), N * M);
 
 
 #ifdef VISUALIZE
@@ -350,26 +347,25 @@ TEST(pointcloud_aggregation, rotation_movement) {
 }
 
 
-
 TEST(pointcloud_aggregation, translation_and_rotation) {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
     AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, N);
 
-    AutoDrive::DataModels::LocalPosition startPose {{0,0,0}, {}, 0};
-    AutoDrive::DataModels::LocalPosition oneStepPose {{1,1,0}, {0.707, 0, 0, 0.707}, uint64_t(0.1e9)};
+    AutoDrive::DataModels::LocalPosition startPose{{0, 0, 0}, {}, 0};
+    AutoDrive::DataModels::LocalPosition oneStepPose{{1, 1, 0}, {0.707, 0, 0, 0.707}, uint64_t(0.1e9)};
     auto poseDiff = getPoseDiff(startPose, oneStepPose);
 
     pcl::PointCloud<pcl::PointXYZ> data;
     pcl::PointCloud<pcl::PointXYZ> distData;
     pcl::PointCloud<pcl::PointXYZ> undistData;
 
-    for(size_t i = 0 ; i < M ; i ++) {
+    for (size_t i = 0; i < M; i++) {
         auto tmp = getTestData();
         auto distTmp = distort(tmp, poseDiff, i);
 
         auto currentPose = startPose;
-        for(size_t j = 0 ; j < i ; j++) {
+        for (size_t j = 0; j < i; j++) {
             currentPose = AutoDrive::DataModels::LocalPosition{
                     currentPose.getPosition() + poseDiff.getPosition(),
                     currentPose.getOrientation() * poseDiff.getOrientation(),
@@ -379,10 +375,10 @@ TEST(pointcloud_aggregation, translation_and_rotation) {
 //
 //        std::cout << ""
 
-        auto batches = extrapolator.splitPointCloudToBatches(std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(distTmp), currentPose, poseDiff, {});
+        auto batches = extrapolator.splitPointCloudToBatches(distTmp.makeShared(), currentPose, poseDiff, {});
         aggregator.addPointCloudBatches(batches);
 
-        for (const auto& batch : batches) {
+        for (const auto &batch: batches) {
             undistData += *(batch->getTransformedPoints());
         }
 
@@ -396,7 +392,7 @@ TEST(pointcloud_aggregation, translation_and_rotation) {
 
 
     auto aggregatedPC = aggregator.getAggregatedPointCloud();
-    EXPECT_EQ(aggregatedPC->size(), N*M);
+    EXPECT_EQ(aggregatedPC->size(), N * M);
 
 
 #ifdef VISUALIZE
@@ -412,8 +408,7 @@ TEST(pointcloud_aggregation, translation_and_rotation) {
 }
 
 
-
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

@@ -64,7 +64,7 @@ namespace AutoDrive::Algorithms {
          * @param sensorOffset relative position of the lidar w.r.t. the car center
          */
         void onNewLaserData(
-                std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> scan,
+                pcl::PointCloud<pcl::PointXYZ>::Ptr scan,
                 DataModels::LocalPosition startPose,
                 DataModels::LocalPosition endPose,
                 rtl::RigidTf3D<double> sensorOffset);
@@ -74,13 +74,13 @@ namespace AutoDrive::Algorithms {
          * @param laserNo index of the requested laser history
          * @return point cloud as a history of lasers measurements
          */
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getAggregatedLaser(size_t laserNo);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getAggregatedLaser(size_t laserNo);
 
         /**
          * Method provides aggregated history for all lasers
          * @return point cloud as a history of lasers measurements
          */
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getAllAggregatedLasers();
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getAllAggregatedLasers();
 
 
     private:

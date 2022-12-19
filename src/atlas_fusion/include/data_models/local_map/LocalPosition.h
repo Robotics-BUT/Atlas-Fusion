@@ -51,7 +51,7 @@ namespace AutoDrive::DataModels {
          * 3D vector position getter
          * @return 3D metric position
          */
-        rtl::Vector3D<double> getPosition() const { return position_; };
+        [[nodiscard]] rtl::Vector3D<double> getPosition() const { return position_; };
 
         /**
          * 3D space orientation represetned by quaternion getter

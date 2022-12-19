@@ -24,6 +24,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <utility>
 
 #include "data_models/GenericDataModel.h"
 #include "data_models/all.h"
@@ -48,12 +49,8 @@ namespace AutoDrive::DataModels {
          * @param cameraIdentifier camera sensor identifier
          * @param yolo neural network's detections
          */
-        CameraFrameDataModel(uint64_t timestamp, cv::Mat img, uint64_t innerTs, DataLoader::CameraIndentifier cameraIdentifier, std::vector<YoloDetection>& yolo)
-        : GenericDataModel(timestamp)
-        , image_(img)
-        , innerCameraTimestamp_(innerTs)
-        , yoloDetections_(yolo)
-        , cameraIdentifier_(cameraIdentifier) {
+        CameraFrameDataModel(uint64_t timestamp, cv::Mat img, uint64_t innerTs, DataLoader::CameraIndentifier cameraIdentifier, std::vector<YoloDetection> &yolo)
+                : GenericDataModel(timestamp), image_(std::move(img)), innerCameraTimestamp_(innerTs), yoloDetections_(yolo), cameraIdentifier_(cameraIdentifier) {
             type_ = DataModelTypes::kCameraDataModelType;
         }
 
@@ -63,38 +60,37 @@ namespace AutoDrive::DataModels {
          * Image getter
          * @return opencv image
          */
-        cv::Mat getImage() const {return image_;};
+        [[nodiscard]] cv::Mat getImage() const { return image_; };
 
         /**
          * inner camera getter
          * @return camera's timestam
          */
-        uint64_t getInnerCameraTimestamp() {return innerCameraTimestamp_;};
+        [[nodiscard]]uint64_t getInnerCameraTimestamp() const { return innerCameraTimestamp_; };
 
         /**
          * Vector of NN's detections
          * @return NN's detections
          */
-        std::vector<YoloDetection> getYoloDetections() {return yoloDetections_;};
+        [[nodiscard]]std::vector<YoloDetection> getYoloDetections() const { return yoloDetections_; };
 
         /**
          * NN's detections setter
          * @param detections
          */
-        void setYoloDetections(std::vector<YoloDetection>& detections) {yoloDetections_ = detections;};
+        void setYoloDetections(std::vector<YoloDetection> &detections) { yoloDetections_ = detections; };
 
         /**
          * Unique camera sensor identifier getter
          * @return source sensor camera identifier
          */
-        DataLoader::CameraIndentifier getCameraIdentifier() { return cameraIdentifier_;};
+        [[nodiscard]] DataLoader::CameraIndentifier getCameraIdentifier() const { return cameraIdentifier_; };
 
     private:
 
         cv::Mat image_;
         uint64_t innerCameraTimestamp_;
-        std::vector<YoloDetection> yoloDetections_{} ;
+        std::vector<YoloDetection> yoloDetections_{};
         DataLoader::CameraIndentifier cameraIdentifier_;
-
     };
 }

@@ -100,13 +100,13 @@ namespace AutoDrive::Visualizers {
          * Render aggregated point cloud scans over the time
          * @param pc aggregated point cloud
          */
-        void drawAggregatedPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
+        void drawAggregatedPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr pc);
 
         /**
          * Render aggregated point cloud from single laser
          * @param pc aggregated laser measurements
          */
-        void drawAggregatedLasers(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
+        void drawAggregatedLasers(pcl::PointCloud<pcl::PointXYZ>::Ptr pc);
 
         /**
          *
@@ -125,13 +125,13 @@ namespace AutoDrive::Visualizers {
          * Visualize point cloud aggregated during the entire mapping session
          * @param pc global point cloud map
          */
-        void drawGlobalPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
+        void drawGlobalPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr pc);
 
         /**
          * Visualize point cloud cutout
          * @param pc bounded point cloud
          */
-        void drawPointcloudCutout(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc);
+        void drawPointcloudCutout(pcl::PointCloud<pcl::PointXYZ>::Ptr pc);
 
 
         /**

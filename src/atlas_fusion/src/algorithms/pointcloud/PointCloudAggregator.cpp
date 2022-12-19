@@ -21,11 +21,12 @@
  */
 
 #include "algorithms/pointcloud/PointCloudAggregator.h"
+#include "Timer.h"
 
 namespace AutoDrive::Algorithms {
 
-    void PointCloudAggregator::addPointCloudBatches(std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches) {
-        for (const auto& batch : batches) {
+    void PointCloudAggregator::addPointCloudBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>>& batches) {
+        for (const auto &batch: batches) {
             batchQueue_.push_back(batch);
         }
     }
@@ -33,9 +34,9 @@ namespace AutoDrive::Algorithms {
 
     void PointCloudAggregator::filterOutBatches(uint64_t currentTime) {
 
-        while(!batchQueue_.empty()) {
-            auto timeDiff = static_cast<double>((currentTime - batchQueue_.front()->getTimestamp()))*1e-9;
-            if ( (timeDiff > aggregationTime_ )) {
+        while (!batchQueue_.empty()) {
+            auto timeDiff = static_cast<double>((currentTime - batchQueue_.front()->getTimestamp())) * 1e-9;
+            if ((timeDiff > aggregationTime_)) {
                 batchQueue_.pop_front();
             } else {
                 break;
@@ -48,7 +49,7 @@ namespace AutoDrive::Algorithms {
         std::vector<std::shared_ptr<DataModels::PointCloudBatch>> output;
         output.reserve(batchQueue_.size());
 
-        for(auto it = batchQueue_.begin(); it < batchQueue_.end() ; it++) {
+        for (auto it = batchQueue_.begin(); it < batchQueue_.end(); it++) {
             output.push_back(*it);
         }
 
@@ -56,32 +57,34 @@ namespace AutoDrive::Algorithms {
     }
 
 
-    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudAggregator::getAggregatedPointCloud() {
+    pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudAggregator::getAggregatedPointCloud() {
+        Timer timer("getAggregatedPointCloud");
 
-        auto output = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
+        pcl::PointCloud<pcl::PointXYZ> output;
 
-        if(!batchQueue_.empty()) {
-            output->reserve(batchQueue_.size() * 2 * batchQueue_.at(0)->getPointsSize());
+        if (!batchQueue_.empty()) {
+            output.reserve(batchQueue_.size() * 2 * batchQueue_.at(0)->getPointsSize());
 
-            for (const auto &batch : batchQueue_) {
+            for (const auto &batch: batchQueue_) {
                 // TODO: Avoid using + operator
-                *output += *(batch->getTransformedPoints());
+                output += *(batch->getTransformedPoints());
             }
         }
-        return output;
+        return output.makeShared();
     }
 
 
+    pcl::PointCloud<pcl::PointXYZ>::Ptr
+    PointCloudAggregator::getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const rtl::BoundingBox3f &borders) {
+        Timer timer("getPointCloudCutout");
 
-    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> PointCloudAggregator::getPointcloudCutout(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input,rtl::BoundingBox3f borders) {
-
-        auto output = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output {};
         output->reserve(input->size());
 
-        for(const auto& point : *input) {
-            if(point.x > borders.min().getElement(0) && point.x < borders.max().getElement(0) &&
-               point.y > borders.min().getElement(1) && point.y < borders.max().getElement(1) &&
-               point.z > borders.min().getElement(2) && point.z < borders.max().getElement(2)) {
+        for (const auto &point: *input) {
+            if (point.x > borders.min().getElement(0) && point.x < borders.max().getElement(0) &&
+                point.y > borders.min().getElement(1) && point.y < borders.max().getElement(1) &&
+                point.z > borders.min().getElement(2) && point.z < borders.max().getElement(2)) {
                 output->push_back(point);
             }
         }

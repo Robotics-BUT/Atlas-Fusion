@@ -28,6 +28,7 @@
 #include "LogService.h"
 #include "local_map/TFTree.h"
 #include "FunctionalityFlags.h"
+#include "../libs/BS-thread-pool/include/BS_thread_pool.h"
 
 namespace AutoDrive {
 
@@ -41,18 +42,18 @@ namespace AutoDrive {
 
         using timePoint = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
 
-        explicit Context(LogService &logger, LocalMap::TFTree &tfTree, const std::string& calibFolder, const FunctionalityFlags& fFlags)
-                : logger_{logger}
-                , tfTree_{tfTree}
-                , calibFolder_{calibFolder}
-                , fFlags_{fFlags}{
+        explicit Context(LogService &logger, LocalMap::TFTree &tfTree, const std::string &calibFolder, const FunctionalityFlags &fFlags)
+                : threadPool{std::thread::hardware_concurrency() - 1},
+                  logger_{logger},
+                  tfTree_{tfTree},
+                  calibFolder_{calibFolder},
+                  fFlags_{fFlags} {}
 
-        }
-
+        BS::thread_pool threadPool;
         LogService &logger_;
         LocalMap::TFTree &tfTree_;
-        const std::string& calibFolder_;
-        const FunctionalityFlags& fFlags_;
+        const std::string &calibFolder_;
+        const FunctionalityFlags &fFlags_;
 
 
         /**
@@ -72,12 +73,12 @@ namespace AutoDrive {
         * Method gives current system time in milliseconds
         * @return system time in millsec
         */
-        static double highPrecisionTimeToMilliseconds( std::chrono::duration<long, std::ratio<1, 1000000000>> t);
+        static double highPrecisionTimeToMilliseconds(std::chrono::duration<long, std::ratio<1, 1000000000>> t);
 
         /**
         * Method returns flags, that defines activated software functionalities
         * @return functionality flag class instance
         */
-        const FunctionalityFlags& getFunctionalityFlags() const {return fFlags_;};
+        [[nodiscard]] const FunctionalityFlags &getFunctionalityFlags() const { return fFlags_; };
     };
 }

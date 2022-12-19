@@ -25,30 +25,30 @@
 namespace AutoDrive::Algorithms {
 
     void LaserAggregator::onNewLaserData(
-            std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> scan,
+            pcl::PointCloud<pcl::PointXYZ>::Ptr scan,
             DataModels::LocalPosition startPose,
             DataModels::LocalPosition poseDiff,
             rtl::RigidTf3D<double> sensorOffsetTf) {
 
         auto duration = poseDiff.getTimestamp();
-        DataModels::LocalPosition endPose {startPose.getPosition() + poseDiff.getPosition(),
-                                           startPose.getOrientation() * poseDiff.getOrientation(),
-                                           startPose.getTimestamp() + poseDiff.getTimestamp()};
+        DataModels::LocalPosition endPose{startPose.getPosition() + poseDiff.getPosition(),
+                                          startPose.getOrientation() * poseDiff.getOrientation(),
+                                          startPose.getTimestamp() + poseDiff.getTimestamp()};
 
-        if((scan->width * scan->height) % noOfLasers_ != 0) {
+        if ((scan->width * scan->height) % noOfLasers_ != 0) {
             context_.logger_.warning(" [Points in lidar scan] modulo [no of lasers] is not zero");
             return;
         }
 
         auto pointsPerLaser = (scan->width * scan->height) / noOfLasers_;
 
-        for(size_t i = 0 ; i < pointsPerLaser ; i++) {
+        for (size_t i = 0; i < pointsPerLaser; i++) {
 
-            double ratio = (float)i / (float)pointsPerLaser;
+            double ratio = (float) i / (float) pointsPerLaser;
 
-            auto pose = AutoDrive::DataModels::LocalPosition {
+            auto pose = AutoDrive::DataModels::LocalPosition{
                     {poseDiff.getPosition().x() * (ratio), poseDiff.getPosition().y() * (ratio), poseDiff.getPosition().z() * (ratio)},
-                    {poseDiff.getOrientation().slerp(rtl::Quaternion<double>::identity(), (float)(1-ratio))},
+                    {poseDiff.getOrientation().slerp(rtl::Quaternion<double>::identity(), (float) (1 - ratio))},
                     uint64_t(duration * (ratio))
             };
 
@@ -57,12 +57,12 @@ namespace AutoDrive::Algorithms {
             rtl::RigidTf3D<double> movementCompensationTF{pose.getOrientation(), pose.getPosition()};
             auto finalTF = globalTF(startToEndTf.inverted()(movementCompensationTF(sensorOffsetTf)));
 
-            for(size_t j = 0 ; j < noOfLasers_ ; j++) {
-                const auto& point = scan->at(i*noOfLasers_ + j);
-                auto& aggregator = aggregators.at(j);
+            for (size_t j = 0; j < noOfLasers_; j++) {
+                const auto &point = scan->at(i * noOfLasers_ + j);
+                auto &aggregator = aggregators.at(j);
                 aggregator.pop_front();
 
-                if(point.x != 0 || point.y != 0 || point.z != 0) {
+                if (point.x != 0 || point.y != 0 || point.z != 0) {
                     auto tfPoint = finalTF(rtl::Vector3D<double>{point.x, point.y, point.z});
                     aggregator.push_back(tfPoint);
                 } else {
@@ -75,12 +75,12 @@ namespace AutoDrive::Algorithms {
     }
 
 
-    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> LaserAggregator::getAggregatedLaser(size_t laserNo) {
+    pcl::PointCloud<pcl::PointXYZ>::Ptr LaserAggregator::getAggregatedLaser(size_t laserNo) {
 
-        auto output = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output{};
         output->reserve(aggPointsNo_);
 
-        for(const auto& point : aggregators.at(laserNo)) {
+        for (const auto &point: aggregators.at(laserNo)) {
             output->push_back({static_cast<float>(point.x()),
                                static_cast<float>(point.y()),
                                static_cast<float>(point.z())});
@@ -90,13 +90,13 @@ namespace AutoDrive::Algorithms {
     }
 
 
-    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> LaserAggregator::getAllAggregatedLasers() {
+    pcl::PointCloud<pcl::PointXYZ>::Ptr LaserAggregator::getAllAggregatedLasers() {
 
-        auto output = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output{};
         output->reserve(aggPointsNo_ * noOfLasers_);
 
-        for(const auto& aggregator : aggregators) {
-            for (const auto &point : aggregator) {
+        for (const auto &aggregator: aggregators) {
+            for (const auto &point: aggregator) {
                 output->push_back({static_cast<float>(point.x()),
                                    static_cast<float>(point.y()),
                                    static_cast<float>(point.z())});

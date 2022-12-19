@@ -60,7 +60,7 @@ namespace AutoDrive::Visualizers {
         }
 
 
-        void drawPointcloudOnTopic(const std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc, std::string topic, std::string frame);
+        void drawPointcloudOnTopic(const pcl::PointCloud<pcl::PointXYZ>::Ptr pc, std::string topic, std::string frame);
 
         void drawApproximationOnTopic(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls, std::string topic, std::string frame, visualization_msgs::Marker::_color_type col);
 

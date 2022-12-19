@@ -94,7 +94,7 @@ namespace AutoDrive {
          * Returns current date as a formated string
          * @param formated date
          */
-        static const std::string currentDateTime();
+        static std::string currentDateTime();
 
     private:
 

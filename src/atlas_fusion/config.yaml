@@ -3,12 +3,12 @@ logger:
   log_ext: "log"
   log_lvl: 1
 
-data_folder: "/media/standa/Hry/utorrent/3_1_1_1/"
+data_folder: "/media/standa/Hry/utorrent/3_1_3_3/"
 calibrations_folder: "/home/standa/Desktop/Projekty/Atlas-Fusion/src/atlas_fusion/calibrations/"
 
 map_builder:
   keep_history_sec_length: 100
-  max_replayer_rate: 10
+  max_replayer_rate: 10000000
 
 laser_aggregator:
   lasers: 32
@@ -39,8 +39,8 @@ laser_segmenter:
   segmenter_scaling: 0.01
 
 functionalities:
-  generate_depth_map_for_ir: true
-  rgb_to_ir_detection_projection: true
+  generate_depth_map_for_ir: false
+  rgb_to_ir_detection_projection: false
   short_term_lidar_aggregation: true
   lidar_laser_approximations_and_segmentation: false
   global_lidar_aggregation: false

@@ -52,7 +52,7 @@ namespace AutoDrive::LocalMap {
          * @return -
          */
         std::vector<std::shared_ptr<const DataModels::LidarDetection>> aggregateLidarDetections(
-                std::vector<std::shared_ptr<const DataModels::LidarDetection>> previousDetections,
+                const std::vector<std::shared_ptr<const DataModels::LidarDetection>>& previousDetections,
                 std::vector<std::shared_ptr<const DataModels::LidarDetection>> newDetections) const;
 
     private:

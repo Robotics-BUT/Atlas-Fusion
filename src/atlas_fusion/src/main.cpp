@@ -27,6 +27,7 @@
 
 #include <QString>
 #include <QDebug>
+#include <utility>
 #include "MapBuilder.h"
 
 #include <rtl/Core.h>
@@ -38,46 +39,45 @@
 #include "local_map/Frames.h"
 #include "munkres/munkres.h"
 
-rtl::RigidTf3D<double> getTFFrameFromConfig(AutoDrive::ConfigService& service, std::string name) {
+rtl::RigidTf3D<double> getTFFrameFromConfig(AutoDrive::ConfigService &service, const std::string &name) {
     auto translation = service.getVector3DValue<double>({name, "trans"});
     auto rotation = service.getQuaternionValue<double>({name, "rot"});
-    rtl::RigidTf3D<double> frame{ rotation, translation};
+    rtl::RigidTf3D<double> frame{rotation, translation};
     return frame;
 }
 
 
-AutoDrive::LocalMap::TFTree buildTFTree(std::string rootFrame, std::vector<std::string> frames, std::string tfFilePath, AutoDrive::LogService& logger) {
-
+AutoDrive::LocalMap::TFTree buildTFTree(std::string rootFrame, const std::vector<std::string> &frames, std::string tfFilePath, AutoDrive::LogService &logger) {
     AutoDrive::ConfigService TFConfigService(std::move(tfFilePath));
-    AutoDrive::LocalMap::TFTree tfTree(rootFrame, logger);
-    for(const auto& frameName : frames) {
+    AutoDrive::LocalMap::TFTree tfTree(std::move(rootFrame), logger);
+    for (const auto &frameName: frames) {
         auto frame = getTFFrameFromConfig(TFConfigService, frameName);
         tfTree.addFrame(frame, frameName);
     }
     return tfTree;
 }
 
-AutoDrive::FunctionalityFlags loadFunctionalityFlags(AutoDrive::ConfigService& confService) {
+AutoDrive::FunctionalityFlags loadFunctionalityFlags(AutoDrive::ConfigService &confService) {
     AutoDrive::FunctionalityFlags ffEntity(
-            confService.getBoolValue({"functionalities","generate_depth_map_for_ir"}),
-    confService.getBoolValue({"functionalities","rgb_to_ir_detection_projection"}),
-            confService.getBoolValue({"functionalities","short_term_lidar_aggregation"}),
-            confService.getBoolValue({"functionalities","lidar_laser_approximations_and_segmentation"}),
-            confService.getBoolValue({"functionalities","global_lidar_aggregation"}),
-            confService.getBoolValue({"visualizations","visualization_global_enable"}),
-            confService.getBoolValue({"visualizations","rgb_camera_visualization"}),
-            confService.getBoolValue({"visualizations","ir_camera_visualization"}),
-            confService.getBoolValue({"visualizations","lidar_visualization"}),
-            confService.getBoolValue({"visualizations","imu_visualization"}),
-            confService.getBoolValue({"visualizations","gnss_visualization"}),
-            confService.getBoolValue({"visualizations","radar_visualization"}));
+            confService.getBoolValue({"functionalities", "generate_depth_map_for_ir"}),
+            confService.getBoolValue({"functionalities", "rgb_to_ir_detection_projection"}),
+            confService.getBoolValue({"functionalities", "short_term_lidar_aggregation"}),
+            confService.getBoolValue({"functionalities", "lidar_laser_approximations_and_segmentation"}),
+            confService.getBoolValue({"functionalities", "global_lidar_aggregation"}),
+            confService.getBoolValue({"visualizations", "visualization_global_enable"}),
+            confService.getBoolValue({"visualizations", "rgb_camera_visualization"}),
+            confService.getBoolValue({"visualizations", "ir_camera_visualization"}),
+            confService.getBoolValue({"visualizations", "lidar_visualization"}),
+            confService.getBoolValue({"visualizations", "imu_visualization"}),
+            confService.getBoolValue({"visualizations", "gnss_visualization"}),
+            confService.getBoolValue({"visualizations", "radar_visualization"}));
     return ffEntity;
 }
 
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 
-    if(argc < 2) {
+    if (argc < 2) {
         std::cerr << "Error: too few input arguments!" << std::endl;
         std::cerr << " Usage: atlas_fusion <path_to_config_file>" << std::endl;
     }
@@ -111,13 +111,13 @@ int main(int argc, char** argv) {
                                             AutoDrive::LocalMap::Frames::kCameraRightFront,
                                             AutoDrive::LocalMap::Frames::kCameraRightSide,
                                             AutoDrive::LocalMap::Frames::kCameraIr
-                                             };
+    };
     auto calibFolder = configService.getStringValue({"calibrations_folder"});
     auto tfTree = buildTFTree(
-             rootFrame,
-             childFrames,
-             std::string(calibFolder + "frames.yaml"),
-             logger);
+            rootFrame,
+            childFrames,
+            std::string(calibFolder + "frames.yaml"),
+            logger);
 
     auto lasersPerLidar = configService.getUInt32Value({"laser_aggregator", "lasers"});
     auto pointsPerLaser = configService.getUInt32Value({"laser_aggregator", "points_per_laser"});
@@ -133,7 +133,8 @@ int main(int argc, char** argv) {
     auto gnssLogNo = configService.getUInt32Value({"pose_logger", "gnss"});
     auto imuLogNo = configService.getUInt32Value({"pose_logger", "imu"});
 
-    auto keepHistorySecLength = static_cast<AutoDrive::DataLoader::timestamp_type>(configService.getDoubleValue({"map_builder", "keep_history_sec_length"}) * 1e9); // to nanoseconds
+    auto keepHistorySecLength = static_cast<AutoDrive::DataLoader::timestamp_type>(configService.getDoubleValue({"map_builder", "keep_history_sec_length"}) *
+                                                                                   1e9); // to nanoseconds
     auto dataFolder = configService.getStringValue({"data_folder"});
     auto maxReplayerRate = configService.getDoubleValue({"map_builder", "max_replayer_rate"});
 
@@ -149,27 +150,27 @@ int main(int argc, char** argv) {
     auto segmenter_scaling = configService.getFloatValue({"laser_segmenter", "segmenter_scaling"});
 
     AutoDrive::MapBuilder mapBuilder{
-        node,
-        context,
-        gnssLogNo,
-        imuLogNo,
-        selfModelProcessNoise,
-        selfModelObservationNoise,
-        leafSize,
-        globalLeafSize,
-        batchesPerScan,
-        aggregationTime,
-        lasersPerLidar,
-        pointsPerLaser,
-        keepHistorySecLength,
-        maxReplayerRate,
-        lidarPlotterMaxDist,
-        dataFolder,
-        vectorizer_sigma,
-        segmenter_step,
-        segmenter_lower_bound,
-        segmenter_upper_bound,
-        segmenter_scaling};
+            node,
+            context,
+            gnssLogNo,
+            imuLogNo,
+            selfModelProcessNoise,
+            selfModelObservationNoise,
+            leafSize,
+            globalLeafSize,
+            batchesPerScan,
+            aggregationTime,
+            lasersPerLidar,
+            pointsPerLaser,
+            keepHistorySecLength,
+            maxReplayerRate,
+            lidarPlotterMaxDist,
+            dataFolder,
+            vectorizer_sigma,
+            segmenter_step,
+            segmenter_lower_bound,
+            segmenter_upper_bound,
+            segmenter_scaling};
 
     mapBuilder.loadData();
     mapBuilder.buildMap();

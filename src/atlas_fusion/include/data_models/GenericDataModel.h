@@ -41,8 +41,7 @@ namespace AutoDrive::DataModels {
          * @param timestamp nanosecond timestamp that identifies time position of the data
          */
         explicit GenericDataModel(uint64_t timestamp)
-        : timestamp_(timestamp)
-        , type_(DataModelTypes::kGenericDataModelType) {
+                : timestamp_(timestamp), type_(DataModelTypes::kGenericDataModelType) {
 
         };
 
@@ -50,25 +49,25 @@ namespace AutoDrive::DataModels {
          * Method creates simple string description of the class intance
          * @return string description of the data type
          */
-        virtual std::string toString() { return "Generic Data Model";};
+        virtual std::string toString() { return "Generic Data Model"; };
 
         /**
          * Method returns the data identifier of a data model. Used for up/down casting of the data models
          * @return Data Model type identifier
          */
-        DataModelTypes getType() { return type_; };
+        [[nodiscard]] DataModelTypes getType() const { return type_; };
 
         /**
          * Method returns the data model timestamp
          * @return nanosecond timestamp
          */
-        uint64_t getTimestamp() const { return timestamp_; };
+        [[nodiscard]] uint64_t getTimestamp() const { return timestamp_; };
 
         /**
          * Returns all the data models (data) that are related to this one
          * @return vector of related data models
          */
-        std::vector<std::shared_ptr<GenericDataModel>> getParents() {return parents_;};
+        [[nodiscard]] std::vector<std::shared_ptr<GenericDataModel>> getParents() const { return parents_; };
 
     protected:
 

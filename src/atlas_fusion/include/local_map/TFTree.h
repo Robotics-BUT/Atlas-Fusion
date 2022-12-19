@@ -21,10 +21,12 @@
  */
 
 #pragma once
+
 #include "LogService.h"
 #include <rtl/Core.h>
 #include <rtl/Transformation.h>
 #include <map>
+#include <utility>
 
 
 namespace AutoDrive::LocalMap {
@@ -43,37 +45,33 @@ namespace AutoDrive::LocalMap {
          * @param rootFrameName the central frame name
          * @param logger logger service instance
          */
-        TFTree(std::string rootFrameName, LogService& logger)
-        : rootFrameName_(std::move(rootFrameName))
-        , logger_(logger) {
-
-        }
+        TFTree(std::string rootFrameName, LogService &logger) : rootFrameName_(std::move(rootFrameName)), logger_(logger) {}
 
         /**
          * Methods allows to add new child-frame under the root frame level
          * @param tf new child transformations
          * @param name new frame name
          */
-        void addFrame(rtl::RigidTf3D<double> tf, std::string name);
+        void addFrame(const rtl::RigidTf3D<double> &tf, const std::string &name);
 
         /**
          * Method returns transformation between the root frame the the child frame
          * @param frameName child frame name
          * @return child transformation
          */
-        rtl::RigidTf3D<double> getTransformationForFrame(const std::string& frameName);
+        rtl::RigidTf3D<double> getTransformationForFrame(const std::string &frameName);
 
         /**
          * Method returns the vector of all child frame names.
          * @return all child frame names
          */
-        const std::vector<std::string> getFrameNames() {return frameNames_;};
+        std::vector<std::string> getFrameNames() const { return frameNames_; };
 
         /**
          * Getter for root frame name
          * @return root frame name
          */
-        const std::string& getRootFrameName() {return rootFrameName_;};
+        const std::string &getRootFrameName() const { return rootFrameName_; };
 
         /**
          * Method estimates fransformation between two child frames.
@@ -82,16 +80,16 @@ namespace AutoDrive::LocalMap {
          * @param destination destination frame name
          * @return returns the point transformed from the original coordinate system to the new one.
          */
-        rtl::Vector3D<double> transformPointFromFrameToFrame(rtl::Vector3D<double>, const std::string& source, const std::string& destination);
+        rtl::Vector3D<double> transformPointFromFrameToFrame(const rtl::Vector3D<double> &, const std::string &source, const std::string &destination);
 
     protected:
 
         std::string rootFrameName_;
         std::vector<std::string> frameNames_{};
         std::unordered_map<std::string, rtl::RigidTf3D<double>> frameMap_{};
-        LogService& logger_;
+        LogService &logger_;
 
-        const std::unordered_map<std::string, rtl::RigidTf3D<double>>& getTree() {return frameMap_;};
+        const std::unordered_map<std::string, rtl::RigidTf3D<double>> &getTree() { return frameMap_; };
     };
 
 }

@@ -22,12 +22,14 @@
 
 #include "local_map/ObjectsAggregator.h"
 #include "munkres/munkres.h"
+#include "Timer.h"
 
 namespace AutoDrive::LocalMap {
 
     std::vector<std::shared_ptr<const DataModels::LidarDetection>> ObjectsAggregator::aggregateLidarDetections(
-            std::vector<std::shared_ptr<const DataModels::LidarDetection>> previousDetections,
+            const std::vector<std::shared_ptr<const DataModels::LidarDetection>>& previousDetections,
             std::vector<std::shared_ptr<const DataModels::LidarDetection>> newDetections) const {
+        Timer timer("aggregateLidarDetections");
 
         std::vector<std::shared_ptr<const DataModels::LidarDetection>> output;
 
@@ -56,9 +58,7 @@ namespace AutoDrive::LocalMap {
     }
 
 
-    std::vector<std::pair<unsigned, unsigned>> ObjectsAggregator::matchDetections(
-            std::vector<std::shared_ptr<const DataModels::LidarDetection>> a,
-            std::vector<std::shared_ptr<const DataModels::LidarDetection>> b) const {
+    std::vector<std::pair<unsigned, unsigned>> ObjectsAggregator::matchDetections(std::vector<std::shared_ptr<const DataModels::LidarDetection>> a,std::vector<std::shared_ptr<const DataModels::LidarDetection>> b) const {
 
         unsigned cols = static_cast<int>(a.size());
         unsigned rows = static_cast<int>(b.size());

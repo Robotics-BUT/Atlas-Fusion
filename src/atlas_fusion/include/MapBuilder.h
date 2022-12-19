@@ -57,6 +57,7 @@
 #include "data_models/lidar/LidarScanDataModel.h"
 
 #include "fail_check/all.h"
+#include "Timer.h"
 
 namespace AutoDrive {
 
@@ -98,7 +99,7 @@ namespace AutoDrive {
                 const float leafSize,
                 const float globalLeafSize,
                 const uint32_t noOfBatchesPerScan,
-                const float liadrAggregationTime,
+                const float lidarAggregationTime,
                 const uint32_t noOfLasersPerLidar,
                 const uint32_t noOfLaserAggregatedPoints,
                 const DataLoader::timestamp_type keepHistoryLength,
@@ -119,7 +120,7 @@ namespace AutoDrive {
                   depthMap_{context},
                   detectionProcessor_{context},
                   pointCloudExtrapolator_{context, noOfBatchesPerScan},
-                  pointCloudAggregator_{context, liadrAggregationTime},
+                  pointCloudAggregator_{context, lidarAggregationTime},
                   pointCloudProcessor_{context, leafSize},
                   leftLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints},
                   rightLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints},
@@ -225,15 +226,13 @@ namespace AutoDrive {
 
         void processRadarTiData(const std::shared_ptr<DataModels::RadarTiDataModel>&);
 
-        void generateDepthMapForIR();
-
-        void projectRGBDetectionsToIR();
-
         void aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &);
 
         void approximateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &);
 
-        std::string getFrameForData(const std::shared_ptr<DataModels::GenericDataModel> &);
+        void generateDepthMapForIR() {};
+
+        void projectRGBDetectionsToIR() {};
     };
 
 }

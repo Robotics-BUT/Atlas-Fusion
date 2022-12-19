@@ -165,11 +165,6 @@ namespace AutoDrive::Algorithms {
     }
 
     DataModels::LocalPosition SelfModel::estimatePositionInTime(const uint64_t time) {
-        if (positionHistory_.empty()) {
-            context_.logger_.warning("Unable to estimate position in time! Missing time point in history.");
-            return DataModels::LocalPosition{{}, {}, 0};
-        }
-
         for (long i = long(positionHistory_.size()) - 1; i >= 0; i--) {
             if (positionHistory_.at(i).getTimestamp() < time) {
                 if (i == 0) {
@@ -197,6 +192,9 @@ namespace AutoDrive::Algorithms {
                 }
             }
         }
+
+        context_.logger_.warning("Unable to estimate position in time! Missing time point in history.");
+        return DataModels::LocalPosition{{}, {}, 0};
     }
 
 

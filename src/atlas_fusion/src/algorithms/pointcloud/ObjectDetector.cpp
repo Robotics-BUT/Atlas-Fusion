@@ -21,6 +21,7 @@
  */
 
 #include "algorithms/pointcloud/ObjectDetector.h"
+#include "Timer.h"
 
 #include <pcl/ModelCoefficients.h>
 #include <pcl/point_types.h>
@@ -38,7 +39,8 @@
 namespace AutoDrive::Algorithms {
 
 
-    std::vector<std::shared_ptr<const DataModels::LidarDetection>> ObjectDetector::detectObstacles(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
+    std::vector<std::shared_ptr<const DataModels::LidarDetection>> ObjectDetector::detectObstacles(const pcl::PointCloud<pcl::PointXYZ>::Ptr& pc) {
+        Timer timer("detectObstacles");
 
         std::vector<std::shared_ptr<const DataModels::LidarDetection>> output;
         output.clear();

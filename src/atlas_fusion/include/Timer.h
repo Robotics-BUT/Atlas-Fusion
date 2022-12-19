@@ -19,39 +19,31 @@
  * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#pragma once
 
-#include "local_map/TFTree.h"
+#include <chrono>
+#include <string>
+#include <utility>
 
-namespace AutoDrive::LocalMap {
+struct Timer {
 
+    using timePoint = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
 
-    void TFTree::addFrame(const rtl::RigidTf3D<double>& tf, const std::string& name) {
+    timePoint _start, _end;
+    std::chrono::duration<float> _duration{};
 
-        if (frameMap_.find(name) != frameMap_.end()) {
-            logger_.warning("Unable to insert " + name + " frame to TFTree. Frame already exists.");
-            return;
-        }
+    std::string _name;
+    float *_timerValue;
 
-        frameMap_[name] = tf;
-        frameNames_.emplace_back(name);
+    Timer(std::string name, float *timerValue = nullptr) : _start(std::chrono::high_resolution_clock::now()), _name(std::move(name)), _timerValue(timerValue) {}
+
+    ~Timer() {
+        _end = std::chrono::high_resolution_clock::now();
+        _duration = _end - _start;
+
+        float ms = _duration.count() * 1000;
+        if(_timerValue != nullptr) *_timerValue = ms;
+
+        std::cout << "Execution of \"" << _name << "\" took: " << ms << " ms" << std::endl;
     }
-
-
-    rtl::RigidTf3D<double> TFTree::getTransformationForFrame(const std::string& frameName) {
-        if(frameName == rootFrameName_) {
-            return rtl::RigidTf3D<double>{rtl::Quaternion<double>::identity(), {0.0, 0.0, 0.0}};
-        }
-        return frameMap_.at(frameName);
-    }
-
-
-    rtl::Vector3D<double> TFTree::transformPointFromFrameToFrame(const rtl::Vector3D<double>& srcPoint, const std::string& source, const std::string& destination) {
-        auto tfs = getTransformationForFrame(source);
-        auto tfd = getTransformationForFrame(destination);
-
-        auto interResult = tfs(srcPoint);
-        return tfd.inverted()(interResult);
-
-    }
-
-}
+};

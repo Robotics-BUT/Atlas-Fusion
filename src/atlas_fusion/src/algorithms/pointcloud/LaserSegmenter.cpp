@@ -25,7 +25,7 @@
 namespace AutoDrive::Algorithms {
 
 
-    void LaserSegmenter::onLaserData(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> laserData, size_t laserNo) {
+    void LaserSegmenter::onLaserData(pcl::PointCloud<pcl::PointXYZ>::Ptr laserData, size_t laserNo) {
 
         if(laserNo >= segmenters_.size()) {
             context_.logger_.warning("Laser index out of range in LaserSegmenter::onLaserData method!");

@@ -55,7 +55,7 @@ namespace AutoDrive::Algorithms {
          * @param input given point cloud that will be downsampled
          * @return downsampled point cloud
          */
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> downsamplePointCloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr downsamplePointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr& input);
 
         /**
          * Method applies 3D transformation on a given point cloud
@@ -63,7 +63,7 @@ namespace AutoDrive::Algorithms {
          * @param tf 3D transformation that will be applied
          * @return transpormed point cloud
          */
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> transformPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input, rtl::RigidTf3D<double> tf);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr& input, const rtl::RigidTf3D<double>& tf);
 
     private:
 

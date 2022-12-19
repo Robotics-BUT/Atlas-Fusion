@@ -42,7 +42,7 @@ namespace AutoDrive::Algorithms {
         /**
          * Constructor
          * @param context container for global services, logging, time stamping, etc.
-         * @param aggTime time in secs for how long point will be keeped in the memory
+         * @param aggTime time in secs for how long point will be kept in the memory
          */
         explicit PointCloudAggregator(Context& context, float aggTime)
         : context_{context}
@@ -54,7 +54,7 @@ namespace AutoDrive::Algorithms {
          * Insert new batches into the aggregation memory
          * @param batches std::vector of new batches that have to be aggregated
          */
-        void addPointCloudBatches(std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches);
+        void addPointCloudBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>>& batches);
 
         /**
          * Method filters out all the batches that are older than (given time) - (aggregation time from constructor)
@@ -72,7 +72,7 @@ namespace AutoDrive::Algorithms {
          * Getter for all point clouds in global coordinate system represented by the aggregated batches.
          * @return point cloud in global coordinate system
          */
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getAggregatedPointCloud();
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getAggregatedPointCloud();
 
         /**
          * Method filters out all the points that are out of given bounding box.
@@ -80,7 +80,7 @@ namespace AutoDrive::Algorithms {
          * @param borders Points that are inside this bounding box will be passed to the output point cloud.
          * @return Point cloud that contains points from inside of the given bounding box.
          */
-        std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> getPointcloudCutout(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> input, rtl::BoundingBox3f borders);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::Ptr& input, const rtl::BoundingBox3f& borders);
 
     private:
 

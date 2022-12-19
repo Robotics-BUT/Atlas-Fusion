@@ -72,7 +72,7 @@ namespace AutoDrive::Algorithms {
          * approximation lines into the internall storage
          * @param laserData
          */
-        void onLaserData(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> laserData, size_t laserNo);
+        void onLaserData(pcl::PointCloud<pcl::PointXYZ>::Ptr laserData, size_t laserNo);
 
         /**
          * Getter of the approximations for single laser

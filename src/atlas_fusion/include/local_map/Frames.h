@@ -24,33 +24,26 @@
 
 #include <iostream>
 #include <string>
+/**
+ * Frames defines the names of the sensor's local coordinates systems.
+ */
+namespace AutoDrive::LocalMap::Frames {
+    const std::string kOrigin = "origin";
 
-namespace AutoDrive::LocalMap {
+    const std::string kLidarLeft = "lidar_left";
+    const std::string kLidarRight = "lidar_right";
+    const std::string kLidarCenter = "lidar_center";
 
-    /**
-     * Frames defines the names of the sensor's local coordinates systems.
-     */
-    namespace Frames {
-        const std::string kOrigin = "origin";
+    const std::string kRadarTi = "radar_ti";
 
-        const std::string kLidarLeft = "lidar_left";
-        const std::string kLidarRight = "lidar_right";
-        const std::string kLidarCenter = "lidar_center";
+    const std::string kImuFrame = "imu";
 
-        const std::string kRadarTi = "radar_ti";
+    const std::string kCameraLeftFront = "camera_left_front";
+    const std::string kCameraLeftSide = "camera_left_side";
+    const std::string kCameraRightFront = "camera_right_front";
+    const std::string kCameraRightSide = "camera_right_side";
+    const std::string kCameraIr = "camera_ir";
 
-        const std::string kImuFrame = "imu";
-
-        const std::string kCameraLeftFront = "camera_left_front";
-        const std::string kCameraLeftSide = "camera_left_side";
-        const std::string kCameraRightFront = "camera_right_front";
-        const std::string kCameraRightSide = "camera_right_side";
-        const std::string kCameraIr = "camera_ir";
-
-        const std::string kGnssAntennaFront = "gnss_front";
-        const std::string kGnssAntennaRear = "gnss_rear";
-
-        const std::string kErr = "ERROR";
-
-    }
+    const std::string kGnssAntennaFront = "gnss_front";
+    const std::string kGnssAntennaRear = "gnss_rear";
 }

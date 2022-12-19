@@ -34,7 +34,7 @@ namespace AutoDrive::DataModels {
         return ss.str();
     }
 
-    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> LidarScanDataModel::getScan() {
+    pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getScan() {
         if(filteredScan_.points.empty()) {
             if(scan_.points.empty()) {
                 getRawScan();
@@ -43,17 +43,17 @@ namespace AutoDrive::DataModels {
             filter_(filteredScan_);
         }
 
-        return std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(filteredScan_);
+        return filteredScan_.makeShared();
     }
 
 
-    std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> LidarScanDataModel::getRawScan() {
+    pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getRawScan() {
         if(scan_.points.empty()) {
             if (pcl::io::loadPCDFile<pcl::PointXYZ>(scan_path_, scan_) == -1) {
                 std::cerr << "Could not open pcd file: " << scan_path_ << std::endl;
             }
         }
-        return std::make_shared<pcl::PointCloud<pcl::PointXYZ>>(scan_);
+        return scan_.makeShared();
     }
 
     void LidarScanDataModel::addPointToScan(pcl::PointXYZ point) {

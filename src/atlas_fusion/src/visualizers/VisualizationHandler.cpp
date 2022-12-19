@@ -57,7 +57,7 @@ namespace AutoDrive::Visualizers{
     }
 
 
-    void VisualizationHandler::drawAggregatedPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
+    void VisualizationHandler::drawAggregatedPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr pc) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
@@ -66,7 +66,7 @@ namespace AutoDrive::Visualizers{
     }
 
 
-    void VisualizationHandler::drawAggregatedLasers(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
+    void VisualizationHandler::drawAggregatedLasers(pcl::PointCloud<pcl::PointXYZ>::Ptr pc) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
@@ -100,14 +100,14 @@ namespace AutoDrive::Visualizers{
         lidarVisualizer_.drawApproximationOnTopic(ls, Topics::kLidarApproximationRoad, LocalMap::Frames::kOrigin, col);
     }
 
-    void VisualizationHandler::drawGlobalPointcloud(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
+    void VisualizationHandler::drawGlobalPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr pc) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
 
         lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kGlobalPointCloud, LocalMap::Frames::kOrigin);
     }
 
-    void VisualizationHandler::drawPointcloudCutout(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ>> pc) {
+    void VisualizationHandler::drawPointcloudCutout(pcl::PointCloud<pcl::PointXYZ>::Ptr pc) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
