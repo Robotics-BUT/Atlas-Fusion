@@ -88,6 +88,6 @@ namespace AutoDrive::Algorithms {
 
         double aggregationTime_;
         std::deque<std::shared_ptr<DataModels::PointCloudBatch>> batchQueue_;
-
+        uint64_t totalPoints_{};
     };
 }

@@ -25,18 +25,19 @@
 
 namespace AutoDrive::Algorithms {
 
-    void PointCloudAggregator::addPointCloudBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>>& batches) {
+    void PointCloudAggregator::addPointCloudBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &batches) {
         for (const auto &batch: batches) {
             batchQueue_.push_back(batch);
+            totalPoints_ += batch->getPointsSize();
         }
     }
 
 
     void PointCloudAggregator::filterOutBatches(uint64_t currentTime) {
-
         while (!batchQueue_.empty()) {
             auto timeDiff = static_cast<double>((currentTime - batchQueue_.front()->getTimestamp())) * 1e-9;
             if ((timeDiff > aggregationTime_)) {
+                totalPoints_ -= batchQueue_.front()->getPointsSize();
                 batchQueue_.pop_front();
             } else {
                 break;
@@ -60,17 +61,42 @@ namespace AutoDrive::Algorithms {
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudAggregator::getAggregatedPointCloud() {
         Timer timer("getAggregatedPointCloud");
 
-        pcl::PointCloud<pcl::PointXYZ> output;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
+        if (batchQueue_.empty()) return output;
 
-        if (!batchQueue_.empty()) {
-            output.reserve(batchQueue_.size() * 2 * batchQueue_.at(0)->getPointsSize());
+        uint32_t threads = context_.threadPool.get_thread_count();
+        std::vector<std::future<pcl::PointCloud<pcl::PointXYZ>::Ptr>> outputFutures;
+        outputFutures.resize(threads);
+        uint32_t batchesPerThread = std::ceil(batchQueue_.size() / threads);
 
-            for (const auto &batch: batchQueue_) {
-                // TODO: Avoid using + operator
-                output += *(batch->getTransformedPoints());
-            }
+        std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> inputClouds;
+        inputClouds.resize(threads);
+
+        for (uint32_t i = 0; i < threads; i++) {
+            // Split point concatenation into multiple threads
+            outputFutures[i] = context_.threadPool.submit([&, i]() {
+                pcl::PointCloud<pcl::PointXYZ>::Ptr out(new pcl::PointCloud<pcl::PointXYZ>);
+
+                uint32_t start = i * batchesPerThread;
+                uint32_t end = (i + 1) * batchesPerThread;
+                if (i == threads - 1) end += 1;
+
+                for (uint32_t j = start; j < end; j++) {
+                    if (j >= batchQueue_.size()) break;
+                    pcl::concatenate(*out, *batchQueue_[j]->getTransformedPoints(), *out);
+                }
+                return out;
+            });
         }
-        return output.makeShared();
+        context_.threadPool.wait_for_tasks();
+
+        if (outputFutures.size() == 1) return outputFutures[0].get();
+
+        for (auto &future: outputFutures) {
+            pcl::concatenate(*output, *future.get(), *output);
+        }
+
+        return output;
     }
 
 
@@ -78,7 +104,7 @@ namespace AutoDrive::Algorithms {
     PointCloudAggregator::getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const rtl::BoundingBox3f &borders) {
         Timer timer("getPointCloudCutout");
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr output {};
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output{};
         output->reserve(input->size());
 
         for (const auto &point: *input) {
@@ -90,5 +116,4 @@ namespace AutoDrive::Algorithms {
         }
         return output;
     }
-
 }

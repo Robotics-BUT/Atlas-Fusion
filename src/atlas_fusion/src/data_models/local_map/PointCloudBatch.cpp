@@ -21,6 +21,7 @@
  */
 
 #include "data_models/local_map/PointCloudBatch.h"
+#include "Timer.h"
 
 namespace AutoDrive::DataModels {
 
@@ -31,15 +32,14 @@ namespace AutoDrive::DataModels {
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudBatch::getTransformedPoints() const {
+        //Timer timer("getTransformedPoints");
 
         return transformPointsByTF(tf_, points_);
     }
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudBatch::getTransformedPointsWithAnotherTF(rtl::RigidTf3D<double> &tf) const {
-
         return transformPointsByTF(tf(tf_), points_);
-
     }
 
 

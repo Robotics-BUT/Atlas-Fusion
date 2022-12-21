@@ -67,7 +67,6 @@ namespace AutoDrive::Algorithms {
                         pcl::Indices indices(singleBatchSize);
                         std::iota(indices.begin(), indices.end(), index * singleBatchSize);
 
-                        // 0.2 ms
                         pcl::ExtractIndices<pcl::PointXYZ> eifilter(false);
                         eifilter.setInputCloud(scan);
                         eifilter.setIndices(boost::make_shared<pcl::Indices>(indices));
@@ -77,7 +76,6 @@ namespace AutoDrive::Algorithms {
                         rtl::RigidTf3D<double> startToEndTf{poseDiff.getOrientation(), poseDiff.getPosition()};
                         auto finalTF = toGlobalFrameTf(startToEndTf.inverted()(movementCompensationTF(sensorOffsetTf)));
 
-                        // 0.31 ms
                         return std::make_shared<DataModels::PointCloudBatch>(ts, points.makeShared(), LocalMap::Frames::kOrigin, finalTF);
                     });
         }
