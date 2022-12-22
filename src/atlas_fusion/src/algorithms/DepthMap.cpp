@@ -24,37 +24,43 @@
 
 #include <pcl/common/transforms.h>
 #include <pcl/point_cloud.h>
-#include <visualizers/LidarVisualizer.h>
 #include <data_models/local_map/LocalPosition.h>
-#include "local_map/Frames.h"
+
+#include <utility>
+#include "Timer.h"
+#include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::Algorithms {
 
 
     void DepthMap::updatePointCloudData(std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches) {
-        batches_ = batches;
+        batches_ = std::move(batches);
     }
 
     std::vector<DataModels::YoloDetection3D>
     DepthMap::onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const DataModels::LocalPosition &imuPose) {
         auto output = std::vector<DataModels::YoloDetection3D>();
 
-        // project all point into specific camera
+        // project all points into specific camera
         if (projectors_.count(data->getCameraIdentifier()) == 0) {
             context_.logger_.warning("Missing camera projector for DepthMap");
             return output;
         }
 
-        auto cameraFrame = cameraIdentifierToFrame(data->getCameraIdentifier());
+        auto cameraFrame = frameTypeFromIdentifier(data->getCameraIdentifier());
         auto cameraId = data->getCameraIdentifier();
         auto yoloDetections = data->getYoloDetections();
 
         std::vector<cv::Point2f> valid2DPoints;
         std::vector<cv::Point3f> valid3DPoints{};
-        getAllCurrentPointsProjectedToImage(cameraId, valid2DPoints, valid3DPoints, data->getImage().cols, data->getImage().rows, imuPose.toTf());
+        {
+            Timer t("Get all points projected to image");
+            getAllCurrentPointsProjectedToImage(cameraId, valid2DPoints, valid3DPoints, data->getImage().cols, data->getImage().rows, imuPose.toTf());
+        }
 
         auto img = data->getImage();
         if (!valid2DPoints.empty()) {
+            Timer t("Get bounding boxes");
             for (auto &detection: yoloDetections) {
 
                 auto detPointIndexes = getIndexesOfPointsInDetection(valid2DPoints, detection);
@@ -127,29 +133,31 @@ namespace AutoDrive::Algorithms {
             std::vector<cv::Point3f> &validPoints3D,
             size_t img_width,
             size_t img_height,
-            rtl::RigidTf3D<double> originToImu,
+            const rtl::RigidTf3D<double>& originToImu,
             bool useDistMat) {
 
         auto projector = projectors_[id];
-        auto cameraFrame = cameraIdentifierToFrame(id);
+        auto cameraFrame = frameTypeFromIdentifier(id);
 
         pcl::PointCloud<pcl::PointXYZ> destPCL;
         auto imuToCamera = context_.tfTree_.getTransformationForFrame(cameraFrame);
         rtl::RigidTf3D<double> originToCameraTf = (imuToCamera.inverted()(originToImu.inverted()));//imuToCamera.inverted()(originToImu.inverted());
 
-        for (const auto &batch: batches_) {
-            destPCL += *(batch->getTransformedPointsWithAnotherTF(originToCameraTf));
+        {
+            Timer t("Concatenating all batches");
+            for (const auto &batch: batches_) {
+                destPCL += *(batch->getTransformedPointsWithAnotherTF(originToCameraTf));
+            }
         }
 
         std::vector<cv::Point3f> points3D;
         std::vector<cv::Point2f> points2D;
         points3D.reserve(destPCL.width * destPCL.height);
 
-        pcl::PointCloud<pcl::PointXYZ> test;
+
         for (const auto &pnt: destPCL) {
             if (pnt.z > 0) {
-                points3D.push_back({pnt.x, pnt.y, pnt.z});
-                test.push_back({pnt.x, pnt.y, pnt.z});
+                points3D.emplace_back(pnt.x, pnt.y, pnt.z);
             }
         }
 
@@ -198,37 +206,5 @@ namespace AutoDrive::Algorithms {
             return distances.at(midIndex);
         }
         return -1;
-    }
-
-
-    std::string DepthMap::cameraIdentifierToFrame(DataLoader::CameraIndentifier id) {
-        switch (id) {
-            case DataLoader::CameraIndentifier::kCameraLeftFront:
-                return LocalMap::Frames::kCameraLeftFront;
-            case DataLoader::CameraIndentifier::kCameraLeftSide:
-                return LocalMap::Frames::kCameraLeftSide;
-            case DataLoader::CameraIndentifier::kCameraRightFront:
-                return LocalMap::Frames::kCameraRightFront;
-            case DataLoader::CameraIndentifier::kCameraRightSide:
-                return LocalMap::Frames::kCameraRightSide;
-            case DataLoader::CameraIndentifier::kCameraIr:
-                return LocalMap::Frames::kCameraIr;
-            default:
-                context_.logger_.warning("Unexpected camera ID type in depth map");
-                return LocalMap::Frames::kOrigin;
-        }
-    }
-
-
-    std::string DepthMap::lidarIdentifierToFrame(DataLoader::LidarIdentifier id) {
-        switch (id) {
-            case DataLoader::LidarIdentifier::kRightLidar:
-                return LocalMap::Frames::kLidarRight;
-            case DataLoader::LidarIdentifier::kLeftLidar:
-                return LocalMap::Frames::kLidarLeft;
-            default:
-                context_.logger_.warning("Unexpected lidar ID type in depth map");
-                return LocalMap::Frames::kOrigin;
-        }
     }
 }

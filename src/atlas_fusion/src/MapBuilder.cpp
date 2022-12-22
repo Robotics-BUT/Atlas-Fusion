@@ -115,18 +115,21 @@ namespace AutoDrive {
 
             /* ... data processing ... */
             if (dataType == DataModels::DataModelTypes::kCameraDataModelType) {
+                Timer tim("Camera RGB");
 
                 mut imgData = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
                 processRGBCameraData(imgData, sensorFrame);
                 cache_.setNewRGBFrame(imgData);
 
             } else if (dataType == DataModels::DataModelTypes::kCameraIrDataModelType) {
+                Timer tim("Camera IR");
 
                 mut irCameraFrame = std::dynamic_pointer_cast<DataModels::CameraIrFrameDataModel>(data);
                 processIRCameraData(irCameraFrame);
                 cache_.setNewIRFrame(irCameraFrame);
 
             } else if (dataType == DataModels::DataModelTypes::kGnssPositionDataModelType) {
+                Timer tim("GNSS Position ...");
 
                 mut poseData = std::dynamic_pointer_cast<DataModels::GnssPoseDataModel>(data);
                 processGnssPoseData(poseData);
@@ -134,16 +137,19 @@ namespace AutoDrive {
             } else if (dataType == DataModels::DataModelTypes::kGnssTimeDataModelType) {
 
             } else if (dataType == DataModels::DataModelTypes::kImuDquatDataModelType) {
+                Timer tim("IMU DQUAT ...");
 
                 mut dQuatData = std::dynamic_pointer_cast<DataModels::ImuDquatDataModel>(data);
                 processImuDQuatData(dQuatData);
 
             } else if (dataType == DataModels::DataModelTypes::kImuGnssDataModelType) {
+                Timer tim("IMU GNSS ...");
 
                 mut poseData = std::dynamic_pointer_cast<DataModels::ImuGnssDataModel>(data);
                 processImuGnssData(poseData);
 
             } else if (dataType == DataModels::DataModelTypes::kImuImuDataModelType) {
+                Timer tim("IMU IMU ...");
 
                 mut imuData = std::dynamic_pointer_cast<DataModels::ImuImuDataModel>(data);
                 processImuImuData(imuData);
@@ -157,6 +163,7 @@ namespace AutoDrive {
             } else if (dataType == DataModels::DataModelTypes::kImuTimeDataModelType) {
 
             } else if (dataType == DataModels::DataModelTypes::kLidarScanDataModelType) {
+                Timer tim("LiDAR ...");
 
                 mut lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
                 lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_,
@@ -165,6 +172,7 @@ namespace AutoDrive {
                 cache_.setNewLidarScan(lidarData);
 
             } else if (dataType == DataModels::DataModelTypes::kRadarTiScanDataModelType) {
+                Timer tim("Radar ,,,");
 
                 let radarData = std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data);
                 processRadarTiData(radarData);
@@ -186,12 +194,30 @@ namespace AutoDrive {
 
 
     void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData, const std::string &sensorFrame) {
-        static int cnt = 0;
-        mut batches = pointCloudAggregator_.getAllBatches();
-        depthMap_.updatePointCloudData(batches);
 
-        mut detections3D = depthMap_.onNewCameraData(imgData, selfModel_.getPosition());
-        mut frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
+        static int cnt = 0;
+
+        std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches;
+        std::vector<DataModels::YoloDetection3D> detections3D;
+        std::vector<DataModels::FrustumDetection> frustums;
+        {
+            {
+                Timer tim("Get all aggregated batches");
+                batches = pointCloudAggregator_.getAllBatches();
+            }
+            {
+                Timer tim("Update point cloud data");
+                depthMap_.updatePointCloudData(batches);
+            }
+            {
+                Timer tim("Get 3D detections");
+                detections3D = depthMap_.onNewCameraData(imgData, selfModel_.getPosition());
+            }
+            {
+                Timer tim("Get detections frustums");
+                frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
+            }
+        }
 
         if (RGB_Detection_To_IR_Projection) {
             if (sensorFrame == LocalMap::Frames::kCameraLeftFront) {
@@ -242,10 +268,16 @@ namespace AutoDrive {
             }
         }
 
-        localMap_.setFrustumDetections(frustums, sensorFrame);
-        visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
+        {
+            Timer tim("Draw frustum detections");
+
+            localMap_.setFrustumDetections(frustums, sensorFrame);
+            visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
+        }
+
 
         if (cnt++ >= 3) {
+            Timer tim("Draw aggregated point cloud");
 
             cnt = 0;
             mut aggregatedPointCloud = pointCloudAggregator_.getAggregatedPointCloud();
@@ -347,7 +379,7 @@ namespace AutoDrive {
     }
 
     void MapBuilder::aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
-        Timer tim("Point cloud aggregation");
+
         let lidarID = lidarData->getLidarIdentifier();
         let sensorFrame = frameTypeFromDataModel(lidarData);
         mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);

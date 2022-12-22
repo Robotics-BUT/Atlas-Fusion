@@ -59,8 +59,6 @@ namespace AutoDrive::Algorithms {
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudAggregator::getAggregatedPointCloud() {
-        Timer timer("getAggregatedPointCloud");
-
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
         if (batchQueue_.empty()) return output;
 

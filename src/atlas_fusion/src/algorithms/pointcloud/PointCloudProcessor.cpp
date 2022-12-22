@@ -29,7 +29,6 @@ namespace AutoDrive::Algorithms {
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudProcessor::downsamplePointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input) {
-        Timer timer("downsamplePointCloud");
 
         pcl::PointCloud<pcl::PointXYZ> output;
 

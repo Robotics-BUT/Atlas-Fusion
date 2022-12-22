@@ -121,7 +121,10 @@ set(SOURCES_FAIL_CHECK
         src/algorithms/image_processing/SimpleImageProcessor.cpp
         include/algorithms/image_processing/SimpleImageProcessor.h)
 
-add_library(atlas_fusion_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK})
+set(SOURCES_UTIL
+        src/util/IdentifierToFrameConversions.cpp)
+
+add_library(atlas_fusion_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK} ${SOURCES_UTIL})
 
 add_executable(atlas_fusion src/main.cpp)
 target_link_libraries(${PROJECT_NAME}

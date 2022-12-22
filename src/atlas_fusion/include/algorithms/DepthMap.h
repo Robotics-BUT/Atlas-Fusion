@@ -107,14 +107,11 @@ namespace AutoDrive::Algorithms {
                 std::vector<cv::Point3f>& validPoints3D,
                 size_t img_width,
                 size_t img_height,
-                rtl::RigidTf3D<double>,
+                const rtl::RigidTf3D<double>&,
                 bool useDistMat = true);
 
         std::vector<size_t> getIndexesOfPointsInDetection(const std::vector<cv::Point2f>& validPoints2D, const DataModels::YoloDetection& detection);
 
         float getMedianDepthOfPointVector(std::vector<cv::Point3f>& points, std::vector<size_t>& indexes);
-        std::string cameraIdentifierToFrame(DataLoader::CameraIndentifier id);
-        std::string lidarIdentifierToFrame(DataLoader::LidarIdentifier id);
-
     };
 }
