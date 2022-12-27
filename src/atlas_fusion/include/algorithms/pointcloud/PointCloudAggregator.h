@@ -44,17 +44,14 @@ namespace AutoDrive::Algorithms {
          * @param context container for global services, logging, time stamping, etc.
          * @param aggTime time in secs for how long point will be kept in the memory
          */
-        explicit PointCloudAggregator(Context& context, float aggTime)
-        : context_{context}
-        , aggregationTime_{aggTime} {
-
-        }
+        explicit PointCloudAggregator(Context &context, PointCloudProcessor &pcProcessor, float aggTime)
+                : context_{context}, pointCloudProcessor_{pcProcessor}, aggregationTime_{aggTime}, aggregatedPoints_(new pcl::PointCloud<pcl::PointXYZ>) {}
 
         /**
          * Insert new batches into the aggregation memory
          * @param batches std::vector of new batches that have to be aggregated
          */
-        void addPointCloudBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>>& batches);
+        void addPointCloudBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &batches);
 
         /**
          * Method filters out all the batches that are older than (given time) - (aggregation time from constructor)
@@ -63,16 +60,10 @@ namespace AutoDrive::Algorithms {
         void filterOutBatches(uint64_t currentTime);
 
         /**
-         * Getter for all batches currently aggregated in the class instance.
-         * @return vector of shared pointers on aggregated batches
-         */
-        std::vector<std::shared_ptr<DataModels::PointCloudBatch>> getAllBatches();
-
-        /**
          * Getter for all point clouds in global coordinate system represented by the aggregated batches.
          * @return point cloud in global coordinate system
          */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr getAggregatedPointCloud();
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getAggregatedPointCloud(bool downsampled = true);
 
         /**
          * Method filters out all the points that are out of given bounding box.
@@ -80,14 +71,20 @@ namespace AutoDrive::Algorithms {
          * @param borders Points that are inside this bounding box will be passed to the output point cloud.
          * @return Point cloud that contains points from inside of the given bounding box.
          */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::Ptr& input, const rtl::BoundingBox3f& borders);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const rtl::BoundingBox3f &borders);
 
     private:
 
-        Context& context_;
+        Context &context_;
+        PointCloudProcessor &pointCloudProcessor_;
 
         double aggregationTime_;
-        std::deque<std::shared_ptr<DataModels::PointCloudBatch>> batchQueue_;
-        uint64_t totalPoints_{};
+        pcl::PointCloud<pcl::PointXYZ>::Ptr aggregatedPoints_;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr aggregatedPointsDownsampled_;
+
+        bool downsampledPointsValid_ = false;
+
+        // Holds timestamp (first) and number of points (second) of all batches added in order
+        std::deque<std::pair<uint64_t, long>> batchInfo_;
     };
 }

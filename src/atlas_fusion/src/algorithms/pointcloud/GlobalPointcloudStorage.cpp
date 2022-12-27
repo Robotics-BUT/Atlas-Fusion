@@ -24,15 +24,11 @@
 
 namespace AutoDrive::Algorithms {
 
-    void GlobalPointcloudStorage::addMorePointsToGlobalStorage(pcl::PointCloud<pcl::PointXYZ>::Ptr pc) {
-
-
-        *globalStorage_ += *pc;
+    void GlobalPointcloudStorage::addMorePointsToGlobalStorage(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
+        pcl::concatenate(*globalStorage_, *pc, *globalStorage_);
     }
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr GlobalPointcloudStorage::getEntirePointcloud() {
-
-        globalStorage_ = processor_.downsamplePointCloud(globalStorage_);
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr GlobalPointcloudStorage::getEntirePointcloud() {
         return globalStorage_;
     }
 }

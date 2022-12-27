@@ -94,19 +94,19 @@ namespace AutoDrive::Visualizers {
          * Raw lidar scan data visualization
          * @param data point cloud to be visualized
          */
-        void drawLidarData(std::shared_ptr<DataModels::LidarScanDataModel> data);
+        void drawLidarData(const std::shared_ptr<DataModels::LidarScanDataModel>& data);
 
         /**
          * Render aggregated point cloud scans over the time
          * @param pc aggregated point cloud
          */
-        void drawAggregatedPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr pc);
+        void drawAggregatedPointcloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc);
 
         /**
          * Render aggregated point cloud from single laser
          * @param pc aggregated laser measurements
          */
-        void drawAggregatedLasers(pcl::PointCloud<pcl::PointXYZ>::Ptr pc);
+        void drawAggregatedLasers(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc);
 
         /**
          *
@@ -125,13 +125,13 @@ namespace AutoDrive::Visualizers {
          * Visualize point cloud aggregated during the entire mapping session
          * @param pc global point cloud map
          */
-        void drawGlobalPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr pc);
+        void drawGlobalPointcloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc);
 
         /**
          * Visualize point cloud cutout
          * @param pc bounded point cloud
          */
-        void drawPointcloudCutout(pcl::PointCloud<pcl::PointXYZ>::Ptr pc);
+        void drawPointcloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc);
 
 
         /**
@@ -144,32 +144,32 @@ namespace AutoDrive::Visualizers {
          * Render IR image in the visialization engine
          * @param data image data
          */
-        void drawIRImage(std::shared_ptr<DataModels::CameraIrFrameDataModel> data);
+        void drawIRImage(const std::shared_ptr<DataModels::CameraIrFrameDataModel>& data);
 
 
         /**
          * Render agents velocity vector in the visualization environment
          * @param velocity to be visualized
          */
-        void drawVelocityData(rtl::Vector3D<double> speed);
+        void drawVelocityData(const rtl::Vector3D<double>& speed);
 
         /**
          * Render current linear acceleration vector
          * @param linAcc 3D linear acceleration
          */
-        void drawImuData(rtl::Vector3D<double> linAcc);
+        void drawImuData(const rtl::Vector3D<double>& linAcc);
 
         /**
          * Render average linear acceleration vector
          * @param linAcc averaged 3D linear acceleration
          */
-        void drawImuAvgData(rtl::Vector3D<double> linAcc);
+        void drawImuAvgData(const rtl::Vector3D<double>& linAcc);
 
         /**
          * Visualizes current WGS84 global position and heading as a text
          * @param data WGS84 position to be visualized
          */
-        void drawGnssPoseData(std::shared_ptr<DataModels::GnssPoseDataModel> data) const;
+        void drawGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel>& data) const;
 
         /**
          * Render raw gnss trajectory as a polyline

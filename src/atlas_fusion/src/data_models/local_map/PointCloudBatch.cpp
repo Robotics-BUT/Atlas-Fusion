@@ -32,55 +32,11 @@ namespace AutoDrive::DataModels {
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudBatch::getTransformedPoints() const {
-        //Timer timer("getTransformedPoints");
-
-        return transformPointsByTF(tf_, points_);
+        return pointCloudProcessor_.transformPointCloud(points_, tf_);
     }
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudBatch::getTransformedPointsWithAnotherTF(rtl::RigidTf3D<double> &tf) const {
-        return transformPointsByTF(tf(tf_), points_);
-    }
-
-
-    uint64_t PointCloudBatch::getTimestamp() const {
-        return timestamp_;
-    }
-
-
-    size_t PointCloudBatch::getPointsSize() const {
-        return points_->size();
-    };
-
-
-    std::string PointCloudBatch::getFrame() const {
-        return referenceFrame_;
-    };
-
-
-    rtl::RigidTf3D<double> PointCloudBatch::getTF() const {
-        return tf_;
-    };
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudBatch::transformPointsByTF(const rtl::RigidTf3D<double> &tf, const pcl::PointCloud<pcl::PointXYZ>::Ptr& pts) {
-
-        pcl::PointCloud<pcl::PointXYZ> output;
-        output.reserve(pts->size());
-
-        auto rotMat = tf.rotMat();
-        Eigen::Affine3f pcl_tf = Eigen::Affine3f::Identity();
-        pcl_tf(0, 0) = static_cast<float>(rotMat(0, 0));
-        pcl_tf(1, 0) = static_cast<float>(rotMat(1, 0));
-        pcl_tf(2, 0) = static_cast<float>(rotMat(2, 0));
-        pcl_tf(0, 1) = static_cast<float>(rotMat(0, 1));
-        pcl_tf(1, 1) = static_cast<float>(rotMat(1, 1));
-        pcl_tf(2, 1) = static_cast<float>(rotMat(2, 1));
-        pcl_tf(0, 2) = static_cast<float>(rotMat(0, 2));
-        pcl_tf(1, 2) = static_cast<float>(rotMat(1, 2));
-        pcl_tf(2, 2) = static_cast<float>(rotMat(2, 2));
-        pcl_tf.translation() << tf.trVecX(), tf.trVecY(), tf.trVecZ();
-        pcl::transformPointCloud(*pts, output, pcl_tf);
-
-        return output.makeShared();
+        return pointCloudProcessor_.transformPointCloud(points_, tf(tf_));
     }
 }

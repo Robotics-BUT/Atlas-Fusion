@@ -44,6 +44,9 @@ struct Timer {
         float ms = _duration.count() * 1000;
         if(_timerValue != nullptr) *_timerValue = ms;
 
-        std::cout << "Execution of \"" << _name << "\" took: " << ms << " ms" << std::endl;
+        // Used to only show timers that take more than set amount
+        if(ms > 1) {
+            std::cout << "Execution of \"" << _name << "\" took: " << ms << " ms" << std::endl;
+        }
     }
 };

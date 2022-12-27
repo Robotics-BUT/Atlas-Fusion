@@ -44,9 +44,8 @@ namespace AutoDrive::Algorithms {
          * @param context global services container (time stamps provider, TF tree, logger, etc.)
          * @param leafSize the leaf size of the downsampled point cloud
          */
-        PointCloudProcessor(Context& context, float leafSize)
-        : context_{context}
-        , leafSize_{leafSize} {
+        PointCloudProcessor(Context &context, float leafSize)
+                : context_{context}, leafSize_{leafSize} {
 
         }
 
@@ -55,7 +54,14 @@ namespace AutoDrive::Algorithms {
          * @param input given point cloud that will be downsampled
          * @return downsampled point cloud
          */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr downsamplePointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr& input);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr downsamplePointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input);
+
+        /**
+        * Method downsamples in place the point cloud given at the input
+        * @param input given point cloud that will be downsampled
+        */
+        void downsamplePointCloudInPlace(pcl::PointCloud<pcl::PointXYZ>::Ptr &input);
+
 
         /**
          * Method applies 3D transformation on a given point cloud
@@ -63,12 +69,11 @@ namespace AutoDrive::Algorithms {
          * @param tf 3D transformation that will be applied
          * @return transpormed point cloud
          */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr& input, const rtl::RigidTf3D<double>& tf);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::RigidTf3D<double> &tf);
 
     private:
 
-        Context& context_;
-
+        Context &context_;
         float leafSize_;
     };
 

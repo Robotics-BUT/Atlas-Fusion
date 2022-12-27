@@ -21,19 +21,19 @@
  */
 
 #include "algorithms/Projector.h"
+#include "Timer.h"
 
 namespace AutoDrive::Algorithms {
 
 
     void Projector::projectPoints(const std::vector<cv::Point3f> &src, std::vector<cv::Point2f> &dest, bool useDist) {
+        if (src.empty()) return;
+        dest.reserve(src.size());
 
-        std::vector<cv::Point2f> tmp;
-        if (!src.empty()) {
-            if (useDist) {
-                cv::projectPoints(src, rvec_, tvec_, intrinsic_, distortion_, dest);
-            } else {
-                cv::projectPoints(src, rvec_, tvec_, intrinsic_, {}, dest);
-            }
+        if (useDist) {
+            cv::projectPoints(src, rvec_, tvec_, intrinsic_, distortion_, dest);
+        } else {
+            cv::projectPoints(src, rvec_, tvec_, intrinsic_, {}, dest);
         }
     }
 

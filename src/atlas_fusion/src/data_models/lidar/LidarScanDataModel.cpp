@@ -21,6 +21,7 @@
  */
 
 #include "data_models/lidar/LidarScanDataModel.h"
+#include "Timer.h"
 
 #include <sstream>
 
@@ -35,12 +36,16 @@ namespace AutoDrive::DataModels {
     }
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getScan() {
+        Timer t("Get lidar scan");
         if(filteredScan_.points.empty()) {
             if(scan_.points.empty()) {
                 getRawScan();
             }
             filteredScan_ = scan_;
-            filter_(filteredScan_);
+            {
+                Timer t("Filter scan");
+                filter_(filteredScan_);
+            }
         }
 
         return filteredScan_.makeShared();
@@ -48,6 +53,7 @@ namespace AutoDrive::DataModels {
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getRawScan() {
+        Timer t("Get lidar scan - raw");
         if(scan_.points.empty()) {
             if (pcl::io::loadPCDFile<pcl::PointXYZ>(scan_path_, scan_) == -1) {
                 std::cerr << "Could not open pcd file: " << scan_path_ << std::endl;
@@ -55,8 +61,4 @@ namespace AutoDrive::DataModels {
         }
         return scan_.makeShared();
     }
-
-    void LidarScanDataModel::addPointToScan(pcl::PointXYZ point) {
-        scan_.push_back(point);
-    };
 }

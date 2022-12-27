@@ -26,81 +26,58 @@
 namespace AutoDrive::Algorithms {
 
     void PointCloudAggregator::addPointCloudBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &batches) {
+        //TODO: Too slow
+        Timer t("Add lidar batches");
+        size_t pointsToAdd = 0;
+        size_t noOfPoints = aggregatedPoints_->size();
         for (const auto &batch: batches) {
-            batchQueue_.push_back(batch);
-            totalPoints_ += batch->getPointsSize();
+            batchInfo_.emplace_back(batch->getTimestamp(), batch->getPointsSize());
+            pointsToAdd += batch->getPointsSize();
+            pcl::concatenate(*aggregatedPoints_, *batch->getTransformedPoints(), *aggregatedPoints_);
         }
+        downsampledPointsValid_ = false;
+
+        assert(noOfPoints + pointsToAdd == aggregatedPoints_->size());
     }
 
 
     void PointCloudAggregator::filterOutBatches(uint64_t currentTime) {
-        while (!batchQueue_.empty()) {
-            auto timeDiff = static_cast<double>((currentTime - batchQueue_.front()->getTimestamp())) * 1e-9;
-            if ((timeDiff > aggregationTime_)) {
-                totalPoints_ -= batchQueue_.front()->getPointsSize();
-                batchQueue_.pop_front();
-            } else {
-                break;
-            }
+        Timer t("Filter out lidar aggregated batches");
+        if (batchInfo_.empty()) return;
+
+        size_t pointsToDelete = 0;
+        while(!batchInfo_.empty()) {
+            auto timestamp = batchInfo_.front().first;
+            auto noOfPoints = batchInfo_.front().second;
+
+            auto timeDiff = static_cast<double>(currentTime - timestamp) * 1e-9;
+            if (timeDiff < aggregationTime_) break;
+
+            pointsToDelete += noOfPoints;
+            batchInfo_.pop_front();
         }
+        if (pointsToDelete == 0) return;
+        size_t noOfPoints = aggregatedPoints_->size();
+        aggregatedPoints_->points.erase(aggregatedPoints_->points.begin(), aggregatedPoints_->points.begin() + static_cast<long>(pointsToDelete));
+
+        assert(noOfPoints - pointsToDelete == aggregatedPoints_->size());
     }
 
-
-    std::vector<std::shared_ptr<DataModels::PointCloudBatch>> PointCloudAggregator::getAllBatches() {
-        std::vector<std::shared_ptr<DataModels::PointCloudBatch>> output;
-        output.reserve(batchQueue_.size());
-
-        for (auto it = batchQueue_.begin(); it < batchQueue_.end(); it++) {
-            output.push_back(*it);
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getAggregatedPointCloud(bool downsampled) {
+        // Timer t("Get aggregated point cloud");
+        if (!downsampled) return aggregatedPoints_;
+        if (!downsampledPointsValid_) {
+            aggregatedPointsDownsampled_ = pointCloudProcessor_.downsamplePointCloud(aggregatedPoints_);
+            downsampledPointsValid_ = true;
         }
 
-        return output;
-    }
-
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudAggregator::getAggregatedPointCloud() {
-        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
-        if (batchQueue_.empty()) return output;
-
-        uint32_t threads = context_.threadPool.get_thread_count();
-        std::vector<std::future<pcl::PointCloud<pcl::PointXYZ>::Ptr>> outputFutures;
-        outputFutures.resize(threads);
-        uint32_t batchesPerThread = std::ceil(batchQueue_.size() / threads);
-
-        std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> inputClouds;
-        inputClouds.resize(threads);
-
-        for (uint32_t i = 0; i < threads; i++) {
-            // Split point concatenation into multiple threads
-            outputFutures[i] = context_.threadPool.submit([&, i]() {
-                pcl::PointCloud<pcl::PointXYZ>::Ptr out(new pcl::PointCloud<pcl::PointXYZ>);
-
-                uint32_t start = i * batchesPerThread;
-                uint32_t end = (i + 1) * batchesPerThread;
-                if (i == threads - 1) end += 1;
-
-                for (uint32_t j = start; j < end; j++) {
-                    if (j >= batchQueue_.size()) break;
-                    pcl::concatenate(*out, *batchQueue_[j]->getTransformedPoints(), *out);
-                }
-                return out;
-            });
-        }
-        context_.threadPool.wait_for_tasks();
-
-        if (outputFutures.size() == 1) return outputFutures[0].get();
-
-        for (auto &future: outputFutures) {
-            pcl::concatenate(*output, *future.get(), *output);
-        }
-
-        return output;
+        return aggregatedPointsDownsampled_;
     }
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr
     PointCloudAggregator::getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const rtl::BoundingBox3f &borders) {
-        Timer timer("getPointCloudCutout");
+        // Timer t("Get point cloud cutout");
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr output{};
         output->reserve(input->size());

@@ -44,7 +44,8 @@ namespace AutoDrive::Algorithms {
          * @param context global services container, like time, TF tree, etc.
          * @param noOfBatcher number of batches the scan will be splitted into
          */
-        explicit PointCloudExtrapolator(Context &context, uint32_t noOfBatches) : context_{context}, noOfBatches_{noOfBatches} {}
+        explicit PointCloudExtrapolator(Context &context, PointCloudProcessor &pcProcessor, uint32_t noOfBatches)
+                : context_{context}, pointCloudProcessor_{pcProcessor}, noOfBatches_{noOfBatches} {}
 
         /**
          * Process single scan and performs lidar-motion undistortion
@@ -68,6 +69,7 @@ namespace AutoDrive::Algorithms {
 
     private:
         Context &context_;
+        PointCloudProcessor &pointCloudProcessor_;
         uint32_t noOfBatches_;
     };
 

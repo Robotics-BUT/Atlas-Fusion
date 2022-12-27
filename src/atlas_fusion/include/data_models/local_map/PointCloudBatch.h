@@ -29,13 +29,14 @@
 #include <rtl/Transformation.h>
 
 #include <utility>
+#include "algorithms/pointcloud/PointCloudProcessor.h"
 
 namespace AutoDrive::DataModels {
 
     /**
      * Point Cloud Batch represents small part of the LiDAR scan. Splitting scans into batches is used during the
      * motion undistorting process. Batch holds the points and the transformation. This transformation is lazy evaluated
-     * so the is no redundant transformation application on all points. In time transformation can be chained and
+     * so there is no redundant transformation application on all points. In time transformation can be chained and
      * could be applied only once when the points are needed.
      */
     class PointCloudBatch {
@@ -51,13 +52,9 @@ namespace AutoDrive::DataModels {
          * @param frame sensor's frame
          * @param tf transformation that should be applied on points to get real position in 3D space
          */
-        explicit PointCloudBatch(uint64_t ts, pcl::PointCloud<pcl::PointXYZ>::Ptr points, std::string frame, const rtl::RigidTf3D<double>& tf)
-        : timestamp_{ts}
-        , points_{std::move(points)}
-        , referenceFrame_{std::move(frame)}
-        , tf_{tf} {
-
-        }
+        explicit PointCloudBatch(Algorithms::PointCloudProcessor &pcProcessor, uint64_t ts, pcl::PointCloud<pcl::PointXYZ>::Ptr points, std::string frame,
+                                 const rtl::RigidTf3D<double> &tf)
+                : pointCloudProcessor_{pcProcessor}, timestamp_{ts}, points_{std::move(points)}, referenceFrame_{std::move(frame)}, tf_{tf} {}
 
         /**
          * Untransformed points getter
@@ -66,7 +63,7 @@ namespace AutoDrive::DataModels {
         [[nodiscard]] pcl::PointCloud<pcl::PointXYZ>::Ptr getPoints() const;
 
         /**
-         * Points with applied transformation gettera
+         * Points with applied transformation
          * @return transformed 3D points
          */
         [[nodiscard]] pcl::PointCloud<pcl::PointXYZ>::Ptr getTransformedPoints() const;
@@ -76,39 +73,40 @@ namespace AutoDrive::DataModels {
          * @param tf second transformation applied on points
          * @return transformed points
          */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr getTransformedPointsWithAnotherTF(rtl::RigidTf3D<double>& tf) const;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getTransformedPointsWithAnotherTF(rtl::RigidTf3D<double> &tf) const;
 
         /**
          * Timestamp when the points have been scanned
          * @return nanosecond timestamp
          */
-        [[nodiscard]] uint64_t getTimestamp() const;
+        [[nodiscard]] uint64_t getTimestamp() const { return timestamp_; };
+
 
         /**
          * Method returns number of points in the batch
          * @return batch size
          */
-        [[nodiscard]] size_t getPointsSize() const;
+        [[nodiscard]] size_t getPointsSize() const { return points_->size(); };
 
         /**
          * Method returns frame of the LiDAR that has scanned points
          * @return string name of the sensnor's frame
          */
-        [[nodiscard]] std::string getFrame() const;
+        [[nodiscard]] std::string getFrame() const { return referenceFrame_; };
 
         /**
          * Points transformation getter
          * @return transformtaion that should be applied on points to get the real 3D position
          */
-        [[nodiscard]] rtl::RigidTf3D<double> getTF() const;
+        [[nodiscard]] rtl::RigidTf3D<double> getTF() const { return tf_; };
 
     private:
+        Algorithms::PointCloudProcessor &pointCloudProcessor_;
+
         uint64_t timestamp_;
         pcl::PointCloud<pcl::PointXYZ>::Ptr points_;
         std::string referenceFrame_;
         rtl::RigidTf3D<double> tf_;
-
-        [[nodiscard]] static pcl::PointCloud<pcl::PointXYZ>::Ptr transformPointsByTF(const rtl::RigidTf3D<double>& tf, const pcl::PointCloud<pcl::PointXYZ>::Ptr& pts) ;
     };
 
 }

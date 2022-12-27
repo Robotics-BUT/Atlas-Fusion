@@ -31,6 +31,7 @@
 #include "data_models/local_map/YoloDetection3D.h"
 #include "data_models/local_map/PointCloudBatch.h"
 #include "data_models/local_map/LocalPosition.h"
+#include "algorithms/pointcloud/PointCloudProcessor.h"
 
 
 namespace AutoDrive::Algorithms {
@@ -46,17 +47,17 @@ namespace AutoDrive::Algorithms {
     public:
 
 
-        explicit DepthMap(Context& context)
-        : context_{context} {
-
-        }
+        explicit DepthMap(Context &context, PointCloudProcessor &processor)
+                : context_{context}, pointCloudProcessor_{processor} {}
 
         /**
-         * Refreshes the set of the point cloud bathes, that will be used for the next point cloud to camera frame projections.
-         * The bathes will be remembered until the next update.
-         * @param batches Vector of the shared pointers of the point cloud batches, that the Depth Map will reprojection.
+         * Refreshes the aggregated point cloud, that will be used for the next point cloud to camera frame projection.
+         * The point cloud will be remembered until the next update.
+         * @param cloud shared pointer to a aggregated point cloud in global coordinates, that the DepthMap will use for reprojection
          */
-        void updatePointCloudData(std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches);
+        void updatePointCloudData(pcl::PointCloud<pcl::PointXYZ>::ConstPtr &cloud) {
+            aggregatedPointCloud_ = cloud;
+        }
 
         /**
          * Method receives the RGB camera frame that also contains neural network detections and projects point cloud
@@ -66,7 +67,8 @@ namespace AutoDrive::Algorithms {
          * @param imuPose a precise position of the center of the frame in the given time
          * @return The vector of detections wih estimated distances
          */
-        std::vector<DataModels::YoloDetection3D> onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel>& data, const DataModels::LocalPosition& imuPose);
+        std::vector<DataModels::YoloDetection3D>
+        onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const DataModels::LocalPosition &imuPose);
 
         /**
          * Adds a new instance of the Projector to the Depth Map's arsenal. These projectors are used to project point
@@ -88,30 +90,27 @@ namespace AutoDrive::Algorithms {
                 DataLoader::CameraIndentifier id,
                 size_t imgWidth,
                 size_t imgHeight,
-                rtl::RigidTf3D<double> currentFrameTf,
+                const rtl::RigidTf3D<double> &currentFrameTf,
                 bool useDistMat = true);
 
     private:
 
-        Context& context_;
+        Context &context_;
+        PointCloudProcessor &pointCloudProcessor_;
         std::map<DataLoader::CameraIndentifier, std::shared_ptr<Projector>> projectors_{};
-        std::map<DataLoader::LidarIdentifier, pcl::PointCloud<pcl::PointXYZ>> lidarScans_{};
-        std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches_;
-
-        void storeLidarDataInRootFrame(std::shared_ptr<DataModels::LidarScanDataModel> data, rtl::RigidTf3D<double>& tf);
-        void applyTransformOnPclData(pcl::PointCloud<pcl::PointXYZ>&input, pcl::PointCloud<pcl::PointXYZ>&output, rtl::RigidTf3D<double>& tf);
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr aggregatedPointCloud_{};
 
         void getAllCurrentPointsProjectedToImage(
                 DataLoader::CameraIndentifier id,
-                std::vector<cv::Point2f>& validPoints2D,
-                std::vector<cv::Point3f>& validPoints3D,
+                std::vector<cv::Point2f> &validPoints2D,
+                std::vector<cv::Point3f> &validPoints3D,
                 size_t img_width,
                 size_t img_height,
-                const rtl::RigidTf3D<double>&,
+                const rtl::RigidTf3D<double> &,
                 bool useDistMat = true);
 
-        std::vector<size_t> getIndexesOfPointsInDetection(const std::vector<cv::Point2f>& validPoints2D, const DataModels::YoloDetection& detection);
+        std::vector<size_t> getIndexesOfPointsInDetection(const std::vector<cv::Point2f> &validPoints2D, const DataModels::YoloDetection &detection);
 
-        float getMedianDepthOfPointVector(std::vector<cv::Point3f>& points, std::vector<size_t>& indexes);
+        float getMedianDepthOfPointVector(std::vector<cv::Point3f> &points, std::vector<size_t> &indexes);
     };
 }

@@ -27,6 +27,7 @@
 
 #include "data_loader/RecordingConstants.h"
 #include "ConfigService.h"
+#include "Timer.h"
 
 namespace AutoDrive::DataLoader {
 
@@ -123,9 +124,13 @@ namespace AutoDrive::DataLoader {
     }
 
     std::shared_ptr<DataModels::GenericDataModel> CameraDataLoader::getNextData() {
+        Timer t("Get next camera frame");
         if (!isOnEnd()) {
-            cv::Mat frame;
-            video_ >> frame;
+            cv::Mat frame{};
+            {
+                Timer t("Extract opencv frame");
+                video_.read(frame);
+            }
 
             std::shared_ptr<DataModels::GenericDataModel> cameraFrame;
             switch (cameraIdentifier_) {

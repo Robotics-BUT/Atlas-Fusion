@@ -27,7 +27,7 @@
 
 namespace AutoDrive::Visualizers {
 
-    void LidarVisualizer::drawPointcloudOnTopic(const pcl::PointCloud<pcl::PointXYZ>::Ptr pc, std::string topic, std::string frame) {
+    void LidarVisualizer::drawPointcloudOnTopic(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc, std::string topic, std::string frame) {
 
         if(publishers_.count(topic) == 0) {
             publishers_[topic] = std::make_shared<ros::Publisher>(node_.advertise<sensor_msgs::PointCloud2>( topic, 0));

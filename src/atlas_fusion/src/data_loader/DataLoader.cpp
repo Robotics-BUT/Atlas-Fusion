@@ -22,6 +22,7 @@
 
 #include "data_loader/DataLoader.h"
 #include "data_loader/RecordingConstants.h"
+#include "Timer.h"
 
 #include <iostream>
 #include <experimental/filesystem>
@@ -91,7 +92,7 @@ namespace AutoDrive::DataLoader {
     }
 
     std::shared_ptr<DataModels::GenericDataModel> DataLoader::getNextData() {
-
+        Timer t("Get next data");
         AbstractDataLoader *it = nullptr;
         uint64_t minTimestamp = std::numeric_limits<uint64_t>::max();
 
@@ -152,14 +153,17 @@ namespace AutoDrive::DataLoader {
 
         context_.logger_.info("Loading data ...");
 
-        for (const auto &dataLoader: dataLoaders_) {
-            auto result = dataLoader->loadData(path);
-            context_.logger_.info(dataLoader->toString());
-            if (!result) {
-                context_.logger_.error("Error when reading data from filesystem");
-                return false;
-            }
+        for (const auto &loader: dataLoaders_) {
+            context_.threadPool_.push_task([&]() {
+                auto result = loader->loadData(path);
+                context_.logger_.info(loader->toString());
+                if (!result) {
+                    context_.logger_.error("Error when reading data from filesystem");
+                    throw std::runtime_error("Error when reading data from filesystem");
+                }
+            });
         }
+        context_.threadPool_.wait_for_tasks();
 
         context_.logger_.info("Data Loading done");
         return true;

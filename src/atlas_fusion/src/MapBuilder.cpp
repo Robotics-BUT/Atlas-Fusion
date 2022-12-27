@@ -36,7 +36,7 @@ namespace AutoDrive {
 
 
     void MapBuilder::loadData() {
-        Timer timer("Data loading");
+        Timer t("Data loading");
         // Load all data through all available data loaders
         dataLoader_.loadData(destinationFolder_);
         std::cout << "Total No. of loaded data: " << dataLoader_.getDataSize() << std::endl;
@@ -82,9 +82,6 @@ namespace AutoDrive {
             mut data = dataLoader_.getNextData();
             mut data_ts = data->getTimestamp();
 
-            mut dataType = data->getType();
-            // Timer timer("Data frame of type " + std::to_string((int) dataType) + " processing");
-
             std::stringstream ss;
             ss << data_ts << " " << data->toString();
             context_.logger_.debug(ss.str());
@@ -114,75 +111,86 @@ namespace AutoDrive {
             }
 
             /* ... data processing ... */
-            if (dataType == DataModels::DataModelTypes::kCameraDataModelType) {
-                Timer tim("Camera RGB");
+            auto type = data->getType();
+            switch (type) {
+                case DataModels::DataModelTypes::kCameraDataModelType: {
+                    Timer t("Camera RGB ...");
 
-                mut imgData = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
-                processRGBCameraData(imgData, sensorFrame);
-                cache_.setNewRGBFrame(imgData);
+                    mut imgData = std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data);
+                    processRGBCameraData(imgData, sensorFrame);
+                    cache_.setNewRGBFrame(imgData);
+                    break;
+                }
+                case DataModels::DataModelTypes::kCameraIrDataModelType: {
+                    Timer t("Camera IR ...");
 
-            } else if (dataType == DataModels::DataModelTypes::kCameraIrDataModelType) {
-                Timer tim("Camera IR");
+                    mut irCameraFrame = std::dynamic_pointer_cast<DataModels::CameraIrFrameDataModel>(data);
+                    processIRCameraData(irCameraFrame);
+                    cache_.setNewIRFrame(irCameraFrame);
+                    break;
+                }
+                case DataModels::DataModelTypes::kGnssPositionDataModelType: {
+                    Timer t("GNSS Position ...");
 
-                mut irCameraFrame = std::dynamic_pointer_cast<DataModels::CameraIrFrameDataModel>(data);
-                processIRCameraData(irCameraFrame);
-                cache_.setNewIRFrame(irCameraFrame);
+                    mut poseData = std::dynamic_pointer_cast<DataModels::GnssPoseDataModel>(data);
+                    processGnssPoseData(poseData);
+                    break;
+                }
+                case DataModels::DataModelTypes::kImuDquatDataModelType: {
+                    //Timer t("IMU DQUAT ...");
 
-            } else if (dataType == DataModels::DataModelTypes::kGnssPositionDataModelType) {
-                Timer tim("GNSS Position ...");
+                    mut dQuatData = std::dynamic_pointer_cast<DataModels::ImuDquatDataModel>(data);
+                    processImuDQuatData(dQuatData);
+                    break;
+                }
+                case DataModels::DataModelTypes::kImuGnssDataModelType: {
+                    //Timer t("IMU GNSS ...");
 
-                mut poseData = std::dynamic_pointer_cast<DataModels::GnssPoseDataModel>(data);
-                processGnssPoseData(poseData);
+                    mut poseData = std::dynamic_pointer_cast<DataModels::ImuGnssDataModel>(data);
+                    processImuGnssData(poseData);
+                    break;
+                }
+                case DataModels::DataModelTypes::kImuImuDataModelType: {
+                    //Timer t("IMU IMU ...");
 
-            } else if (dataType == DataModels::DataModelTypes::kGnssTimeDataModelType) {
+                    mut imuData = std::dynamic_pointer_cast<DataModels::ImuImuDataModel>(data);
+                    processImuImuData(imuData);
+                    break;
+                }
+                case DataModels::DataModelTypes::kLidarScanDataModelType: {
+                    Timer t("LiDAR ...");
 
-            } else if (dataType == DataModels::DataModelTypes::kImuDquatDataModelType) {
-                Timer tim("IMU DQUAT ...");
+                    mut lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
+                    lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_,
+                                                        std::placeholders::_1));
+                    processLidarScanData(lidarData);
+                    cache_.setNewLidarScan(lidarData);
+                    break;
+                }
+                case DataModels::DataModelTypes::kRadarTiScanDataModelType: {
+                    Timer t("Radar ...");
 
-                mut dQuatData = std::dynamic_pointer_cast<DataModels::ImuDquatDataModel>(data);
-                processImuDQuatData(dQuatData);
-
-            } else if (dataType == DataModels::DataModelTypes::kImuGnssDataModelType) {
-                Timer tim("IMU GNSS ...");
-
-                mut poseData = std::dynamic_pointer_cast<DataModels::ImuGnssDataModel>(data);
-                processImuGnssData(poseData);
-
-            } else if (dataType == DataModels::DataModelTypes::kImuImuDataModelType) {
-                Timer tim("IMU IMU ...");
-
-                mut imuData = std::dynamic_pointer_cast<DataModels::ImuImuDataModel>(data);
-                processImuImuData(imuData);
-
-            } else if (dataType == DataModels::DataModelTypes::kImuMagDataModelType) {
-
-            } else if (dataType == DataModels::DataModelTypes::kImuPressDataModelType) {
-
-            } else if (dataType == DataModels::DataModelTypes::kImuTempDataModelType) {
-
-            } else if (dataType == DataModels::DataModelTypes::kImuTimeDataModelType) {
-
-            } else if (dataType == DataModels::DataModelTypes::kLidarScanDataModelType) {
-                Timer tim("LiDAR ...");
-
-                mut lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
-                lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_,
-                                                    std::placeholders::_1));
-                processLidarScanData(lidarData);
-                cache_.setNewLidarScan(lidarData);
-
-            } else if (dataType == DataModels::DataModelTypes::kRadarTiScanDataModelType) {
-                Timer tim("Radar ,,,");
-
-                let radarData = std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data);
-                processRadarTiData(radarData);
-
-            } else if (dataType == DataModels::DataModelTypes::kGenericDataModelType) {
-                context_.logger_.warning("Received Generic data model from DataLoader");
-            } else if (dataType == DataModels::DataModelTypes::kErrorDataModelType) {
-                context_.logger_.warning("Received Error data model from DataLoader");
-            } else {
-                context_.logger_.warning("Unepected type of data model from DataLoader");
+                    let radarData = std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data);
+                    processRadarTiData(radarData);
+                    break;
+                }
+                case DataModels::DataModelTypes::kCameraCalibrationParamsDataModelType:
+                case DataModels::DataModelTypes::kGnssTimeDataModelType:
+                case DataModels::DataModelTypes::kImuMagDataModelType:
+                case DataModels::DataModelTypes::kImuPressDataModelType:
+                case DataModels::DataModelTypes::kImuTempDataModelType:
+                case DataModels::DataModelTypes::kImuTimeDataModelType:
+                case DataModels::DataModelTypes::kYoloDetectionDataModelType:
+                    break;
+                case DataModels::DataModelTypes::kGenericDataModelType:
+                    context_.logger_.warning("Received Generic data model from DataLoader");
+                    break;
+                case DataModels::DataModelTypes::kErrorDataModelType:
+                    context_.logger_.warning("Received Error data model from DataLoader");
+                    break;
+                default:
+                    context_.logger_.warning("Unepected type of data model from DataLoader");
+                    break;
             }
         }
     }
@@ -197,26 +205,36 @@ namespace AutoDrive {
 
         static int cnt = 0;
 
-        std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches;
         std::vector<DataModels::YoloDetection3D> detections3D;
         std::vector<DataModels::FrustumDetection> frustums;
-        {
-            {
-                Timer tim("Get all aggregated batches");
-                batches = pointCloudAggregator_.getAllBatches();
-            }
-            {
-                Timer tim("Update point cloud data");
-                depthMap_.updatePointCloudData(batches);
-            }
-            {
-                Timer tim("Get 3D detections");
-                detections3D = depthMap_.onNewCameraData(imgData, selfModel_.getPosition());
-            }
-            {
-                Timer tim("Get detections frustums");
-                frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
-            }
+
+        auto aggregatedPc = pointCloudAggregator_.getAggregatedPointCloud();
+        depthMap_.updatePointCloudData(aggregatedPc);
+
+        Timer t("Get 3D detections");
+        detections3D = depthMap_.onNewCameraData(imgData, selfModel_.getPosition());
+        frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
+
+        localMap_.setFrustumDetections(frustums, sensorFrame);
+        visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
+
+        if (cnt++ >= 3) {
+            cnt = 0;
+            context_.threadPool_.push_task([&]() {
+                //mut tunel = pointCloudAggregator_.getPointCloudCutout(pointCloudProcessor_.transformPointCloud(downSampledAggregatedPc, selfModel_.getPosition().toTf().inverted()),
+                //                                                      rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
+                //                                                                                rtl::Vector3D<float>{30.0f, 10.0f, 10.0f}});
+                //mut downSampledTunel = pointCloudProcessor_.downsamplePointCloud(tunel);
+                //mut lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunel);
+                //localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
+
+                visualizationHandler_.drawAggregatedPointcloud(aggregatedPc);
+                //visualizationHandler_.drawLidarDetection(lidarObstacles);
+                //visualizationHandler_.drawPointcloudCutout(tunel);
+                //visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
+
+                visualizationHandler_.drawRGBImage(imgData);
+            });
         }
 
         if (RGB_Detection_To_IR_Projection) {
@@ -236,13 +254,15 @@ namespace AutoDrive {
 
                 if (Depth_Map_For_IR) {
                     try {
-                        mut irCameraFrame = DataModels::CameraIrFrameDataModel(imgData->getTimestamp(), imgData->getImage(), 0.0f, 100.0f, imgData->getCameraIdentifier(),
+                        mut irCameraFrame = DataModels::CameraIrFrameDataModel(imgData->getTimestamp(), imgData->getImage(), 0.0f, 100.0f,
+                                                                               imgData->getCameraIdentifier(),
                                                                                std::vector<DataModels::YoloDetection>{});
                         static size_t frameCnt = 0;
 
                         mut originToImuTf = selfModel_.getPosition().toTf();
 
-                        mut points2Dand3Dpair = depthMap_.getPointsInCameraFoV(irCameraFrame.getCameraIdentifier(), irCameraFrame.getImage().cols, irCameraFrame.getImage().rows,
+                        mut points2Dand3Dpair = depthMap_.getPointsInCameraFoV(irCameraFrame.getCameraIdentifier(), irCameraFrame.getImage().cols,
+                                                                               irCameraFrame.getImage().rows,
                                                                                originToImuTf, false);
                         mut img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first, points2Dand3Dpair->second, irCameraFrame.getImage().cols,
                                                                             irCameraFrame.getImage().rows, 3);
@@ -267,40 +287,18 @@ namespace AutoDrive {
                 }
             }
         }
-
-        {
-            Timer tim("Draw frustum detections");
-
-            localMap_.setFrustumDetections(frustums, sensorFrame);
-            visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
-        }
-
-
-        if (cnt++ >= 3) {
-            Timer tim("Draw aggregated point cloud");
-
-            cnt = 0;
-            mut aggregatedPointCloud = pointCloudAggregator_.getAggregatedPointCloud();
-            mut downSampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointCloud);
-
-            //mut tunel = pointCloudAggregator_.getPointCloudCutout(pointCloudProcessor_.transformPointCloud(downSampledAggregatedPc, selfModel_.getPosition().toTf().inverted()),
-            //                                                      rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
-            //                                                                                rtl::Vector3D<float>{30.0f, 10.0f, 10.0f}});
-            //mut downSampledTunel = pointCloudProcessor_.downsamplePointCloud(tunel);
-            //mut lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunel);
-            //localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
-
-            visualizationHandler_.drawAggregatedPointcloud(downSampledAggregatedPc);
-            //visualizationHandler_.drawLidarDetection(lidarObstacles);
-            //visualizationHandler_.drawPointcloudCutout(tunel);
-            //visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
-        }
-
-        visualizationHandler_.drawRGBImage(imgData);
+        context_.threadPool_.wait_for_tasks();
     }
 
 
     void MapBuilder::processIRCameraData(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &irCameraFrame) {
+        static int cnt = 0;
+
+        if (cnt < 2) {
+            cnt++;
+            return;
+        }
+        cnt = 0;
 
         mut originToImuTf = selfModel_.getPosition().toTf();
         mut points2Dand3Dpair = depthMap_.getPointsInCameraFoV(
@@ -369,8 +367,12 @@ namespace AutoDrive {
                 approximateLidar(lidarData);
             }
         }
-        visualizationHandler_.drawLidarData(lidarData);
-        visualizationHandler_.drawSelf();
+        {
+            Timer t("Draw lidar data");
+            visualizationHandler_.drawLidarData(lidarData);
+            visualizationHandler_.drawSelf();
+        }
+
     }
 
     void MapBuilder::processRadarTiData(const std::shared_ptr<DataModels::RadarTiDataModel> &data) {
@@ -379,7 +381,7 @@ namespace AutoDrive {
     }
 
     void MapBuilder::aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
-
+        Timer t("Aggregate lidar");
         let lidarID = lidarData->getLidarIdentifier();
         let sensorFrame = frameTypeFromDataModel(lidarData);
         mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);
@@ -397,13 +399,13 @@ namespace AutoDrive {
 
         if (Global_Lidar_Aggregation) {
             mut aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
-            mut downsampledAggregatedPc = pointCloudProcessor_.downsamplePointCloud(aggregatedPointcloud);
-            globalPointcloudStorage_.addMorePointsToGlobalStorage(downsampledAggregatedPc);
+            globalPointcloudStorage_.addMorePointsToGlobalStorage(aggregatedPointcloud);
             visualizationHandler_.drawGlobalPointcloud(globalPointcloudStorage_.getEntirePointcloud());
         }
     }
 
     void MapBuilder::approximateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
+        Timer t("Aproximate lidar");
         let lidarID = lidarData->getLidarIdentifier();
         let sensorFrame = frameTypeFromDataModel(lidarData);
         mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);

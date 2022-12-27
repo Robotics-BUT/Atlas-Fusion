@@ -20,7 +20,6 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <pcl/filters/extract_indices.h>
 #include "algorithms/pointcloud/PointCloudExtrapolator.h"
 #include "local_map/Frames.h"
 #include "Timer.h"
@@ -47,11 +46,10 @@ namespace AutoDrive::Algorithms {
         std::vector<std::future<std::shared_ptr<DataModels::PointCloudBatch>>> outputFutures;
         outputFutures.resize(noOfBatches_);
 
-        for (uint32_t index = 0; index < noOfBatches_; index++) {
-
-            outputFutures.at(index) = context_.threadPool.submit(
-                    [=]() mutable {
-                        double ratio = (double) index / noOfBatches_;
+        for (uint32_t i = 0; i < noOfBatches_; i++) {
+            outputFutures[i] = context_.threadPool_.submit(
+                    [=]() {
+                        double ratio = (double) i / noOfBatches_;
                         auto pose = AutoDrive::DataModels::LocalPosition{
                                 {poseDiff.getPosition().x() * (ratio), poseDiff.getPosition().y() * (ratio), poseDiff.getPosition().z() * (ratio)},
                                 {poseDiff.getOrientation().slerp(rtl::Quaternion<double>::identity(), (float) (1 - ratio))},
@@ -61,28 +59,28 @@ namespace AutoDrive::Algorithms {
                         rtl::RigidTf3D<double> movementCompensationTF{pose.getOrientation(), pose.getPosition()};
                         uint64_t ts = timeOffset + static_cast<uint64_t>(ratio * duration);
 
-                        pcl::PointCloud<pcl::PointXYZ> points;
-                        points.reserve(singleBatchSize);
+                        pcl::PointCloud<pcl::PointXYZ>::Ptr batch(new pcl::PointCloud<pcl::PointXYZ>);
+                        batch->reserve(singleBatchSize);
 
-                        pcl::Indices indices(singleBatchSize);
-                        std::iota(indices.begin(), indices.end(), index * singleBatchSize);
+                        // Filter selected part of the input point cloud
+                        uint32_t start = i * singleBatchSize;
+                        uint32_t end = start + singleBatchSize;
+                        if (i == noOfBatches_ - 1) end = scan->points.size();
+                        batch->width = end - start;
 
-                        pcl::ExtractIndices<pcl::PointXYZ> eifilter(false);
-                        eifilter.setInputCloud(scan);
-                        eifilter.setIndices(boost::make_shared<pcl::Indices>(indices));
-                        eifilter.filter(points);
+                        std::copy(scan->begin() + start, scan->begin() + end, back_inserter(batch->points));
 
                         rtl::RigidTf3D<double> toGlobalFrameTf{endPose.getOrientation(), endPose.getPosition()};
                         rtl::RigidTf3D<double> startToEndTf{poseDiff.getOrientation(), poseDiff.getPosition()};
                         auto finalTF = toGlobalFrameTf(startToEndTf.inverted()(movementCompensationTF(sensorOffsetTf)));
 
-                        return std::make_shared<DataModels::PointCloudBatch>(ts, points.makeShared(), LocalMap::Frames::kOrigin, finalTF);
+                        return std::make_shared<DataModels::PointCloudBatch>(pointCloudProcessor_, ts, batch, LocalMap::Frames::kOrigin, finalTF);
                     });
         }
-        context_.threadPool.wait_for_tasks();
+        context_.threadPool_.wait_for_tasks();
 
-        for (uint32_t index = 0; index < noOfBatches_; index++) {
-            output.at(index) = outputFutures.at(index).get();
+        for (uint32_t i = 0; i < noOfBatches_; i++) {
+            output[i] = outputFutures[i].get();
         }
 
         return output;

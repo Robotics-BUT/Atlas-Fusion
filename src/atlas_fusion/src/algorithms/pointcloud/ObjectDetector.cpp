@@ -40,7 +40,7 @@ namespace AutoDrive::Algorithms {
 
 
     std::vector<std::shared_ptr<const DataModels::LidarDetection>> ObjectDetector::detectObstacles(const pcl::PointCloud<pcl::PointXYZ>::Ptr& pc) {
-        Timer timer("detectObstacles");
+        Timer t("detectObstacles");
 
         std::vector<std::shared_ptr<const DataModels::LidarDetection>> output;
         output.clear();

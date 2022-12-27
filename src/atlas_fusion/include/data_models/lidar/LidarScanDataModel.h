@@ -87,12 +87,6 @@ namespace AutoDrive::DataModels {
          */
         void registerFilter(std::function<void(pcl::PointCloud < pcl::PointXYZ > &)> fnc) { filter_ = std::move(fnc); };
 
-        /**
-         * Add more points into the scan
-         * @param point new points that will be added into the point cloud
-         */
-        void addPointToScan(pcl::PointXYZ point);
-
     private:
 
         DataLoader::LidarIdentifier identifier_;

@@ -25,7 +25,7 @@
 #include <sensor_msgs/PointCloud2.h>
 
 #include "local_map/Frames.h"
-#include "visualizers/VisualizationStructures.h"
+#include "Timer.h"
 
 namespace AutoDrive::Visualizers{
 
@@ -41,7 +41,7 @@ namespace AutoDrive::Visualizers{
 
     /* LIDAR */
 
-    void VisualizationHandler::drawLidarData(const std::shared_ptr<DataModels::LidarScanDataModel> data) {
+    void VisualizationHandler::drawLidarData(const std::shared_ptr<DataModels::LidarScanDataModel>& data) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
@@ -57,8 +57,8 @@ namespace AutoDrive::Visualizers{
     }
 
 
-    void VisualizationHandler::drawAggregatedPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr pc) {
-
+    void VisualizationHandler::drawAggregatedPointcloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
+        Timer t("Draw aggregated point cloud");
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
 
@@ -66,7 +66,7 @@ namespace AutoDrive::Visualizers{
     }
 
 
-    void VisualizationHandler::drawAggregatedLasers(pcl::PointCloud<pcl::PointXYZ>::Ptr pc) {
+    void VisualizationHandler::drawAggregatedLasers(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
@@ -100,14 +100,14 @@ namespace AutoDrive::Visualizers{
         lidarVisualizer_.drawApproximationOnTopic(ls, Topics::kLidarApproximationRoad, LocalMap::Frames::kOrigin, col);
     }
 
-    void VisualizationHandler::drawGlobalPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr pc) {
+    void VisualizationHandler::drawGlobalPointcloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
 
         lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kGlobalPointCloud, LocalMap::Frames::kOrigin);
     }
 
-    void VisualizationHandler::drawPointcloudCutout(pcl::PointCloud<pcl::PointXYZ>::Ptr pc) {
+    void VisualizationHandler::drawPointcloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
@@ -141,7 +141,7 @@ namespace AutoDrive::Visualizers{
     }
 
 
-    void VisualizationHandler::drawIRImage(std::shared_ptr<DataModels::CameraIrFrameDataModel> data) {
+    void VisualizationHandler::drawIRImage(const std::shared_ptr<DataModels::CameraIrFrameDataModel>& data) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().ir_camera_visualization_) {return;}
@@ -150,14 +150,14 @@ namespace AutoDrive::Visualizers{
     }
 
 
-    void VisualizationHandler::drawVelocityData(rtl::Vector3D<double> speed) {
+    void VisualizationHandler::drawVelocityData(const rtl::Vector3D<double>& speed) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
 
         imuVisualizer_.drawImuData(speed, LocalMap::Frames::kImuFrame, Topics::kSpeedTopic);
     }
 
-    void VisualizationHandler::drawImuData(const rtl::Vector3D<double> linAcc) {
+    void VisualizationHandler::drawImuData(const rtl::Vector3D<double>& linAcc) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().imu_visualization_) {return;}
@@ -165,7 +165,7 @@ namespace AutoDrive::Visualizers{
         imuVisualizer_.drawImuData(linAcc, LocalMap::Frames::kImuFrame, Topics::kImuTopic);
     }
 
-    void VisualizationHandler::drawImuAvgData(rtl::Vector3D<double> linAcc) {
+    void VisualizationHandler::drawImuAvgData(const rtl::Vector3D<double>& linAcc) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().imu_visualization_) {return;}
@@ -173,7 +173,7 @@ namespace AutoDrive::Visualizers{
         imuVisualizer_.drawImuData(linAcc, LocalMap::Frames::kImuFrame, Topics::kImuAvgTopic);
     }
 
-    void VisualizationHandler::drawGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel> data) const {
+    void VisualizationHandler::drawGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel>& data) const {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().gnss_visualization_) {return;}

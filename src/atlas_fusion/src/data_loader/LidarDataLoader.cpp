@@ -60,7 +60,7 @@ namespace AutoDrive::DataLoader {
                 lidar_timestamp = std::stoll(substrings[2]);
             }
             else {
-                context_.logger_.error("Unexpected lenght of lidar scan data: ");
+                context_.logger_.error("Unexpected length of lidar scan data: ");
             }
 
             std::stringstream ss;

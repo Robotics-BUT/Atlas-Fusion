@@ -29,21 +29,37 @@ namespace AutoDrive::Algorithms {
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudProcessor::downsamplePointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input) {
+        //TODO: This is heavy operation when done on the whole aggregated point cloud
+        Timer t("Downsampling points");
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud <pcl::PointXYZ>);
 
-        pcl::PointCloud<pcl::PointXYZ> output;
+        pcl::VoxelGrid <pcl::PointXYZ> downsampler;
+        downsampler.setInputCloud(input);
+        downsampler.setLeafSize(leafSize_, leafSize_, leafSize_);
+        downsampler.filter(*output);
+
+        return output;
+    }
+
+    void PointCloudProcessor::downsamplePointCloudInPlace(pcl::PointCloud<pcl::PointXYZ>::Ptr &input) {
 
         pcl::VoxelGrid<pcl::PointXYZ> downsampler;
         downsampler.setInputCloud(input);
         downsampler.setLeafSize(leafSize_, leafSize_, leafSize_);
-        downsampler.filter(output);
-
-        return output.makeShared();
+        downsampler.filter(*input);
     }
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudProcessor::transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const rtl::RigidTf3D<double> &tf) {
-
-        pcl::PointCloud<pcl::PointXYZ>::Ptr output{};
+    pcl::PointCloud<pcl::PointXYZ>::Ptr
+    PointCloudProcessor::transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::RigidTf3D<double> &tf) {
+        //TODO: This function is really slow concatenating point clouds don't really have an alternative that I know of.
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
+        if (input->points.empty()) return output;
         output->reserve(input->size());
+
+        auto threads = context_.threadPool_.get_thread_count();
+        std::vector<std::future<pcl::PointCloud<pcl::PointXYZ>::Ptr>> outputFutures;
+        outputFutures.resize(threads);
+        size_t batchSize = std::ceil(input->points.size() / threads);
 
         auto rotMat = tf.rotMat();
         Eigen::Affine3f pcl_tf = Eigen::Affine3f::Identity();
@@ -56,8 +72,35 @@ namespace AutoDrive::Algorithms {
         pcl_tf(0, 2) = static_cast<float>(rotMat(0, 2));
         pcl_tf(1, 2) = static_cast<float>(rotMat(1, 2));
         pcl_tf(2, 2) = static_cast<float>(rotMat(2, 2));
-        pcl_tf.translation() << tf.trVecX(), tf.trVecY(), tf.trVecZ();
-        pcl::transformPointCloud(*input, *output, pcl_tf);
+        pcl_tf.translation() << float(tf.trVecX()), float(tf.trVecY()), float(tf.trVecZ());
+
+        for (uint32_t i = 0; i < threads; i++) {
+            outputFutures[i] = context_.threadPool_.submit([&input, pcl_tf, i, batchSize, threads] {
+                pcl::PointCloud<pcl::PointXYZ>::Ptr outBatch(new pcl::PointCloud<pcl::PointXYZ>);
+                pcl::PointCloud<pcl::PointXYZ>::Ptr inBatch(new pcl::PointCloud<pcl::PointXYZ>);
+
+                // Filter selected part of the input point cloud
+                uint32_t start = i * batchSize;
+                uint32_t end = start + batchSize;
+                if (i == threads - 1) end = input->points.size();
+
+                inBatch->reserve(end - start);
+                outBatch->width = end - start;
+
+                std::copy(input->begin() + start, input->begin() + end, back_inserter(inBatch->points));
+
+                pcl::transformPointCloud(*inBatch, *outBatch, pcl_tf);
+                return outBatch;
+            });
+        }
+        context_.threadPool_.wait_for_tasks();
+
+
+        for (uint32_t i = 0; i < threads; i++) {
+            pcl::concatenate(*output, *outputFutures[i].get(), *output);
+        }
+
+        assert(input->points.size() == output->points.size());
 
         return output;
     }

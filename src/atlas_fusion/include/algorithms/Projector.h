@@ -21,7 +21,9 @@
  */
 
 #pragma once
+
 #include <opencv2/opencv.hpp>
+#include <utility>
 #include <rtl/Core.h>
 #include <rtl/Transformation.h>
 
@@ -41,15 +43,13 @@ namespace AutoDrive::Algorithms {
          * @param distortion camera's distortion coefs
          * @param tf reserved
          */
-        Projector(const cv::Mat intrinsic, const cv::Mat distortion, rtl::RigidTf3D<double>& tf)
-        : intrinsic_{intrinsic}
-        , distortion_{distortion}
-        {
+        Projector(cv::Mat intrinsic, cv::Mat distortion, rtl::RigidTf3D<double> &tf)
+                : intrinsic_{std::move(intrinsic)}, distortion_{std::move(distortion)} {
 
             auto rotMat = tf.rotQuaternion().rotMat();
 
-            tvec_ = (cv::Mat_<float>(3, 1) << 0,0,0);
-            rvec_ = (cv::Mat_<float>(3, 1) << 0,0,0);
+            tvec_ = (cv::Mat_<float>(3, 1) << 0, 0, 0);
+            rvec_ = (cv::Mat_<float>(3, 1) << 0, 0, 0);
         }
 
         /**
@@ -58,7 +58,7 @@ namespace AutoDrive::Algorithms {
          * @param dest output 2D points
          * @param useDist if true, distortion coefs will be used
          */
-        void projectPoints(const std::vector<cv::Point3f>& src, std::vector<cv::Point2f>& dest, bool useDist = true);
+        void projectPoints(const std::vector<cv::Point3f> &src, std::vector<cv::Point2f> &dest, bool useDist = true);
 
         /**
          * Reverse projection from 2D to 3D. The output points represent 3D vector with the lenght of 1m.
@@ -66,19 +66,19 @@ namespace AutoDrive::Algorithms {
          * @param dest output 3D points
          * @param useDist if true, distortion coefs will be used
          */
-        void reverseProjection(const std::vector<cv::Point2f>& src, std::vector<cv::Point3f>& dest, bool useDist = true);
+        void reverseProjection(const std::vector<cv::Point2f> &src, std::vector<cv::Point3f> &dest, bool useDist = true);
 
-        [[deprecated]] void getPointDirection(const std::vector<cv::Point2f>& src, std::vector<cv::Point3f>& dest);
-
-        /**
-         * Experimental code
-         */
-        void undistort(const std::vector<cv::Point2f>& src, std::vector<cv::Point2f>& dest);
+        [[deprecated]] void getPointDirection(const std::vector<cv::Point2f> &src, std::vector<cv::Point3f> &dest);
 
         /**
          * Experimental code
          */
-        void distort(const std::vector<cv::Point2f>& src, std::vector<cv::Point2f>& dest);
+        void undistort(const std::vector<cv::Point2f> &src, std::vector<cv::Point2f> &dest);
+
+        /**
+         * Experimental code
+         */
+        void distort(const std::vector<cv::Point2f> &src, std::vector<cv::Point2f> &dest);
 
     private:
 
@@ -86,6 +86,5 @@ namespace AutoDrive::Algorithms {
         const cv::Mat distortion_;
         cv::Mat rvec_;
         cv::Mat tvec_;
-
     };
 }

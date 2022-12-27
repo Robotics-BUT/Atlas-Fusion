@@ -29,7 +29,7 @@ namespace AutoDrive::LocalMap {
     std::vector<std::shared_ptr<const DataModels::LidarDetection>> ObjectsAggregator::aggregateLidarDetections(
             const std::vector<std::shared_ptr<const DataModels::LidarDetection>>& previousDetections,
             std::vector<std::shared_ptr<const DataModels::LidarDetection>> newDetections) const {
-        Timer timer("aggregateLidarDetections");
+        Timer t("aggregateLidarDetections");
 
         std::vector<std::shared_ptr<const DataModels::LidarDetection>> output;
 

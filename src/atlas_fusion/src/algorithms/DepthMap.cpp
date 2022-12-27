@@ -32,16 +32,10 @@
 
 namespace AutoDrive::Algorithms {
 
-
-    void DepthMap::updatePointCloudData(std::vector<std::shared_ptr<DataModels::PointCloudBatch>> batches) {
-        batches_ = std::move(batches);
-    }
-
     std::vector<DataModels::YoloDetection3D>
     DepthMap::onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const DataModels::LocalPosition &imuPose) {
         auto output = std::vector<DataModels::YoloDetection3D>();
 
-        // project all points into specific camera
         if (projectors_.count(data->getCameraIdentifier()) == 0) {
             context_.logger_.warning("Missing camera projector for DepthMap");
             return output;
@@ -54,13 +48,11 @@ namespace AutoDrive::Algorithms {
         std::vector<cv::Point2f> valid2DPoints;
         std::vector<cv::Point3f> valid3DPoints{};
         {
-            Timer t("Get all points projected to image");
             getAllCurrentPointsProjectedToImage(cameraId, valid2DPoints, valid3DPoints, data->getImage().cols, data->getImage().rows, imuPose.toTf());
         }
 
         auto img = data->getImage();
         if (!valid2DPoints.empty()) {
-            Timer t("Get bounding boxes");
             for (auto &detection: yoloDetections) {
 
                 auto detPointIndexes = getIndexesOfPointsInDetection(valid2DPoints, detection);
@@ -86,7 +78,7 @@ namespace AutoDrive::Algorithms {
 
 
     void DepthMap::addProjector(std::shared_ptr<Projector> projector, DataLoader::CameraIndentifier id) {
-        projectors_[id] = projector;
+        projectors_[id] = std::move(projector);
     }
 
 
@@ -94,7 +86,7 @@ namespace AutoDrive::Algorithms {
             DataLoader::CameraIndentifier id,
             size_t imgWidth,
             size_t imgHeight,
-            rtl::RigidTf3D<double> currentFrameTf,
+            const rtl::RigidTf3D<double> &currentFrameTf,
             bool useDistMat) {
 
         auto output = std::make_shared<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>>();
@@ -102,60 +94,31 @@ namespace AutoDrive::Algorithms {
         return output;
     }
 
-
-    void DepthMap::storeLidarDataInRootFrame(std::shared_ptr<DataModels::LidarScanDataModel> data, rtl::RigidTf3D<double> &tf) {
-
-        auto scan = data->getScan();
-        applyTransformOnPclData(*scan, lidarScans_[data->getLidarIdentifier()], tf);
-    }
-
-
-    void DepthMap::applyTransformOnPclData(pcl::PointCloud<pcl::PointXYZ> &input, pcl::PointCloud<pcl::PointXYZ> &output, rtl::RigidTf3D<double> &tf) {
-        auto rotMat = tf.rotQuaternion().rotMat();
-        Eigen::Affine3f pcl_tf = Eigen::Affine3f::Identity();
-        pcl_tf(0, 0) = static_cast<float>(rotMat(0, 0));
-        pcl_tf(1, 0) = static_cast<float>(rotMat(1, 0));
-        pcl_tf(2, 0) = static_cast<float>(rotMat(2, 0));
-        pcl_tf(0, 1) = static_cast<float>(rotMat(0, 1));
-        pcl_tf(1, 1) = static_cast<float>(rotMat(1, 1));
-        pcl_tf(2, 1) = static_cast<float>(rotMat(2, 1));
-        pcl_tf(0, 2) = static_cast<float>(rotMat(0, 2));
-        pcl_tf(1, 2) = static_cast<float>(rotMat(1, 2));
-        pcl_tf(2, 2) = static_cast<float>(rotMat(2, 2));
-        pcl_tf.translation() << tf.trVecX(), tf.trVecY(), tf.trVecZ();
-        pcl::transformPointCloud(input, output, pcl_tf);
-    }
-
-
     void DepthMap::getAllCurrentPointsProjectedToImage(
             DataLoader::CameraIndentifier id,
             std::vector<cv::Point2f> &validPoints2D,
             std::vector<cv::Point3f> &validPoints3D,
             size_t img_width,
             size_t img_height,
-            const rtl::RigidTf3D<double>& originToImu,
+            const rtl::RigidTf3D<double> &originToImu,
             bool useDistMat) {
 
         auto projector = projectors_[id];
         auto cameraFrame = frameTypeFromIdentifier(id);
 
-        pcl::PointCloud<pcl::PointXYZ> destPCL;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr destPCL;
         auto imuToCamera = context_.tfTree_.getTransformationForFrame(cameraFrame);
-        rtl::RigidTf3D<double> originToCameraTf = (imuToCamera.inverted()(originToImu.inverted()));//imuToCamera.inverted()(originToImu.inverted());
+        rtl::RigidTf3D<double> originToCameraTf = imuToCamera.inverted()(originToImu.inverted());
 
-        {
-            Timer t("Concatenating all batches");
-            for (const auto &batch: batches_) {
-                destPCL += *(batch->getTransformedPointsWithAnotherTF(originToCameraTf));
-            }
-        }
+        //TODO: Takes around 10 ms because of lots of points being transformed at once
+        // transformation of all aggregated points takes place for every camera every frame -> is there some possible room for improvement?
+        destPCL = pointCloudProcessor_.transformPointCloud(aggregatedPointCloud_, originToCameraTf);
 
         std::vector<cv::Point3f> points3D;
         std::vector<cv::Point2f> points2D;
-        points3D.reserve(destPCL.width * destPCL.height);
+        points3D.reserve(destPCL->size());
 
-
-        for (const auto &pnt: destPCL) {
+        for (const auto &pnt: destPCL->points) {
             if (pnt.z > 0) {
                 points3D.emplace_back(pnt.x, pnt.y, pnt.z);
             }
@@ -163,15 +126,15 @@ namespace AutoDrive::Algorithms {
 
         projector->projectPoints(points3D, points2D, useDistMat);
 
-        if (points2D.size() != points3D.size()) {
-            context_.logger_.error("Number of projected points does not corresponds with number of input points!");
+        if (points3D.size() != points3D.size()) {
+            context_.logger_.error("Number of projected points does not correspond with number of input points!");
         }
 
         validPoints2D.reserve(points2D.size());
         validPoints3D.reserve(points3D.size());
 
         for (size_t i = 0; i < points3D.size(); i++) {
-            if (points2D.at(i).y >= 0 && points2D.at(i).y < img_height && points2D.at(i).x >= 0 && points2D.at(i).x < img_width) {
+            if (points2D.at(i).y >= 0 && points2D.at(i).y < float(img_height) && points2D.at(i).x >= 0 && points2D.at(i).x < float(img_width)) {
                 validPoints2D.push_back(points2D.at(i));
                 validPoints3D.push_back(points3D.at(i));
             }
@@ -179,7 +142,7 @@ namespace AutoDrive::Algorithms {
     }
 
 
-    std::vector<size_t> DepthMap::getIndexesOfPointsInDetection(const std::vector<cv::Point2f> &validPoints2D, const DataModels::YoloDetection& detection) {
+    std::vector<size_t> DepthMap::getIndexesOfPointsInDetection(const std::vector<cv::Point2f> &validPoints2D, const DataModels::YoloDetection &detection) {
         std::vector<size_t> output;
         for (size_t i = 0; i < validPoints2D.size(); i++) {
             const auto &point = validPoints2D.at(i);

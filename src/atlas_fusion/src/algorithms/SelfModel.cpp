@@ -194,7 +194,7 @@ namespace AutoDrive::Algorithms {
         }
 
         context_.logger_.warning("Unable to estimate position in time! Missing time point in history.");
-        return DataModels::LocalPosition{{}, {}, 0};
+        return DataModels::LocalPosition{{}, {}, time};
     }
 
 

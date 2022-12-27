@@ -40,16 +40,16 @@ namespace AutoDrive {
 
     struct Context {
 
-        using timePoint = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
+        using timePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
         explicit Context(LogService &logger, LocalMap::TFTree &tfTree, const std::string &calibFolder, const FunctionalityFlags &fFlags)
-                : threadPool{std::thread::hardware_concurrency() - 1},
+                : threadPool_{std::thread::hardware_concurrency() - 1},
                   logger_{logger},
                   tfTree_{tfTree},
                   calibFolder_{calibFolder},
                   fFlags_{fFlags} {}
 
-        BS::thread_pool threadPool;
+        BS::thread_pool threadPool_;
         LogService &logger_;
         LocalMap::TFTree &tfTree_;
         const std::string &calibFolder_;
@@ -57,7 +57,7 @@ namespace AutoDrive {
 
 
         /**
-         * Method prepares the context that does not contains any usefull information. It is used only for the purpose
+         * Method prepares the context that does not contains any useful information. It is used only for the purpose
          * of the unit tests.
          * @return empty instance of the Context
          */

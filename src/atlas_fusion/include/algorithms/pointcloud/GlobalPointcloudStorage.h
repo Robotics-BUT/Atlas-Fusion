@@ -47,19 +47,20 @@ namespace AutoDrive::Algorithms {
          * @param context contains global services, like logger, TF tree or calibration loader
          * @param leafSize leaf size of the output point cloud
          */
-        GlobalPointcloudStorage(Context &context, float leafSize) : context_{context}, processor_{context, leafSize} {}
+        GlobalPointcloudStorage(Context &context, float leafSize) : context_{context}, processor_{context, leafSize},
+                                                                    globalStorage_(new pcl::PointCloud<pcl::PointXYZ>) {}
 
         /**
          * Method accepts new point clouds and aggregates them into the global model
          * @param pc new points
          */
-        void addMorePointsToGlobalStorage(pcl::PointCloud<pcl::PointXYZ>::Ptr pc);
+        void addMorePointsToGlobalStorage(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &pc);
 
         /**
          * Getter for all the currently aggregated points.
          * @return donwsampled global point cloud map with a leaf size defined from constructor
          */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr getEntirePointcloud();
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getEntirePointcloud();
 
     private:
 
