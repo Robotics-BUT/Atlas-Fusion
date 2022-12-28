@@ -51,7 +51,8 @@ namespace AutoDrive::Algorithms {
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr
     PointCloudProcessor::transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::RigidTf3D<double> &tf) {
-        //TODO: This function is really slow concatenating point clouds don't really have an alternative that I know of.
+        //TODO: This function is really slow concatenating point clouds doesn't really have an alternative that I know of.
+        Timer t("transform point cloud");
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
         if (input->points.empty()) return output;
         output->reserve(input->size());
@@ -93,11 +94,10 @@ namespace AutoDrive::Algorithms {
                 return outBatch;
             });
         }
-        context_.threadPool_.wait_for_tasks();
 
-
-        for (uint32_t i = 0; i < threads; i++) {
-            pcl::concatenate(*output, *outputFutures[i].get(), *output);
+        for(auto & outputFuture : outputFutures) {
+            outputFuture.wait();
+            pcl::concatenate(*output, *outputFuture.get(), *output);
         }
 
         assert(input->points.size() == output->points.size());

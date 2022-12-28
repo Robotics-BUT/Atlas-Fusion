@@ -51,19 +51,19 @@ namespace AutoDrive::LocalMap {
          * @param newDetections -
          * @return -
          */
-        std::vector<std::shared_ptr<const DataModels::LidarDetection>> aggregateLidarDetections(
-                const std::vector<std::shared_ptr<const DataModels::LidarDetection>>& previousDetections,
-                std::vector<std::shared_ptr<const DataModels::LidarDetection>> newDetections) const;
+        std::vector<std::shared_ptr<DataModels::LidarDetection>> aggregateLidarDetections(
+                const std::vector<std::shared_ptr<DataModels::LidarDetection>>& previousDetections,
+                std::vector<std::shared_ptr<DataModels::LidarDetection>> newDetections) const;
 
     private:
 
         std::vector<std::pair<unsigned, unsigned>> matchDetections(
-                std::vector<std::shared_ptr<const DataModels::LidarDetection>> a,
-                std::vector<std::shared_ptr<const DataModels::LidarDetection>> b) const;
+                std::vector<std::shared_ptr<DataModels::LidarDetection>> a,
+                std::vector<std::shared_ptr<DataModels::LidarDetection>> b) const;
 
-        std::vector<std::shared_ptr<const DataModels::LidarDetection>> mergeDetections(
-                std::vector<std::shared_ptr<const DataModels::LidarDetection>> a,
-                std::vector<std::shared_ptr<const DataModels::LidarDetection>> b,
+        std::vector<std::shared_ptr<DataModels::LidarDetection>> mergeDetections(
+                std::vector<std::shared_ptr<DataModels::LidarDetection>> a,
+                std::vector<std::shared_ptr<DataModels::LidarDetection>> b,
                 std::vector<std::pair<unsigned, unsigned>> matches) const;
 
         Context& context_;

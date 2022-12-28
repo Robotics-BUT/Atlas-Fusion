@@ -53,7 +53,7 @@ namespace AutoDrive::Algorithms {
         /**
          * Refreshes the aggregated point cloud, that will be used for the next point cloud to camera frame projection.
          * The point cloud will be remembered until the next update.
-         * @param cloud shared pointer to a aggregated point cloud in global coordinates, that the DepthMap will use for reprojection
+         * @param cloud shared pointer to a aggregated point cloud in ego-centric coordinates, that the DepthMap will use for reprojection
          */
         void updatePointCloudData(pcl::PointCloud<pcl::PointXYZ>::ConstPtr &cloud) {
             aggregatedPointCloud_ = cloud;
@@ -64,11 +64,10 @@ namespace AutoDrive::Algorithms {
          * into these NN's detections. All the points that do not match any detections are removed, and based on the
          * matched points for each detection there is  the distance of the detection from the camera's frame estimated.
          * @param data The RGB image with all the parameters and the neural network detections
-         * @param imuPose a precise position of the center of the frame in the given time
          * @return The vector of detections wih estimated distances
          */
         std::vector<DataModels::YoloDetection3D>
-        onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const DataModels::LocalPosition &imuPose);
+        onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data);
 
         /**
          * Adds a new instance of the Projector to the Depth Map's arsenal. These projectors are used to project point
@@ -83,14 +82,12 @@ namespace AutoDrive::Algorithms {
          * @param id Identifies which projector should be used to project point into the camera's frame
          * @param imgWidth width of the frame in pixels
          * @param imgHeight height of the frame in pixels
-         * @param currentFrameTf current position of the sensory framework
          * @param useDistMat if should use the distortion matrix for the point cloud reprojection
          */
         std::shared_ptr<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> getPointsInCameraFoV(
                 DataLoader::CameraIndentifier id,
                 size_t imgWidth,
                 size_t imgHeight,
-                const rtl::RigidTf3D<double> &currentFrameTf,
                 bool useDistMat = true);
 
     private:
@@ -106,7 +103,6 @@ namespace AutoDrive::Algorithms {
                 std::vector<cv::Point3f> &validPoints3D,
                 size_t img_width,
                 size_t img_height,
-                const rtl::RigidTf3D<double> &,
                 bool useDistMat = true);
 
         std::vector<size_t> getIndexesOfPointsInDetection(const std::vector<cv::Point2f> &validPoints2D, const DataModels::YoloDetection &detection);

@@ -77,9 +77,9 @@ namespace AutoDrive::Algorithms {
                         return std::make_shared<DataModels::PointCloudBatch>(pointCloudProcessor_, ts, batch, LocalMap::Frames::kOrigin, finalTF);
                     });
         }
-        context_.threadPool_.wait_for_tasks();
 
-        for (uint32_t i = 0; i < noOfBatches_; i++) {
+        for(size_t i = 0; i < outputFutures.size(); i++) {
+            outputFutures[i].wait();
             output[i] = outputFutures[i].get();
         }
 

@@ -64,7 +64,7 @@ namespace AutoDrive::Visualizers {
 
         void drawApproximationOnTopic(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls, std::string topic, std::string frame, visualization_msgs::Marker::_color_type col);
 
-        void drawLidarDetections(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections, std::string topic, std::string frame);
+        void drawLidarDetections(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections, std::string topic, std::string frame);
 
     private:
 
@@ -73,6 +73,6 @@ namespace AutoDrive::Visualizers {
 
         std::map<std::string, std::shared_ptr<ros::Publisher>> publishers_;
 
-        visualization_msgs::MarkerArray lidarDetectionsToMarkerArray(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections, std::string frame);
+        visualization_msgs::MarkerArray lidarDetectionsToMarkerArray(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections, std::string frame);
     };
 }

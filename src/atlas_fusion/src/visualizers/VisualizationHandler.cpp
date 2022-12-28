@@ -222,7 +222,7 @@ namespace AutoDrive::Visualizers{
         frustumVisualizer_.visualizeFrustumDetections(detections);
     }
 
-    void VisualizationHandler::drawLidarDetection(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections) {
+    void VisualizationHandler::drawLidarDetection(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         lidarVisualizer_.drawLidarDetections(detections, Topics::kLidarDetections, LocalMap::Frames::kImuFrame);
     }

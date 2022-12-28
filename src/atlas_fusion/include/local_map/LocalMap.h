@@ -57,7 +57,7 @@ namespace AutoDrive::LocalMap {
          * Setter for all point cloud based detections
          * @param detections lidar detections
          */
-        void setLidarDetections(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections);
+        void setLidarDetections(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections);
 
         /**
          * Setter for combinations of the point cloud based and camera based detections
@@ -75,7 +75,7 @@ namespace AutoDrive::LocalMap {
          * Getter for all lidar based detections
          * @return point cloud based lidar detections
          */
-        std::vector<std::shared_ptr<const DataModels::LidarDetection>> getLidarDetections();
+        std::vector<std::shared_ptr<DataModels::LidarDetection>> getLidarDetections();
 
         /**
          * Getter for all lidar-camera fused detections
@@ -87,13 +87,13 @@ namespace AutoDrive::LocalMap {
          * Getter for all lidar-camera fused detections mapped into the lidar detection data format
          * @return mapped lidar-camera detections into the lidar based detection data model
          */
-        std::vector<std::shared_ptr<const DataModels::LidarDetection>> getObjectsAsLidarDetections();
+        std::vector<std::shared_ptr<DataModels::LidarDetection>> getObjectsAsLidarDetections();
 
     private:
         Context& context_;
 
         std::map<std::string, std::vector<DataModels::FrustumDetection>> frustumsDetections_{};
-        std::vector<std::shared_ptr<const DataModels::LidarDetection>> lidarDetections_;
+        std::vector<std::shared_ptr<DataModels::LidarDetection>> lidarDetections_;
         std::vector<std::shared_ptr<DataModels::Object>> objects_;
     };
 }

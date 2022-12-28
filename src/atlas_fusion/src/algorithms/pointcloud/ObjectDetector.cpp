@@ -39,55 +39,76 @@
 namespace AutoDrive::Algorithms {
 
 
-    std::vector<std::shared_ptr<const DataModels::LidarDetection>> ObjectDetector::detectObstacles(const pcl::PointCloud<pcl::PointXYZ>::Ptr& pc) {
+    std::vector<std::shared_ptr<DataModels::LidarDetection>> ObjectDetector::detectObstacles(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pc) {
         Timer t("detectObstacles");
 
-        std::vector<std::shared_ptr<const DataModels::LidarDetection>> output;
-        output.clear();
-
-        if(pc->empty()) {
+        std::vector<std::shared_ptr<DataModels::LidarDetection>> output{};
+        std::vector<std::future<DataModels::LidarDetection>> outputFutures{};
+        if (pc->empty()) {
             return output;
         }
 
         // Creating the KdTree object for the search method of the extraction
-        pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
-        tree->setInputCloud (pc->makeShared());
+        pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
+        tree->setInputCloud(pc);
 
+
+        //TODO: Waaay to slow -> EuclideanClusterExtraction can take up to 100 ms
         std::vector<pcl::PointIndices> cluster_indices;
-        pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-        ec.setClusterTolerance (0.50); // 20cm
-        ec.setMinClusterSize (20);
-        ec.setMaxClusterSize (100000);
-        ec.setSearchMethod (tree);
-        ec.setInputCloud (pc->makeShared());
-        ec.extract (cluster_indices);
-
-        for (auto& it : cluster_indices)
         {
-            pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZ>);
-            static size_t detectionID = 0;
-
-            rtl::Vector3D<double> minPoint{NAN, NAN, NAN};
-            rtl::Vector3D<double> maxPoint{NAN, NAN, NAN};
-
-            for (auto pit = it.indices.begin()+1 ; pit < it.indices.end() ; pit++) { // dont know wky, but sometimes point at index [0] is {0,0,0}
-                const auto& point = pc->makeShared()->points[*pit];
-
-                if (*pit != it.indices[3]) {
-                    if(minPoint.x() > point.x) {minPoint.setX(point.x);}
-                    if(minPoint.y() > point.y) {minPoint.setY(point.y);}
-                    if(minPoint.z() > point.z) {minPoint.setZ(point.z);}
-                    if(maxPoint.x() < point.x) {maxPoint.setX(point.x);}
-                    if(maxPoint.y() < point.y) {maxPoint.setY(point.y);}
-                    if(maxPoint.z() < point.z) {maxPoint.setZ(point.z);}
-                } else {
-                    minPoint.setX(point.x);minPoint.setY(point.y);minPoint.setZ(point.z);
-                    maxPoint.setX(point.x);maxPoint.setY(point.y);maxPoint.setZ(point.z);
-                }
-            }
-            output.emplace_back(std::make_shared<const DataModels::LidarDetection>( rtl::BoundingBox3d{minPoint, maxPoint},
-                                                                              detectionID++ ));
+            Timer t("EuclideanClusterExtraction");
+            pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+            ec.setClusterTolerance(0.50); // 20cm
+            ec.setMinClusterSize(20);
+            ec.setMaxClusterSize(100000);
+            ec.setSearchMethod(tree);
+            ec.setInputCloud(pc);
+            ec.extract(cluster_indices);
         }
+        if(cluster_indices.empty()) return output;
+
+        outputFutures.resize(cluster_indices.size());
+        output.reserve(cluster_indices.size());
+
+        static size_t detectionID = 0;
+        for (size_t i = 0; i < cluster_indices.size(); i++) {
+            outputFutures[i] = context_.threadPool_.submit([&cluster_indices, &pc, i]() {
+                auto it = cluster_indices[i];
+                pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZ>);
+
+                rtl::Vector3D<double> minPoint{NAN, NAN, NAN};
+                rtl::Vector3D<double> maxPoint{NAN, NAN, NAN};
+
+                //TODO: Don't know why, but sometimes point at index [0] is {0,0,0}
+                for (const auto &pit: it.indices) {
+                    const auto &point = pc->points[pit];
+
+                    if (pit != it.indices[3]) {
+                        if (minPoint.x() > point.x) { minPoint.setX(point.x); }
+                        if (minPoint.y() > point.y) { minPoint.setY(point.y); }
+                        if (minPoint.z() > point.z) { minPoint.setZ(point.z); }
+                        if (maxPoint.x() < point.x) { maxPoint.setX(point.x); }
+                        if (maxPoint.y() < point.y) { maxPoint.setY(point.y); }
+                        if (maxPoint.z() < point.z) { maxPoint.setZ(point.z); }
+                    } else {
+                        minPoint.setX(point.x);
+                        minPoint.setY(point.y);
+                        minPoint.setZ(point.z);
+                        maxPoint.setX(point.x);
+                        maxPoint.setY(point.y);
+                        maxPoint.setZ(point.z);
+                    }
+                }
+
+                return DataModels::LidarDetection(rtl::BoundingBox3d{minPoint, maxPoint}, detectionID++);
+            });
+        }
+
+        for (auto &outputFuture: outputFutures) {
+            outputFuture.wait();
+            output.emplace_back(std::make_shared<DataModels::LidarDetection>(outputFuture.get()));
+        }
+
         return output;
     }
 }

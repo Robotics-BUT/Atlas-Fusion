@@ -166,7 +166,7 @@ TEST(pointcloud_aggregation, static_aggregation) {
         aggregator.addPointCloudBatches(batches);
     }
 
-    auto aggregatedPC = aggregator.getAggregatedPointCloud();
+    auto aggregatedPC = aggregator.getGlobalCoordinatePointCloud();
     EXPECT_EQ(aggregatedPC->size(), N);
 
 #ifdef VISUALIZE
@@ -196,7 +196,7 @@ TEST(pointcloud_aggregation, multiple_static_aggregation) {
         }
     }
 
-    auto aggregatedPC = aggregator.getAggregatedPointCloud();
+    auto aggregatedPC = aggregator.getGlobalCoordinatePointCloud();
     EXPECT_EQ(aggregatedPC->size(), N * M);
 
 
@@ -234,7 +234,7 @@ TEST(pointcloud_aggregation, points_filtration) {
         }
     }
 
-    auto aggregatedPC = aggregator.getAggregatedPointCloud();
+    auto aggregatedPC = aggregator.getGlobalCoordinatePointCloud();
     EXPECT_EQ(aggregatedPC->size(), N);
 
 #ifdef VISUALIZE
@@ -278,7 +278,7 @@ TEST(pointcloud_aggregation, forward_movement) {
     }
 
 
-    auto aggregatedPC = aggregator.getAggregatedPointCloud();
+    auto aggregatedPC = aggregator.getGlobalCoordinatePointCloud();
     EXPECT_EQ(aggregatedPC->size(), N * M);
 
 #ifdef VISUALIZE
@@ -330,7 +330,7 @@ TEST(pointcloud_aggregation, rotation_movement) {
     }
 
 
-    auto aggregatedPC = aggregator.getAggregatedPointCloud();
+    auto aggregatedPC = aggregator.getGlobalCoordinatePointCloud();
     EXPECT_EQ(aggregatedPC->size(), N * M);
 
 
@@ -391,7 +391,7 @@ TEST(pointcloud_aggregation, translation_and_rotation) {
     }
 
 
-    auto aggregatedPC = aggregator.getAggregatedPointCloud();
+    auto aggregatedPC = aggregator.getGlobalCoordinatePointCloud();
     EXPECT_EQ(aggregatedPC->size(), N * M);
 
 

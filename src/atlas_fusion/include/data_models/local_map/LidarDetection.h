@@ -41,10 +41,8 @@ namespace AutoDrive::DataModels {
          * @param id obstacle's  ID
          * @param ttl obstacle's time to live
          */
-        LidarDetection(rtl::BoundingBox3d box, size_t id, uint32_t ttl = 10)
-        : box_{std::move(box)}
-        , id_{id}
-        , ttl_{ttl} {
+        LidarDetection(const rtl::BoundingBox3d &box, size_t id, uint32_t ttl = 10)
+                : box_{box}, id_{id}, ttl_{ttl} {
 
         }
 
@@ -52,19 +50,19 @@ namespace AutoDrive::DataModels {
          * Bounding box getter
          * @return bounding box that defines obstacle dimensions
          */
-        rtl::BoundingBox3d getBoundingBox() const { return box_; }
+        [[nodiscard]] rtl::BoundingBox3d getBoundingBox() const { return box_; }
 
         /**
          * Obstacle's ID getter
          * @return ID
          */
-        size_t getID() const { return id_; }
+        [[nodiscard]] size_t getID() const { return id_; }
 
         /**
          * Obstacle's Time to Live
-         * @return remining time to live
+         * @return remaining time to live
          */
-        size_t getTTL() const { return ttl_; }
+        [[nodiscard]] size_t getTTL() const { return ttl_; };
 
     private:
 

@@ -213,7 +213,7 @@ namespace AutoDrive::Visualizers {
          * Draw lidar detections in 3D space
          * @param detections lidar detections
          */
-        void drawLidarDetection(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections);
+        void drawLidarDetection(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections);
 
         /**
          * Draws telemetry text message
@@ -245,8 +245,8 @@ namespace AutoDrive::Visualizers {
         TelemetryVisualizer telemetryVisualizer_;
         RadarVisualizer radarVisualizer_;
 
-        visualization_msgs::Marker getTestCube() const;
-        visualization_msgs::Marker getSelfCube() const;
+        [[nodiscard]] visualization_msgs::Marker getTestCube() const;
+        [[nodiscard]] visualization_msgs::Marker getSelfCube() const;
     };
 
 }

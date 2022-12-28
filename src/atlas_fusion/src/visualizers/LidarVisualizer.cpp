@@ -80,7 +80,7 @@ namespace AutoDrive::Visualizers {
     }
 
 
-    void LidarVisualizer::drawLidarDetections(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections, std::string topic, std::string frame) {
+    void LidarVisualizer::drawLidarDetections(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections, std::string topic, std::string frame) {
 
         if(publishers_.count(topic) == 0) {
             publishers_[topic] = std::make_shared<ros::Publisher>(node_.advertise<visualization_msgs::MarkerArray>( topic, 0));
@@ -89,7 +89,7 @@ namespace AutoDrive::Visualizers {
     }
 
 
-    visualization_msgs::MarkerArray LidarVisualizer::lidarDetectionsToMarkerArray(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections, std::string frame) {
+    visualization_msgs::MarkerArray LidarVisualizer::lidarDetectionsToMarkerArray(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections, std::string frame) {
 
         visualization_msgs::MarkerArray output;
 

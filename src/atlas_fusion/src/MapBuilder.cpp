@@ -161,8 +161,7 @@ namespace AutoDrive {
                     Timer t("LiDAR ...");
 
                     mut lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
-                    lidarData->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_,
-                                                        std::placeholders::_1));
+                    lidarData->registerFilter([ObjectPtr = &lidarFilter_](auto && PH1) { ObjectPtr->applyFiltersOnLidarData(std::forward<decltype(PH1)>(PH1)); });
                     processLidarScanData(lidarData);
                     cache_.setNewLidarScan(lidarData);
                     break;
@@ -205,15 +204,13 @@ namespace AutoDrive {
 
         static int cnt = 0;
 
-        std::vector<DataModels::YoloDetection3D> detections3D;
-        std::vector<DataModels::FrustumDetection> frustums;
+        auto globalCoordinatePc = pointCloudAggregator_.getGlobalCoordinatePointCloud();
+        auto egoCentricPc = pointCloudAggregator_.getEgoCentricPointCloud(selfModel_.getPosition().toTf().inverted());
 
-        auto aggregatedPc = pointCloudAggregator_.getAggregatedPointCloud();
-        depthMap_.updatePointCloudData(aggregatedPc);
+        depthMap_.updatePointCloudData(egoCentricPc);
 
-        Timer t("Get 3D detections");
-        detections3D = depthMap_.onNewCameraData(imgData, selfModel_.getPosition());
-        frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
+        auto detections3D = depthMap_.onNewCameraData(imgData);
+        auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
 
         localMap_.setFrustumDetections(frustums, sensorFrame);
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
@@ -221,19 +218,17 @@ namespace AutoDrive {
         if (cnt++ >= 3) {
             cnt = 0;
             context_.threadPool_.push_task([&]() {
-                //mut tunel = pointCloudAggregator_.getPointCloudCutout(pointCloudProcessor_.transformPointCloud(downSampledAggregatedPc, selfModel_.getPosition().toTf().inverted()),
-                //                                                      rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
-                //                                                                                rtl::Vector3D<float>{30.0f, 10.0f, 10.0f}});
-                //mut downSampledTunel = pointCloudProcessor_.downsamplePointCloud(tunel);
-                //mut lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunel);
+                //auto tunnel = pointCloudAggregator_.getEgoCentricPointCloudCutout(rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
+                //                                                                                                rtl::Vector3D<float>{30.0f, 10.0f, 10.0f}});
+
+                //auto downSampledTunnel = pointCloudProcessor_.downsamplePointCloud(tunnel);
+                //auto lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunnel);
                 //localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
 
-                visualizationHandler_.drawAggregatedPointcloud(aggregatedPc);
+                visualizationHandler_.drawAggregatedPointcloud(globalCoordinatePc);
                 //visualizationHandler_.drawLidarDetection(lidarObstacles);
-                //visualizationHandler_.drawPointcloudCutout(tunel);
-                //visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
-
-                visualizationHandler_.drawRGBImage(imgData);
+                //visualizationHandler_.drawPointcloudCutout(tunnel);
+                visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
             });
         }
 
@@ -262,8 +257,7 @@ namespace AutoDrive {
                         mut originToImuTf = selfModel_.getPosition().toTf();
 
                         mut points2Dand3Dpair = depthMap_.getPointsInCameraFoV(irCameraFrame.getCameraIdentifier(), irCameraFrame.getImage().cols,
-                                                                               irCameraFrame.getImage().rows,
-                                                                               originToImuTf, false);
+                                                                               irCameraFrame.getImage().rows, false);
                         mut img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first, points2Dand3Dpair->second, irCameraFrame.getImage().cols,
                                                                             irCameraFrame.getImage().rows, 3);
 
@@ -287,6 +281,9 @@ namespace AutoDrive {
                 }
             }
         }
+
+        visualizationHandler_.drawRGBImage(imgData);
+
         context_.threadPool_.wait_for_tasks();
     }
 
@@ -305,7 +302,6 @@ namespace AutoDrive {
                 irCameraFrame->getCameraIdentifier(),
                 irCameraFrame->getImage().cols,
                 irCameraFrame->getImage().rows,
-                originToImuTf,
                 false);
         mut img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first,
                                                             points2Dand3Dpair->second,
@@ -398,7 +394,7 @@ namespace AutoDrive {
         pointCloudAggregator_.addPointCloudBatches(batches);
 
         if (Global_Lidar_Aggregation) {
-            mut aggregatedPointcloud = pointCloudAggregator_.getAggregatedPointCloud();
+            mut aggregatedPointcloud = pointCloudAggregator_.getGlobalCoordinatePointCloud();
             globalPointcloudStorage_.addMorePointsToGlobalStorage(aggregatedPointcloud);
             visualizationHandler_.drawGlobalPointcloud(globalPointcloudStorage_.getEntirePointcloud());
         }

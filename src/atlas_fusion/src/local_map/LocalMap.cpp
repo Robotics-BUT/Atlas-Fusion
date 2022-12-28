@@ -32,7 +32,7 @@ namespace AutoDrive::LocalMap {
     }
 
 
-    void LocalMap::setLidarDetections(std::vector<std::shared_ptr<const DataModels::LidarDetection>> detections) {
+    void LocalMap::setLidarDetections(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections) {
         lidarDetections_ = std::move(detections);
     }
 
@@ -42,9 +42,9 @@ namespace AutoDrive::LocalMap {
     }
 
 
-    std::vector<std::shared_ptr<const DataModels::LidarDetection>> LocalMap::getObjectsAsLidarDetections() {
+    std::vector<std::shared_ptr<DataModels::LidarDetection>> LocalMap::getObjectsAsLidarDetections() {
 
-        std::vector<std::shared_ptr<const DataModels::LidarDetection>> output;
+        std::vector<std::shared_ptr<DataModels::LidarDetection>> output;
 
         return output;
     }
@@ -61,7 +61,7 @@ namespace AutoDrive::LocalMap {
     }
 
 
-    std::vector<std::shared_ptr<const DataModels::LidarDetection>> LocalMap::getLidarDetections() {
+    std::vector<std::shared_ptr<DataModels::LidarDetection>> LocalMap::getLidarDetections() {
         return lidarDetections_;
     }
 

@@ -41,7 +41,7 @@ namespace AutoDrive::Algorithms {
         ObjectDetector(Context& context)
         : context_{context} {}
 
-        std::vector<std::shared_ptr<const DataModels::LidarDetection>> detectObstacles(const pcl::PointCloud<pcl::PointXYZ>::Ptr&);
+        std::vector<std::shared_ptr<DataModels::LidarDetection>> detectObstacles(const pcl::PointCloud<pcl::PointXYZ>::Ptr&);
 
     private:
 

@@ -45,7 +45,7 @@ namespace AutoDrive::Algorithms {
          * @param aggTime time in secs for how long point will be kept in the memory
          */
         explicit PointCloudAggregator(Context &context, PointCloudProcessor &pcProcessor, float aggTime)
-                : context_{context}, pointCloudProcessor_{pcProcessor}, aggregationTime_{aggTime}, aggregatedPoints_(new pcl::PointCloud<pcl::PointXYZ>) {}
+                : context_{context}, pointCloudProcessor_{pcProcessor}, aggregationTime_{aggTime}, aggregatedPoints_{new pcl::PointCloud<pcl::PointXYZ>} {}
 
         /**
          * Insert new batches into the aggregation memory
@@ -60,18 +60,23 @@ namespace AutoDrive::Algorithms {
         void filterOutBatches(uint64_t currentTime);
 
         /**
-         * Getter for all point clouds in global coordinate system represented by the aggregated batches.
+         * Getter for all point clouds in global coordinate system.
          * @return point cloud in global coordinate system
          */
-        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getAggregatedPointCloud(bool downsampled = true);
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getGlobalCoordinatePointCloud();
+
+        /**
+        * Getter for all point clouds relative to the ego vehicle.
+        * @return point cloud in global coordinate system
+        */
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getEgoCentricPointCloud(const rtl::RigidTf3D<double> &egoTf);
 
         /**
          * Method filters out all the points that are out of given bounding box.
-         * @param input Input point cloud.
          * @param borders Points that are inside this bounding box will be passed to the output point cloud.
          * @return Point cloud that contains points from inside of the given bounding box.
          */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const rtl::BoundingBox3f &borders);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getEgoCentricPointCloudCutout(const rtl::BoundingBox3f &borders);
 
     private:
 
@@ -79,10 +84,13 @@ namespace AutoDrive::Algorithms {
         PointCloudProcessor &pointCloudProcessor_;
 
         double aggregationTime_;
-        pcl::PointCloud<pcl::PointXYZ>::Ptr aggregatedPoints_;
-        pcl::PointCloud<pcl::PointXYZ>::Ptr aggregatedPointsDownsampled_;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr aggregatedPoints_{};
+        pcl::PointCloud<pcl::PointXYZ>::Ptr aggregatedPointsDownsampled_{};
+
+        pcl::PointCloud<pcl::PointXYZ>::Ptr egoCentricPoints_{};
 
         bool downsampledPointsValid_ = false;
+        bool egoPointsValid_ = false;
 
         // Holds timestamp (first) and number of points (second) of all batches added in order
         std::deque<std::pair<uint64_t, long>> batchInfo_;

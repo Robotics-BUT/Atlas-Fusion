@@ -33,7 +33,7 @@
 namespace AutoDrive::Algorithms {
 
     std::vector<DataModels::YoloDetection3D>
-    DepthMap::onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const DataModels::LocalPosition &imuPose) {
+    DepthMap::onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data) {
         auto output = std::vector<DataModels::YoloDetection3D>();
 
         if (projectors_.count(data->getCameraIdentifier()) == 0) {
@@ -45,10 +45,10 @@ namespace AutoDrive::Algorithms {
         auto cameraId = data->getCameraIdentifier();
         auto yoloDetections = data->getYoloDetections();
 
-        std::vector<cv::Point2f> valid2DPoints;
+        std::vector<cv::Point2f> valid2DPoints{};
         std::vector<cv::Point3f> valid3DPoints{};
         {
-            getAllCurrentPointsProjectedToImage(cameraId, valid2DPoints, valid3DPoints, data->getImage().cols, data->getImage().rows, imuPose.toTf());
+            getAllCurrentPointsProjectedToImage(cameraId, valid2DPoints, valid3DPoints, data->getImage().cols, data->getImage().rows);
         }
 
         auto img = data->getImage();
@@ -82,15 +82,11 @@ namespace AutoDrive::Algorithms {
     }
 
 
-    std::shared_ptr<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> DepthMap::getPointsInCameraFoV(
-            DataLoader::CameraIndentifier id,
-            size_t imgWidth,
-            size_t imgHeight,
-            const rtl::RigidTf3D<double> &currentFrameTf,
-            bool useDistMat) {
+    std::shared_ptr<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>>
+    DepthMap::getPointsInCameraFoV(DataLoader::CameraIndentifier id, size_t imgWidth, size_t imgHeight, bool useDistMat) {
 
         auto output = std::make_shared<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>>();
-        getAllCurrentPointsProjectedToImage(id, output->first, output->second, imgWidth, imgHeight, currentFrameTf, useDistMat);
+        getAllCurrentPointsProjectedToImage(id, output->first, output->second, imgWidth, imgHeight, useDistMat);
         return output;
     }
 
@@ -100,7 +96,6 @@ namespace AutoDrive::Algorithms {
             std::vector<cv::Point3f> &validPoints3D,
             size_t img_width,
             size_t img_height,
-            const rtl::RigidTf3D<double> &originToImu,
             bool useDistMat) {
 
         auto projector = projectors_[id];
@@ -108,7 +103,7 @@ namespace AutoDrive::Algorithms {
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr destPCL;
         auto imuToCamera = context_.tfTree_.getTransformationForFrame(cameraFrame);
-        rtl::RigidTf3D<double> originToCameraTf = imuToCamera.inverted()(originToImu.inverted());
+        rtl::RigidTf3D<double> originToCameraTf = imuToCamera.inverted();
 
         //TODO: Takes around 10 ms because of lots of points being transformed at once
         // transformation of all aggregated points takes place for every camera every frame -> is there some possible room for improvement?

@@ -25,6 +25,7 @@
 #include <vector>
 #include <memory>
 #include "data_models/lidar/LidarScanDataModel.h"
+#include "Timer.h"
 
 namespace AutoDrive::Algorithms {
 
@@ -61,6 +62,7 @@ namespace AutoDrive::Algorithms {
 
         bool filterNearObjects_ = false;
         void filterNearObjects(pcl::PointCloud<pcl::PointXYZ>& data) {
+            Timer t("Lidar filter");
             auto backup = data.points;
             data.points.clear();
 

@@ -35,6 +35,7 @@ namespace AutoDrive::Algorithms {
             pointsToAdd += batch->getPointsSize();
             pcl::concatenate(*aggregatedPoints_, *batch->getTransformedPoints(), *aggregatedPoints_);
         }
+        egoPointsValid_ = false;
         downsampledPointsValid_ = false;
 
         assert(noOfPoints + pointsToAdd == aggregatedPoints_->size());
@@ -46,7 +47,7 @@ namespace AutoDrive::Algorithms {
         if (batchInfo_.empty()) return;
 
         size_t pointsToDelete = 0;
-        while(!batchInfo_.empty()) {
+        while (!batchInfo_.empty()) {
             auto timestamp = batchInfo_.front().first;
             auto noOfPoints = batchInfo_.front().second;
 
@@ -63,9 +64,8 @@ namespace AutoDrive::Algorithms {
         assert(noOfPoints - pointsToDelete == aggregatedPoints_->size());
     }
 
-    pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getAggregatedPointCloud(bool downsampled) {
-        // Timer t("Get aggregated point cloud");
-        if (!downsampled) return aggregatedPoints_;
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getGlobalCoordinatePointCloud() {
+        Timer t("Get aggregated point cloud");
         if (!downsampledPointsValid_) {
             aggregatedPointsDownsampled_ = pointCloudProcessor_.downsamplePointCloud(aggregatedPoints_);
             downsampledPointsValid_ = true;
@@ -74,15 +74,28 @@ namespace AutoDrive::Algorithms {
         return aggregatedPointsDownsampled_;
     }
 
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getEgoCentricPointCloud(const rtl::RigidTf3D<double> &egoTf) {
+        Timer t("Get ego centric point cloud");
+
+        if (!egoPointsValid_) {
+            egoCentricPoints_ = pointCloudProcessor_.transformPointCloud(aggregatedPointsDownsampled_, egoTf);
+            egoPointsValid_ = true;
+        }
+
+        return egoCentricPoints_;
+    }
+
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr
-    PointCloudAggregator::getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const rtl::BoundingBox3f &borders) {
-        // Timer t("Get point cloud cutout");
+    PointCloudAggregator::getEgoCentricPointCloudCutout(const rtl::BoundingBox3f &borders) {
+        // TODO: Very slow -> Find a way to make those cutouts without iterating over the whole pc.
+        // Maybe pre-defined cutouts would be useful for passing into reprojections as we can calculate deterministically which points could get into other sensor FOV.
+        Timer t("Get point cloud cutout");
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr output{};
-        output->reserve(input->size());
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
+        output->reserve(egoCentricPoints_->size());
 
-        for (const auto &point: *input) {
+        for (const auto &point: egoCentricPoints_->points) {
             if (point.x > borders.min().getElement(0) && point.x < borders.max().getElement(0) &&
                 point.y > borders.min().getElement(1) && point.y < borders.max().getElement(1) &&
                 point.z > borders.min().getElement(2) && point.z < borders.max().getElement(2)) {
