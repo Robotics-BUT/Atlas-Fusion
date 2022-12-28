@@ -33,7 +33,7 @@ namespace AutoDrive::Algorithms {
         for (const auto &batch: batches) {
             batchInfo_.emplace_back(batch->getTimestamp(), batch->getPointsSize());
             pointsToAdd += batch->getPointsSize();
-            pcl::concatenate(*aggregatedPoints_, *batch->getTransformedPoints(), *aggregatedPoints_);
+            pcl::concatenate(*aggregatedPoints_, *batch->getPointsInGlobalCoordinates(), *aggregatedPoints_);
         }
         egoPointsValid_ = false;
         downsampledPointsValid_ = false;

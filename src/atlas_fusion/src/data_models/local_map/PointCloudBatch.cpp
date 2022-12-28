@@ -30,13 +30,12 @@ namespace AutoDrive::DataModels {
         return points_;
     }
 
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudBatch::getTransformedPoints() const {
-        return pointCloudProcessor_.transformPointCloud(points_, tf_);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudBatch::getPointsInGlobalCoordinates() const {
+        return pointCloudProcessor_.transformPointCloud(points_, globalTf_);
     }
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudBatch::getTransformedPointsWithAnotherTF(rtl::RigidTf3D<double> &tf) const {
-        return pointCloudProcessor_.transformPointCloud(points_, tf(tf_));
+        return pointCloudProcessor_.transformPointCloud(points_, tf(globalTf_));
     }
 }

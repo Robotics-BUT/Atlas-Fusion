@@ -51,14 +51,14 @@ namespace AutoDrive::Algorithms {
          * Process single scan and performs lidar-motion undistortion
          * @param scan input lidar scan
          * @param startPose car position at the moment the scan started
-         * @param poseDiff car position at the end of scan
+         * @param endPose car position at the end of scan
          * @param sensorOffset sensor to car offset
          * @return Returns the vector of shared pointers on batches that represents the undistorted input scan
          */
         std::vector<std::shared_ptr<DataModels::PointCloudBatch>> splitPointCloudToBatches(
                 const pcl::PointCloud<pcl::PointXYZ>::Ptr &scan,
-                const DataModels::LocalPosition &startPose,
-                const DataModels::LocalPosition &poseDiff,
+                DataModels::LocalPosition startPose,
+                DataModels::LocalPosition endPose,
                 const rtl::RigidTf3D<double> &sensorOffset);
 
         /**

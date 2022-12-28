@@ -28,8 +28,8 @@ namespace AutoDrive::Algorithms {
 
     std::vector<std::shared_ptr<DataModels::PointCloudBatch>> PointCloudExtrapolator::splitPointCloudToBatches(
             const pcl::PointCloud<pcl::PointXYZ>::Ptr &scan,
-            const DataModels::LocalPosition &startPose,
-            const DataModels::LocalPosition &poseDiff,
+            DataModels::LocalPosition startPose,
+            DataModels::LocalPosition endPose,
             const rtl::RigidTf3D<double> &sensorOffsetTf) {
         Timer t("Split point cloud into batches");
 
@@ -38,17 +38,15 @@ namespace AutoDrive::Algorithms {
 
         uint32_t singleBatchSize = std::ceil(scan->width / noOfBatches_);
         uint64_t timeOffset = startPose.getTimestamp();
+        auto poseDiff = endPose - startPose;
         uint64_t duration = poseDiff.getTimestamp();
-        DataModels::LocalPosition endPose{startPose.getPosition() + poseDiff.getPosition(),
-                                          startPose.getOrientation() * poseDiff.getOrientation(),
-                                          startPose.getTimestamp() + poseDiff.getTimestamp()};
 
         std::vector<std::future<std::shared_ptr<DataModels::PointCloudBatch>>> outputFutures;
         outputFutures.resize(noOfBatches_);
 
         for (uint32_t i = 0; i < noOfBatches_; i++) {
             outputFutures[i] = context_.threadPool_.submit(
-                    [=]() {
+                    [&, i]() {
                         double ratio = (double) i / noOfBatches_;
                         auto pose = AutoDrive::DataModels::LocalPosition{
                                 {poseDiff.getPosition().x() * (ratio), poseDiff.getPosition().y() * (ratio), poseDiff.getPosition().z() * (ratio)},
@@ -70,11 +68,8 @@ namespace AutoDrive::Algorithms {
 
                         std::copy(scan->begin() + start, scan->begin() + end, back_inserter(batch->points));
 
-                        rtl::RigidTf3D<double> toGlobalFrameTf{endPose.getOrientation(), endPose.getPosition()};
-                        rtl::RigidTf3D<double> startToEndTf{poseDiff.getOrientation(), poseDiff.getPosition()};
-                        auto finalTF = toGlobalFrameTf(startToEndTf.inverted()(movementCompensationTF(sensorOffsetTf)));
-
-                        return std::make_shared<DataModels::PointCloudBatch>(pointCloudProcessor_, ts, batch, LocalMap::Frames::kOrigin, finalTF);
+                        auto globalTf = endPose.toTf()(poseDiff.toTf().inverted()(movementCompensationTF(sensorOffsetTf)));
+                        return std::make_shared<DataModels::PointCloudBatch>(pointCloudProcessor_, ts, batch, LocalMap::Frames::kOrigin, globalTf);
                     });
         }
 

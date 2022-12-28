@@ -161,7 +161,8 @@ namespace AutoDrive {
                     Timer t("LiDAR ...");
 
                     mut lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
-                    lidarData->registerFilter([ObjectPtr = &lidarFilter_](auto && PH1) { ObjectPtr->applyFiltersOnLidarData(std::forward<decltype(PH1)>(PH1)); });
+                    lidarData->registerFilter(
+                            [ObjectPtr = &lidarFilter_](auto &&PH1) { ObjectPtr->applyFiltersOnLidarData(std::forward<decltype(PH1)>(PH1)); });
                     processLidarScanData(lidarData);
                     cache_.setNewLidarScan(lidarData);
                     break;
@@ -188,7 +189,7 @@ namespace AutoDrive {
                     context_.logger_.warning("Received Error data model from DataLoader");
                     break;
                 default:
-                    context_.logger_.warning("Unepected type of data model from DataLoader");
+                    context_.logger_.warning("Unexpected type of data model from DataLoader");
                     break;
             }
         }
@@ -225,7 +226,8 @@ namespace AutoDrive {
                 //auto lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunnel);
                 //localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
 
-                visualizationHandler_.drawAggregatedPointcloud(globalCoordinatePc);
+                visualizationHandler_.drawAggregatedPointCloudGlobal(globalCoordinatePc);
+                visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
                 //visualizationHandler_.drawLidarDetection(lidarObstacles);
                 //visualizationHandler_.drawPointcloudCutout(tunnel);
                 visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
@@ -386,10 +388,9 @@ namespace AutoDrive {
 
         mut poseBefore = selfModel_.estimatePositionInTime(lastLidarTimestamp);
         mut poseNow = selfModel_.getPosition();
-        mut poseDiff = poseNow - poseBefore;
 
         mut downsampledScan = pointCloudProcessor_.downsamplePointCloud(lidarData->getScan());
-        mut batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan, poseBefore, poseDiff, lidarTF);
+        mut batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan, poseBefore, poseNow, lidarTF);
         pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
         pointCloudAggregator_.addPointCloudBatches(batches);
 

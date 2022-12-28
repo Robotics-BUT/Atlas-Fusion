@@ -97,10 +97,16 @@ namespace AutoDrive::Visualizers {
         void drawLidarData(const std::shared_ptr<DataModels::LidarScanDataModel>& data);
 
         /**
-         * Render aggregated point cloud scans over the time
+         * Render aggregated point cloud scans over the time in global coordinates
          * @param pc aggregated point cloud
          */
-        void drawAggregatedPointcloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc);
+        void drawAggregatedPointCloudGlobal(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc);
+
+        /**
+         * Render aggregated point cloud scans over the time in global coordinates
+         * @param pc aggregated point cloud
+         */
+        void drawAggregatedPointCloudEgo(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc);
 
         /**
          * Render aggregated point cloud from single laser

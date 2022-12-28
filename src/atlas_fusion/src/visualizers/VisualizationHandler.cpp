@@ -57,12 +57,18 @@ namespace AutoDrive::Visualizers{
     }
 
 
-    void VisualizationHandler::drawAggregatedPointcloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
-        Timer t("Draw aggregated point cloud");
+    void VisualizationHandler::drawAggregatedPointCloudGlobal(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
 
-        lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kLidarAggregated, LocalMap::Frames::kOrigin);
+        lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kLidarAggregatedGlobal, LocalMap::Frames::kOrigin);
+    }
+
+    void VisualizationHandler::drawAggregatedPointCloudEgo(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
+        if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
+
+        lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kLidarAggregatedEgo, LocalMap::Frames::kOrigin);
     }
 
 

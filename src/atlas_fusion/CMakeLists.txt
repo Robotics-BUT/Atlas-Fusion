@@ -93,7 +93,6 @@ set(SOURCES_DATA_MODELS
         src/data_models/yolo/YoloDetectionClass.cpp
         src/data_models/local_map/LocalPosition.cpp
         src/data_models/local_map/PointCloudBatch.cpp
-        src/data_models/local_map/LidarDetection.cpp
         src/data_models/local_map/Object.cpp)
 
 set(SOURCES_DATA_LOADER

@@ -50,11 +50,10 @@ namespace AutoDrive::DataModels {
          * @param ts timestamp, when the points have been measured
          * @param untransformed points 3D points
          * @param frame sensor's frame
-         * @param tf transformation that should be applied on points to get real position in 3D space
+         * @param globalTf transformation that should be applied on points to get real position in 3D space
          */
-        explicit PointCloudBatch(Algorithms::PointCloudProcessor &pcProcessor, uint64_t ts, pcl::PointCloud<pcl::PointXYZ>::Ptr points, std::string frame,
-                                 const rtl::RigidTf3D<double> &tf)
-                : pointCloudProcessor_{pcProcessor}, timestamp_{ts}, points_{std::move(points)}, referenceFrame_{std::move(frame)}, tf_{tf} {}
+        explicit PointCloudBatch(Algorithms::PointCloudProcessor &pcProcessor, uint64_t ts, pcl::PointCloud<pcl::PointXYZ>::Ptr points, std::string frame, const rtl::RigidTf3D<double> &globalTf)
+                : pointCloudProcessor_{pcProcessor}, timestamp_{ts}, points_{std::move(points)}, referenceFrame_{std::move(frame)}, globalTf_{globalTf} {}
 
         /**
          * Untransformed points getter
@@ -66,7 +65,7 @@ namespace AutoDrive::DataModels {
          * Points with applied transformation
          * @return transformed 3D points
          */
-        [[nodiscard]] pcl::PointCloud<pcl::PointXYZ>::Ptr getTransformedPoints() const;
+        [[nodiscard]] pcl::PointCloud<pcl::PointXYZ>::Ptr getPointsInGlobalCoordinates() const;
 
         /**
          * Double transformed points ( points transformed by this->tf transformed by argument tf)
@@ -96,9 +95,9 @@ namespace AutoDrive::DataModels {
 
         /**
          * Points transformation getter
-         * @return transformtaion that should be applied on points to get the real 3D position
+         * @return transformation that should be applied on points to get the real 3D position
          */
-        [[nodiscard]] rtl::RigidTf3D<double> getTF() const { return tf_; };
+        [[nodiscard]] rtl::RigidTf3D<double> getGlobalTf() const { return globalTf_; };
 
     private:
         Algorithms::PointCloudProcessor &pointCloudProcessor_;
@@ -106,7 +105,7 @@ namespace AutoDrive::DataModels {
         uint64_t timestamp_;
         pcl::PointCloud<pcl::PointXYZ>::Ptr points_;
         std::string referenceFrame_;
-        rtl::RigidTf3D<double> tf_;
+        rtl::RigidTf3D<double> globalTf_;
     };
 
 }
