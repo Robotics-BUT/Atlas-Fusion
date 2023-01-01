@@ -27,19 +27,16 @@
 
 struct Timer {
 
-    using timePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
+    using timePoint = std::chrono::time_point<std::chrono::steady_clock>;
 
-    timePoint _start, _end;
     std::chrono::duration<float> _duration{};
-
     std::string _name;
-    float *_timerValue;
 
-    explicit Timer(std::string name, float *timerValue = nullptr) : _start(std::chrono::high_resolution_clock::now()), _name(std::move(name)),
-                                                                    _timerValue(timerValue) {}
+
+    explicit Timer(std::string name, float *timerValue = nullptr) : _name(std::move(name)), _timerValue(timerValue) {}
 
     ~Timer() {
-        _end = std::chrono::high_resolution_clock::now();
+        _end = std::chrono::steady_clock::now();
         _duration = _end - _start;
 
         float ms = _duration.count() * 1000;
@@ -50,4 +47,10 @@ struct Timer {
             std::cout << "Execution of \"" << _name << "\" took: " << ms << " ms" << std::endl;
         }
     }
+
+private:
+    timePoint _start = std::chrono::steady_clock::now();
+    timePoint _end;
+
+    float *_timerValue;
 };

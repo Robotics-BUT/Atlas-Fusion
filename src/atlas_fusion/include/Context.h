@@ -40,7 +40,7 @@ namespace AutoDrive {
 
     struct Context {
 
-        using timePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
+        using timePoint = std::chrono::time_point<std::chrono::steady_clock>;
 
         explicit Context(LogService &logger, LocalMap::TFTree &tfTree, const std::string &calibFolder, const FunctionalityFlags &fFlags)
                 : threadPool_{std::thread::hardware_concurrency() - 1},

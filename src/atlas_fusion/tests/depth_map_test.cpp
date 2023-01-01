@@ -56,13 +56,15 @@ std::shared_ptr<AutoDrive::Algorithms::Projector> getProjector() {
 
 TEST(depth_map_test, initialization) {
     auto context = AutoDrive::Context::getEmptyContext();
-    auto depthMap = AutoDrive::Algorithms::DepthMap(context);
+    AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+    auto depthMap = AutoDrive::Algorithms::DepthMap(context, processor);
 }
 
 TEST(depth_map_test, add_projector) {
 
     auto context = AutoDrive::Context::getEmptyContext();
-    auto depthMap = AutoDrive::Algorithms::DepthMap(context);
+    AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+    auto depthMap = AutoDrive::Algorithms::DepthMap(context, processor);
 
     depthMap.addProjector(getProjector(), AutoDrive::DataLoader::CameraIndentifier::kCameraLeftFront);
 }

@@ -129,13 +129,15 @@ VisualizerExt visualizer;
 
 TEST(pointcloud_extrapolation, init) {
     auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator{context, N};
+        AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+        AutoDrive::Algorithms::PointCloudExtrapolator extrapolator{context, processor, N};
 }
 
 
 TEST(pointcloud_extrapolation, forward_movement) {
     auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator{context, N};
+    AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator{context, processor, N};
 
 
     auto data = getTestData();
@@ -176,7 +178,7 @@ TEST(pointcloud_extrapolation, forward_movement) {
 
     pcl::PointCloud<pcl::PointXYZ> undist_data;
     for (const auto &batch: batches) {
-        undist_data += *(batch->getTransformedPoints());
+        undist_data += *(batch->getPointsInGlobalCoordinates());
     }
 
     std::cout << " ************************ " << std::endl;
@@ -197,7 +199,8 @@ TEST(pointcloud_extrapolation, forward_movement) {
 
 TEST(pointcloud_extrapolation, rotation_left) {
     auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator{context, N};
+    AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator{context, processor, N};
 
     auto data = getTestData();
 
@@ -212,7 +215,7 @@ TEST(pointcloud_extrapolation, rotation_left) {
 
     pcl::PointCloud<pcl::PointXYZ> undist_data;
     for (const auto &batch: batches) {
-        undist_data += *(batch->getTransformedPoints());
+        undist_data += *(batch->getPointsInGlobalCoordinates());
     }
 
 

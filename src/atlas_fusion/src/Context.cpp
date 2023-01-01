@@ -27,13 +27,11 @@ namespace AutoDrive {
     Context Context::getEmptyContext() {
         LogService logger("", LogService::LogLevel::Off, false, false);
         LocalMap::TFTree tfTree("", logger);
-        std::string emptyPath = "";
-        return Context(logger, tfTree, emptyPath, FunctionalityFlags{});
+        return Context(logger, tfTree, "", FunctionalityFlags{});
     }
 
     Context::timePoint Context::getHighPrecisionTime() {
-        auto time = std::chrono::high_resolution_clock::now();
-        return time;
+        return std::chrono::steady_clock::now();
     }
 
     double Context::highPrecisionTimeToMilliseconds( std::chrono::duration<long, std::ratio<1, 1000000000>> t) {

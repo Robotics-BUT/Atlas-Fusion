@@ -145,12 +145,14 @@ VisualizerAgg visualizer;
 
 TEST(pointcloud_aggregation, init) {
     auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 1.0};
+    AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, processor, 1.0};
 }
 
 TEST(pointcloud_aggregation, static_aggregation) {
     auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 1.0};
+    AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, processor, 1.0};
 
     auto data = getTestData();
 
@@ -160,7 +162,7 @@ TEST(pointcloud_aggregation, static_aggregation) {
         points->push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
         std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-        auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(0, points, "origin", rtl::RigidTf3D<double>::identity());
+        auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(processor, 0, points, "origin", rtl::RigidTf3D<double>::identity());
         batches.push_back(batch);
 
         aggregator.addPointCloudBatches(batches);
@@ -178,7 +180,8 @@ TEST(pointcloud_aggregation, static_aggregation) {
 
 TEST(pointcloud_aggregation, multiple_static_aggregation) {
     auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 1.0};
+    AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, processor, 1.0};
 
     for (size_t j = 0; j < M; j++) {
         auto data = getTestData();
@@ -189,7 +192,7 @@ TEST(pointcloud_aggregation, multiple_static_aggregation) {
             points->push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
             std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(j * 1e9, points, "origin", rtl::RigidTf3D<double>::identity());
+            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(processor, j * 1e9, points, "origin", rtl::RigidTf3D<double>::identity());
             batches.push_back(batch);
 
             aggregator.addPointCloudBatches(batches);
@@ -214,7 +217,8 @@ TEST(pointcloud_aggregation, multiple_static_aggregation) {
 
 TEST(pointcloud_aggregation, points_filtration) {
     auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
+    AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, processor, 0.99};
 
     for (size_t j = 0; j < M; j++) {
         auto data = getTestData();
@@ -225,7 +229,7 @@ TEST(pointcloud_aggregation, points_filtration) {
             points->push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
             std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(j * 1e9, points, "origin", rtl::RigidTf3D<double>::identity());
+            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(processor, j * 1e9, points, "origin", rtl::RigidTf3D<double>::identity());
             batches.push_back(batch);
 
             auto ts = static_cast<uint64_t>(j * 1e9);
@@ -246,8 +250,9 @@ TEST(pointcloud_aggregation, points_filtration) {
 
 TEST(pointcloud_aggregation, forward_movement) {
     auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, N);
+    AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, processor, 0.99};
+    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, processor, N);
 
     AutoDrive::DataModels::LocalPosition startPose{{0, 0, 0}, {}, 0};
     AutoDrive::DataModels::LocalPosition oneStepPose{{1, 0, 0}, {}, uint64_t(0.1e9)};
@@ -294,8 +299,9 @@ TEST(pointcloud_aggregation, forward_movement) {
 
 TEST(pointcloud_aggregation, rotation_movement) {
     auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, N);
+    AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, processor, 0.99};
+    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, processor, N);
 
     AutoDrive::DataModels::LocalPosition startPose{{0, 0, 0}, {}, 0};
     AutoDrive::DataModels::LocalPosition oneStepPose{{0, 0, 0}, {0.707, 0, 0, 0.707}, uint64_t(0.1e9)};
@@ -322,7 +328,7 @@ TEST(pointcloud_aggregation, rotation_movement) {
         aggregator.addPointCloudBatches(batches);
 
         for (const auto &batch: batches) {
-            undistData += *(batch->getTransformedPoints());
+            undistData += *(batch->getPointsInGlobalCoordinates());
         }
 
         data += tmp;
@@ -349,8 +355,9 @@ TEST(pointcloud_aggregation, rotation_movement) {
 
 TEST(pointcloud_aggregation, translation_and_rotation) {
     auto context = AutoDrive::Context::getEmptyContext();
-    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, 0.99};
-    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, N);
+    AutoDrive::Algorithms::PointCloudProcessor processor{context, 1};
+    AutoDrive::Algorithms::PointCloudAggregator aggregator{context, processor, 0.99};
+    AutoDrive::Algorithms::PointCloudExtrapolator extrapolator(context, processor, N);
 
     AutoDrive::DataModels::LocalPosition startPose{{0, 0, 0}, {}, 0};
     AutoDrive::DataModels::LocalPosition oneStepPose{{1, 1, 0}, {0.707, 0, 0, 0.707}, uint64_t(0.1e9)};
@@ -379,7 +386,7 @@ TEST(pointcloud_aggregation, translation_and_rotation) {
         aggregator.addPointCloudBatches(batches);
 
         for (const auto &batch: batches) {
-            undistData += *(batch->getTransformedPoints());
+            undistData += *(batch->getPointsInGlobalCoordinates());
         }
 
         data += tmp;
