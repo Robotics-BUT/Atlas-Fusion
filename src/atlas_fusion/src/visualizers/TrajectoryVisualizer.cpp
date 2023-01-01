@@ -27,24 +27,25 @@
 namespace AutoDrive::Visualizers {
 
 
-    void TrajectoryVisualizer::drawRawTrajectory(std::deque<DataModels::LocalPosition> data) const {
+    void TrajectoryVisualizer::drawRawTrajectory(const std::deque<DataModels::LocalPosition>& data) const {
         Color c{0.0, 1.0, 0.0};
         drawTrajectory(data, rawTrajectoryPublisher_, c);
     }
 
 
-    void TrajectoryVisualizer::drawFilteredTrajectory(std::deque<DataModels::LocalPosition> data) const {
+    void TrajectoryVisualizer::drawFilteredTrajectory(const std::deque<DataModels::LocalPosition>& data) const {
         Color c{1.0, 0.0, 0.0};
         drawTrajectory(data, filteredTrajectoryPublisher_, c);
     }
 
 
-    void TrajectoryVisualizer::drawImuGpsTrajectory(std::deque<DataModels::LocalPosition> data) const {
+    void TrajectoryVisualizer::drawImuGpsTrajectory(const std::deque<DataModels::LocalPosition>& data) const {
         Color c{0.0, 0.0, 1.0};
         drawTrajectory(data, imuGpsTrajectoryPublisher_, c);
     }
 
-    void TrajectoryVisualizer::drawTrajectory(std::deque<DataModels::LocalPosition> data, const ros::Publisher& publisher, Color& color) const {
+    void TrajectoryVisualizer::drawTrajectory(const std::deque<DataModels::LocalPosition>& data, const ros::Publisher& publisher, Color& color) const {
+        auto data_ = data;
         visualization_msgs::Marker msg;
 
         msg.header.stamp = ros::Time::now();
@@ -58,9 +59,9 @@ namespace AutoDrive::Visualizers {
 
         msg.scale.x = 0.02;
 
-        while(!data.empty()) {
-            auto p = data.front().getPosition();
-            data.pop_front();
+        while(!data_.empty()) {
+            auto p = data_.front().getPosition();
+            data_.pop_front();
 
             geometry_msgs::Point point;
             point.x = p.x();

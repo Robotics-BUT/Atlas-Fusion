@@ -82,7 +82,7 @@ namespace AutoDrive::Algorithms {
          * Getter for current position in the global coordinate systems
          * @return current local position
          */
-        DataModels::LocalPosition getPosition() const;
+        [[nodiscard]] DataModels::LocalPosition getPosition() const;
 
         /**
          * Returns history of N position points from history.
@@ -94,43 +94,43 @@ namespace AutoDrive::Algorithms {
          * Getter for scalar speed in this moment
          * @return current speed
          */
-        double getSpeedScalar() const;
+        [[nodiscard]] double getSpeedScalar() const;
 
         /**
          * Getter for velocity vector in this moment
          * @return current velocity
          */
-        rtl::Vector3D<double> getSpeedVector() const;
+        [[nodiscard]] rtl::Vector3D<double> getSpeedVector() const;
 
         /**
          * Total acc force acting on the agent
          * @return current acc scalar
          */
-        double getAvgAccScalar() const;
+        [[nodiscard]] double getAvgAccScalar() const;
 
         /**
          * Total vector of the acc forces acting on the agent
          * @return current acc vector
          */
-        rtl::Vector3D<double> getAvgAcceleration() const;
+        [[nodiscard]] rtl::Vector3D<double> getAvgAcceleration() const;
 
         /**
          * Current agent's orientation
          * @return quaternion that represents the current agent's orientation w.r.t. the initialization anchor
          */
-        rtl::Quaternion<double> getOrientation() const;
+        [[nodiscard]] rtl::Quaternion<double> getOrientation() const;
 
         /**
          * Current agent's azimuth
          * @return estimated azimut of the agent (car)
          */
-        double getHeading() const;
+        [[nodiscard]] double getHeading() const;
 
         /**
          * Generates telemetry string for the visualization purposes
          * @return string that contains telemetry informations
          */
-        std::string getTelemetryString() const;
+        [[nodiscard]] std::string getTelemetryString() const;
 
         /**
          * Interpolates agent's position in the history between the samples
@@ -173,7 +173,7 @@ namespace AutoDrive::Algorithms {
         DataModels::GlobalPosition gnssPoseToRootFrame(const DataModels::GlobalPosition&);
 
         rtl::Vector3D<double> removeGravitationalForceFromLinAcc( std::shared_ptr<DataModels::ImuImuDataModel> data);
-        uint64_t getCurrentTime() const;
+        [[nodiscard]] uint64_t getCurrentTime() const;
     };
 }
 

@@ -54,9 +54,9 @@ namespace AutoDrive::Visualizers {
             imuGpsTrajectoryPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kImuGpsTrajectory, 0 );
         }
 
-        void drawRawTrajectory(std::deque<DataModels::LocalPosition> data) const;
-        void drawFilteredTrajectory(std::deque<DataModels::LocalPosition> data) const;
-        void drawImuGpsTrajectory(std::deque<DataModels::LocalPosition> data) const;
+        void drawRawTrajectory(const std::deque<DataModels::LocalPosition>& data) const;
+        void drawFilteredTrajectory(const std::deque<DataModels::LocalPosition>& data) const;
+        void drawImuGpsTrajectory(const std::deque<DataModels::LocalPosition>& data) const;
 
     protected:
 
@@ -66,7 +66,7 @@ namespace AutoDrive::Visualizers {
         ros::Publisher filteredTrajectoryPublisher_;
         ros::Publisher imuGpsTrajectoryPublisher_;
 
-        void drawTrajectory(std::deque<DataModels::LocalPosition> data, const ros::Publisher& publisher, Color& color) const;
+        void drawTrajectory(const std::deque<DataModels::LocalPosition>& data, const ros::Publisher& publisher, Color& color) const;
 
     };
 

@@ -76,19 +76,16 @@ namespace AutoDrive::Visualizers {
         , frustumVisualizer_(node, context)
         , telemetryVisualizer_(node, context)
         , radarVisualizer_(node, context) {
-            testCubePublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kTestCubeTopic, 0 );
-            selfPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kSelf, 0);
+            selfGlobalPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kSelfGlobal, 0);
+            selfEgoPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kSelfEgo, 0);
         }
-
-        /**
-         * Simple cube test draw in the origin.
-         */
-        void drawTestingCube() const;
 
         /**
          * Drawing bounding box under the IMU sensor frame (represents mounted car)
          */
-        void drawSelf() const;
+        void drawSelfGlobal() const;
+
+        void drawSelfEgo() const;
 
         /**
          * Raw lidar scan data visualization
@@ -184,7 +181,7 @@ namespace AutoDrive::Visualizers {
         void drawRawGnssTrajectory(const std::deque<DataModels::LocalPosition> &data) const;
 
         /**
-         * Render filtered gnss trajectory as a polyline
+         * Render filtered gnss trajectory as a polyline in global coordinates
          * @param data dequeue of gnss positions
          */
         void drawFilteredTrajectory(const std::deque<DataModels::LocalPosition> &data) const;
@@ -238,8 +235,8 @@ namespace AutoDrive::Visualizers {
         ros::NodeHandle& node_;
         Context& context_;
 
-        ros::Publisher testCubePublisher_;
-        ros::Publisher selfPublisher_;
+        ros::Publisher selfGlobalPublisher_;
+        ros::Publisher selfEgoPublisher_;
 
         LidarVisualizer lidarVisualizer_;
         ImuVisualizer imuVisualizer_;
@@ -251,8 +248,8 @@ namespace AutoDrive::Visualizers {
         TelemetryVisualizer telemetryVisualizer_;
         RadarVisualizer radarVisualizer_;
 
-        [[nodiscard]] visualization_msgs::Marker getTestCube() const;
-        [[nodiscard]] visualization_msgs::Marker getSelfCube() const;
+        [[nodiscard]] visualization_msgs::Marker getSelfEgoCube() const;
+        [[nodiscard]] visualization_msgs::Marker getSelfGlobalCube() const;
     };
 
 }

@@ -109,7 +109,7 @@ namespace AutoDrive::DataModels {
 
 
         /**
-         * Returns the 2D vector of metrix distances between two coordinates. Positive direction to north and east.
+         * Returns the 2D vector of matrix distances between two coordinates. Positive direction to north and east.
          * @param coord1 Reference coord
          * @param coord2 Vector coord
          * @return (x, y, 0) distance between two WGS84 coordinates

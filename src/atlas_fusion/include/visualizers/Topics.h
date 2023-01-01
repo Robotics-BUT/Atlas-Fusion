@@ -25,11 +25,10 @@
 #include <iostream>
 #include <string>
 
-namespace AutoDrive::Visualizers {
+namespace AutoDrive::Visualizers::Topics {
 
-    namespace Topics {
-        const std::string kTestCubeTopic = "/autodrive/local_map/test_cube";
-        const std::string kSelf = "/autodrive/local_map/self";
+        const std::string kSelfGlobal = "/autodrive/local_map/self/global";
+        const std::string kSelfEgo = "/autodrive/local_map/self/ego";
 
         const std::string kLidarLeft = "/autodrive/local_map/lidar/left";
         const std::string kLidarRight = "/autodrive/local_map/lidar/right";
@@ -77,4 +76,3 @@ namespace AutoDrive::Visualizers {
         const std::string kSpeedTopic = "/autodrive/local_map/speed";
 
     }
-}

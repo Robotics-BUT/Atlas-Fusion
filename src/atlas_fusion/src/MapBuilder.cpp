@@ -368,7 +368,8 @@ namespace AutoDrive {
         {
             Timer t("Draw lidar data");
             visualizationHandler_.drawLidarData(lidarData);
-            visualizationHandler_.drawSelf();
+            visualizationHandler_.drawSelfGlobal();
+            visualizationHandler_.drawSelfEgo();
         }
 
     }

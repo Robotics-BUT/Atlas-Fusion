@@ -29,14 +29,12 @@
 
 namespace AutoDrive::Visualizers{
 
-
-    void VisualizationHandler::drawTestingCube() const{
-        testCubePublisher_.publish(getTestCube());
+    void VisualizationHandler::drawSelfGlobal() const {
+        selfGlobalPublisher_.publish(getSelfGlobalCube());
     }
 
-
-    void VisualizationHandler::drawSelf() const {
-        selfPublisher_.publish(getSelfCube());
+    void VisualizationHandler::drawSelfEgo() const {
+        selfEgoPublisher_.publish(getSelfEgoCube());
     }
 
     /* LIDAR */
@@ -246,7 +244,7 @@ namespace AutoDrive::Visualizers{
         radarVisualizer_.drawRadarDetectionsOnTopic(objects, Topics::kRadarTiObjects, LocalMap::Frames::kRadarTi);
     }
 
-    visualization_msgs::Marker VisualizationHandler::getTestCube() const {
+    visualization_msgs::Marker VisualizationHandler::getSelfEgoCube() const {
         visualization_msgs::Marker cube;
         cube.header.frame_id = LocalMap::Frames::kOrigin;
         cube.header.stamp = ros::Time();
@@ -255,22 +253,23 @@ namespace AutoDrive::Visualizers{
         cube.action = visualization_msgs::Marker::ADD;
         cube.pose.position.x = 0;
         cube.pose.position.y = 0;
-        cube.pose.position.z = 0;
+        cube.pose.position.z = -0.75;
         cube.pose.orientation.x = 0.0;
         cube.pose.orientation.y = 0.0;
         cube.pose.orientation.z = 0.0;
         cube.pose.orientation.w = 1.0;
-        cube.scale.x = 1.0;
-        cube.scale.y = 1.0;
-        cube.scale.z = 1.0;
-        cube.color.a = 1.0;
+        cube.scale.x = 4.5;
+        cube.scale.y = 2.5;
+        cube.scale.z = 1.5;
+
+        cube.color.a = 0.5;
         cube.color.r = 0.0;
         cube.color.g = 1.0;
         cube.color.b = 0.0;
         return cube;
     }
 
-    visualization_msgs::Marker VisualizationHandler::getSelfCube() const {
+    visualization_msgs::Marker VisualizationHandler::getSelfGlobalCube() const {
         visualization_msgs::Marker cube;
         cube.header.frame_id = LocalMap::Frames::kImuFrame;
         cube.header.stamp = ros::Time();
