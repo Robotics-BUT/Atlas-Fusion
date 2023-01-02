@@ -24,12 +24,12 @@
 
 namespace AutoDrive::Algorithms {
 
-    void DetectionsProcessor::addProjector(std::shared_ptr<Projector> projector, const std::string& id) {
-        projectors_[id] = std::move(projector);
+    void DetectionsProcessor::addProjector(std::shared_ptr<Projector> projector, const FrameType& frame) {
+        projectors_[frame] = std::move(projector);
     }
 
 
-    std::vector<DataModels::FrustumDetection> DetectionsProcessor::onNew3DYoloDetections(const std::vector<DataModels::YoloDetection3D> &detections3D, const std::string &frame) {
+    std::vector<DataModels::FrustumDetection> DetectionsProcessor::onNew3DYoloDetections(const std::vector<DataModels::YoloDetection3D> &detections3D, const FrameType &frame) {
         std::vector<DataModels::FrustumDetection> output{};
         auto projector = projectors_[frame];
         for (const auto &detection: detections3D) {

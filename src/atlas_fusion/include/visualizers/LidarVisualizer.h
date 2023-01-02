@@ -43,36 +43,29 @@ namespace AutoDrive::Visualizers {
 
     public:
 
-        enum class LidarType{
-            kLeft,
-            kRight,
-        };
-
         /**
          * Constructor
          * @param node ros node reference
          * @param context global services container (timestamps, logging, etc.)
          */
-        LidarVisualizer(ros::NodeHandle& node, Context& context)
-        : node_{node}
-        , context_{context} {
-
-        }
+        LidarVisualizer(ros::NodeHandle &node, Context &context) : node_{node}, context_{context} {}
 
 
-        void drawPointcloudOnTopic(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc, std::string topic, std::string frame);
+        void drawPointCloudOnTopic(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &pc, const std::string &topic, const FrameType &frame);
 
-        void drawApproximationOnTopic(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls, std::string topic, std::string frame, visualization_msgs::Marker::_color_type col);
+        void drawApproximationOnTopic(const std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> &ls, const std::string &topic, const FrameType &frame,
+                                      visualization_msgs::Marker::_color_type col);
 
-        void drawLidarDetections(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections, std::string topic, std::string frame);
+        void drawLidarDetections(const std::vector<std::shared_ptr<DataModels::LidarDetection>> &detections, const std::string &topic, const FrameType &frame);
 
     private:
 
-        ros::NodeHandle& node_;
-        Context& context_;
+        ros::NodeHandle &node_;
+        Context &context_;
 
         std::map<std::string, std::shared_ptr<ros::Publisher>> publishers_;
 
-        visualization_msgs::MarkerArray lidarDetectionsToMarkerArray(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections, std::string frame);
+        visualization_msgs::MarkerArray
+        lidarDetectionsToMarkerArray(const std::vector<std::shared_ptr<DataModels::LidarDetection>> &detections, const FrameType &frame);
     };
 }

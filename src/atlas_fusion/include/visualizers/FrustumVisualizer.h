@@ -64,11 +64,10 @@ namespace AutoDrive::Visualizers {
 
         ros::Publisher frustumPublisher_;
 
-        std::vector<geometry_msgs::Point> frustumToGeometryPointVector(std::shared_ptr<const rtl::Frustum3D<double>> f);
-        std::vector<geometry_msgs::Point> frustumToAxis(std::shared_ptr<const rtl::Frustum3D<double>> f);
+        std::vector<geometry_msgs::Point> frustumToGeometryPointVector(const std::shared_ptr<const rtl::Frustum3D<double>>& f);
+        std::vector<geometry_msgs::Point> frustumToAxis(const std::shared_ptr<const rtl::Frustum3D<double>>& f);
 
         std_msgs::ColorRGBA getColorByClass(DataModels::YoloDetectionClass);
-        std_msgs::ColorRGBA getEmptyColor();
     };
 }
 

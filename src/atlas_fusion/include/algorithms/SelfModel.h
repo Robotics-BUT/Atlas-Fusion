@@ -172,7 +172,7 @@ namespace AutoDrive::Algorithms {
 
         DataModels::GlobalPosition gnssPoseToRootFrame(const DataModels::GlobalPosition&);
 
-        rtl::Vector3D<double> removeGravitationalForceFromLinAcc( std::shared_ptr<DataModels::ImuImuDataModel> data);
+        rtl::Vector3D<double> removeGravitationalForceFromLinAcc( const std::shared_ptr<DataModels::ImuImuDataModel>& data);
         [[nodiscard]] uint64_t getCurrentTime() const;
     };
 }

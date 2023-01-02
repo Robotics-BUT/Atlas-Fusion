@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "AbstrackFailChecker.h"
+#include "AbstractFailChecker.h"
 
 #include "FailChecker.h"
 

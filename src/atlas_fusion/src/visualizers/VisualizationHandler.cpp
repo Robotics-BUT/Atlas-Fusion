@@ -23,8 +23,6 @@
 #include "visualizers/VisualizationHandler.h"
 
 #include <sensor_msgs/PointCloud2.h>
-
-#include "local_map/Frames.h"
 #include "Timer.h"
 
 namespace AutoDrive::Visualizers{
@@ -46,11 +44,11 @@ namespace AutoDrive::Visualizers{
 
         auto scan = data->getScan();
         if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kLeftLidar) {
-            lidarVisualizer_.drawPointcloudOnTopic(scan, Topics::kLidarLeft, LocalMap::Frames::kLidarLeft);
+            lidarVisualizer_.drawPointCloudOnTopic(scan, Topics::kLidarLeft, FrameType::kLidarLeft);
         } else if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kRightLidar) {
-            lidarVisualizer_.drawPointcloudOnTopic(scan, Topics::kLidarRight, LocalMap::Frames::kLidarRight);
+            lidarVisualizer_.drawPointCloudOnTopic(scan, Topics::kLidarRight, FrameType::kLidarRight);
         }else if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kCenterLidar) {
-            lidarVisualizer_.drawPointcloudOnTopic(scan, Topics::kLidarCenter, LocalMap::Frames::kLidarCenter);
+            lidarVisualizer_.drawPointCloudOnTopic(scan, Topics::kLidarCenter, FrameType::kLidarCenter);
         }
     }
 
@@ -59,14 +57,14 @@ namespace AutoDrive::Visualizers{
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
 
-        lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kLidarAggregatedGlobal, LocalMap::Frames::kOrigin);
+        lidarVisualizer_.drawPointCloudOnTopic(pc, Topics::kLidarAggregatedGlobal, FrameType::kOrigin);
     }
 
     void VisualizationHandler::drawAggregatedPointCloudEgo(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
 
-        lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kLidarAggregatedEgo, LocalMap::Frames::kOrigin);
+        lidarVisualizer_.drawPointCloudOnTopic(pc, Topics::kLidarAggregatedEgo, FrameType::kOrigin);
     }
 
 
@@ -75,7 +73,7 @@ namespace AutoDrive::Visualizers{
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
 
-        lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kLidarLaser, LocalMap::Frames::kOrigin);
+        lidarVisualizer_.drawPointCloudOnTopic(pc, Topics::kLidarLaser, FrameType::kOrigin);
     }
 
     void VisualizationHandler::drawLidarApproximations(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls) {
@@ -88,7 +86,7 @@ namespace AutoDrive::Visualizers{
         col.r = 0;
         col.g = 1;
         col.b = 0;
-        lidarVisualizer_.drawApproximationOnTopic(ls, Topics::kLidarApproximation, LocalMap::Frames::kOrigin, col);
+        lidarVisualizer_.drawApproximationOnTopic(ls, Topics::kLidarApproximation, FrameType::kOrigin, col);
     }
 
     void VisualizationHandler::drawLidarApproximationsRoad(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls) {
@@ -101,14 +99,14 @@ namespace AutoDrive::Visualizers{
         col.r = 1;
         col.g = 0;
         col.b = 0;
-        lidarVisualizer_.drawApproximationOnTopic(ls, Topics::kLidarApproximationRoad, LocalMap::Frames::kOrigin, col);
+        lidarVisualizer_.drawApproximationOnTopic(ls, Topics::kLidarApproximationRoad, FrameType::kOrigin, col);
     }
 
     void VisualizationHandler::drawGlobalPointcloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
 
-        lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kGlobalPointCloud, LocalMap::Frames::kOrigin);
+        lidarVisualizer_.drawPointCloudOnTopic(pc, Topics::kGlobalPointCloud, FrameType::kOrigin);
     }
 
     void VisualizationHandler::drawPointcloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
@@ -116,7 +114,7 @@ namespace AutoDrive::Visualizers{
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
 
-        lidarVisualizer_.drawPointcloudOnTopic(pc, Topics::kCutoutPointcloud, LocalMap::Frames::kImuFrame);
+        lidarVisualizer_.drawPointCloudOnTopic(pc, Topics::kCutoutPointcloud, FrameType::kImu);
     }
 
 
@@ -127,16 +125,16 @@ namespace AutoDrive::Visualizers{
 
         switch(data->getCameraIdentifier()) {
             case DataLoader::CameraIndentifier::kCameraLeftFront:
-                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraLeftFront, Topics::kCameraLeftFrontInfo, LocalMap::Frames::kCameraLeftFront);
+                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraLeftFront, Topics::kCameraLeftFrontInfo, FrameType::kCameraLeftFront);
                 break;
             case DataLoader::CameraIndentifier::kCameraLeftSide:
-                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraLeftSide, Topics::kCameraLeftSideInfo, LocalMap::Frames::kCameraLeftSide);
+                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraLeftSide, Topics::kCameraLeftSideInfo, FrameType::kCameraLeftSide);
                 break;
             case DataLoader::CameraIndentifier::kCameraRightFront:
-                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraRightFront, Topics::kCameraRightFrontInfo, LocalMap::Frames::kCameraRightFront);
+                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraRightFront, Topics::kCameraRightFrontInfo, FrameType::kCameraRightFront);
                 break;
             case DataLoader::CameraIndentifier::kCameraRightSide:
-                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraRightSide, Topics::kCameraRightSideInfo, LocalMap::Frames::kCameraRightSide);
+                cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraRightSide, Topics::kCameraRightSideInfo, FrameType::kCameraRightSide);
                 break;
             default:
                 context_.logger_.warning("Unexpected camera frame source when drawing RGB image");
@@ -150,7 +148,7 @@ namespace AutoDrive::Visualizers{
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().ir_camera_visualization_) {return;}
 
-        cameraVisualizer_.drawIRCameraFrameWithTopic(data, Topics::kCameraIr, Topics::kCameraIrInfo, LocalMap::Frames::kCameraIr);
+        cameraVisualizer_.drawIRCameraFrameWithTopic(data, Topics::kCameraIr, Topics::kCameraIrInfo, FrameType::kCameraIr);
     }
 
 
@@ -158,7 +156,7 @@ namespace AutoDrive::Visualizers{
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
 
-        imuVisualizer_.drawImuData(speed, LocalMap::Frames::kImuFrame, Topics::kSpeedTopic);
+        imuVisualizer_.drawImuData(speed, FrameType::kImu, Topics::kSpeedTopic);
     }
 
     void VisualizationHandler::drawImuData(const rtl::Vector3D<double>& linAcc) {
@@ -166,7 +164,7 @@ namespace AutoDrive::Visualizers{
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().imu_visualization_) {return;}
 
-        imuVisualizer_.drawImuData(linAcc, LocalMap::Frames::kImuFrame, Topics::kImuTopic);
+        imuVisualizer_.drawImuData(linAcc, FrameType::kImu, Topics::kImuTopic);
     }
 
     void VisualizationHandler::drawImuAvgData(const rtl::Vector3D<double>& linAcc) {
@@ -174,7 +172,7 @@ namespace AutoDrive::Visualizers{
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().imu_visualization_) {return;}
 
-        imuVisualizer_.drawImuData(linAcc, LocalMap::Frames::kImuFrame, Topics::kImuAvgTopic);
+        imuVisualizer_.drawImuData(linAcc, FrameType::kImu, Topics::kImuAvgTopic);
     }
 
     void VisualizationHandler::drawGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel>& data) const {
@@ -217,7 +215,7 @@ namespace AutoDrive::Visualizers{
         tfTreeVisualizer_.updateOriginToRootTf(tf);
     }
 
-    void VisualizationHandler::setCameraCalibParamsForCameraId(DataModels::CameraCalibrationParamsDataModel& params, const std::string& frame) {
+    void VisualizationHandler::setCameraCalibParamsForCameraId(DataModels::CameraCalibrationParamsDataModel& params, const FrameType& frame) {
         cameraVisualizer_.setCameraParams(frame, params);
     }
 
@@ -226,14 +224,14 @@ namespace AutoDrive::Visualizers{
         frustumVisualizer_.visualizeFrustumDetections(detections);
     }
 
-    void VisualizationHandler::drawLidarDetection(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections) {
+    void VisualizationHandler::drawLidarDetection(const std::vector<std::shared_ptr<DataModels::LidarDetection>>& detections) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        lidarVisualizer_.drawLidarDetections(detections, Topics::kLidarDetections, LocalMap::Frames::kImuFrame);
+        lidarVisualizer_.drawLidarDetections(detections, Topics::kLidarDetections, FrameType::kImu);
     }
 
-    void VisualizationHandler::drawTelemetry(std::string telemetryText) {
+    void VisualizationHandler::drawTelemetry(const std::string& telemetryText) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        telemetryVisualizer_.drawTelemetryAsText(telemetryText, LocalMap::Frames::kImuFrame, Topics::kTelemetryText);
+        telemetryVisualizer_.drawTelemetryAsText(telemetryText, FrameType::kImu, Topics::kTelemetryText);
     }
 
     void VisualizationHandler::drawRadarTiObjects(const std::vector<DataModels::RadarTiDataModel::Object>& objects) {
@@ -241,12 +239,12 @@ namespace AutoDrive::Visualizers{
         if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
         if (!context_.getFunctionalityFlags().radar_visualization_) {return;}
 
-        radarVisualizer_.drawRadarDetectionsOnTopic(objects, Topics::kRadarTiObjects, LocalMap::Frames::kRadarTi);
+        radarVisualizer_.drawRadarDetectionsOnTopic(objects, Topics::kRadarTiObjects, FrameType::kRadarTi);
     }
 
     visualization_msgs::Marker VisualizationHandler::getSelfEgoCube() const {
         visualization_msgs::Marker cube;
-        cube.header.frame_id = LocalMap::Frames::kOrigin;
+        cube.header.frame_id = frameTypeName(FrameType::kOrigin);
         cube.header.stamp = ros::Time();
         cube.id = 0;
         cube.type = visualization_msgs::Marker::CUBE;
@@ -271,7 +269,7 @@ namespace AutoDrive::Visualizers{
 
     visualization_msgs::Marker VisualizationHandler::getSelfGlobalCube() const {
         visualization_msgs::Marker cube;
-        cube.header.frame_id = LocalMap::Frames::kImuFrame;
+        cube.header.frame_id = frameTypeName(FrameType::kImu);
         cube.header.stamp = ros::Time();
         cube.id = 0;
         cube.type = visualization_msgs::Marker::CUBE;

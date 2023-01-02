@@ -211,7 +211,7 @@ namespace AutoDrive {
 
         Algorithms::SimpleImageProcessor simpleImageProcessor_;
 
-        void processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &, const std::string &);
+        void processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &, const FrameType &);
 
         void processIRCameraData(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &);
 

@@ -21,6 +21,7 @@
  */
 
 #include "visualizers/CameraVisualizer.h"
+#include "util/IdentifierToFrameConversions.h"
 
 #include <sensor_msgs/image_encodings.h>
 #include <cv_bridge/cv_bridge.h>
@@ -28,12 +29,12 @@
 #include <sensor_msgs/distortion_models.h>
 #include <camera_info_manager/camera_info_manager.h>
 
-#include "local_map/Frames.h"
 
 namespace AutoDrive::Visualizers {
 
-    void CameraVisualizer::drawRGBCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraFrameDataModel>& data, const std::string &cameraTopic, const std::string &cameraInfoTopic,
-                                                       const std::string &frame) {
+    void CameraVisualizer::drawRGBCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const std::string &cameraTopic,
+                                                       const std::string &cameraInfoTopic,
+                                                       const FrameType &frame) {
         checkCameraTopic(cameraTopic);
         checkCameraInfoTopic(cameraInfoTopic);
 
@@ -41,17 +42,18 @@ namespace AutoDrive::Visualizers {
 
         cv_bridge::CvImagePtr cv_ptr(new cv_bridge::CvImage);
         cv_ptr->header.stamp = ts;
-        cv_ptr->header.frame_id = frame;
+        cv_ptr->header.frame_id = frameTypeName(frame);
         cv_ptr->encoding = "bgr8";
         cv_ptr->image = data->getImage();
 
         cameraPublishers_[cameraTopic].publish(cv_ptr->toImageMsg());
-        publishCameraInfo(cameraParams_[frame], cameraInfoTopic, LocalMap::Frames::kCameraIr, ts);
+        publishCameraInfo(cameraParams_[frame], cameraInfoTopic, FrameType::kCameraIr, ts);
     }
 
 
-    void CameraVisualizer::drawIRCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &data, const std::string &cameraTopic, const std::string &cameraInfoTopic,
-                                                      const std::string &frame) {
+    void CameraVisualizer::drawIRCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &data, const std::string &cameraTopic,
+                                                      const std::string &cameraInfoTopic,
+                                                      const FrameType &frame) {
         checkCameraTopic(cameraTopic);
         checkCameraInfoTopic(cameraInfoTopic);
 
@@ -59,12 +61,12 @@ namespace AutoDrive::Visualizers {
 
         std::shared_ptr<cv_bridge::CvImage> cv_ptr = std::make_shared<cv_bridge::CvImage>();
         cv_ptr->header.stamp = ts;
-        cv_ptr->header.frame_id = LocalMap::Frames::kCameraIr;
+        cv_ptr->header.frame_id = frameTypeName(FrameType::kCameraIr);
         cv_ptr->encoding = "mono8";
         cv_ptr->image = data->getImage();
 
         cameraPublishers_[cameraTopic].publish(cv_ptr->toImageMsg());
-        publishCameraInfo(cameraParams_[frame], cameraInfoTopic, LocalMap::Frames::kCameraIr, ts);
+        publishCameraInfo(cameraParams_[frame], cameraInfoTopic, FrameType::kCameraIr, ts);
     }
 
 
@@ -82,11 +84,12 @@ namespace AutoDrive::Visualizers {
         }
     }
 
-    void CameraVisualizer::publishCameraInfo(const DataModels::CameraCalibrationParamsDataModel &params, const std::string &topic, const std::string &frame, ros::Time ts) {
+    void CameraVisualizer::publishCameraInfo(const DataModels::CameraCalibrationParamsDataModel &params, const std::string &topic, const FrameType &frame,
+                                             ros::Time ts) {
         sensor_msgs::CameraInfo msg;
 
         msg.header.stamp = ts;
-        msg.header.frame_id = frame;
+        msg.header.frame_id = frameTypeName(frame);
 
         msg.width = params.getWidth();
         msg.height = params.getHeight();

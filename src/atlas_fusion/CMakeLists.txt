@@ -109,7 +109,7 @@ set(SOURCES_DATA_WRITERS
         src/data_writers/Lidar2ImagePlotter.cpp)
 
 set(SOURCES_FAIL_CHECK
-        src/fail_check/AbstrackFailChecker.cpp
+        src/fail_check/AbstractFailChecker.cpp
         src/fail_check/FailChecker.cpp
         src/fail_check/CameraRGBFailChecker.cpp
         src/fail_check/CameraIrFailChecker.cpp

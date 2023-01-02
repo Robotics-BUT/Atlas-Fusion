@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "AbstrackFailChecker.h"
+#include "AbstractFailChecker.h"
 #include "data_models/gnss/GnssPoseDataModel.h"
 #include "data_models/gnss/GnssTimeDataModel.h"
 
@@ -31,7 +31,7 @@ namespace AutoDrive::FailCheck {
     /**
      * Validates GNSS receiver data packets. Currently bypassed.
      */
-    class GnssFailChecker : public AbstrackFailChecker{
+    class GnssFailChecker : public AbstractFailChecker{
 
     public:
 
@@ -42,7 +42,7 @@ namespace AutoDrive::FailCheck {
          * @param context cantainer for global services (timestamps. logging, etc.)
          */
         GnssFailChecker(Context& context)
-        : AbstrackFailChecker{context}
+        : AbstractFailChecker{context}
         {
 
         }

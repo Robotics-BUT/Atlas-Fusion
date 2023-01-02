@@ -21,7 +21,6 @@
  */
 
 #include "algorithms/pointcloud/PointCloudExtrapolator.h"
-#include "local_map/Frames.h"
 #include "Timer.h"
 
 namespace AutoDrive::Algorithms {
@@ -69,7 +68,7 @@ namespace AutoDrive::Algorithms {
                         std::copy(scan->begin() + start, scan->begin() + end, back_inserter(batch->points));
 
                         auto globalTf = endPose.toTf()(poseDiff.toTf().inverted()(movementCompensationTF(sensorOffsetTf)));
-                        return std::make_shared<DataModels::PointCloudBatch>(pointCloudProcessor_, ts, batch, LocalMap::Frames::kOrigin, globalTf);
+                        return std::make_shared<DataModels::PointCloudBatch>(pointCloudProcessor_, ts, batch, FrameType::kOrigin, globalTf);
                     });
         }
 

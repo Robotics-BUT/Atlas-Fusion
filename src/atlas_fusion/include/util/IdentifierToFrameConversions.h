@@ -23,11 +23,13 @@
 #pragma once
 
 #include "data_models/all.h"
-#include "local_map/Frames.h"
+#include "data_models/FrameTypes.h"
 
 namespace AutoDrive {
 
-    std::string frameTypeFromDataModel(const std::shared_ptr<DataModels::GenericDataModel> &dataModel);
+    FrameType frameTypeFromDataModel(const std::shared_ptr<DataModels::GenericDataModel> &dataModel);
 
-    std::string frameTypeFromIdentifier(const DataLoader::CameraIndentifier &identifier);
+    FrameType frameTypeFromIdentifier(const DataLoader::CameraIndentifier &identifier);
+
+    std::string frameTypeName(const FrameType& frame);
 }

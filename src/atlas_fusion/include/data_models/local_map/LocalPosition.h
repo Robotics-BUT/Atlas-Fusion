@@ -41,8 +41,8 @@ namespace AutoDrive::DataModels {
          * @param timestamp timestamp, the position has been estimated
          */
         explicit LocalPosition(rtl::Vector3D<double> positon, rtl::Quaternion<double> orientation, uint64_t timestamp)
-        : position_(std::move(positon))
-        , orientation_(std::move(orientation))
+        : position_(positon)
+        , orientation_(orientation)
         , timestamp_{timestamp} {
 
         }

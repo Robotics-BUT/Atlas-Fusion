@@ -26,7 +26,7 @@ namespace AutoDrive {
 
     Context Context::getEmptyContext() {
         LogService logger("", LogService::LogLevel::Off, false, false);
-        LocalMap::TFTree tfTree("", logger);
+        LocalMap::TFTree tfTree(FrameType::kImu, logger);
         return Context(logger, tfTree, "", FunctionalityFlags{});
     }
 

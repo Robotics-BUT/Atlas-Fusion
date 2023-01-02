@@ -46,17 +46,14 @@ namespace AutoDrive::Algorithms {
          * Constructor
          * @param context global services container (timestamps, logging, etc.)
          */
-        explicit DetectionsProcessor(Context& context)
-        : context_{context} {
-
-        }
+        explicit DetectionsProcessor(Context &context) : context_{context} {}
 
         /**
          * @param detections3D list of 2D NN detections with the estimated depth
          * @param frame camera identifier
          * @return list of 3D frustum data models
          */
-        std::vector<DataModels::FrustumDetection> onNew3DYoloDetections(const std::vector<DataModels::YoloDetection3D>& detections3D, const std::string& frame);
+        std::vector<DataModels::FrustumDetection> onNew3DYoloDetections(const std::vector<DataModels::YoloDetection3D> &detections3D, const FrameType &frame);
 
         /**
          * Inserter of a camera projector class instances
@@ -64,12 +61,12 @@ namespace AutoDrive::Algorithms {
          * into 2D
          * @param id camera identifier
          */
-        void addProjector(std::shared_ptr<Projector> projector, const std::string& id);
+        void addProjector(std::shared_ptr<Projector> projector, const FrameType &id);
 
     private:
 
-        Context& context_;
-        std::map<std::string, std::shared_ptr<Projector>> projectors_{};
+        Context &context_;
+        std::map<FrameType, std::shared_ptr<Projector>> projectors_{};
 
     };
 

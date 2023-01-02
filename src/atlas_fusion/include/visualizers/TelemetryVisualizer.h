@@ -46,7 +46,7 @@ namespace AutoDrive::Visualizers {
 
         }
 
-        void drawTelemetryAsText(std::string& telemetryText, std::string frame, std::string topic);
+        void drawTelemetryAsText(const std::string& telemetryText, const FrameType& frame, const std::string& topic);
 
     private:
 

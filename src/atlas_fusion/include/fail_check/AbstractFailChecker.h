@@ -20,30 +20,41 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#pragma once
+# pragma once
 
-#include <iostream>
-#include <string>
-/**
- * Frames defines the names of the sensor's local coordinates systems.
- */
-namespace AutoDrive::LocalMap::Frames {
-    const std::string kOrigin = "origin";
+#include "Context.h"
+#include "data_models/GenericDataModel.h"
 
-    const std::string kLidarLeft = "lidar_left";
-    const std::string kLidarRight = "lidar_right";
-    const std::string kLidarCenter = "lidar_center";
+namespace AutoDrive::FailCheck {
 
-    const std::string kRadarTi = "radar_ti";
+    /**
+     * Abstract Fail Checker defines interface for other inherited Fail Checkers
+     */
+    class AbstractFailChecker {
 
-    const std::string kImuFrame = "imu";
+    public:
 
-    const std::string kCameraLeftFront = "camera_left_front";
-    const std::string kCameraLeftSide = "camera_left_side";
-    const std::string kCameraRightFront = "camera_right_front";
-    const std::string kCameraRightSide = "camera_right_side";
-    const std::string kCameraIr = "camera_ir";
+        AbstractFailChecker() = delete;
 
-    const std::string kGnssAntennaFront = "gnss_front";
-    const std::string kGnssAntennaRear = "gnss_rear";
+        /**
+         * Constructor
+         * @param context container for global services (timestamps. logging, etc.)
+         */
+        explicit AbstractFailChecker(Context& context) :
+        context_{context}
+        {
+            sensorStatus_ = 1.0;
+        }
+
+        /**
+         * Reports reliability of the sensor
+         * @return
+         */
+        virtual float getSensorStatus();
+
+    protected:
+
+        Context& context_;
+        float sensorStatus_;
+    };
 }

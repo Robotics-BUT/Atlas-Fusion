@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "AbstrackFailChecker.h"
+#include "AbstractFailChecker.h"
 #include "data_models/lidar/LidarScanDataModel.h"
 
 namespace AutoDrive::FailCheck {
@@ -30,7 +30,7 @@ namespace AutoDrive::FailCheck {
     /**
      * Validates LiDAR point cloud scans. Currently bypassed.
      */
-    class LidarFailChecker : public AbstrackFailChecker{
+    class LidarFailChecker : public AbstractFailChecker{
 
     public:
 
@@ -41,7 +41,7 @@ namespace AutoDrive::FailCheck {
          * @param context cantainer for global services (timestamps. logging, etc.)
          */
         LidarFailChecker(Context& context)
-                : AbstrackFailChecker{context}
+                : AbstractFailChecker{context}
         {
 
         }

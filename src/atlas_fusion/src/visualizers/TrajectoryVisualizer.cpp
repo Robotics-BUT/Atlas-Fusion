@@ -21,8 +21,7 @@
  */
 
 #include "visualizers/TrajectoryVisualizer.h"
-
-#include "local_map/Frames.h"
+#include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::Visualizers {
 
@@ -49,7 +48,7 @@ namespace AutoDrive::Visualizers {
         visualization_msgs::Marker msg;
 
         msg.header.stamp = ros::Time::now();
-        msg.header.frame_id = LocalMap::Frames::kOrigin;
+        msg.header.frame_id = frameTypeName(FrameType::kOrigin);
 
         msg.type = visualization_msgs::Marker::LINE_STRIP;
         msg.color.r = color.red_;

@@ -1,23 +1,25 @@
 #include "visualizers/RadarVisualizer.h"
+#include "util/IdentifierToFrameConversions.h"
 
 #include <visualization_msgs/MarkerArray.h>
 #include <visualization_msgs/Marker.h>
 
 namespace AutoDrive::Visualizers {
 
-    void RadarVisualizer::drawRadarDetectionsOnTopic(const std::vector<DataModels::RadarTiDataModel::Object>& objects, std::string topic, std::string frame) {
+    void RadarVisualizer::drawRadarDetectionsOnTopic(const std::vector<DataModels::RadarTiDataModel::Object> &objects, const std::string &topic,
+                                                     const FrameType &frame) {
 
-        if(publishers_.count(topic) == 0) {
-            publishers_[topic] = std::make_shared<ros::Publisher>(node_.advertise<visualization_msgs::MarkerArray>( topic, 0));
+        if (publishers_.count(topic) == 0) {
+            publishers_[topic] = std::make_shared<ros::Publisher>(node_.advertise<visualization_msgs::MarkerArray>(topic, 0));
         }
 
         auto const time = ros::Time::now();
         visualization_msgs::MarkerArray msg;
         size_t object_count = 0;
-        for (const auto& object : objects) {
+        for (const auto &object: objects) {
 
             visualization_msgs::Marker obj;
-            obj.header.frame_id = frame;
+            obj.header.frame_id = frameTypeName(frame);
             obj.header.stamp = time;
             obj.id = object_count++;
             obj.pose.position.x = object.getPose().x();
@@ -36,7 +38,7 @@ namespace AutoDrive::Visualizers {
             msg.markers.emplace_back(obj);
 
             visualization_msgs::Marker textMsg;
-            textMsg.header.frame_id = frame;
+            textMsg.header.frame_id = frameTypeName(frame);
             textMsg.header.stamp = time;
             textMsg.id = object_count++;
             textMsg.pose.position.x = object.getPose().x();
@@ -57,9 +59,9 @@ namespace AutoDrive::Visualizers {
             msg.markers.emplace_back(textMsg);
         }
 
-        for (size_t i = object_count ; i < radarTiMaxObjectVisCount_; i++) {
+        for (size_t i = object_count; i < radarTiMaxObjectVisCount_; i++) {
             visualization_msgs::Marker obj;
-            obj.header.frame_id = frame;
+            obj.header.frame_id = frameTypeName(frame);
             obj.header.stamp = time;
             obj.id = object_count++;
             obj.color.a = 0.0;

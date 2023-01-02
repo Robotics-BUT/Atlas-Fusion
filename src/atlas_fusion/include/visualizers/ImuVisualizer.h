@@ -43,17 +43,14 @@ namespace AutoDrive::Visualizers {
          * @param node ros node reference
          * @param context global services container (timestamps, logging, etc.)
          */
-        ImuVisualizer(ros::NodeHandle& node, Context& context)
-        : node_{node}
-        , context_{context} {
-        }
+        ImuVisualizer(ros::NodeHandle &node, Context &context) : node_{node}, context_{context} {}
 
-        void drawImuData(rtl::Vector3D<double> linAcc, std::string frame, std::string topic);
+        void drawImuData(const rtl::Vector3D<double> &linAcc, const FrameType &frame, const std::string &topic);
 
     protected:
 
-        ros::NodeHandle& node_;
-        Context& context_;
+        ros::NodeHandle &node_;
+        Context &context_;
 
         std::map<std::string, std::shared_ptr<ros::Publisher>> publishers_;
     };

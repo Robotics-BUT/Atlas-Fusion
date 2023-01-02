@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "AbstrackFailChecker.h"
+#include "AbstractFailChecker.h"
 #include "data_models/camera/CameraFrameDataModel.h"
 
 namespace AutoDrive::FailCheck {
@@ -30,7 +30,7 @@ namespace AutoDrive::FailCheck {
     /**
      * Validates RGB camera frame data. Currently bypassed.
      */
-    class CameraRGBFailChecker : public AbstrackFailChecker{
+    class CameraRGBFailChecker : public AbstractFailChecker{
 
     public:
 
@@ -41,7 +41,7 @@ namespace AutoDrive::FailCheck {
          * @param context cantainer for global services (timestamps. logging, etc.)
          */
         CameraRGBFailChecker(Context& context)
-        : AbstrackFailChecker{context}
+        : AbstractFailChecker{context}
         {
 
         }

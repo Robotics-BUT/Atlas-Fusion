@@ -97,7 +97,7 @@ namespace AutoDrive::Algorithms {
 
         size_t historyLenght_;
 
-        DataModels::GlobalPosition gnssPoseToRootFrame(const DataModels::GlobalPosition);
+        DataModels::GlobalPosition gnssPoseToRootFrame(const DataModels::GlobalPosition&);
         rtl::Quaternion<double> rpyToQuaternion(double, double, double);
     };
 }

@@ -21,10 +21,8 @@
  */
 
 #include "algorithms/SimpleTrajectoryLogger.h"
-#include "local_map/Frames.h"
 
 namespace AutoDrive::Algorithms {
-
 
 
     void SimpleTrajectoryLogger::onGnssPose(std::shared_ptr<DataModels::GnssPoseDataModel> data) {
@@ -36,12 +34,12 @@ namespace AutoDrive::Algorithms {
                 data->getAzimut()};
         auto imuPose = gnssPoseToRootFrame(gnssPose);
 
-        if(!initialized_) {
+        if (!initialized_) {
             initPositionGnss_ = gnssPoseToRootFrame(gnssPose);
             initialized_ = true;
         }
 
-        while(positionHistory_.size() >= historyLenght_) {
+        while (positionHistory_.size() >= historyLenght_) {
             positionHistory_.pop_front();
         }
 
@@ -49,7 +47,7 @@ namespace AutoDrive::Algorithms {
         position_.setPositon(offset);
 
         auto azimut = data->getAzimut();
-        position_.setOrientation(rpyToQuaternion(0,0,-azimut*M_PI/180));
+        position_.setOrientation(rpyToQuaternion(0, 0, -azimut * M_PI / 180));
 
         positionHistory_.push_back(position_);
     }
@@ -63,12 +61,12 @@ namespace AutoDrive::Algorithms {
                 0};
         //auto imuPose = gnssPoseToRootFrame(gnssPose);
 
-        if(!initialized_) {
+        if (!initialized_) {
             initPositionGnss_ = imuPose;
             initialized_ = true;
         }
 
-        while(positionHistory_.size() >= historyLenght_) {
+        while (positionHistory_.size() >= historyLenght_) {
             positionHistory_.pop_front();
         }
 
@@ -81,11 +79,12 @@ namespace AutoDrive::Algorithms {
     }
 
 
-    DataModels::GlobalPosition SimpleTrajectoryLogger::gnssPoseToRootFrame(const DataModels::GlobalPosition gnssPose) {
+    DataModels::GlobalPosition SimpleTrajectoryLogger::gnssPoseToRootFrame(const DataModels::GlobalPosition &gnssPose) {
 
-        auto gnssOffset = DataModels::LocalPosition{context_.tfTree_.transformPointFromFrameToFrame({}, LocalMap::Frames::kGnssAntennaRear, LocalMap::Frames::kImuFrame),
-                                                    rtl::Quaternion<double>::identity(),
-                                                    0};
+        auto gnssOffset = DataModels::LocalPosition{
+                context_.tfTree_.transformPointFromFrameToFrame({}, FrameType::kGnssAntennaRear, FrameType::kImu),
+                rtl::Quaternion<double>::identity(),
+                0};
         return DataModels::GlobalPosition::localPoseToGlobalPose(gnssOffset, gnssPose);
     }
 

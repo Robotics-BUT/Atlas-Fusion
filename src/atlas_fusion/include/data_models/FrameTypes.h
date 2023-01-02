@@ -20,11 +20,28 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "fail_check/AbstrackFailChecker.h"
+#pragma once
 
-namespace AutoDrive::FailCheck {
+#include <iostream>
+#include <string>
+/**
+ * Frames defines the names of the sensor's local coordinates systems.
+ */
+namespace AutoDrive {
 
-    float AbstrackFailChecker::getSensorStatus() {
-        return sensorStatus_;
-    }
+    enum class FrameType {
+        kOrigin,
+        kLidarLeft,
+        kLidarRight,
+        kLidarCenter,
+        kRadarTi,
+        kImu,
+        kCameraLeftFront,
+        kCameraLeftSide,
+        kCameraRightFront,
+        kCameraRightSide,
+        kCameraIr,
+        kGnssAntennaFront,
+        kGnssAntennaRear,
+    };
 }

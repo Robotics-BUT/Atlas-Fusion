@@ -26,7 +26,6 @@
 
 #include <iostream>
 #include <experimental/filesystem>
-#include <local_map/Frames.h>
 
 namespace AutoDrive::DataLoader {
 
@@ -170,16 +169,16 @@ namespace AutoDrive::DataLoader {
     }
 
 
-    CameraIndentifier DataLoader::getCameraIDfromFrame(const std::string &frame) {
-        if (frame == LocalMap::Frames::kCameraLeftFront) {
+    CameraIndentifier DataLoader::getCameraIDfromFrame(const FrameType &frame) {
+        if (frame == FrameType::kCameraLeftFront) {
             return CameraIndentifier::kCameraLeftFront;
-        } else if (frame == LocalMap::Frames::kCameraLeftSide) {
+        } else if (frame == FrameType::kCameraLeftSide) {
             return CameraIndentifier::kCameraLeftSide;
-        } else if (frame == LocalMap::Frames::kCameraRightFront) {
+        } else if (frame == FrameType::kCameraRightFront) {
             return CameraIndentifier::kCameraRightFront;
-        } else if (frame == LocalMap::Frames::kCameraRightSide) {
+        } else if (frame == FrameType::kCameraRightSide) {
             return CameraIndentifier::kCameraRightSide;
-        } else if (frame == LocalMap::Frames::kCameraIr) {
+        } else if (frame == FrameType::kCameraIr) {
             return CameraIndentifier::kCameraIr;
         } else {
             context_.logger_.warning("Unexpected camera frame in DataLoader::getCameraIDfromFrame()!");
