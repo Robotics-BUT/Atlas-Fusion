@@ -25,6 +25,12 @@
 #include "AbstractFailChecker.h"
 #include "data_models/camera/CameraFrameDataModel.h"
 
+#define DFT_BLOCK_COUNT 8
+#define DFT_WINDOW_SIZE 128
+#define MAX_VISIBILITY_THRESHOLD 3400.0
+#define MIN_VISIBILITY_THRESHOLD 2600.0
+#define MOVING_AVERAGE_FORGET_RATE 0.005
+
 namespace AutoDrive::FailCheck {
 
     /**
@@ -54,10 +60,14 @@ namespace AutoDrive::FailCheck {
         cv::Mat frameBgr{};
         cv::Mat frameGray{};
 
-        double vanishingPointX = 0;
-        double vanishingPointY = 0;
+        double vanishingPointX = 0.0;
+        double vanishingPointY = 0.0;
 
+        double vanishingPointVisibility = 1.0;
+        cv::Mat visibility = cv::Mat(DFT_BLOCK_COUNT, DFT_BLOCK_COUNT, CV_32FC1, cv::Scalar(0.0f));
         void estimateVanishingPoint();
+
+        void calculateVisibility(bool isVanishingPoint, std::pair<int, int> centerPoint, std::pair<int, int> position);
     };
 }
 
