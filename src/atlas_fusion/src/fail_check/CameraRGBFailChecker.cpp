@@ -24,10 +24,43 @@
 
 namespace AutoDrive::FailCheck {
 
+    void print(const std::string &name, double hor) {
+        double d = hor;
 
-    void CameraRGBFailChecker::onNewData(const std::shared_ptr<DataModels::CameraFrameDataModel>& data) {
-        cv::Mat cameraFrameGray;
-        cv::cvtColor(data->getImage(), cameraFrameGray, cv::COLOR_BGR2GRAY);
+        double pos = 0;
+        std::cout << name << ": ";
+        do {
+            std::cout << ".";
+            pos++;
+        } while (hor-- > 0);
 
+        std::cout << "*";
+
+        while (pos <= 100) {
+            std::cout << ".";
+            pos++;
+        }
+        std::cout << " " << d << std::endl;
     }
+
+    void CameraRGBFailChecker::onNewData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data) {
+        frameBgr = data->getImage();
+        cv::cvtColor(frameBgr, frameGray, cv::COLOR_BGR2GRAY);
+        estimateVanishingPoint();
+    }
+
+    void CameraRGBFailChecker::estimateVanishingPoint() {
+        // Horizontal position (Heading difference adjusted to 0-100 range linearly with custom sensitivity)
+        double horizontal = std::min(2.0, std::max((selfModel_.getHeadingDiff() * -700) + 1, 0.0)) * 50;
+        //print("Horizontal position", horizontal);
+        vanishingPointX = (frameGray.cols / 100.0) * horizontal;
+
+        // Vertical position (Attitude difference adjusted to 0-100 range linearly with custom sensitivity)
+        double vertical = std::min(2.0, std::max((selfModel_.getAttitudeDiff() * -700) + 1, 0.0)) * 50 - 5;
+        //print("Vertical position", vertical);
+        vanishingPointY = (frameGray.rows / 100.0) * vertical;
+
+        //std::cout << "Vanishing point at: (" << vanishingPointX << ", " << vanishingPointY << ")" << std::endl;
+    }
+
 }

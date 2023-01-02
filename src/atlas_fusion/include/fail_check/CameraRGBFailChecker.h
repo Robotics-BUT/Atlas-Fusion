@@ -51,6 +51,13 @@ namespace AutoDrive::FailCheck {
 
     private:
 
+        cv::Mat frameBgr{};
+        cv::Mat frameGray{};
+
+        double vanishingPointX = 0;
+        double vanishingPointY = 0;
+
+        void estimateVanishingPoint();
     };
 }
 
