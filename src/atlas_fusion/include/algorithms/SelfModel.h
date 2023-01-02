@@ -38,7 +38,7 @@
 namespace AutoDrive::Algorithms {
 
     /**
-     * Self Model takes care about the sensor-equipped motion modeling. It combines the GNNS and IMU measurements
+     * Self Model takes care about the sensor-equipped motion modeling. It combines the GNSS and IMU measurements
      * to estimate best effort position that is later used in the mapping algorithms
      */
     class SelfModel {
@@ -51,32 +51,27 @@ namespace AutoDrive::Algorithms {
          * @param kalmanProcessNoise noise of the modeled process (feeds Kalman Filter)
          * @param kalmanObservationNoise measurement noise (feeds Kalman Filter)
          */
-        SelfModel(Context& context, double kalmanProcessNoise, double kalmanObservationNoise)
-        : context_{context}
-        , kalmanX_{kalmanProcessNoise, kalmanObservationNoise}
-        , kalmanY_{kalmanProcessNoise, kalmanObservationNoise}
-        , kalmanZ_{kalmanProcessNoise, kalmanObservationNoise}
-        {
-
-        }
+        SelfModel(Context &context, double kalmanProcessNoise, double kalmanObservationNoise)
+                : context_{context}, kalmanX_{kalmanProcessNoise, kalmanObservationNoise}, kalmanY_{kalmanProcessNoise, kalmanObservationNoise},
+                  kalmanZ_{kalmanProcessNoise, kalmanObservationNoise} {}
 
         /**
          * Input pipe for new GNSS data
          * @param data GNSS data frame
          */
-        void onGnssPose(const std::shared_ptr<DataModels::GnssPoseDataModel>& data);
+        void onGnssPose(const std::shared_ptr<DataModels::GnssPoseDataModel> &data);
 
         /**
          * Input pipe for new IMU data
          * @param data IMU data frame
          */
-        void onImuImuData(const std::shared_ptr<DataModels::ImuImuDataModel>& data);
+        void onImuImuData(const std::shared_ptr<DataModels::ImuImuDataModel> &data);
 
         /**
          * Input pipe for new IMU (orientation change) data
          * @param data IMU (orientation change) data frame
          */
-        void onImuDquatData(const std::shared_ptr<DataModels::ImuDquatDataModel>& data);
+        void onImuDquatData(const std::shared_ptr<DataModels::ImuDquatDataModel> &data);
 
         /**
          * Getter for current position in the global coordinate systems
@@ -122,13 +117,26 @@ namespace AutoDrive::Algorithms {
 
         /**
          * Current agent's azimuth
-         * @return estimated azimut of the agent (car)
+         * @return estimated azimuth of the agent (car)
          */
         [[nodiscard]] double getHeading() const;
 
         /**
+        * Difference from the last reported azimuth
+        * @return estimated azimuth difference of the agent (car)
+        */
+        [[nodiscard]] double getHeadingDiff() const;
+
+
+        /**
+        * Difference from the last reported attitude
+        * @return estimated attitude difference of the agent (car)
+        */
+        [[nodiscard]] double getAttitudeDiff() const;
+
+        /**
          * Generates telemetry string for the visualization purposes
-         * @return string that contains telemetry informations
+         * @return string that contains telemetry information
          */
         [[nodiscard]] std::string getTelemetryString() const;
 
@@ -141,19 +149,22 @@ namespace AutoDrive::Algorithms {
 
     private:
 
-        Context& context_;
+        Context &context_;
 
         Kalman1D kalmanX_;
         Kalman1D kalmanY_;
         Kalman1D kalmanZ_;
         rtl::Quaternion<double> orientation_ = rtl::Quaternion<double>::identity();
 
+        double headingDiff_ = 0;
+        double attitudeDiff_ = 0;
+
         bool poseInitialized_ = false;
         bool orientationInitialized_ = false;
 
         Algorithms::ImuDataProcessor imuProcessor_{};
 
-        DataModels::GlobalPosition anchorPose{0,0,0,0};
+        DataModels::GlobalPosition anchorPose{0, 0, 0, 0};
         std::deque<DataModels::LocalPosition> positionHistory_;
         std::deque<std::pair<rtl::Vector3D<double>, uint64_t >> accHistory_;
 
@@ -164,15 +175,15 @@ namespace AutoDrive::Algorithms {
         uint64_t lastDquatTimestamp_{};
 
 
-        std::pair<double, float> validHeading(const std::shared_ptr<DataModels::GnssPoseDataModel>& data);
+        std::pair<double, float> validHeading(const std::shared_ptr<DataModels::GnssPoseDataModel> &data);
         std::pair<double, float> speedHeading();
-        std::pair<double, float> fuseHeadings(const std::shared_ptr<DataModels::GnssPoseDataModel>& data);
+        std::pair<double, float> fuseHeadings(const std::shared_ptr<DataModels::GnssPoseDataModel> &data);
         float estimateSlerpFactor(float, float);
         void updateOrientation(double heading);
 
-        DataModels::GlobalPosition gnssPoseToRootFrame(const DataModels::GlobalPosition&);
+        DataModels::GlobalPosition gnssPoseToRootFrame(const DataModels::GlobalPosition &);
 
-        rtl::Vector3D<double> removeGravitationalForceFromLinAcc( const std::shared_ptr<DataModels::ImuImuDataModel>& data);
+        rtl::Vector3D<double> removeGravitationalForceFromLinAcc(const std::shared_ptr<DataModels::ImuImuDataModel> &data);
         [[nodiscard]] uint64_t getCurrentTime() const;
     };
 }

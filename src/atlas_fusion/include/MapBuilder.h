@@ -132,7 +132,7 @@ namespace AutoDrive {
                   occGrid_{context},
                   lidarObjectDetector_{context},
                   yoloIrReprojector_{context},
-                  failChecker_{context},
+                  failChecker_{context, selfModel_},
                   visualizationHandler_{node, context},
                   dataLoader_{context, keepHistoryLength},
                   keepHistoryLength_{keepHistoryLength},

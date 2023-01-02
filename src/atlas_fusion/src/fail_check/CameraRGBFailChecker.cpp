@@ -25,7 +25,9 @@
 namespace AutoDrive::FailCheck {
 
 
-    void CameraRGBFailChecker::onNewData(std::shared_ptr<DataModels::CameraFrameDataModel> /*data*/) {
-        return;
+    void CameraRGBFailChecker::onNewData(const std::shared_ptr<DataModels::CameraFrameDataModel>& data) {
+        cv::Mat cameraFrameGray;
+        cv::cvtColor(data->getImage(), cameraFrameGray, cv::COLOR_BGR2GRAY);
+
     }
 }

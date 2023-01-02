@@ -93,6 +93,8 @@ namespace AutoDrive::Algorithms {
     }
 
     void SelfModel::onImuDquatData(const std::shared_ptr<DataModels::ImuDquatDataModel> &data) {
+        double rollDiff_;
+        quaternionToRPY(data->getDQuat(), rollDiff_, attitudeDiff_, headingDiff_);
         orientation_ = orientation_ * data->getDQuat();
         lastDquatTimestamp_ = data->getTimestamp();
     }
@@ -271,6 +273,13 @@ namespace AutoDrive::Algorithms {
         return std::max(std::max(lastGnssTimestamp_, lastImuTimestamp_), lastDquatTimestamp_);
     }
 
+    double SelfModel::getHeadingDiff() const {
+        return headingDiff_;
+    }
+
+    double SelfModel::getAttitudeDiff() const {
+        return attitudeDiff_;
+    }
 }
 
 

@@ -38,13 +38,10 @@ namespace AutoDrive::FailCheck {
 
         /**
          * Constructor
-         * @param context cantainer for global services (timestamps. logging, etc.)
+         * @param context container for global services (timestamps. logging, etc.)
+         * @param selfModel self model of ego vehicle
          */
-        CameraIrFailChecker(Context& context)
-                : AbstractFailChecker{context}
-        {
-
-        }
+        CameraIrFailChecker(Context &context, const Algorithms::SelfModel& selfModel) : AbstractFailChecker{context, selfModel} {}
 
         /**
          * Pipe to provide new sensor data into the Camera RGB Fail Checker

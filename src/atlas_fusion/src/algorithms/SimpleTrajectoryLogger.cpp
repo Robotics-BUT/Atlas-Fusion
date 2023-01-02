@@ -39,7 +39,7 @@ namespace AutoDrive::Algorithms {
             initialized_ = true;
         }
 
-        while (positionHistory_.size() >= historyLenght_) {
+        while (positionHistory_.size() >= historyLength_) {
             positionHistory_.pop_front();
         }
 
@@ -66,7 +66,7 @@ namespace AutoDrive::Algorithms {
             initialized_ = true;
         }
 
-        while (positionHistory_.size() >= historyLenght_) {
+        while (positionHistory_.size() >= historyLength_) {
             positionHistory_.pop_front();
         }
 

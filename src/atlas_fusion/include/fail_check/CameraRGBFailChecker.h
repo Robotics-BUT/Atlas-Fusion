@@ -30,7 +30,7 @@ namespace AutoDrive::FailCheck {
     /**
      * Validates RGB camera frame data. Currently bypassed.
      */
-    class CameraRGBFailChecker : public AbstractFailChecker{
+    class CameraRGBFailChecker : public AbstractFailChecker {
 
     public:
 
@@ -38,19 +38,16 @@ namespace AutoDrive::FailCheck {
 
         /**
          * Constructor
-         * @param context cantainer for global services (timestamps. logging, etc.)
+         * @param context container for global services (timestamps. logging, etc.)
+         * @param selfModel self model of ego vehicle
          */
-        CameraRGBFailChecker(Context& context)
-        : AbstractFailChecker{context}
-        {
-
-        }
+        CameraRGBFailChecker(Context &context, const Algorithms::SelfModel& selfModel) : AbstractFailChecker{context, selfModel} {}
 
         /**
          * Pipe to provide new sensor data into the Camera RGB Fail Checker
          * @param data RGB camera data frame
          */
-        void onNewData(std::shared_ptr<DataModels::CameraFrameDataModel> data);
+        void onNewData(const std::shared_ptr<DataModels::CameraFrameDataModel>& data);
 
     private:
 
