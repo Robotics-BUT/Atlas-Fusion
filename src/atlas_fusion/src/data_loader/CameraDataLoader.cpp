@@ -127,10 +127,7 @@ namespace AutoDrive::DataLoader {
         Timer t("Get next camera frame");
         if (!isOnEnd()) {
             cv::Mat frame{};
-            {
-                Timer t("Extract opencv frame");
-                video_.read(frame);
-            }
+            video_.read(frame);
 
             std::shared_ptr<DataModels::GenericDataModel> cameraFrame;
             switch (cameraIdentifier_) {
