@@ -48,7 +48,7 @@ namespace AutoDrive::Visualizers {
         , context_{context} {
             gnssPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kGnssTopic, 0 );
         }
-        void drawGnssPose(const std::shared_ptr<DataModels::GnssPoseDataModel>) const;
+        void drawGnssPose(const std::shared_ptr<DataModels::GnssPoseDataModel>&) const;
 
     protected:
         ros::NodeHandle& node_;

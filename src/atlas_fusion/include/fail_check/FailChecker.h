@@ -23,7 +23,7 @@
 #pragma once
 
 #include "Context.h"
-#include "AbstrackFailChecker.h"
+#include "AbstractFailChecker.h"
 #include "CameraRGBFailChecker.h"
 #include "CameraIrFailChecker.h"
 #include "GnssFailChecker.h"
@@ -40,70 +40,63 @@ namespace AutoDrive::FailCheck {
 
     public:
 
-        enum class SensorFailCheckID{
-            kCameraLeftFront,
-            kCameraLeftSide,
-            kCameraRightFront,
-            kCameraRightSide,
-            kCameraIr,
-            kLidarLeft,
-            kLidarRight,
-            kLidarCenter,
-            kImu,
-            kGnss,
-            kRadarTi,
-            kErr,
-        };
-
         FailChecker() = delete;
 
         /**
          * Constructor
          * @param context global services container (time, logging, etc.)
          */
-        explicit FailChecker(Context& context)
-        : context_{context} {
+        explicit FailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
+                : context_{context}, selfModel_{selfModel}, environmentalModel_{environmentalModel} {
 
-            failCheckers_[SensorFailCheckID::kCameraLeftFront] = std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<CameraRGBFailChecker>(context));
-            failCheckers_[SensorFailCheckID::kCameraLeftSide] = std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<CameraRGBFailChecker>(context));
-            failCheckers_[SensorFailCheckID::kCameraRightFront] = std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<CameraRGBFailChecker>(context));
-            failCheckers_[SensorFailCheckID::kCameraRightSide] = std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<CameraRGBFailChecker>(context));
-            failCheckers_[SensorFailCheckID::kCameraIr] = std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<CameraIrFailChecker>(context));
+            failCheckers_[FrameType::kCameraLeftFront] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kCameraLeftSide] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kCameraRightFront] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kCameraRightSide] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kCameraIr] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<CameraIrFailChecker>(context, selfModel_, environmentalModel_));
 
-            failCheckers_[SensorFailCheckID::kLidarLeft] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<LidarFailChecker>(context));
-            failCheckers_[SensorFailCheckID::kLidarRight] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<LidarFailChecker>(context));
-            failCheckers_[SensorFailCheckID::kLidarCenter] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<LidarFailChecker>(context));
+            failCheckers_[FrameType::kLidarLeft] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<LidarFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kLidarRight] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<LidarFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kLidarCenter] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<LidarFailChecker>(context, selfModel_, environmentalModel_));
 
-            failCheckers_[SensorFailCheckID::kImu] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<ImuFailChecker>(context));
-            failCheckers_[SensorFailCheckID::kGnss] =std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<GnssFailChecker>(context));
-            failCheckers_[SensorFailCheckID::kRadarTi] = std::dynamic_pointer_cast<AbstrackFailChecker>(std::make_shared<RadarTiFailChecker>(context));
+            failCheckers_[FrameType::kImu] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<ImuFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kGnssAntennaRear] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<GnssFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kRadarTi] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<RadarTiFailChecker>(context, selfModel_, environmentalModel_));
         }
 
         /**
          * Input pipe for new sensor data
          * @param data sensor data packet
-         * @param sensor identifier of the sensor
+         * @param sensor identifier
          */
-        void onNewData(const std::shared_ptr<DataModels::GenericDataModel>& data, SensorFailCheckID sensor);
+        void onNewData(const std::shared_ptr<DataModels::GenericDataModel> &data, const FrameType &sensor);
 
         /**
-         * Returns the reliability of the given sensro
-         * @param sensor sensor identificator
+         * Returns the reliability of the given sensor
+         * @param sensor identifier
          * @return sensor reliability score
          */
-        float getSensorStatus(SensorFailCheckID sensor);
-
-        /**
-         * Converts sensor frame (string) into Fail Checker specific sensor identifier
-         * @param frame name of sensor frame
-         * @return Fail Checker specific sensor identifier
-         */
-        SensorFailCheckID frameToFailcheckID(const std::string& frame);
+        float getSensorStatus(const FrameType &sensor);
 
     protected:
 
-        Context& context_;
-        std::map<SensorFailCheckID, std::shared_ptr<FailCheck::AbstrackFailChecker>> failCheckers_;
+        Context &context_;
+        const Algorithms::SelfModel &selfModel_;
+        Algorithms::EnvironmentalModel &environmentalModel_;
+
+
+        std::map<FrameType, std::shared_ptr<FailCheck::AbstractFailChecker>> failCheckers_;
     };
 
 }

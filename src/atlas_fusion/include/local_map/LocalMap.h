@@ -51,7 +51,7 @@ namespace AutoDrive::LocalMap {
          * @param detections vector of camera based detections
          * @param sensorFrame frame that identifies camera frame that has been used for detection
          */
-        void setFrustumDetections(std::vector<DataModels::FrustumDetection> detections, const std::string& sensorFrame);
+        void setFrustumDetections(std::vector<DataModels::FrustumDetection> detections, const FrameType& sensorFrame);
 
         /**
          * Setter for all point cloud based detections
@@ -92,7 +92,7 @@ namespace AutoDrive::LocalMap {
     private:
         Context& context_;
 
-        std::map<std::string, std::vector<DataModels::FrustumDetection>> frustumsDetections_{};
+        std::map<FrameType, std::vector<DataModels::FrustumDetection>> frustumsDetections_{};
         std::vector<std::shared_ptr<DataModels::LidarDetection>> lidarDetections_;
         std::vector<std::shared_ptr<DataModels::Object>> objects_;
     };

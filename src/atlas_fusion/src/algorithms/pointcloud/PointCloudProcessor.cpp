@@ -30,7 +30,7 @@ namespace AutoDrive::Algorithms {
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudProcessor::downsamplePointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input) {
         //TODO: This is heavy operation when done on the whole aggregated point cloud
-        Timer t("Downsampling points");
+        // Timer t("Downsampling points");
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud <pcl::PointXYZ>);
 
         pcl::VoxelGrid <pcl::PointXYZ> downsampler;
@@ -52,7 +52,7 @@ namespace AutoDrive::Algorithms {
     pcl::PointCloud<pcl::PointXYZ>::Ptr
     PointCloudProcessor::transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::RigidTf3D<double> &tf) {
         //TODO: This function is really slow concatenating point clouds doesn't really have an alternative that I know of.
-        Timer t("transform point cloud");
+        //Timer t("Transform point cloud");
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
         if (input->points.empty()) return output;
         output->reserve(input->size());

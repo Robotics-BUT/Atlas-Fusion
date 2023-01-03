@@ -25,7 +25,6 @@
 #include <rtl/Transformation.h>
 
 #include "algorithms/tools.h"
-#include "local_map/Frames.h"
 
 namespace AutoDrive::Algorithms {
 
@@ -94,6 +93,8 @@ namespace AutoDrive::Algorithms {
     }
 
     void SelfModel::onImuDquatData(const std::shared_ptr<DataModels::ImuDquatDataModel> &data) {
+        double rollDiff_;
+        quaternionToRPY(data->getDQuat(), rollDiff_, attitudeDiff_, headingDiff_);
         orientation_ = orientation_ * data->getDQuat();
         lastDquatTimestamp_ = data->getTimestamp();
     }
@@ -254,14 +255,14 @@ namespace AutoDrive::Algorithms {
     DataModels::GlobalPosition SelfModel::gnssPoseToRootFrame(const DataModels::GlobalPosition &gnssPose) {
 
         // TODO: validate
-        auto frameOffset = context_.tfTree_.transformPointFromFrameToFrame({}, LocalMap::Frames::kGnssAntennaRear, LocalMap::Frames::kImuFrame);
+        auto frameOffset = context_.tfTree_.transformPointFromFrameToFrame({}, FrameType::kGnssAntennaRear, FrameType::kImu);
 
         auto gnssOffset = DataModels::LocalPosition{frameOffset, rtl::Quaternion<double>::identity(), getCurrentTime()};
         return DataModels::GlobalPosition::localPoseToGlobalPose(gnssOffset, gnssPose);
     }
 
 
-    rtl::Vector3D<double> SelfModel::removeGravitationalForceFromLinAcc(std::shared_ptr<DataModels::ImuImuDataModel> data) {
+    rtl::Vector3D<double> SelfModel::removeGravitationalForceFromLinAcc(const std::shared_ptr<DataModels::ImuImuDataModel>& data) {
 
         imuProcessor_.setOrientation(data->getOrientation());
         return imuProcessor_.removeGravitaionAcceleration(data->getLinearAcc());
@@ -272,6 +273,13 @@ namespace AutoDrive::Algorithms {
         return std::max(std::max(lastGnssTimestamp_, lastImuTimestamp_), lastDquatTimestamp_);
     }
 
+    double SelfModel::getHeadingDiff() const {
+        return headingDiff_;
+    }
+
+    double SelfModel::getAttitudeDiff() const {
+        return attitudeDiff_;
+    }
 }
 
 

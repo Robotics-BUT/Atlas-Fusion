@@ -27,13 +27,14 @@
 #include <rtl/Transformation.h>
 #include <map>
 #include <utility>
+#include "data_models/FrameTypes.h"
 
 
 namespace AutoDrive::LocalMap {
 
     /**
      * Transformation Tree holds and allows simple searching in the transformation graph between the sensor frames, and
-     * the world origin. Currently TF Tree supports only the root frame and 1 level of child-nodes and thransfomrations
+     * the world origin. Currently TF Tree supports only the root frame and 1 level of child-nodes and transformations
      * between them.
      */
     class TFTree {
@@ -45,51 +46,51 @@ namespace AutoDrive::LocalMap {
          * @param rootFrameName the central frame name
          * @param logger logger service instance
          */
-        TFTree(std::string rootFrameName, LogService &logger) : rootFrameName_(std::move(rootFrameName)), logger_(logger) {}
+        TFTree(FrameType rootFrameType, LogService &logger) : rootFrameType_(rootFrameType), logger_(logger) {}
 
         /**
          * Methods allows to add new child-frame under the root frame level
          * @param tf new child transformations
          * @param name new frame name
          */
-        void addFrame(const rtl::RigidTf3D<double> &tf, const std::string &name);
+        void addFrame(const rtl::RigidTf3D<double> &tf, const FrameType &frameType);
 
         /**
          * Method returns transformation between the root frame the the child frame
-         * @param frameName child frame name
+         * @param frameType child frame type
          * @return child transformation
          */
-        rtl::RigidTf3D<double> getTransformationForFrame(const std::string &frameName);
+        rtl::RigidTf3D<double> getTransformationForFrame(const FrameType &frameType);
 
         /**
          * Method returns the vector of all child frame names.
          * @return all child frame names
          */
-        std::vector<std::string> getFrameNames() const { return frameNames_; };
+        std::vector<FrameType> getFrameTypes() const { return frameTypes_; };
 
         /**
          * Getter for root frame name
          * @return root frame name
          */
-        const std::string &getRootFrameName() const { return rootFrameName_; };
+        const FrameType &getRootFrameType() const { return rootFrameType_; };
 
         /**
-         * Method estimates fransformation between two child frames.
+         * Method estimates transformation between two child frames.
          * @param srcPoint 3D point in the source coordinate systems (frame)
-         * @param source source frame name
-         * @param destination destination frame name
+         * @param source source frame type
+         * @param destination destination frame type
          * @return returns the point transformed from the original coordinate system to the new one.
          */
-        rtl::Vector3D<double> transformPointFromFrameToFrame(const rtl::Vector3D<double> &, const std::string &source, const std::string &destination);
+        rtl::Vector3D<double> transformPointFromFrameToFrame(const rtl::Vector3D<double> &, const FrameType &source, const FrameType &destination);
 
     protected:
 
-        std::string rootFrameName_;
-        std::vector<std::string> frameNames_{};
-        std::unordered_map<std::string, rtl::RigidTf3D<double>> frameMap_{};
+        FrameType rootFrameType_;
+        std::vector<FrameType> frameTypes_{};
+        std::unordered_map<FrameType, rtl::RigidTf3D<double>> frameMap_{};
         LogService &logger_;
 
-        const std::unordered_map<std::string, rtl::RigidTf3D<double>> &getTree() { return frameMap_; };
+        const std::unordered_map<FrameType, rtl::RigidTf3D<double>> &getTree() { return frameMap_; };
     };
 
 }

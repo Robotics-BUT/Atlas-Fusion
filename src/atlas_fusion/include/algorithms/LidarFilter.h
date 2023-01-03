@@ -62,7 +62,7 @@ namespace AutoDrive::Algorithms {
 
         bool filterNearObjects_ = false;
         void filterNearObjects(pcl::PointCloud<pcl::PointXYZ>& data) {
-            Timer t("Lidar filter");
+            // Timer t("Lidar filter");
             auto backup = data.points;
             data.points.clear();
 

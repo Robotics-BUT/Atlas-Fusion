@@ -41,15 +41,14 @@ namespace AutoDrive {
         dataLoader_.loadData(destinationFolder_);
         std::cout << "Total No. of loaded data: " << dataLoader_.getDataSize() << std::endl;
 
-        std::vector<std::string> cameraFrames = {
-                LocalMap::Frames::kCameraLeftFront,
-                LocalMap::Frames::kCameraLeftSide,
-                LocalMap::Frames::kCameraRightFront,
-                LocalMap::Frames::kCameraRightSide,
-                LocalMap::Frames::kCameraIr,
-        };
-
         // Additionally propagate the individual camera calibration parameters
+        std::vector<FrameType> cameraFrames = {
+                FrameType::kCameraLeftFront,
+                FrameType::kCameraLeftSide,
+                FrameType::kCameraRightFront,
+                FrameType::kCameraRightSide,
+                FrameType::kCameraIr,
+        };
         for (let &frame: cameraFrames) {
             mut cameraID = dataLoader_.getCameraIDfromFrame(frame);
             mut params = dataLoader_.getCameraCalibDataForCameraID(cameraID);
@@ -59,7 +58,7 @@ namespace AutoDrive {
                 visualizationHandler_.setCameraCalibParamsForCameraId(params, frame);
 
                 mut projector = std::make_shared<Algorithms::Projector>(params.getMatIntrinsicParams(), params.getMatDistortionParams(), tf);
-                if (frame == LocalMap::Frames::kCameraIr) {
+                if (frame == FrameType::kCameraIr) {
                     yoloIrReprojector_.setupCameraProjector(projector);
                 }
 
@@ -101,9 +100,8 @@ namespace AutoDrive {
             }
 
             mut sensorFrame = frameTypeFromDataModel(data);
-            mut sensorFailCheckID = failChecker_.frameToFailcheckID(sensorFrame);
-            failChecker_.onNewData(data, sensorFailCheckID);
-            mut sensorScore = failChecker_.getSensorStatus(sensorFailCheckID);
+            failChecker_.onNewData(data, sensorFrame);
+            mut sensorScore = failChecker_.getSensorStatus(sensorFrame);
 
             if (sensorScore < 0.9) {
                 context_.logger_.warning("Sensor Score is too low");
@@ -134,6 +132,12 @@ namespace AutoDrive {
 
                     mut poseData = std::dynamic_pointer_cast<DataModels::GnssPoseDataModel>(data);
                     processGnssPoseData(poseData);
+                    break;
+                }
+                case DataModels::DataModelTypes::kGnssTimeDataModelType: {
+                    Timer t("GNSS Time ...");;
+                    mut timeData = std::dynamic_pointer_cast<DataModels::GnssTimeDataModel>(data);
+                    processGnssTimeData(timeData);
                     break;
                 }
                 case DataModels::DataModelTypes::kImuDquatDataModelType: {
@@ -175,7 +179,6 @@ namespace AutoDrive {
                     break;
                 }
                 case DataModels::DataModelTypes::kCameraCalibrationParamsDataModelType:
-                case DataModels::DataModelTypes::kGnssTimeDataModelType:
                 case DataModels::DataModelTypes::kImuMagDataModelType:
                 case DataModels::DataModelTypes::kImuPressDataModelType:
                 case DataModels::DataModelTypes::kImuTempDataModelType:
@@ -201,7 +204,7 @@ namespace AutoDrive {
     }
 
 
-    void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData, const std::string &sensorFrame) {
+    void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData, const FrameType &sensorFrame) {
 
         static int cnt = 0;
 
@@ -235,9 +238,9 @@ namespace AutoDrive {
         }
 
         if (RGB_Detection_To_IR_Projection) {
-            if (sensorFrame == LocalMap::Frames::kCameraLeftFront) {
+            if (sensorFrame == FrameType::kCameraLeftFront) {
 
-                mut imuToCameraTf = context_.tfTree_.getTransformationForFrame(LocalMap::Frames::kCameraIr);
+                mut imuToCameraTf = context_.tfTree_.getTransformationForFrame(FrameType::kCameraIr);
                 mut reprojectedYoloDetections = yoloIrReprojector_.onNewDetections(frustums, imuToCameraTf.inverted());
 
                 if (!reprojectedYoloDetections.empty()) {
@@ -314,11 +317,13 @@ namespace AutoDrive {
     }
 
 
-    void
-    MapBuilder::processGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel> &poseData) {
+    void MapBuilder::processGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel> &poseData) {
 
         gnssPoseLogger_.onGnssPose(poseData);
         selfModel_.onGnssPose(poseData);
+        environmentalModel_.onGnssPose(poseData);
+
+        environmentalModel_.calculateSunriseAndSunsetTimes();
 
         mut currentPose = selfModel_.getPosition();
         imuPoseLogger_.setAltitude(currentPose.getPosition().z());
@@ -332,11 +337,13 @@ namespace AutoDrive {
         visualizationHandler_.drawVelocityData(selfModel_.getSpeedVector());
     }
 
+    void MapBuilder::processGnssTimeData(const std::shared_ptr<DataModels::GnssTimeDataModel> &timeData) {
+        environmentalModel_.onGnssTime(timeData);
+    }
 
     void MapBuilder::processImuDQuatData(const std::shared_ptr<DataModels::ImuDquatDataModel> &dQuatData) {
         selfModel_.onImuDquatData(dQuatData);
     }
-
 
     void
     MapBuilder::processImuGnssData(const std::shared_ptr<DataModels::ImuGnssDataModel> &poseData) {
@@ -366,7 +373,7 @@ namespace AutoDrive {
             }
         }
         {
-            Timer t("Draw lidar data");
+            // Timer t("Draw lidar data");
             visualizationHandler_.drawLidarData(lidarData);
             visualizationHandler_.drawSelfGlobal();
             visualizationHandler_.drawSelfEgo();
@@ -380,7 +387,7 @@ namespace AutoDrive {
     }
 
     void MapBuilder::aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
-        Timer t("Aggregate lidar");
+        // Timer t("Aggregate lidar");
         let lidarID = lidarData->getLidarIdentifier();
         let sensorFrame = frameTypeFromDataModel(lidarData);
         mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);
@@ -403,7 +410,7 @@ namespace AutoDrive {
     }
 
     void MapBuilder::approximateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
-        Timer t("Aproximate lidar");
+        // Timer t("Aproximate lidar");
         let lidarID = lidarData->getLidarIdentifier();
         let sensorFrame = frameTypeFromDataModel(lidarData);
         mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);

@@ -162,7 +162,7 @@ TEST(pointcloud_aggregation, static_aggregation) {
         points->push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
         std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-        auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(processor, 0, points, "origin", rtl::RigidTf3D<double>::identity());
+        auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(processor, 0, points, AutoDrive::FrameType::kOrigin, rtl::RigidTf3D<double>::identity());
         batches.push_back(batch);
 
         aggregator.addPointCloudBatches(batches);
@@ -192,7 +192,7 @@ TEST(pointcloud_aggregation, multiple_static_aggregation) {
             points->push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
             std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(processor, j * 1e9, points, "origin", rtl::RigidTf3D<double>::identity());
+            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(processor, j * 1e9, points, AutoDrive::FrameType::kOrigin, rtl::RigidTf3D<double>::identity());
             batches.push_back(batch);
 
             aggregator.addPointCloudBatches(batches);
@@ -229,7 +229,7 @@ TEST(pointcloud_aggregation, points_filtration) {
             points->push_back({data.points.at(i).x, data.points.at(i).y, data.points.at(i).z});
 
             std::vector<std::shared_ptr<AutoDrive::DataModels::PointCloudBatch>> batches;
-            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(processor, j * 1e9, points, "origin", rtl::RigidTf3D<double>::identity());
+            auto batch = std::make_shared<AutoDrive::DataModels::PointCloudBatch>(processor, j * 1e9, points, AutoDrive::FrameType::kOrigin, rtl::RigidTf3D<double>::identity());
             batches.push_back(batch);
 
             auto ts = static_cast<uint64_t>(j * 1e9);

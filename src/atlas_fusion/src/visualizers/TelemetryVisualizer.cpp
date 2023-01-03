@@ -23,18 +23,19 @@
 #include "visualizers/TelemetryVisualizer.h"
 
 #include "visualization_msgs/Marker.h"
+#include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::Visualizers {
 
 
-    void TelemetryVisualizer::drawTelemetryAsText(std::string& telemetryText, std::string frame, std::string topic) {
+    void TelemetryVisualizer::drawTelemetryAsText(const std::string& telemetryText, const FrameType& frame, const std::string& topic) {
 
         if(publishers_.count(topic) == 0){
             publishers_[topic] = node_.advertise<visualization_msgs::Marker>( topic, 0 );
         }
 
         visualization_msgs::Marker textMsg;
-        textMsg.header.frame_id = frame;
+        textMsg.header.frame_id = frameTypeName(frame);
         textMsg.header.stamp = ros::Time::now();
         textMsg.pose.position.x = 0.0;
         textMsg.pose.position.y = -3;

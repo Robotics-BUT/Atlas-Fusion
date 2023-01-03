@@ -21,20 +21,19 @@
  */
 
 #include "fail_check/FailChecker.h"
-#include "local_map/Frames.h"
 
 namespace AutoDrive::FailCheck {
 
 
-    void FailChecker::onNewData(const std::shared_ptr<DataModels::GenericDataModel>& data, SensorFailCheckID sensorID){
+    void FailChecker::onNewData(const std::shared_ptr<DataModels::GenericDataModel> &data, const FrameType &sensorID) {
 
-        if(failCheckers_.count(sensorID) == 0) {
+        if (failCheckers_.count(sensorID) == 0) {
             context_.logger_.warning("Unable to find fail checker for sensor");
             return;
         }
 
-        std::shared_ptr<AbstrackFailChecker> sensor;
-        switch(data->getType()) {
+        std::shared_ptr<AbstractFailChecker> sensor;
+        switch (data->getType()) {
             case DataModels::DataModelTypes::kCameraDataModelType:
                 sensor = failCheckers_[sensorID];
                 std::dynamic_pointer_cast<CameraRGBFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data));
@@ -104,43 +103,13 @@ namespace AutoDrive::FailCheck {
     }
 
 
-    float FailChecker::getSensorStatus(SensorFailCheckID sensor) {
+    float FailChecker::getSensorStatus(const FrameType &sensor) {
 
-        if(failCheckers_.count(sensor) == 0) {
+        if (failCheckers_.count(sensor) == 0) {
             context_.logger_.warning("Unable to find fail checker for sensor");
             return 0;
         }
 
         return failCheckers_[sensor]->getSensorStatus();
-    }
-
-
-    FailChecker::SensorFailCheckID FailChecker::frameToFailcheckID(const std::string& frame) {
-        if(frame == LocalMap::Frames::kCameraLeftFront) {
-            return SensorFailCheckID::kCameraLeftFront;
-        } else if(frame == LocalMap::Frames::kCameraLeftSide) {
-            return SensorFailCheckID::kCameraLeftSide;
-        } else if(frame == LocalMap::Frames::kCameraRightFront) {
-            return SensorFailCheckID::kCameraRightFront;
-        } else if(frame == LocalMap::Frames::kCameraRightSide) {
-            return SensorFailCheckID::kCameraRightSide;
-        } else if(frame == LocalMap::Frames::kCameraIr) {
-            return SensorFailCheckID::kCameraIr;
-        } else if(frame == LocalMap::Frames::kLidarLeft) {
-            return SensorFailCheckID::kLidarLeft;
-        } else if(frame == LocalMap::Frames::kLidarRight) {
-            return SensorFailCheckID::kLidarRight;
-        } else if(frame == LocalMap::Frames::kLidarCenter) {
-            return SensorFailCheckID::kLidarCenter;
-        } else if(frame == LocalMap::Frames::kRadarTi) {
-            return SensorFailCheckID::kRadarTi;
-        } else if(frame == LocalMap::Frames::kGnssAntennaRear) {
-            return SensorFailCheckID::kGnss;
-        } else if(frame == LocalMap::Frames::kImuFrame) {
-            return SensorFailCheckID::kImu;
-        } else {
-            context_.logger_.warning("Unable to convert frame to sensor id in fail checker!");
-            return SensorFailCheckID::kErr;
-        }
     }
 }

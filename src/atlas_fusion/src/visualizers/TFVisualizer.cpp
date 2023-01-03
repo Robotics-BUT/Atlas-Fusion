@@ -25,13 +25,13 @@
 
 namespace AutoDrive::Visualizers {
 
-    void TFVisualizer::updateOriginToRootTf(rtl::RigidTf3D<double> tf) {
+    void TFVisualizer::updateOriginToRootTf(const rtl::RigidTf3D<double> &tf) {
 
         geometry_msgs::TransformStamped tf_msg;
 
         tf_msg.header.stamp = ros::Time::now();
-        tf_msg.header.frame_id = LocalMap::Frames::kOrigin;
-        tf_msg.child_frame_id = context_.tfTree_.getRootFrameName();
+        tf_msg.header.frame_id = frameTypeName(FrameType::kOrigin);
+        tf_msg.child_frame_id = frameTypeName(context_.tfTree_.getRootFrameType());
         tf_msg.transform.translation.x = tf.trVecX();
         tf_msg.transform.translation.y = tf.trVecY();
         tf_msg.transform.translation.z = tf.trVecZ();

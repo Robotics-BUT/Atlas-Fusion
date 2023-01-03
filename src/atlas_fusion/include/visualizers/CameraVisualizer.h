@@ -47,19 +47,18 @@ namespace AutoDrive::Visualizers {
          * @param node ros node reference
          * @param context global services container (timestamps, logging, etc.)
          */
-        CameraVisualizer(ros::NodeHandle &node, Context &context)
-                : node_{node}, context_{context}, it_(node_) {
-
-        }
+        CameraVisualizer(ros::NodeHandle &node, Context &context) : node_{node}, context_{context}, it_(node_) {}
 
         void
-        drawRGBCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const std::string &cameraTopic, const std::string &cameraInfoTopic,
-                                    const std::string &frame);
+        drawRGBCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const std::string &cameraTopic,
+                                    const std::string &cameraInfoTopic,
+                                    const FrameType &frame);
 
-        void drawIRCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &data, const std::string &topic, const std::string &cameraInfoTopic,
-                                        const std::string &frame);
+        void drawIRCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &data, const std::string &topic,
+                                        const std::string &cameraInfoTopic,
+                                        const FrameType &frame);
 
-        void setCameraParams(const std::string &frame, DataModels::CameraCalibrationParamsDataModel cameraParams) {
+        void setCameraParams(const FrameType &frame, DataModels::CameraCalibrationParamsDataModel cameraParams) {
             cameraParams_[frame] = std::move(cameraParams);
         }
 
@@ -73,13 +72,13 @@ namespace AutoDrive::Visualizers {
         std::map<std::string, image_transport::Publisher> cameraPublishers_;
         std::map<std::string, ros::Publisher> cameraInfoPublishers_;
 
-        std::map<std::string, DataModels::CameraCalibrationParamsDataModel> cameraParams_;
+        std::map<FrameType, DataModels::CameraCalibrationParamsDataModel> cameraParams_;
 
         void checkCameraTopic(const std::string &);
 
         void checkCameraInfoTopic(const std::string &);
 
-        void publishCameraInfo(const DataModels::CameraCalibrationParamsDataModel &params, const std::string &topic, const std::string &frame, ros::Time ts);
+        void publishCameraInfo(const DataModels::CameraCalibrationParamsDataModel &params, const std::string &topic, const FrameType &frame, ros::Time ts);
     };
 
 }

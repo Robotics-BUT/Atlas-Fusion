@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "AbstrackFailChecker.h"
+#include "AbstractFailChecker.h"
 #include "data_models/camera/CameraIrFrameDataModel.h"
 
 namespace AutoDrive::FailCheck {
@@ -30,7 +30,7 @@ namespace AutoDrive::FailCheck {
     /**
      * Validates IR camera frame data. Currently bypassed.
      */
-    class CameraIrFailChecker : public AbstrackFailChecker{
+    class CameraIrFailChecker : public AbstractFailChecker {
 
     public:
 
@@ -38,13 +38,12 @@ namespace AutoDrive::FailCheck {
 
         /**
          * Constructor
-         * @param context cantainer for global services (timestamps. logging, etc.)
+         * @param context container for global services (timestamps. logging, etc.)
+         * @param selfModel self model of ego vehicle
+         * @param environmentalModel model of environment current state
          */
-        CameraIrFailChecker(Context& context)
-                : AbstrackFailChecker{context}
-        {
-
-        }
+        CameraIrFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
+                : AbstractFailChecker{context, selfModel, environmentalModel} {}
 
         /**
          * Pipe to provide new sensor data into the Camera RGB Fail Checker

@@ -116,7 +116,7 @@ namespace AutoDrive::DataLoader {
                         std::stoll(substrings[4]),std::stoll(substrings[5]),
                         std::stoll(substrings[6]),std::stoll(substrings[7])));
             } else {
-                context_.logger_.error("Unexpected lenght of gnss time data");
+                context_.logger_.error("Unexpected length of gnss time data");
             }
         }
         return output;
@@ -133,7 +133,7 @@ namespace AutoDrive::DataLoader {
                         std::stod(substrings[2]), std::stod(substrings[3]),
                         std::stod(substrings[4])));
             } else {
-                std::cerr << "Unexpected lenght of gnss pose data: " << std::endl;
+                std::cerr << "Unexpected length of gnss pose data: " << std::endl;
             }
         }
         return output;

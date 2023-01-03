@@ -69,6 +69,8 @@ namespace AutoDrive::DataModels {
          */
         [[nodiscard]] std::vector<std::shared_ptr<GenericDataModel>> getParents() const { return parents_; };
 
+        virtual ~GenericDataModel() = default;
+
     protected:
 
         uint64_t timestamp_;

@@ -117,7 +117,7 @@ namespace AutoDrive::DataLoader {
              * Method converts camera frame name into the Camera Data Loader specific identifier.
              * @return Identifier that identifies Camera Data Loader related to the given camera frame.
              */
-            CameraIndentifier getCameraIDfromFrame(const std::string&);
+            CameraIndentifier getCameraIDfromFrame(const FrameType&);
 
             /**
              * Method allows to request the camera's calibration parameters for specific camera sensor

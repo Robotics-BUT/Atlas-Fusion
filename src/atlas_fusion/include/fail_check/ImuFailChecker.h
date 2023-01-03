@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "AbstrackFailChecker.h"
+#include "AbstractFailChecker.h"
 
 #include "data_models/imu/ImuDquatDataModel.h"
 #include "data_models/imu/ImuImuDataModel.h"
@@ -37,7 +37,7 @@ namespace AutoDrive::FailCheck {
     /**
      * Validates IMU data packets. Currently bypassed.
      */
-    class ImuFailChecker : public AbstrackFailChecker{
+    class ImuFailChecker : public AbstractFailChecker{
 
     public:
 
@@ -45,13 +45,12 @@ namespace AutoDrive::FailCheck {
 
         /**
          * Constructor
-         * @param context cantainer for global services (timestamps. logging, etc.)
+         * @param context container for global services (timestamps. logging, etc.)
+         * @param selfModel self model of ego vehicle
+         * @param environmentalModel model of environment current state
          */
-        ImuFailChecker(Context& context)
-        : AbstrackFailChecker{context}
-        {
-
-        }
+        ImuFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
+        : AbstractFailChecker{context, selfModel, environmentalModel} {}
 
         /**
          * Input method for IMU Delta Quaternion Data

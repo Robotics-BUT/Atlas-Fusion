@@ -46,8 +46,8 @@
 #include "FrustumVisualizer.h"
 #include "TelemetryVisualizer.h"
 #include "RadarVisualizer.h"
-
 #include "TrajectoryVisualizer.h"
+
 
 namespace AutoDrive::Visualizers {
 
@@ -204,7 +204,7 @@ namespace AutoDrive::Visualizers {
          * @param params calibration params
          * @param frame camera sensor identifier
          */
-        void setCameraCalibParamsForCameraId(DataModels::CameraCalibrationParamsDataModel& params, const std::string& frame);
+        void setCameraCalibParamsForCameraId(DataModels::CameraCalibrationParamsDataModel& params, const FrameType& frame);
 
         /**
          * Draw frustum detections in 3D
@@ -216,13 +216,13 @@ namespace AutoDrive::Visualizers {
          * Draw lidar detections in 3D space
          * @param detections lidar detections
          */
-        void drawLidarDetection(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections);
+        void drawLidarDetection(const std::vector<std::shared_ptr<DataModels::LidarDetection>>& detections);
 
         /**
          * Draws telemetry text message
          * @param telemetryText
          */
-        void drawTelemetry(std::string telemetryText);
+        void drawTelemetry(const std::string& telemetryText);
 
         /**
          * Draws radar ti scan data

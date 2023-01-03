@@ -52,8 +52,8 @@ namespace AutoDrive::DataModels {
          * @param frame sensor's frame
          * @param globalTf transformation that should be applied on points to get real position in 3D space
          */
-        explicit PointCloudBatch(Algorithms::PointCloudProcessor &pcProcessor, uint64_t ts, pcl::PointCloud<pcl::PointXYZ>::Ptr points, std::string frame, const rtl::RigidTf3D<double> &globalTf)
-                : pointCloudProcessor_{pcProcessor}, timestamp_{ts}, points_{std::move(points)}, referenceFrame_{std::move(frame)}, globalTf_{globalTf} {}
+        explicit PointCloudBatch(Algorithms::PointCloudProcessor &pcProcessor, uint64_t ts, pcl::PointCloud<pcl::PointXYZ>::Ptr points, FrameType frame, const rtl::RigidTf3D<double> &globalTf)
+                : pointCloudProcessor_{pcProcessor}, timestamp_{ts}, points_{std::move(points)}, referenceFrame_{frame}, globalTf_{globalTf} {}
 
         /**
          * Untransformed points getter
@@ -91,7 +91,7 @@ namespace AutoDrive::DataModels {
          * Method returns frame of the LiDAR that has scanned points
          * @return string name of the sensnor's frame
          */
-        [[nodiscard]] std::string getFrame() const { return referenceFrame_; };
+        [[nodiscard]] FrameType getFrame() const { return referenceFrame_; };
 
         /**
          * Points transformation getter
@@ -104,7 +104,7 @@ namespace AutoDrive::DataModels {
 
         uint64_t timestamp_;
         pcl::PointCloud<pcl::PointXYZ>::Ptr points_;
-        std::string referenceFrame_;
+        FrameType referenceFrame_;
         rtl::RigidTf3D<double> globalTf_;
     };
 

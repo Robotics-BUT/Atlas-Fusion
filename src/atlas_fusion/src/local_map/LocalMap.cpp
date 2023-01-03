@@ -27,7 +27,7 @@
 namespace AutoDrive::LocalMap {
 
 
-    void LocalMap::setFrustumDetections(std::vector<DataModels::FrustumDetection> detections, const std::string &sensorFrame) {
+    void LocalMap::setFrustumDetections(std::vector<DataModels::FrustumDetection> detections, const FrameType &sensorFrame) {
         frustumsDetections_[sensorFrame] = std::move(detections);
     }
 

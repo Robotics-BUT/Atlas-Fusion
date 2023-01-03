@@ -49,10 +49,10 @@ namespace AutoDrive::Algorithms {
          * @param context global services container (time, logging, etc.)
          * @param historyLength the number of remembered points in the history
          */
-        SimpleTrajectoryLogger(Context& context, size_t historyLenght)
+        SimpleTrajectoryLogger(Context& context, size_t historyLength)
         : context_{context}
         , position_{{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0}
-        , historyLenght_{historyLenght} {
+        , historyLength_{historyLength} {
 
         }
 
@@ -95,9 +95,9 @@ namespace AutoDrive::Algorithms {
         DataModels::GlobalPosition initPositionGnss_{0,0,0,0};
         std::deque<DataModels::LocalPosition> positionHistory_;
 
-        size_t historyLenght_;
+        size_t historyLength_;
 
-        DataModels::GlobalPosition gnssPoseToRootFrame(const DataModels::GlobalPosition);
+        DataModels::GlobalPosition gnssPoseToRootFrame(const DataModels::GlobalPosition&);
         rtl::Quaternion<double> rpyToQuaternion(double, double, double);
     };
 }

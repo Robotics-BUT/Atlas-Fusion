@@ -47,9 +47,8 @@ namespace AutoDrive::Algorithms {
 
         std::vector<cv::Point2f> valid2DPoints{};
         std::vector<cv::Point3f> valid3DPoints{};
-        {
-            getAllCurrentPointsProjectedToImage(cameraId, valid2DPoints, valid3DPoints, data->getImage().cols, data->getImage().rows);
-        }
+
+        getAllCurrentPointsProjectedToImage(cameraId, valid2DPoints, valid3DPoints, data->getImage().cols, data->getImage().rows);
 
         auto img = data->getImage();
         if (!valid2DPoints.empty()) {

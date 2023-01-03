@@ -21,7 +21,7 @@
  */
 
 #include "visualizers/FrustumVisualizer.h"
-#include "local_map/Frames.h"
+#include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::Visualizers {
 
@@ -36,7 +36,7 @@ namespace AutoDrive::Visualizers {
 
             // Frustum
             visualization_msgs::Marker marker;
-            marker.header.frame_id = LocalMap::Frames::kImuFrame;
+            marker.header.frame_id = frameTypeName(FrameType::kImu);
             marker.header.stamp = time;
             marker.id = cnt++;
             marker.type = visualization_msgs::Marker::LINE_LIST;
@@ -71,7 +71,7 @@ namespace AutoDrive::Visualizers {
         for(size_t i = cnt ; i < maxMarkerNo; i++) {
             visualization_msgs::Marker marker;
             marker.id = i;
-            marker.header.frame_id = LocalMap::Frames::kImuFrame;
+            marker.header.frame_id = frameTypeName(FrameType::kImu);
             marker.header.stamp = time;
             marker.type = visualization_msgs::Marker::LINE_LIST;
             marker.action = visualization_msgs::Marker::ADD;
@@ -83,7 +83,7 @@ namespace AutoDrive::Visualizers {
     }
 
 
-    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToGeometryPointVector(std::shared_ptr<const rtl::Frustum3D<double>> f) {
+    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToGeometryPointVector(const std::shared_ptr<const rtl::Frustum3D<double>>& f) {
 
         geometry_msgs::Point ntl;
         geometry_msgs::Point ntr;
@@ -142,7 +142,7 @@ namespace AutoDrive::Visualizers {
     }
 
 
-    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToAxis(std::shared_ptr<const rtl::Frustum3D<double>> f) {
+    std::vector<geometry_msgs::Point> FrustumVisualizer::frustumToAxis(const std::shared_ptr<const rtl::Frustum3D<double>>& f) {
 
         geometry_msgs::Point origin;
         geometry_msgs::Point middle;
@@ -197,10 +197,5 @@ namespace AutoDrive::Visualizers {
         }
 
         return output;
-    }
-
-
-    std_msgs::ColorRGBA FrustumVisualizer::getEmptyColor() {
-        return std_msgs::ColorRGBA{};
     }
 }

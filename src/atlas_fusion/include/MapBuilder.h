@@ -26,6 +26,7 @@
 
 #include "algorithms/SimpleTrajectoryLogger.h"
 #include "algorithms/SelfModel.h"
+#include "algorithms/EnvironmentalModel.h"
 #include "algorithms/ImuDataProcessor.h"
 #include "algorithms/LidarFilter.h"
 #include "algorithms/DepthMap.h"
@@ -117,6 +118,7 @@ namespace AutoDrive {
                   gnssPoseLogger_{context, gnssLogPoseNo},
                   imuPoseLogger_{context, imuLogPoseNo},
                   selfModel_{context, selfModelProcessNoise, selfModelObservationNoise},
+                  environmentalModel_{context},
                   detectionProcessor_{context},
                   pointCloudProcessor_{context, leafSize},
                   pointCloudExtrapolator_{context, pointCloudProcessor_, noOfBatchesPerScan},
@@ -132,7 +134,7 @@ namespace AutoDrive {
                   occGrid_{context},
                   lidarObjectDetector_{context},
                   yoloIrReprojector_{context},
-                  failChecker_{context},
+                  failChecker_{context, selfModel_, environmentalModel_},
                   visualizationHandler_{node, context},
                   dataLoader_{context, keepHistoryLength},
                   keepHistoryLength_{keepHistoryLength},
@@ -172,6 +174,7 @@ namespace AutoDrive {
         Algorithms::SimpleTrajectoryLogger gnssPoseLogger_;
         Algorithms::SimpleTrajectoryLogger imuPoseLogger_;
         Algorithms::SelfModel selfModel_;
+        Algorithms::EnvironmentalModel environmentalModel_;
         Algorithms::ImuDataProcessor imuProcessor_;
         Algorithms::LidarFilter lidarFilter_;
         Algorithms::DetectionsProcessor detectionProcessor_;
@@ -211,11 +214,13 @@ namespace AutoDrive {
 
         Algorithms::SimpleImageProcessor simpleImageProcessor_;
 
-        void processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &, const std::string &);
+        void processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &, const FrameType &);
 
         void processIRCameraData(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &);
 
         void processGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel>&);
+
+        void processGnssTimeData(const std::shared_ptr<DataModels::GnssTimeDataModel> &timeData);
 
         void processImuDQuatData(const std::shared_ptr<DataModels::ImuDquatDataModel>&);
 
