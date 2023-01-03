@@ -45,7 +45,7 @@ namespace AutoDrive::DataLoader {
          * @param path to offline data
          * @return true if data have been loaded
          */
-        virtual bool loadData(const std::string& path) = 0;
+        virtual bool initData(const std::string& path) = 0;
 
         /**
          * Method search trough the data and find the one with the lowest timestamp
@@ -73,10 +73,10 @@ namespace AutoDrive::DataLoader {
         virtual uint64_t getDataSize() = 0;
 
         /**
-         * Method says is the Data Loader is out of preloaded data frames
+         * Method says if the Data Loader is out of preloaded data frames
          * @return true, is no mo data available
          */
-        virtual bool isOnEnd() = 0;
+        [[nodiscard]] virtual bool isOnEnd() const = 0;
 
         /**
          * Method sets the positions in the loaded data on a frame that is equal or just after the given timestamp.
@@ -92,14 +92,14 @@ namespace AutoDrive::DataLoader {
         /**
          * Method removed the data that are behind the current Data Loader time position with a interval of
          * tolerance.
-         * @param historyLenght the tolerance period in nanoseconds in which even the old data are kept.
+         * @param historyLength the tolerance period in nanoseconds in which even the old data are kept.
          */
-        virtual void releaseOldData(timestamp_type historyLenght) = 0;
+        virtual void releaseOldData(timestamp_type historyLength) = 0;
 
     protected:
 
-        std::vector<std::vector<std::string>> readCsv(const std::string&& path) const;
-        std::vector<std::string> split(const std::string& s, char delimiter) const;
+        [[nodiscard]] std::vector<std::vector<std::string>> readCsv(const std::string&& path) const;
+        [[nodiscard]] std::vector<std::string> split(const std::string& s, char delimiter) const;
     };
 
 }

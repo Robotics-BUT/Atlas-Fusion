@@ -38,7 +38,7 @@ TEST(data_loader_imu_test, load_imu_dquat)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::ImuDataLoader dataLoader(context, AutoDrive::DataLoader::ImuLoaderIdentifier::kDQuat);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),499);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::ImuDquatDataModel>(dataLoader.getNextData());
@@ -62,7 +62,7 @@ TEST(data_loader_imu_test, load_imu_gnss)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::ImuDataLoader dataLoader(context, AutoDrive::DataLoader::ImuLoaderIdentifier::kGnss);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),499);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::ImuGnssDataModel>(dataLoader.getNextData());
@@ -84,7 +84,7 @@ TEST(data_loader_imu_test, load_imu_imu)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::ImuDataLoader dataLoader(context, AutoDrive::DataLoader::ImuLoaderIdentifier::kImu);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),499);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::ImuImuDataModel>(dataLoader.getNextData());
@@ -120,7 +120,7 @@ TEST(data_loader_imu_test, load_imu_mag)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::ImuDataLoader dataLoader(context, AutoDrive::DataLoader::ImuLoaderIdentifier::kMag);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),499);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::ImuMagDataModel>(dataLoader.getNextData());
@@ -142,7 +142,7 @@ TEST(data_loader_imu_test, load_imu_press)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::ImuDataLoader dataLoader(context, AutoDrive::DataLoader::ImuLoaderIdentifier::kPressure);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),499);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::ImuPressureDataModel>(dataLoader.getNextData());
@@ -160,7 +160,7 @@ TEST(data_loader_imu_test, load_imu_temp)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::ImuDataLoader dataLoader(context, AutoDrive::DataLoader::ImuLoaderIdentifier::kTemp);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),499);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::ImuTempDataModel>(dataLoader.getNextData());
@@ -178,7 +178,7 @@ TEST(data_loader_imu_test, load_imu_time)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::ImuDataLoader dataLoader(context, AutoDrive::DataLoader::ImuLoaderIdentifier::kTime);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),499);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::ImuTimeDataModel>(dataLoader.getNextData());
@@ -208,7 +208,7 @@ TEST(data_loader_imu_test, load_imu_get_timestamp) {
 
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::ImuDataLoader dataLoader(context, AutoDrive::DataLoader::ImuLoaderIdentifier::kDQuat);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
     EXPECT_EQ(dataLoader.getLowestTimestamp(), 1568186745408734467);
@@ -230,7 +230,7 @@ TEST(data_loader_imu_test, load_imu_set_pose) {
 
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::ImuDataLoader dataLoader(context, AutoDrive::DataLoader::ImuLoaderIdentifier::kDQuat);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
 

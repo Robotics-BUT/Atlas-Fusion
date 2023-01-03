@@ -35,7 +35,7 @@ TEST(data_loader_camera_test, load_camera_rgb)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::CameraDataLoader dataLoader(context, AutoDrive::DataLoader::CameraIndentifier::kCameraLeftFront, "");
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),500);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());
@@ -58,7 +58,7 @@ TEST(data_loader_camera_test, load_ir_camera_ir)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::CameraDataLoader dataLoader(context, AutoDrive::DataLoader::CameraIndentifier::kCameraIr, "");
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),500);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraIrFrameDataModel>(dataLoader.getNextData());
@@ -85,7 +85,7 @@ TEST(data_loader_camera_test, load_camera_get_timestamp) {
 
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::CameraDataLoader dataLoader(context, AutoDrive::DataLoader::CameraIndentifier::kCameraLeftFront, "");
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
     EXPECT_EQ(dataLoader.getLowestTimestamp(), 1568186745453388439);
@@ -107,7 +107,7 @@ TEST(data_loader_camera_test, load_camera_set_pose) {
 
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::CameraDataLoader dataLoader(context, AutoDrive::DataLoader::CameraIndentifier::kCameraLeftFront, "");
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
 
@@ -132,7 +132,7 @@ TEST(data_loader_camera_test, load_camera_yolo_detections) {
 
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::CameraDataLoader dataLoader(context, AutoDrive::DataLoader::CameraIndentifier::kCameraLeftFront, "");
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
 
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::CameraFrameDataModel>(dataLoader.getNextData());

@@ -53,17 +53,23 @@ namespace AutoDrive::FailCheck {
         cv::cvtColor(frameBgr, frameGray, cv::COLOR_BGR2GRAY);
         estimateVanishingPoint();
 
-        context_.threadPool_.push_task([&]() mutable { calculateVisibility(true, std::pair(vanishingPointX, vanishingPointY), std::pair(-1, -1)); });
-        context_.threadPool_.push_task([&]() mutable { detectGlareAndOcclusion(); });
+        std::vector<std::future<void>> futures;
+
+        futures.push_back(
+                context_.threadPool_.submit([&]() mutable { calculateVisibility(true, std::pair(vanishingPointX, vanishingPointY), std::pair(-1, -1)); }));
+        futures.push_back(context_.threadPool_.submit([&]() mutable { detectGlareAndOcclusion(); }));
 
         for (int j = 0; j < DFT_BLOCK_COUNT; j++) {
             for (int i = 0; i < DFT_BLOCK_COUNT; i++) {
                 int w = (DFT_WINDOW_SIZE / 2) + (i * ((frameGray.cols - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
                 int h = (DFT_WINDOW_SIZE / 2) + (j * ((frameGray.rows - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
-                context_.threadPool_.push_task([&]() mutable { calculateVisibility(false, std::pair(w, h), std::pair(i, j)); });
+                futures.push_back(context_.threadPool_.submit([&]() mutable { calculateVisibility(false, std::pair(w, h), std::pair(i, j)); }));
             }
         }
-        context_.threadPool_.wait_for_tasks();
+
+        for (auto &future: futures) {
+            future.wait();
+        }
     }
 
     void CameraRGBFailChecker::estimateVanishingPoint() {

@@ -83,7 +83,7 @@ namespace AutoDrive::DataLoader {
             dataIt_ = data_.begin();
         }
 
-        bool loadData(const std::string &path) override;
+        bool initData(const std::string &path) override;
 
         timestamp_type getLowestTimestamp() override;
 
@@ -93,7 +93,7 @@ namespace AutoDrive::DataLoader {
 
         uint64_t getDataSize() override;
 
-        bool isOnEnd() override;
+        bool isOnEnd() const override;
 
         void setPose(timestamp_type) override;
 

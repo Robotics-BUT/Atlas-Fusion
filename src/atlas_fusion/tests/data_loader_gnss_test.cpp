@@ -35,7 +35,7 @@ TEST(data_loader_gnss_test, load_gnss_pose)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::GnssDataLoader dataLoader(context, AutoDrive::DataLoader::GnssLoaderIdentifier::kPose);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),500);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::GnssPoseDataModel>(dataLoader.getNextData());
@@ -59,7 +59,7 @@ TEST(data_loader_gnss_test, load_gnss_time)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::GnssDataLoader dataLoader(context, AutoDrive::DataLoader::GnssLoaderIdentifier::kTime);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),500);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::GnssTimeDataModel>(dataLoader.getNextData());
@@ -90,7 +90,7 @@ TEST(data_loader_gnss_test, load_imu_get_timestamp) {
 
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::GnssDataLoader dataLoader(context, AutoDrive::DataLoader::GnssLoaderIdentifier::kPose);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
     EXPECT_EQ(dataLoader.getLowestTimestamp(), 1568186745436549395);
@@ -112,7 +112,7 @@ TEST(data_loader_gnss_test, load_gnss_set_pose) {
 
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::GnssDataLoader dataLoader(context, AutoDrive::DataLoader::GnssLoaderIdentifier::kPose);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
 

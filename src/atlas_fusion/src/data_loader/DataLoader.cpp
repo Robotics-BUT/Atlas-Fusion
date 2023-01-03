@@ -29,7 +29,7 @@
 
 namespace AutoDrive::DataLoader {
 
-    bool DataLoader::loadData(const std::string &path) {
+    bool DataLoader::initData(const std::string &path) {
 
         if (!std::experimental::filesystem::is_directory(path)) {
             context_.logger_.error("Unable to open recording on path: " + path);
@@ -75,7 +75,7 @@ namespace AutoDrive::DataLoader {
     }
 
 
-    bool DataLoader::isOnEnd() {
+    bool DataLoader::isOnEnd() const {
         for (const auto &dataLoader: dataLoaders_) {
             if (!dataLoader->isOnEnd()) {
                 return false;
@@ -90,8 +90,45 @@ namespace AutoDrive::DataLoader {
         }
     }
 
+    void DataLoader::startAsyncDataLoading(size_t maxCacheSize) {
+        context_.threadPool_.push_task([&, maxCacheSize]() mutable {
+            while (!isOnEnd()) {
+                // Pop front every read frame until the deque is smaller than maxCacheSize
+                do {
+                    size_t amountToPop = 0;
+                    for(auto& frame: dataQueue_) {
+                        if(!frame.second) break;
+                        amountToPop++;
+                    }
+                    for(size_t i = 0; i < amountToPop; i++) dataQueue_.pop_front();
+                } while (dataQueue_.size() >= maxCacheSize);
+
+                //std::cout << "Cache size: " << dataQueue_.size() << std::endl;
+                //Timer t("Get next data");
+                dataQueue_.emplace_back(getNextData(), false);
+            }
+        });
+    }
+
+    std::shared_ptr<DataModels::GenericDataModel> DataLoader::getNextFrameAsync() {
+        if (isOnEnd() && dataQueue_.empty()) return nullptr;
+
+        // Wait if the data loading can't keep up
+        while (dataQueue_.empty()) {
+            cv::waitKey(1);
+        }
+
+        // Get the first frame that hasn't been read
+        while(dataQueue_.front().second) {
+            cv::waitKey(1);
+        }
+
+        auto frame = dataQueue_.front().first;
+        dataQueue_.front().second = true;
+        return frame;
+    }
+
     std::shared_ptr<DataModels::GenericDataModel> DataLoader::getNextData() {
-        // Timer t("Get next data");
         AbstractDataLoader *it = nullptr;
         uint64_t minTimestamp = std::numeric_limits<uint64_t>::max();
 
@@ -121,8 +158,8 @@ namespace AutoDrive::DataLoader {
 
 
     void DataLoader::releaseOldData(timestamp_type keepHistory) {
-        for (const auto &dataLodar: dataLoaders_) {
-            dataLodar->releaseOldData(keepHistory);
+        for (const auto &dataLoader: dataLoaders_) {
+            dataLoader->releaseOldData(keepHistory);
         }
     }
 
@@ -149,20 +186,25 @@ namespace AutoDrive::DataLoader {
     }
 
     bool DataLoader::loadRecord(const std::string &path) {
-
         context_.logger_.info("Loading data ...");
 
+        std::vector<std::future<void>> futures{};
+        futures.reserve(dataLoaders_.size());
+
         for (const auto &loader: dataLoaders_) {
-            context_.threadPool_.push_task([&]() {
-                auto result = loader->loadData(path);
+            futures.push_back(context_.threadPool_.submit([&]() {
+                auto result = loader->initData(path);
                 context_.logger_.info(loader->toString());
                 if (!result) {
                     context_.logger_.error("Error when reading data from filesystem");
                     throw std::runtime_error("Error when reading data from filesystem");
                 }
-            });
+            }));
         }
-        context_.threadPool_.wait_for_tasks();
+
+        for (auto &future: futures) {
+            future.wait();
+        }
 
         context_.logger_.info("Data Loading done");
         return true;

@@ -26,7 +26,7 @@
 
 namespace AutoDrive::DataLoader {
 
-    bool GnssDataLoader::loadData(const std::string& path) {
+    bool GnssDataLoader::initData(const std::string& path) {
 
         switch(dataLoaderIdentifier_) {
             case GnssLoaderIdentifier::kPose:
@@ -74,7 +74,7 @@ namespace AutoDrive::DataLoader {
         return data_.size();
     }
 
-    bool GnssDataLoader::isOnEnd() {
+    bool GnssDataLoader::isOnEnd() const {
 
         return dataIt_ >= data_.end();
     }

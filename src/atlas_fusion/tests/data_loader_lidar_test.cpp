@@ -33,7 +33,7 @@ TEST(data_loader_lidar_test, data_loader_lidar_data)
 {
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::LidarDataLoader dataLoader(context, AutoDrive::DataLoader::LidarIdentifier::kLeftLidar);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
     EXPECT_EQ(dataLoader.getDataSize(),500);
 
     auto data = std::dynamic_pointer_cast<AutoDrive::DataModels::LidarScanDataModel>(dataLoader.getNextData());
@@ -51,7 +51,7 @@ TEST(data_loader_lidar_test, load_lidar_get_timestamp) {
 
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::LidarDataLoader dataLoader(context, AutoDrive::DataLoader::LidarIdentifier::kLeftLidar);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
     EXPECT_EQ(dataLoader.getLowestTimestamp(), 1568186745501937363);
@@ -73,7 +73,7 @@ TEST(data_loader_lidar_test, load_lidar_set_pose) {
 
     auto context = AutoDrive::Context::getEmptyContext();
     AutoDrive::DataLoader::LidarDataLoader dataLoader(context, AutoDrive::DataLoader::LidarIdentifier::kLeftLidar);
-    dataLoader.loadData(DATA_FOLDER);
+    dataLoader.initData(DATA_FOLDER);
 
     EXPECT_EQ(dataLoader.isOnEnd(), false);
 

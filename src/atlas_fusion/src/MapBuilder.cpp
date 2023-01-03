@@ -35,10 +35,10 @@
 namespace AutoDrive {
 
 
-    void MapBuilder::loadData() {
+    void MapBuilder::initData() {
         Timer t("Data loading");
         // Load all data through all available data loaders
-        dataLoader_.loadData(destinationFolder_);
+        dataLoader_.initData(destinationFolder_);
         std::cout << "Total No. of loaded data: " << dataLoader_.getDataSize() << std::endl;
 
         // Additionally propagate the individual camera calibration parameters
@@ -77,8 +77,11 @@ namespace AutoDrive {
         DataModels::LocalPosition initPose{{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
         visualizationHandler_.updateOriginToRootTf(initPose);
 
-        while (!dataLoader_.isOnEnd()) {
-            mut data = dataLoader_.getNextData();
+        dataLoader_.startAsyncDataLoading(10);
+        while (true) {
+            auto data = dataLoader_.getNextFrameAsync();
+            if (data == nullptr) break;
+
             mut data_ts = data->getTimestamp();
 
             std::stringstream ss;
@@ -100,6 +103,7 @@ namespace AutoDrive {
             }
 
             mut sensorFrame = frameTypeFromDataModel(data);
+            /*
             failChecker_.onNewData(data, sensorFrame);
             mut sensorScore = failChecker_.getSensorStatus(sensorFrame);
 
@@ -107,6 +111,7 @@ namespace AutoDrive {
                 context_.logger_.warning("Sensor Score is too low");
                 continue;
             }
+            */
 
             /* ... data processing ... */
             auto type = data->getType();
@@ -135,7 +140,7 @@ namespace AutoDrive {
                     break;
                 }
                 case DataModels::DataModelTypes::kGnssTimeDataModelType: {
-                    Timer t("GNSS Time ...");;
+                    Timer t("GNSS Time ...");
                     mut timeData = std::dynamic_pointer_cast<DataModels::GnssTimeDataModel>(data);
                     processGnssTimeData(timeData);
                     break;
@@ -205,8 +210,9 @@ namespace AutoDrive {
 
 
     void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData, const FrameType &sensorFrame) {
-
         static int cnt = 0;
+
+        std::vector<std::future<void>> futures;
 
         auto globalCoordinatePc = pointCloudAggregator_.getGlobalCoordinatePointCloud();
         auto egoCentricPc = pointCloudAggregator_.getEgoCentricPointCloud(selfModel_.getPosition().toTf().inverted());
@@ -221,7 +227,7 @@ namespace AutoDrive {
 
         if (cnt++ >= 3) {
             cnt = 0;
-            context_.threadPool_.push_task([&]() {
+            futures.push_back(context_.threadPool_.submit([&]() {
                 //auto tunnel = pointCloudAggregator_.getEgoCentricPointCloudCutout(rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
                 //                                                                                                rtl::Vector3D<float>{30.0f, 10.0f, 10.0f}});
 
@@ -234,7 +240,7 @@ namespace AutoDrive {
                 //visualizationHandler_.drawLidarDetection(lidarObstacles);
                 //visualizationHandler_.drawPointcloudCutout(tunnel);
                 visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
-            });
+            }));
         }
 
         if (RGB_Detection_To_IR_Projection) {
@@ -289,7 +295,9 @@ namespace AutoDrive {
 
         visualizationHandler_.drawRGBImage(imgData);
 
-        context_.threadPool_.wait_for_tasks();
+        for (auto &future: futures) {
+            future.wait();
+        }
     }
 
 
