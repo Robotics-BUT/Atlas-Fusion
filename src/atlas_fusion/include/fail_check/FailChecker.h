@@ -46,21 +46,33 @@ namespace AutoDrive::FailCheck {
          * Constructor
          * @param context global services container (time, logging, etc.)
          */
-        explicit FailChecker(Context &context, const Algorithms::SelfModel &selfModel) : context_{context}, selfModel_{selfModel} {
+        explicit FailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
+                : context_{context}, selfModel_{selfModel}, environmentalModel_{environmentalModel} {
 
-            failCheckers_[FrameType::kCameraLeftFront] = std::dynamic_pointer_cast<AbstractFailChecker>(std::make_shared<CameraRGBFailChecker>(context, selfModel_));
-            failCheckers_[FrameType::kCameraLeftSide] = std::dynamic_pointer_cast<AbstractFailChecker>(std::make_shared<CameraRGBFailChecker>(context, selfModel_));
-            failCheckers_[FrameType::kCameraRightFront] = std::dynamic_pointer_cast<AbstractFailChecker>(std::make_shared<CameraRGBFailChecker>(context, selfModel_));
-            failCheckers_[FrameType::kCameraRightSide] = std::dynamic_pointer_cast<AbstractFailChecker>(std::make_shared<CameraRGBFailChecker>(context, selfModel_));
-            failCheckers_[FrameType::kCameraIr] = std::dynamic_pointer_cast<AbstractFailChecker>(std::make_shared<CameraIrFailChecker>(context, selfModel_));
+            failCheckers_[FrameType::kCameraLeftFront] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kCameraLeftSide] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kCameraRightFront] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kCameraRightSide] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kCameraIr] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<CameraIrFailChecker>(context, selfModel_, environmentalModel_));
 
-            failCheckers_[FrameType::kLidarLeft] = std::dynamic_pointer_cast<AbstractFailChecker>(std::make_shared<LidarFailChecker>(context, selfModel_));
-            failCheckers_[FrameType::kLidarRight] = std::dynamic_pointer_cast<AbstractFailChecker>(std::make_shared<LidarFailChecker>(context, selfModel_));
-            failCheckers_[FrameType::kLidarCenter] = std::dynamic_pointer_cast<AbstractFailChecker>(std::make_shared<LidarFailChecker>(context, selfModel_));
+            failCheckers_[FrameType::kLidarLeft] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<LidarFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kLidarRight] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<LidarFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kLidarCenter] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<LidarFailChecker>(context, selfModel_, environmentalModel_));
 
-            failCheckers_[FrameType::kImu] = std::dynamic_pointer_cast<AbstractFailChecker>(std::make_shared<ImuFailChecker>(context, selfModel_));
-            failCheckers_[FrameType::kGnssAntennaRear] = std::dynamic_pointer_cast<AbstractFailChecker>(std::make_shared<GnssFailChecker>(context, selfModel_));
-            failCheckers_[FrameType::kRadarTi] = std::dynamic_pointer_cast<AbstractFailChecker>(std::make_shared<RadarTiFailChecker>(context, selfModel_));
+            failCheckers_[FrameType::kImu] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<ImuFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kGnssAntennaRear] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<GnssFailChecker>(context, selfModel_, environmentalModel_));
+            failCheckers_[FrameType::kRadarTi] = std::dynamic_pointer_cast<AbstractFailChecker>(
+                    std::make_shared<RadarTiFailChecker>(context, selfModel_, environmentalModel_));
         }
 
         /**
@@ -81,6 +93,9 @@ namespace AutoDrive::FailCheck {
 
         Context &context_;
         const Algorithms::SelfModel &selfModel_;
+        Algorithms::EnvironmentalModel &environmentalModel_;
+
+
         std::map<FrameType, std::shared_ptr<FailCheck::AbstractFailChecker>> failCheckers_;
     };
 

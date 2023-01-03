@@ -22,6 +22,7 @@
 
 #include "fail_check/CameraRGBFailChecker.h"
 #include "util/polyfit.h"
+#include "Timer.h"
 
 namespace AutoDrive::FailCheck {
 
@@ -46,6 +47,7 @@ namespace AutoDrive::FailCheck {
 
     void CameraRGBFailChecker::onNewData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data) {
         if (data == nullptr || data->getImage().empty()) return;
+        Timer t("CameraRGBFailChecker");
 
         frameBgr = data->getImage();
         cv::cvtColor(frameBgr, frameGray, cv::COLOR_BGR2GRAY);
@@ -211,7 +213,7 @@ namespace AutoDrive::FailCheck {
             }
 
             // For daylight images ignore skylight
-            if (j < HISTOGRAM_COUNT / 2 && isDaylight) {
+            if (j < HISTOGRAM_COUNT / 2 && environmentalModel_.getIsDaylight()) {
                 if (glareAmounts.at<float>(i, j) > 64) {
                     glareAmounts.at<float>(i, j) = 64;
                 }

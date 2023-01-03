@@ -25,15 +25,15 @@
 namespace AutoDrive::FailCheck {
 
 
-    void FailChecker::onNewData(const std::shared_ptr<DataModels::GenericDataModel>& data, const FrameType& sensorID){
+    void FailChecker::onNewData(const std::shared_ptr<DataModels::GenericDataModel> &data, const FrameType &sensorID) {
 
-        if(failCheckers_.count(sensorID) == 0) {
+        if (failCheckers_.count(sensorID) == 0) {
             context_.logger_.warning("Unable to find fail checker for sensor");
             return;
         }
 
         std::shared_ptr<AbstractFailChecker> sensor;
-        switch(data->getType()) {
+        switch (data->getType()) {
             case DataModels::DataModelTypes::kCameraDataModelType:
                 sensor = failCheckers_[sensorID];
                 std::dynamic_pointer_cast<CameraRGBFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data));
@@ -103,9 +103,9 @@ namespace AutoDrive::FailCheck {
     }
 
 
-    float FailChecker::getSensorStatus(const FrameType& sensor) {
+    float FailChecker::getSensorStatus(const FrameType &sensor) {
 
-        if(failCheckers_.count(sensor) == 0) {
+        if (failCheckers_.count(sensor) == 0) {
             context_.logger_.warning("Unable to find fail checker for sensor");
             return 0;
         }

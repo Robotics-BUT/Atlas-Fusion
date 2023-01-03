@@ -47,8 +47,10 @@ namespace AutoDrive::FailCheck {
          * Constructor
          * @param context container for global services (timestamps. logging, etc.)
          * @param selfModel self model of ego vehicle
+         * @param environmentalModel model of environment current state
          */
-        ImuFailChecker(Context &context, const Algorithms::SelfModel& selfModel) : AbstractFailChecker{context, selfModel} {}
+        ImuFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
+        : AbstractFailChecker{context, selfModel, environmentalModel} {}
 
         /**
          * Input method for IMU Delta Quaternion Data

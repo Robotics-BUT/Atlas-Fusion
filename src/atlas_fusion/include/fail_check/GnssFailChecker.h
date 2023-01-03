@@ -41,8 +41,10 @@ namespace AutoDrive::FailCheck {
          * Constructor
          * @param context container for global services (timestamps. logging, etc.)
          * @param selfModel self model of ego vehicle
+         * @param environmentalModel model of environment current state
          */
-        GnssFailChecker(Context &context, const Algorithms::SelfModel& selfModel) : AbstractFailChecker{context, selfModel} {}
+        GnssFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
+        : AbstractFailChecker{context, selfModel, environmentalModel} {}
 
         /**
          * Input for GNSS receiver global position data.

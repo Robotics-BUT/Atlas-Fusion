@@ -26,6 +26,7 @@ include_directories(
         ${PCL_INCLUDE_DIRS}
         libs/robotic-template-library/include
         libs/munkres/include
+        libs/sunset
 )
 
 link_directories(${PCL_LIBRARY_DIRS})
@@ -57,6 +58,7 @@ set(SOURCES_ALGORITHMS
         src/algorithms/pointcloud/GlobalPointcloudStorage.cpp
         src/algorithms/pointcloud/ObjectDetector.cpp
         src/algorithms/SelfModel.cpp
+        src/algorithms/EnvironmentalModel.cpp
         src/algorithms/image_processing/SimpleImageProcessor.cpp)
 
 set(SOURCES_LOCAL_MAP
@@ -121,7 +123,8 @@ set(SOURCES_FAIL_CHECK
         include/algorithms/image_processing/SimpleImageProcessor.h)
 
 set(SOURCES_UTIL
-        src/util/IdentifierToFrameConversions.cpp)
+        src/util/IdentifierToFrameConversions.cpp
+        libs/sunset/sunset.cpp)
 
 add_library(atlas_fusion_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK} ${SOURCES_UTIL})
 

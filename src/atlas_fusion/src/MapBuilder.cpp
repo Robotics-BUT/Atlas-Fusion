@@ -134,6 +134,12 @@ namespace AutoDrive {
                     processGnssPoseData(poseData);
                     break;
                 }
+                case DataModels::DataModelTypes::kGnssTimeDataModelType: {
+                    Timer t("GNSS Time ...");;
+                    mut timeData = std::dynamic_pointer_cast<DataModels::GnssTimeDataModel>(data);
+                    processGnssTimeData(timeData);
+                    break;
+                }
                 case DataModels::DataModelTypes::kImuDquatDataModelType: {
                     //Timer t("IMU DQUAT ...");
 
@@ -173,7 +179,6 @@ namespace AutoDrive {
                     break;
                 }
                 case DataModels::DataModelTypes::kCameraCalibrationParamsDataModelType:
-                case DataModels::DataModelTypes::kGnssTimeDataModelType:
                 case DataModels::DataModelTypes::kImuMagDataModelType:
                 case DataModels::DataModelTypes::kImuPressDataModelType:
                 case DataModels::DataModelTypes::kImuTempDataModelType:
@@ -312,11 +317,13 @@ namespace AutoDrive {
     }
 
 
-    void
-    MapBuilder::processGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel> &poseData) {
+    void MapBuilder::processGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel> &poseData) {
 
         gnssPoseLogger_.onGnssPose(poseData);
         selfModel_.onGnssPose(poseData);
+        environmentalModel_.onGnssPose(poseData);
+
+        environmentalModel_.calculateSunriseAndSunsetTimes();
 
         mut currentPose = selfModel_.getPosition();
         imuPoseLogger_.setAltitude(currentPose.getPosition().z());
@@ -330,11 +337,13 @@ namespace AutoDrive {
         visualizationHandler_.drawVelocityData(selfModel_.getSpeedVector());
     }
 
+    void MapBuilder::processGnssTimeData(const std::shared_ptr<DataModels::GnssTimeDataModel> &timeData) {
+        environmentalModel_.onGnssTime(timeData);
+    }
 
     void MapBuilder::processImuDQuatData(const std::shared_ptr<DataModels::ImuDquatDataModel> &dQuatData) {
         selfModel_.onImuDquatData(dQuatData);
     }
-
 
     void
     MapBuilder::processImuGnssData(const std::shared_ptr<DataModels::ImuGnssDataModel> &poseData) {

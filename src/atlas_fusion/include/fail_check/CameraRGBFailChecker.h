@@ -53,8 +53,10 @@ namespace AutoDrive::FailCheck {
          * Constructor
          * @param context container for global services (timestamps. logging, etc.)
          * @param selfModel self model of ego vehicle
+         * @param environmentalModel model of environment current state
          */
-        CameraRGBFailChecker(Context &context, const Algorithms::SelfModel& selfModel) : AbstractFailChecker{context, selfModel} {
+        CameraRGBFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
+        : AbstractFailChecker{context, selfModel, environmentalModel} {
             for (int i = 0; i < HISTOGRAM_COUNT * HISTOGRAM_COUNT; i++) {
                 occlusionBuffers.emplace_back(OCCLUSION_MIN_FRAMES);
             }
@@ -81,7 +83,6 @@ namespace AutoDrive::FailCheck {
         cv::Mat histograms = cv::Mat(HISTOGRAM_COUNT * HISTOGRAM_COUNT, HISTOGRAM_BINS, CV_32FC1, cv::Scalar(0.0f));
         cv::Mat glareAmounts = cv::Mat(HISTOGRAM_COUNT, HISTOGRAM_COUNT, CV_32FC1, cv::Scalar(0.0f));
         std::vector<CircularBuffer<bool>> occlusionBuffers;
-        bool isDaylight = true; // TODO: Switch for daylight calculation
 
         void estimateVanishingPoint();
 

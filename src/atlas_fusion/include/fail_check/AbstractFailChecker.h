@@ -25,6 +25,7 @@
 #include "Context.h"
 #include "data_models/GenericDataModel.h"
 #include "algorithms/SelfModel.h"
+#include "algorithms/EnvironmentalModel.h"
 
 namespace AutoDrive::FailCheck {
 
@@ -42,7 +43,8 @@ namespace AutoDrive::FailCheck {
          * @param context container for global services (timestamps. logging, etc.)
          * @param selfModel self model of ego vehicle
          */
-        AbstractFailChecker(Context &context, const Algorithms::SelfModel &selfModel) : context_{context}, selfModel_{selfModel} {
+        AbstractFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
+                : context_{context}, selfModel_{selfModel}, environmentalModel_{environmentalModel} {
             sensorStatus_ = 1.0;
         }
 
@@ -58,6 +60,7 @@ namespace AutoDrive::FailCheck {
 
         Context &context_;
         const Algorithms::SelfModel &selfModel_;
+        Algorithms::EnvironmentalModel &environmentalModel_;
         float sensorStatus_;
     };
 }

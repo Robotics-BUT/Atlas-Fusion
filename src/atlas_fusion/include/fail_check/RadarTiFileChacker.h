@@ -30,7 +30,7 @@ namespace AutoDrive::FailCheck {
     /**
      * Validates LiDAR point cloud scans. Currently bypassed.
      */
-    class RadarTiFailChecker : public AbstractFailChecker{
+    class RadarTiFailChecker : public AbstractFailChecker {
 
     public:
 
@@ -40,8 +40,10 @@ namespace AutoDrive::FailCheck {
          * Constructor
          * @param context container for global services (timestamps. logging, etc.)
          * @param selfModel self model of ego vehicle
+         * @param environmentalModel model of environment current state
          */
-        RadarTiFailChecker(Context &context, const Algorithms::SelfModel& selfModel) : AbstractFailChecker{context, selfModel} {}
+        RadarTiFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
+                : AbstractFailChecker{context, selfModel, environmentalModel} {}
 
 
         /**
