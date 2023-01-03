@@ -50,12 +50,12 @@ namespace AutoDrive::DataLoader {
             dataIt_ = data_.begin();
         }
 
-        bool loadData(const std::string& path) override;
+        bool initData(const std::string& path) override;
         timestamp_type getLowestTimestamp() override;
         std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
         std::string toString() override;
         uint64_t getDataSize() override;
-        bool isOnEnd() override;
+        bool isOnEnd() const override;
         void setPose(timestamp_type) override;
         void releaseOldData(timestamp_type keepHistory) override;
         void clear() override;

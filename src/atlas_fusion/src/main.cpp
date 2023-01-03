@@ -169,7 +169,7 @@ int main(int argc, char **argv) {
             segmenter_upper_bound,
             segmenter_scaling};
 
-    mapBuilder.loadData();
+    mapBuilder.initData();
     mapBuilder.buildMap();
     mapBuilder.clearData();
 

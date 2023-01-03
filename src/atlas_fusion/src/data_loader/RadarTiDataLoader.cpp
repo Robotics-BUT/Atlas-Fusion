@@ -26,7 +26,7 @@
 namespace AutoDrive::DataLoader {
 
 
-    bool RadarTiDataLoader::loadData(const std::string& path) {
+    bool RadarTiDataLoader::initData(const std::string& path) {
 
         std::string folder;
         switch (radarIdentifier_) {
@@ -92,7 +92,7 @@ namespace AutoDrive::DataLoader {
         return data_.size();
     }
 
-    bool RadarTiDataLoader::isOnEnd() {
+    bool RadarTiDataLoader::isOnEnd() const {
 
         return dataIt_ >= data_.end();
     }

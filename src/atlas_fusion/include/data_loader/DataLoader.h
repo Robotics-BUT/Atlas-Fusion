@@ -48,7 +48,7 @@ namespace AutoDrive::DataLoader {
             /**
              * Constructor
              * @param context global services container (system time, logging, etc.)
-             * @param keepHistoryLength defines in nanoseconds how long should be the past data be holded in momory
+             * @param keepHistoryLength defines the time data is held in memory in nanoseconds
              * before it will be removed
              */
             DataLoader(Context& context, timestamp_type keepHistoryLength)
@@ -103,12 +103,15 @@ namespace AutoDrive::DataLoader {
                 };
             }
 
-            bool loadData(const std::string& path) override;
+
+            bool initData(const std::string& path) override;
             timestamp_type getLowestTimestamp() override;
-            std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
+
+            void startAsyncDataLoading(size_t maxCacheSize);
+            std::shared_ptr<DataModels::GenericDataModel> getNextFrameAsync();
             std::string toString() override;
             uint64_t getDataSize() override;
-            bool isOnEnd() override;
+            bool isOnEnd() const override;
             void setPose(timestamp_type) override;
             void releaseOldData(timestamp_type keepHistory) override;
             void clear() override;
@@ -155,11 +158,14 @@ namespace AutoDrive::DataLoader {
             std::vector<AbstractDataLoader*> dataLoaders_;
             std::vector<CameraDataLoader*> cameraDataLoaders_;
 
+            std::deque<std::shared_ptr<DataModels::GenericDataModel>> dataQueue_;
 
             Context& context_;
             timestamp_type keepHistoryLength_;
 
             bool checkRecordConsistency(const std::string& path);
             bool loadRecord(const std::string& path);
+
+            std::shared_ptr<DataModels::GenericDataModel> getNextData() override;
         };
     }

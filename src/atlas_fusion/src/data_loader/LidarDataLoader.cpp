@@ -26,7 +26,7 @@
 namespace AutoDrive::DataLoader {
 
 
-    bool LidarDataLoader::loadData(const std::string& path) {
+    bool LidarDataLoader::initData(const std::string& path) {
 
         std::string folder;
         switch (lidarIdentifier_) {
@@ -103,7 +103,7 @@ namespace AutoDrive::DataLoader {
         return data_.size();
     }
 
-    bool LidarDataLoader::isOnEnd() {
+    bool LidarDataLoader::isOnEnd() const {
 
         return dataIt_ >= data_.end();
     }

@@ -151,7 +151,7 @@ namespace AutoDrive {
         /**
          *  Loads the common structured data from the folder defined in the MapBuilder constructor
          */
-        void loadData();
+        void initData();
 
         /**
          *  Method runs the main data processing pipeline. Map Builder class reads raw data one by one and creates the

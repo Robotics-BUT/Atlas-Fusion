@@ -28,7 +28,7 @@
 namespace AutoDrive::DataLoader {
 
 
-    bool ImuDataLoader::loadData(const std::string& path) {
+    bool ImuDataLoader::initData(const std::string& path) {
 
         switch(dataLoaderIdentifier_) {
             case ImuLoaderIdentifier::kDQuat:
@@ -96,7 +96,7 @@ namespace AutoDrive::DataLoader {
         return data_.size();
     }
 
-    bool ImuDataLoader::isOnEnd() {
+    bool ImuDataLoader::isOnEnd() const {
 
         return dataIt_ >= data_.end();
     }

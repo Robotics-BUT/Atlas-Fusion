@@ -31,7 +31,7 @@
 
 namespace AutoDrive::DataLoader {
 
-    bool CameraDataLoader::loadData(const std::string &path) {
+    bool CameraDataLoader::initData(const std::string &path) {
 
         data_.clear();
         std::string folder;
@@ -52,7 +52,7 @@ namespace AutoDrive::DataLoader {
                 folder = Folders::kCameraIr;
                 break;
             case DataLoader::CameraIndentifier::kErr:
-                context_.logger_.warning("Error Camera Identifier in CameraDataLoader::loadData(std::string) method");
+                context_.logger_.warning("Error Camera Identifier in CameraDataLoader::initData(std::string) method");
                 break;
         }
 
@@ -80,7 +80,7 @@ namespace AutoDrive::DataLoader {
                     }
                     break;
                 case DataLoader::CameraIndentifier::kErr:
-                    context_.logger_.warning("Error Camera Identifier in CameraDataLoader::loadData(std::string) method");
+                    context_.logger_.warning("Error Camera Identifier in CameraDataLoader::initData(std::string) method");
                     break;
             }
         }
@@ -170,7 +170,7 @@ namespace AutoDrive::DataLoader {
         return data_.size();
     }
 
-    bool CameraDataLoader::isOnEnd() {
+    bool CameraDataLoader::isOnEnd() const {
         return dataIt_ >= data_.end();
     }
 
