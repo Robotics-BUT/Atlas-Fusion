@@ -94,7 +94,7 @@ namespace AutoDrive::DataLoader {
          * tolerance.
          * @param historyLength the tolerance period in nanoseconds in which even the old data are kept.
          */
-        virtual void releaseOldData(timestamp_type historyLenght) = 0;
+        virtual void releaseOldData(timestamp_type historyLength) = 0;
 
     protected:
 

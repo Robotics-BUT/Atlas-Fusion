@@ -158,7 +158,8 @@ namespace AutoDrive::DataLoader {
             std::vector<AbstractDataLoader*> dataLoaders_;
             std::vector<CameraDataLoader*> cameraDataLoaders_;
 
-            std::deque<std::shared_ptr<DataModels::GenericDataModel>> dataQueue_;
+            // Queue of cached frames, second parameter indicates whether the frame has been read;
+            std::deque<std::pair<std::shared_ptr<DataModels::GenericDataModel>, bool>> dataQueue_{};
 
             Context& context_;
             timestamp_type keepHistoryLength_;

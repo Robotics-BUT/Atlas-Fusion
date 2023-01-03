@@ -91,26 +91,40 @@ namespace AutoDrive::DataLoader {
     }
 
     void DataLoader::startAsyncDataLoading(size_t maxCacheSize) {
-        context_.threadPool_.push_task([&, maxCacheSize]() {
+        context_.threadPool_.push_task([&, maxCacheSize]() mutable {
             while (!isOnEnd()) {
-                while(dataQueue_.size() >= maxCacheSize);
+                // Pop front every read frame until the deque is smaller than maxCacheSize
+                do {
+                    size_t amountToPop = 0;
+                    for(auto& frame: dataQueue_) {
+                        if(!frame.second) break;
+                        amountToPop++;
+                    }
+                    for(size_t i = 0; i < amountToPop; i++) dataQueue_.pop_front();
+                } while (dataQueue_.size() >= maxCacheSize);
 
                 //std::cout << "Cache size: " << dataQueue_.size() << std::endl;
                 //Timer t("Get next data");
-                dataQueue_.push_back(getNextData());
+                dataQueue_.emplace_back(getNextData(), false);
             }
         });
     }
 
     std::shared_ptr<DataModels::GenericDataModel> DataLoader::getNextFrameAsync() {
-        if(isOnEnd() && dataQueue_.empty()) return nullptr;
+        if (isOnEnd() && dataQueue_.empty()) return nullptr;
 
         // Wait if the data loading can't keep up
-        while(dataQueue_.empty());
+        while (dataQueue_.empty()) {
+            cv::waitKey(1);
+        }
 
-        auto frame = dataQueue_.front();
-        dataQueue_.pop_front();
+        // Get the first frame that hasn't been read
+        while(dataQueue_.front().second) {
+            cv::waitKey(1);
+        }
 
+        auto frame = dataQueue_.front().first;
+        dataQueue_.front().second = true;
         return frame;
     }
 

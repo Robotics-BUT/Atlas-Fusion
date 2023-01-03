@@ -77,7 +77,7 @@ namespace AutoDrive {
         DataModels::LocalPosition initPose{{0.0, 0.0, 0.0}, rtl::Quaternion<double>::identity(), 0};
         visualizationHandler_.updateOriginToRootTf(initPose);
 
-        dataLoader_.startAsyncDataLoading(100);
+        dataLoader_.startAsyncDataLoading(10);
         while (true) {
             auto data = dataLoader_.getNextFrameAsync();
             if (data == nullptr) break;
@@ -103,6 +103,7 @@ namespace AutoDrive {
             }
 
             mut sensorFrame = frameTypeFromDataModel(data);
+            /*
             failChecker_.onNewData(data, sensorFrame);
             mut sensorScore = failChecker_.getSensorStatus(sensorFrame);
 
@@ -110,6 +111,7 @@ namespace AutoDrive {
                 context_.logger_.warning("Sensor Score is too low");
                 continue;
             }
+            */
 
             /* ... data processing ... */
             auto type = data->getType();
