@@ -24,12 +24,19 @@
 
 #include "AbstractFailChecker.h"
 #include "data_models/camera/CameraFrameDataModel.h"
+#include "../util/circularbuffer.h"
 
 #define DFT_BLOCK_COUNT 8
 #define DFT_WINDOW_SIZE 128
 #define MAX_VISIBILITY_THRESHOLD 3400.0
 #define MIN_VISIBILITY_THRESHOLD 2600.0
 #define MOVING_AVERAGE_FORGET_RATE 0.005
+
+#define HISTOGRAM_COUNT 12
+#define HISTOGRAM_BINS 16
+#define GLARE_THRESHOLD 0.6
+#define OCCLUSION_THRESHOLD 0.0625
+#define OCCLUSION_MIN_FRAMES 100
 
 namespace AutoDrive::FailCheck {
 
@@ -47,7 +54,11 @@ namespace AutoDrive::FailCheck {
          * @param context container for global services (timestamps. logging, etc.)
          * @param selfModel self model of ego vehicle
          */
-        CameraRGBFailChecker(Context &context, const Algorithms::SelfModel& selfModel) : AbstractFailChecker{context, selfModel} {}
+        CameraRGBFailChecker(Context &context, const Algorithms::SelfModel& selfModel) : AbstractFailChecker{context, selfModel} {
+            for (int i = 0; i < HISTOGRAM_COUNT * HISTOGRAM_COUNT; i++) {
+                occlusionBuffers.emplace_back(OCCLUSION_MIN_FRAMES);
+            }
+        }
 
         /**
          * Pipe to provide new sensor data into the Camera RGB Fail Checker
@@ -65,9 +76,18 @@ namespace AutoDrive::FailCheck {
 
         double vanishingPointVisibility = 1.0;
         cv::Mat visibility = cv::Mat(DFT_BLOCK_COUNT, DFT_BLOCK_COUNT, CV_32FC1, cv::Scalar(0.0f));
+
+        // Glare detection
+        cv::Mat histograms = cv::Mat(HISTOGRAM_COUNT * HISTOGRAM_COUNT, HISTOGRAM_BINS, CV_32FC1, cv::Scalar(0.0f));
+        cv::Mat glareAmounts = cv::Mat(HISTOGRAM_COUNT, HISTOGRAM_COUNT, CV_32FC1, cv::Scalar(0.0f));
+        std::vector<CircularBuffer<bool>> occlusionBuffers;
+        bool isDaylight = true; // TODO: Switch for daylight calculation
+
         void estimateVanishingPoint();
 
         void calculateVisibility(bool isVanishingPoint, std::pair<int, int> centerPoint, std::pair<int, int> position);
+
+        void detectGlareAndOcclusion();
     };
 }
 

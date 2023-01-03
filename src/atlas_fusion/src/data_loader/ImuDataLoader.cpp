@@ -141,7 +141,7 @@ namespace AutoDrive::DataLoader {
                                                                                               std::stod(substrings[3])}
                 ));
             } else {
-                context_.logger_.error("Unexpected lenght of imu d_quat data:");
+                context_.logger_.error("Unexpected length of imu d_quat data:");
             }
         }
         return output;
@@ -156,7 +156,7 @@ namespace AutoDrive::DataLoader {
                         std::stoll(substrings[0]),std::stod(substrings[1]),
                         std::stod(substrings[2]),std::stod(substrings[3])));
             } else {
-                context_.logger_.error("Unexpected lenght of imu gnss data: ");
+                context_.logger_.error("Unexpected length of imu gnss data: ");
             }
         }
         return output;
@@ -179,7 +179,7 @@ namespace AutoDrive::DataLoader {
                                                                                             std::stod(substrings[8]),
                                                                                             std::stod(substrings[9])}));
             } else {
-                context_.logger_.error("Unexpected lenght of imu imu data: ");
+                context_.logger_.error("Unexpected length of imu imu data: ");
             }
         }
         return output;
@@ -195,7 +195,7 @@ namespace AutoDrive::DataLoader {
                                                                                           std::stod(substrings[2]),
                                                                                           std::stod(substrings[3])}));
             } else {
-                context_.logger_.error("Unexpected lenght of imu mag data: ");
+                context_.logger_.error("Unexpected length of imu mag data: ");
             }
         }
         return output;
@@ -208,7 +208,7 @@ namespace AutoDrive::DataLoader {
             if(substrings.size() == 2) {
                 output.push_back( std::make_shared<DataModels::ImuPressureDataModel>(std::stoll(substrings[0]),std::stoll(substrings[1])));
             } else {
-                context_.logger_.error("Unexpected lenght of imu pressure data: ");
+                context_.logger_.error("Unexpected length of imu pressure data: ");
             }
         }
         return output;
@@ -221,7 +221,7 @@ namespace AutoDrive::DataLoader {
             if(substrings.size() == 2) {
                 output.push_back( std::make_shared<DataModels::ImuTempDataModel>(std::stoll(substrings[0]),std::stod(substrings[1])));
             } else {
-                context_.logger_.error("Unexpected lenght of imu temp data: ");
+                context_.logger_.error("Unexpected length of imu temp data: ");
             }
         }
         return output;
@@ -237,7 +237,7 @@ namespace AutoDrive::DataLoader {
                                                                      std::stoll(substrings[4]),std::stoll(substrings[5]),
                                                                      std::stoll(substrings[6]),std::stoll(substrings[7])));
             } else {
-                context_.logger_.error("Unexpected lenght of imu time data: ");
+                context_.logger_.error("Unexpected length of imu time data: ");
             }
         }
         return output;

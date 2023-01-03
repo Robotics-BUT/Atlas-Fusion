@@ -30,7 +30,7 @@ namespace AutoDrive::Algorithms {
             DataModels::LocalPosition startPose,
             DataModels::LocalPosition endPose,
             const rtl::RigidTf3D<double> &sensorOffsetTf) {
-        Timer t("Split point cloud into batches");
+        // Timer t("Split point cloud into batches");
 
         std::vector<std::shared_ptr<DataModels::PointCloudBatch>> output;
         output.resize(noOfBatches_);

@@ -36,14 +36,14 @@ namespace AutoDrive::DataModels {
     }
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getScan() {
-        Timer t("Get lidar scan");
+        // Timer t("Get lidar scan");
         if(filteredScan_.points.empty()) {
             if(scan_.points.empty()) {
                 getRawScan();
             }
             filteredScan_ = scan_;
             {
-                Timer t("Filter scan");
+                // Timer t("Filter scan");
                 filter_(filteredScan_);
             }
         }
@@ -53,7 +53,7 @@ namespace AutoDrive::DataModels {
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getRawScan() {
-        Timer t("Get lidar scan - raw");
+        // Timer t("Get lidar scan - raw");
         if(scan_.points.empty()) {
             if (pcl::io::loadPCDFile<pcl::PointXYZ>(scan_path_, scan_) == -1) {
                 std::cerr << "Could not open pcd file: " << scan_path_ << std::endl;

@@ -27,7 +27,7 @@ namespace AutoDrive::Algorithms {
 
     void PointCloudAggregator::addPointCloudBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &batches) {
         //TODO: Too slow
-        Timer t("Add lidar batches");
+        // Timer t("Add lidar batches");
         size_t pointsToAdd = 0;
         size_t noOfPoints = aggregatedPoints_->size();
         for (const auto &batch: batches) {
@@ -43,7 +43,7 @@ namespace AutoDrive::Algorithms {
 
 
     void PointCloudAggregator::filterOutBatches(uint64_t currentTime) {
-        Timer t("Filter out lidar aggregated batches");
+        // Timer t("Filter out lidar aggregated batches");
         if (batchInfo_.empty()) return;
 
         size_t pointsToDelete = 0;
@@ -65,7 +65,7 @@ namespace AutoDrive::Algorithms {
     }
 
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getGlobalCoordinatePointCloud() {
-        Timer t("Get aggregated point cloud");
+        // Timer t("Get aggregated point cloud");
         if (!downsampledPointsValid_) {
             aggregatedPointsDownsampled_ = pointCloudProcessor_.downsamplePointCloud(aggregatedPoints_);
             downsampledPointsValid_ = true;
@@ -75,7 +75,7 @@ namespace AutoDrive::Algorithms {
     }
 
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getEgoCentricPointCloud(const rtl::RigidTf3D<double> &egoTf) {
-        Timer t("Get ego centric point cloud");
+        // Timer t("Get ego centric point cloud");
 
         if (!egoPointsValid_) {
             egoCentricPoints_ = pointCloudProcessor_.transformPointCloud(aggregatedPointsDownsampled_, egoTf);
@@ -90,7 +90,7 @@ namespace AutoDrive::Algorithms {
     PointCloudAggregator::getEgoCentricPointCloudCutout(const rtl::BoundingBox3f &borders) {
         // TODO: Very slow -> Find a way to make those cutouts without iterating over the whole pc.
         // Maybe pre-defined cutouts would be useful for passing into reprojections as we can calculate deterministically which points could get into other sensor FOV.
-        Timer t("Get point cloud cutout");
+        // Timer t("Get point cloud cutout");
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
         output->reserve(egoCentricPoints_->size());

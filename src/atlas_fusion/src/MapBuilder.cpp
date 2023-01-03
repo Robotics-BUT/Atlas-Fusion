@@ -364,7 +364,7 @@ namespace AutoDrive {
             }
         }
         {
-            Timer t("Draw lidar data");
+            // Timer t("Draw lidar data");
             visualizationHandler_.drawLidarData(lidarData);
             visualizationHandler_.drawSelfGlobal();
             visualizationHandler_.drawSelfEgo();
@@ -378,7 +378,7 @@ namespace AutoDrive {
     }
 
     void MapBuilder::aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
-        Timer t("Aggregate lidar");
+        // Timer t("Aggregate lidar");
         let lidarID = lidarData->getLidarIdentifier();
         let sensorFrame = frameTypeFromDataModel(lidarData);
         mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);
@@ -401,7 +401,7 @@ namespace AutoDrive {
     }
 
     void MapBuilder::approximateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
-        Timer t("Aproximate lidar");
+        // Timer t("Aproximate lidar");
         let lidarID = lidarData->getLidarIdentifier();
         let sensorFrame = frameTypeFromDataModel(lidarData);
         mut lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);

@@ -91,7 +91,7 @@ namespace AutoDrive::DataLoader {
     }
 
     std::shared_ptr<DataModels::GenericDataModel> DataLoader::getNextData() {
-        Timer t("Get next data");
+        // Timer t("Get next data");
         AbstractDataLoader *it = nullptr;
         uint64_t minTimestamp = std::numeric_limits<uint64_t>::max();
 

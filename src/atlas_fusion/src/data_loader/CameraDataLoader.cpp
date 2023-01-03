@@ -124,7 +124,7 @@ namespace AutoDrive::DataLoader {
     }
 
     std::shared_ptr<DataModels::GenericDataModel> CameraDataLoader::getNextData() {
-        Timer t("Get next camera frame");
+        // Timer t("Get next camera frame");
         if (!isOnEnd()) {
             cv::Mat frame{};
             video_.read(frame);

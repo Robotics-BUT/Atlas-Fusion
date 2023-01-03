@@ -45,12 +45,23 @@ namespace AutoDrive::FailCheck {
     }
 
     void CameraRGBFailChecker::onNewData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data) {
+        if (data == nullptr || data->getImage().empty()) return;
+
         frameBgr = data->getImage();
         cv::cvtColor(frameBgr, frameGray, cv::COLOR_BGR2GRAY);
         estimateVanishingPoint();
 
-        //TODO: Run all algorithms in parallel
+        context_.threadPool_.push_task([&]() mutable { calculateVisibility(true, std::pair(vanishingPointX, vanishingPointY), std::pair(-1, -1)); });
+        context_.threadPool_.push_task([&]() mutable { detectGlareAndOcclusion(); });
 
+        for (int j = 0; j < DFT_BLOCK_COUNT; j++) {
+            for (int i = 0; i < DFT_BLOCK_COUNT; i++) {
+                int w = (DFT_WINDOW_SIZE / 2) + (i * ((frameGray.cols - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
+                int h = (DFT_WINDOW_SIZE / 2) + (j * ((frameGray.rows - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
+                context_.threadPool_.push_task([&]() mutable { calculateVisibility(false, std::pair(w, h), std::pair(i, j)); });
+            }
+        }
+        context_.threadPool_.wait_for_tasks();
     }
 
     void CameraRGBFailChecker::estimateVanishingPoint() {
@@ -65,18 +76,6 @@ namespace AutoDrive::FailCheck {
         vanishingPointY = (frameGray.rows / 100.0) * vertical;
 
         //std::cout << "Vanishing point at: (" << vanishingPointX << ", " << vanishingPointY << ")" << std::endl;
-
-        context_.threadPool_.push_task([&]() { calculateVisibility(true, std::pair(vanishingPointX, vanishingPointY), std::pair(-1, -1)); });
-        //TODO: Glare and occlusion detection
-
-        for (int j = 0; j < DFT_BLOCK_COUNT; j++) {
-            for (int i = 0; i < DFT_BLOCK_COUNT; i++) {
-                int w = (DFT_WINDOW_SIZE / 2) + (i * ((frameGray.cols - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
-                int h = (DFT_WINDOW_SIZE / 2) + (j * ((frameGray.rows - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
-                context_.threadPool_.push_task([&]() { calculateVisibility(false, std::pair(w, h), std::pair(i, j)); });
-            }
-        }
-        context_.threadPool_.wait_for_tasks();
     }
 
     void CameraRGBFailChecker::calculateVisibility(bool isVanishingPoint, std::pair<int, int> centerPoint, std::pair<int, int> position) {
@@ -160,5 +159,71 @@ namespace AutoDrive::FailCheck {
                                 (MAX_VISIBILITY_THRESHOLD - MIN_VISIBILITY_THRESHOLD));
             visibility.at<float>(position.first, position.second) = float(vis);
         }
+    }
+
+    void CameraRGBFailChecker::detectGlareAndOcclusion() {
+
+        // Step 1: Convert the frame to a color space that maximizes resolution in luminance
+        // Step 2: Divide the camera frame into meaningful regions to detect glare in
+        int roiWidth = frameGray.cols / HISTOGRAM_COUNT;
+        int roiHeight = frameGray.rows / HISTOGRAM_COUNT;
+        int glareBinThreshold = int(HISTOGRAM_BINS * GLARE_THRESHOLD);
+        int occlusionBinThreshold = int(HISTOGRAM_BINS * OCCLUSION_THRESHOLD);
+
+        for (int i = 0, j = 0; i < HISTOGRAM_COUNT && j < HISTOGRAM_COUNT;) {
+            int histIndex = i + (j * HISTOGRAM_COUNT);
+            cv::Rect roi = cv::Rect(i * roiWidth, j * roiHeight, roiWidth, roiHeight);
+            cv::Mat imageRoi = cv::Mat(frameGray, roi);
+
+            // Step 3: Calculate histogram of every camera frame region
+            cv::Mat histRoi;
+            int histSize = HISTOGRAM_BINS;
+            float range[] = {0, 256};
+            const float *histRange[] = {range};
+            cv::calcHist(&imageRoi, 1, nullptr, cv::Mat(), histRoi, 1, &histSize, histRange, true, false);
+            histRoi = histRoi.t();
+
+            for (int k = 0; k < histSize; k++) {
+                histograms.at<float>(histIndex, k) = histRoi.at<float>(k);
+            }
+
+            // Step 4: Detect glare and occlusions in each histogram
+            float occlusionLuminance = 0, regularLuminance = 0, glareLuminance = 0;
+            for (int k = 0; k < HISTOGRAM_BINS; k++) {
+                if (k >= glareBinThreshold) {
+                    glareLuminance += histograms.at<float>(histIndex, k);
+                } else if (k <= occlusionBinThreshold) {
+                    occlusionLuminance += histograms.at<float>(histIndex, k);
+                } else {
+                    regularLuminance += histograms.at<float>(histIndex, k);
+                }
+            }
+
+            if (glareLuminance >= (regularLuminance + occlusionLuminance)) {
+                occlusionBuffers.at(histIndex).push_back(true);
+                glareAmounts.at<float>(i, j) = (glareLuminance * 255.0f) / (regularLuminance + glareLuminance + occlusionLuminance);
+            } else if (occlusionLuminance >= (regularLuminance + glareLuminance)) {
+                occlusionBuffers.at(histIndex).push_back(false);
+                glareAmounts.at<float>(i, j) = occlusionBuffers.at(histIndex).dataSum() == 0L ? 0 : 64;
+            } else {
+                occlusionBuffers.at(histIndex).push_back(true);
+                glareAmounts.at<float>(i, j) = 64;
+            }
+
+            // For daylight images ignore skylight
+            if (j < HISTOGRAM_COUNT / 2 && isDaylight) {
+                if (glareAmounts.at<float>(i, j) > 64) {
+                    glareAmounts.at<float>(i, j) = 64;
+                }
+            }
+
+            i++;
+            if (i == HISTOGRAM_COUNT) {
+                i = 0;
+                j++;
+            }
+        }
+
+        // Step 5: Calculate a global score for the image based on the detected glares in various regions
     }
 }
