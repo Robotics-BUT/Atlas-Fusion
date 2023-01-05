@@ -60,9 +60,6 @@ namespace AutoDrive::Visualizers {
         std::tuple<double, double, double> pos(0.0, 0.0, 0.0);
         switch (frame) {
             case FrameType::kOrigin:
-            case FrameType::kLidarLeft:
-            case FrameType::kLidarRight:
-            case FrameType::kLidarCenter:
             case FrameType::kRadarTi:
             case FrameType::kGnssAntennaFront:
             case FrameType::kGnssAntennaRear:
@@ -82,6 +79,15 @@ namespace AutoDrive::Visualizers {
                 break;
             case FrameType::kCameraIr:
                 std::get<0>(pos) = -2.0; std::get<1>(pos) = -2.0; std::get<2>(pos) = 0.0;
+                break;
+            case FrameType::kLidarLeft:
+                std::get<0>(pos) = 0.0; std::get<1>(pos) = 0.0; std::get<2>(pos) = 0.0;
+                break;
+            case FrameType::kLidarRight:
+                std::get<0>(pos) = 0.0; std::get<1>(pos) = 0.0; std::get<2>(pos) = 0.0;
+                break;
+            case FrameType::kLidarCenter:
+                std::get<0>(pos) = 0.0; std::get<1>(pos) = 0.0; std::get<2>(pos) = 0.0;
                 break;
         }
 

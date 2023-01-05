@@ -36,16 +36,12 @@ namespace AutoDrive::DataModels {
     }
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getScan() {
-        // Timer t("Get lidar scan");
         if(filteredScan_.points.empty()) {
             if(scan_.points.empty()) {
                 getRawScan();
             }
             filteredScan_ = scan_;
-            {
-                // Timer t("Filter scan");
-                filter_(filteredScan_);
-            }
+            filter_(filteredScan_);
         }
 
         return filteredScan_.makeShared();

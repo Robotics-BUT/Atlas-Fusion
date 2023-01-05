@@ -168,8 +168,6 @@ namespace AutoDrive {
                     Timer t("LiDAR ...");
 
                     mut lidarData = std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data);
-                    lidarData->registerFilter(
-                            [ObjectPtr = &lidarFilter_](auto &&PH1) { ObjectPtr->applyFiltersOnLidarData(std::forward<decltype(PH1)>(PH1)); });
                     processLidarScanData(lidarData);
                     cache_.setNewLidarScan(lidarData);
                     break;
@@ -198,14 +196,13 @@ namespace AutoDrive {
                     context_.logger_.warning("Unexpected type of data model from DataLoader");
                     break;
             }
+            visualizationHandler_.drawSensorStatus(failChecker_.getSensorStatusString(sensorFrame), sensorFrame);
         }
     }
-
 
     void MapBuilder::clearData() {
         dataLoader_.clear();
     }
-
 
     void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData, const FrameType &sensorFrame) {
         static int cnt = 0;
@@ -222,7 +219,6 @@ namespace AutoDrive {
         localMap_.setFrustumDetections(frustums, sensorFrame);
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
 
-        visualizationHandler_.drawSensorStatus(failChecker_.getSensorStatusString(sensorFrame), sensorFrame);
         if (cnt++ >= 3) {
             cnt = 0;
             futures.push_back(context_.threadPool_.submit([&]() {
@@ -299,7 +295,6 @@ namespace AutoDrive {
         }
     }
 
-
     void MapBuilder::processIRCameraData(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &irCameraFrame) {
         static int cnt = 0;
 
@@ -322,7 +317,6 @@ namespace AutoDrive {
         yoloIrReprojector_.onNewIRFrame(irCameraFrame);
         visualizationHandler_.drawIRImage(irCameraFrame);
     }
-
 
     void MapBuilder::processGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel> &poseData) {
         gnssPoseLogger_.onGnssPose(poseData);
@@ -365,7 +359,6 @@ namespace AutoDrive {
         visualizationHandler_.drawImuData(linAccNoGrav);
     }
 
-
     void MapBuilder::processLidarScanData(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
         let lidarID = lidarData->getLidarIdentifier();
         if (cache_.getLidarScan(lidarID) != nullptr) {
@@ -375,6 +368,10 @@ namespace AutoDrive {
             if (Lidar_Laser_Approx_And_Seg) {
                 approximateLidar(lidarData);
             }
+        }
+
+        if(lidarData->getLidarIdentifier() == DataLoader::LidarIdentifier::kCenterLidar) {
+            std::cout << "Center lidar returned: " << lidarData->getScan()->size() << " points" << std::endl;
         }
 
         visualizationHandler_.drawLidarData(lidarData);

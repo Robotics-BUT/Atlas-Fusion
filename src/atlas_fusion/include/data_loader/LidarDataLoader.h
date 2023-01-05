@@ -27,6 +27,7 @@
 #include "data_models/DataModelTypes.h"
 #include "data_models/all.h"
 #include "Context.h"
+#include "../algorithms/LidarFilter.h"
 
 namespace AutoDrive::DataLoader {
 
@@ -42,10 +43,12 @@ namespace AutoDrive::DataLoader {
          *
          * @param context global services container (timestamps, logging, etc.)
          * @param id currently identifies the left or right LiDAR sensor
+         * @param filter basic filter to apply on the input data (combats echos from the vehicle)
          */
-        LidarDataLoader(Context& context, LidarIdentifier id)
+        LidarDataLoader(Context& context, LidarIdentifier id, Algorithms::LidarFilter& filter)
         : context_{context}
-        , lidarIdentifier_(id){
+        , lidarIdentifier_(id)
+        , lidarFilter_{filter} {
             data_.clear();
             dataIt_ = data_.begin();
         }
@@ -63,6 +66,7 @@ namespace AutoDrive::DataLoader {
     private:
         Context& context_;
         LidarIdentifier lidarIdentifier_;
+        Algorithms::LidarFilter& lidarFilter_;
         std::vector<std::shared_ptr<DataModels::LidarScanDataModel>> data_;
         std::vector<std::shared_ptr<DataModels::LidarScanDataModel>>::iterator dataIt_;
         std::vector<std::shared_ptr<DataModels::LidarScanDataModel>>::iterator releaseIt_;

@@ -30,9 +30,12 @@ namespace AutoDrive::Visualizers::Topics {
         const std::string kSelfGlobal = "/autodrive/local_map/self/global";
         const std::string kSelfEgo = "/autodrive/local_map/self/ego";
 
-        const std::string kLidarLeft = "/autodrive/local_map/lidar/left";
-        const std::string kLidarRight = "/autodrive/local_map/lidar/right";
-        const std::string kLidarCenter = "/autodrive/local_map/lidar/center";
+        const std::string kLidarLeft = "/autodrive/local_map/lidar_left/points";
+        const std::string kLidarRight = "/autodrive/local_map/lidar_right/points";
+        const std::string kLidarCenter = "/autodrive/local_map/lidar_center/points";
+        const std::string kLidarLeftStatus = "/autodrive/local_map/lidar_left/status";
+        const std::string kLidarRightStatus = "/autodrive/local_map/lidar_right/status";
+        const std::string kLidarCenterStatus = "/autodrive/local_map/lidar_center/status";
         const std::string kImuTopic = "/autodrive/local_map/imu/imu";
         const std::string kImuAvgTopic = "/autodrive/local_map/imu/imu_avg";
         const std::string kGnssTopic = "/autodrive/local_map/gnss/pose_text";

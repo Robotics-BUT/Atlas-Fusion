@@ -104,4 +104,22 @@ namespace AutoDrive::Algorithms {
 
         return output;
     }
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr
+    PointCloudProcessor::getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::BoundingBox3f &boundingBox) {
+        // TODO: Very slow -> Find a way to make those cutouts without iterating over the whole pc.
+        // Timer t("Get point cloud cutout");
+
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
+        output->reserve(input->size());
+
+        for (const auto &point: input->points) {
+            if (point.x > boundingBox.min().getElement(0) && point.x < boundingBox.max().getElement(0) &&
+                point.y > boundingBox.min().getElement(1) && point.y < boundingBox.max().getElement(1) &&
+                point.z > boundingBox.min().getElement(2) && point.z < boundingBox.max().getElement(2)) {
+                output->push_back(point);
+            }
+        }
+        return output;
+    }
 }

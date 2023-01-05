@@ -248,9 +248,7 @@ namespace AutoDrive::Visualizers {
         std::string topic;
         switch(frameType) {
             case FrameType::kOrigin:
-            case FrameType::kLidarLeft:
-            case FrameType::kLidarRight:
-            case FrameType::kLidarCenter:
+
             case FrameType::kRadarTi:
             case FrameType::kGnssAntennaFront:
             case FrameType::kGnssAntennaRear:
@@ -265,7 +263,12 @@ namespace AutoDrive::Visualizers {
                 topic = Topics::kCameraRightSideStatus; break;
             case FrameType::kCameraIr:
                 topic = Topics::kCameraIrStatus; break;
-
+            case FrameType::kLidarLeft:
+                topic = Topics::kLidarLeftStatus; break;
+            case FrameType::kLidarRight:
+                topic = Topics::kLidarRightStatus; break;
+            case FrameType::kLidarCenter:
+                topic = Topics::kLidarCenterStatus; break;
         }
         sensorStatusVisualizer_.drawStatusAsText(sensorStatus, frameType, topic);
     }

@@ -41,7 +41,7 @@ namespace AutoDrive::Algorithms {
 
         /**
          * Constructor
-         * @param context global services container, like loger, etc.
+         * @param context global services container, like logger, etc.
          * @param noOfLasers Number of lasers in the given scan
          * @param aggPointsNo number of aggregated points in the laser's history
          */
@@ -64,10 +64,10 @@ namespace AutoDrive::Algorithms {
          * @param sensorOffset relative position of the lidar w.r.t. the car center
          */
         void onNewLaserData(
-                pcl::PointCloud<pcl::PointXYZ>::Ptr scan,
-                DataModels::LocalPosition startPose,
-                DataModels::LocalPosition endPose,
-                rtl::RigidTf3D<double> sensorOffset);
+                const pcl::PointCloud<pcl::PointXYZ>::Ptr& scan,
+                const DataModels::LocalPosition& startPose,
+                const DataModels::LocalPosition& endPose,
+                const rtl::RigidTf3D<double>& sensorOffset);
 
         /**
          * Method provides aggregated history for a laser with the given index

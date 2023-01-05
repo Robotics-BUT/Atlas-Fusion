@@ -21,11 +21,30 @@
  */
 
 #include "fail_check/LidarFailChecker.h"
+#include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::FailCheck {
 
 
-    void LidarFailChecker::onNewData(std::shared_ptr<DataModels::LidarScanDataModel> /*data*/) {
-        return;
+    void LidarFailChecker::onNewData(const std::shared_ptr<DataModels::LidarScanDataModel>& data) {
+        frameType_ = frameTypeFromDataModel(data);
+        pointCount_ = data->getScan()->size();
+
+        evaluatePerformance();
+    }
+
+    void LidarFailChecker::evaluatePerformance() {
+        if(frameType_ == FrameType::kLidarCenter) {
+            isWetRoad_ = pointCount_ < 15000;
+        } else {
+            isWetRoad_ = pointCount_ < 25000;
+        }
+
+
+
+        sensorStatusString_ = "";
+        sensorStatusString_ += frameTypeName(frameType_) + "\n";
+        sensorStatusString_ += "Scan points: " + std::to_string(pointCount_) + "\n";
+        sensorStatusString_ += "Possible wet road: " + std::to_string(isWetRoad_) + "\n";
     }
 }

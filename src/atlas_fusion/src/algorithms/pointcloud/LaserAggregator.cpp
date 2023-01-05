@@ -25,10 +25,10 @@
 namespace AutoDrive::Algorithms {
 
     void LaserAggregator::onNewLaserData(
-            pcl::PointCloud<pcl::PointXYZ>::Ptr scan,
-            DataModels::LocalPosition startPose,
-            DataModels::LocalPosition poseDiff,
-            rtl::RigidTf3D<double> sensorOffsetTf) {
+            const pcl::PointCloud<pcl::PointXYZ>::Ptr& scan,
+            const DataModels::LocalPosition& startPose,
+            const DataModels::LocalPosition& poseDiff,
+            const rtl::RigidTf3D<double>& sensorOffsetTf) {
 
         auto duration = poseDiff.getTimestamp();
         DataModels::LocalPosition endPose{startPose.getPosition() + poseDiff.getPosition(),
@@ -77,7 +77,7 @@ namespace AutoDrive::Algorithms {
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr LaserAggregator::getAggregatedLaser(size_t laserNo) {
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr output{};
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
         output->reserve(aggPointsNo_);
 
         for (const auto &point: aggregators.at(laserNo)) {

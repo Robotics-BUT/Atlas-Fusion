@@ -64,7 +64,7 @@ namespace AutoDrive::DataLoader {
             }
 
             std::stringstream ss;
-            ss << path + folder + Files::kScanFile << std::setw(6) << std::setfill('0')
+            ss << path << folder << Files::kScanFile << std::setw(6) << std::setfill('0')
                << scan_no << Files::kPcdExt;
             data_.push_back(std::make_shared<DataModels::LidarScanDataModel>(timestamp,
                                                                              lidarIdentifier_,
@@ -88,6 +88,8 @@ namespace AutoDrive::DataLoader {
         if (!isOnEnd()) {
             auto output = *dataIt_;
             dataIt_ = std::next(dataIt_,1);
+            output->registerFilter(
+                    [ObjectPtr = &lidarFilter_](auto &&PH1) { ObjectPtr->applyFiltersOnLidarData(std::forward<decltype(PH1)>(PH1)); });
             return output;
         }
         return std::make_shared<DataModels::ErrorDataModel>();

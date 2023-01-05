@@ -67,9 +67,17 @@ namespace AutoDrive::Algorithms {
          * Method applies 3D transformation on a given point cloud
          * @param input input point cloud
          * @param tf 3D transformation that will be applied
-         * @return transpormed point cloud
+         * @return transformed point cloud
          */
         pcl::PointCloud<pcl::PointXYZ>::Ptr transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::RigidTf3D<double> &tf);
+
+        /**
+         *
+         * @param input input point cloud
+         * @param boundingBox 3D bound inside which the points will be returned
+         * @return point cloud cutout
+         */
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::BoundingBox3f& boundingBox);
 
     private:
 

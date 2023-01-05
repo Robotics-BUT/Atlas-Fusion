@@ -88,20 +88,8 @@ namespace AutoDrive::Algorithms {
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr
     PointCloudAggregator::getEgoCentricPointCloudCutout(const rtl::BoundingBox3f &borders) {
-        // TODO: Very slow -> Find a way to make those cutouts without iterating over the whole pc.
         // Maybe pre-defined cutouts would be useful for passing into reprojections as we can calculate deterministically which points could get into other sensor FOV.
-        // Timer t("Get point cloud cutout");
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
-        output->reserve(egoCentricPoints_->size());
-
-        for (const auto &point: egoCentricPoints_->points) {
-            if (point.x > borders.min().getElement(0) && point.x < borders.max().getElement(0) &&
-                point.y > borders.min().getElement(1) && point.y < borders.max().getElement(1) &&
-                point.z > borders.min().getElement(2) && point.z < borders.max().getElement(2)) {
-                output->push_back(point);
-            }
-        }
-        return output;
+        return pointCloudProcessor_.getPointCloudCutout(egoCentricPoints_, borders);
     }
 }

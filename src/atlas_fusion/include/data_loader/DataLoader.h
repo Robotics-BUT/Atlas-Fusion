@@ -51,15 +51,15 @@ namespace AutoDrive::DataLoader {
              * @param keepHistoryLength defines the time data is held in memory in nanoseconds
              * before it will be removed
              */
-            DataLoader(Context& context, timestamp_type keepHistoryLength)
+            DataLoader(Context& context, timestamp_type keepHistoryLength, Algorithms::LidarFilter& lidarFilter)
             : cameraLeftFrontDataLoader_(CameraDataLoader(context, CameraIndentifier::kCameraLeftFront, context.calibFolder_+Files::kCameraLeftFrontCalibYaml))
             , cameraLeftSideDataLoader_(CameraDataLoader(context, CameraIndentifier::kCameraLeftSide, context.calibFolder_+Files::kCameraLeftSideCalibYaml))
             , cameraRightFrontDataLoader_(CameraDataLoader(context, CameraIndentifier::kCameraRightFront, context.calibFolder_+Files::kCameraRightFrontCalibYaml))
             , cameraRightSideDataLoader_(CameraDataLoader(context, CameraIndentifier::kCameraRightSide, context.calibFolder_+Files::kCameraRightSideCalibYaml))
             , cameraIrDataLoader_(CameraDataLoader(context, CameraIndentifier::kCameraIr, context.calibFolder_+Files::kCameraIrCalibYaml))
-            , leftLidarDataLoader_(LidarDataLoader(context, LidarIdentifier::kLeftLidar))
-            , rightLidarDataLoader_(LidarDataLoader(context, LidarIdentifier::kRightLidar))
-            , centerLidarDataLoader_(LidarDataLoader(context, LidarIdentifier::kCenterLidar))
+            , leftLidarDataLoader_(LidarDataLoader(context, LidarIdentifier::kLeftLidar, lidarFilter))
+            , rightLidarDataLoader_(LidarDataLoader(context, LidarIdentifier::kRightLidar, lidarFilter))
+            , centerLidarDataLoader_(LidarDataLoader(context, LidarIdentifier::kCenterLidar, lidarFilter))
             , gnssPoseDataLoader_(GnssDataLoader(context, GnssLoaderIdentifier::kPose))
             , gnssTimeDataLoader_(GnssDataLoader(context, GnssLoaderIdentifier::kTime))
             , imuDquatDataLoader_(ImuDataLoader(context, ImuLoaderIdentifier::kDQuat))

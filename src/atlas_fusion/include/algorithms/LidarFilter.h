@@ -38,7 +38,7 @@ namespace AutoDrive::Algorithms {
     public:
 
         /**
-         * Method calls the set of filtering actions on the incomming lidar scan
+         * Method calls the set of filtering actions on the incoming lidar scan
          * @param data lidar scan
          */
         void applyFiltersOnLidarData( pcl::PointCloud<pcl::PointXYZ>& data) {

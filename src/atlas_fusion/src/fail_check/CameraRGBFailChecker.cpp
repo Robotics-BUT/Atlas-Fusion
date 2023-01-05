@@ -48,6 +48,7 @@ namespace AutoDrive::FailCheck {
 
     void CameraRGBFailChecker::onNewData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data) {
         if (data == nullptr || data->getImage().empty()) return;
+        frameType_ = frameTypeFromDataModel(data);
         Timer t(frameTypeName(frameType_) + " validation");
 
         frameBgr = data->getImage();

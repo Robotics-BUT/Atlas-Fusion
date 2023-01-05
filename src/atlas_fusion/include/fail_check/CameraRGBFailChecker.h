@@ -56,8 +56,8 @@ namespace AutoDrive::FailCheck {
          * @param environmentalModel model of environment current state
          * @param frame camera identifier
          */
-        CameraRGBFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel, FrameType frame)
-        : AbstractFailChecker{context, selfModel, environmentalModel}, frameType_{frame} {
+        CameraRGBFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
+        : AbstractFailChecker{context, selfModel, environmentalModel} {
             for (int i = 0; i < HISTOGRAM_COUNT * HISTOGRAM_COUNT; i++) {
                 occlusionBuffers.emplace_back(OCCLUSION_MIN_FRAMES);
             }
@@ -70,7 +70,7 @@ namespace AutoDrive::FailCheck {
         void onNewData(const std::shared_ptr<DataModels::CameraFrameDataModel>& data);
 
     private:
-        FrameType frameType_;
+        FrameType frameType_ = FrameType::kOrigin;
 
         cv::Mat frameBgr{};
         cv::Mat frameGray{};

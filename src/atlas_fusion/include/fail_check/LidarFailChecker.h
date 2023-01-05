@@ -24,13 +24,14 @@
 
 #include "AbstractFailChecker.h"
 #include "data_models/lidar/LidarScanDataModel.h"
+#include "../algorithms/pointcloud/PointCloudProcessor.h"
 
 namespace AutoDrive::FailCheck {
 
     /**
      * Validates LiDAR point cloud scans. Currently bypassed.
      */
-    class LidarFailChecker : public AbstractFailChecker{
+    class LidarFailChecker : public AbstractFailChecker {
 
     public:
 
@@ -42,18 +43,27 @@ namespace AutoDrive::FailCheck {
          * @param selfModel self model of ego vehicle
          * @param environmentalModel model of environment current state
          */
-        LidarFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
-        : AbstractFailChecker{context, selfModel, environmentalModel} {}
+        LidarFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel,
+                         Algorithms::PointCloudProcessor &pointCloudProcessor)
+                : AbstractFailChecker{context, selfModel, environmentalModel}, pointCloudProcessor_{pointCloudProcessor} {}
 
 
         /**
          * Pipe to provide new sensor data into the LiDAR Fail Checker
          * @param data point cloud scan
          */
-        void onNewData(std::shared_ptr<DataModels::LidarScanDataModel>);
+        void onNewData(const std::shared_ptr<DataModels::LidarScanDataModel> &data);
 
     private:
+        Algorithms::PointCloudProcessor &pointCloudProcessor_;
 
+        FrameType frameType_ = FrameType::kOrigin;
+        size_t rawPointCount_ = 0;
+        size_t pointCount_ = 0;
+
+        bool isWetRoad_ = false;
+
+        void evaluatePerformance();
     };
 }
 
