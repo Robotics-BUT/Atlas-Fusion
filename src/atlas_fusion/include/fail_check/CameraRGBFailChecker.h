@@ -78,7 +78,7 @@ namespace AutoDrive::FailCheck {
         double vanishingPointX = 0.0;
         double vanishingPointY = 0.0;
 
-        double vanishingPointVisibility = -1.0;
+        double vanishingPointVisibility = 1.0;
         bool nightShot = false;
         bool possibleFog = false;
         bool possibleGlare = false;
