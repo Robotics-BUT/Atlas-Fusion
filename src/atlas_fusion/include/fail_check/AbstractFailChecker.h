@@ -50,9 +50,15 @@ namespace AutoDrive::FailCheck {
 
         /**
          * Reports reliability of the sensor
-         * @return
+         * @return <0, 1> sensor performance assessment
          */
         virtual float getSensorStatus();
+
+        /**
+        * Generates a more in-depth status string
+        * @return status string
+        */
+        virtual std::string getSensorStatusString();
 
         virtual ~AbstractFailChecker() = default;
 
@@ -62,5 +68,6 @@ namespace AutoDrive::FailCheck {
         const Algorithms::SelfModel &selfModel_;
         Algorithms::EnvironmentalModel &environmentalModel_;
         float sensorStatus_;
+        std::string sensorStatusString_;
     };
 }

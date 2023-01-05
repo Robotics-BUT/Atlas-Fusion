@@ -20,15 +20,39 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "fail_check/AbstractFailChecker.h"
+#pragma once
 
-namespace AutoDrive::FailCheck {
+#include "Context.h"
 
-    float AbstractFailChecker::getSensorStatus() {
-        return sensorStatus_;
-    }
+namespace AutoDrive::Visualizers {
 
-    std::string AbstractFailChecker::getSensorStatusString() {
-        return sensorStatusString_;
-    }
+    /**
+     * Visualization backend (ROS) implementations for visualizing telemetry text
+     */
+    class SensorStatusVisualizer {
+
+    public:
+
+        SensorStatusVisualizer() = delete;
+
+        /**
+         * Constructor
+         * @param node ros node reference
+         * @param context global services container (timestamps, logging, etc.)
+         * @param frameType sensor identification
+         */
+        SensorStatusVisualizer(ros::NodeHandle &node, Context &context) : node_{node}, context_{context} {}
+
+        void drawStatusAsText(const std::string &statusText, const FrameType &frame, const std::string &topic);
+
+    private:
+
+        ros::NodeHandle &node_;
+        Context &context_;
+
+        std::map<std::string, ros::Publisher> publishers_;
+
+        std::tuple<double, double, double> getTextPosition(const FrameType &frame) const;
+    };
+
 }

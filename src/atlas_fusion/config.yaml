@@ -3,12 +3,12 @@ logger:
   log_ext: "log"
   log_lvl: 1
 
-data_folder: "/media/standa/Hry/utorrent/3_1_3_3/"
-calibrations_folder: "/home/standa/Desktop/Projekty/Atlas-Fusion/src/atlas_fusion/calibrations/"
+data_folder: "/home/standa/Plocha/BUD/3_1_4_4/"
+calibrations_folder: "/home/standa/Plocha/Projekty/Atlas-Fusion/src/atlas_fusion/calibrations/"
 
 map_builder:
-  keep_history_sec_length: 100
-  max_replayer_rate: 10000000
+  keep_history_sec_length: 10
+  max_replayer_rate: 10
 
 laser_aggregator:
   lasers: 32

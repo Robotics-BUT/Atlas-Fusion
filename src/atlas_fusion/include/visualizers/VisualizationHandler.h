@@ -47,6 +47,7 @@
 #include "TelemetryVisualizer.h"
 #include "RadarVisualizer.h"
 #include "TrajectoryVisualizer.h"
+#include "SensorStatusVisualizer.h"
 
 
 namespace AutoDrive::Visualizers {
@@ -75,7 +76,8 @@ namespace AutoDrive::Visualizers {
         , trajectoryVisualizer_(node, context)
         , frustumVisualizer_(node, context)
         , telemetryVisualizer_(node, context)
-        , radarVisualizer_(node, context) {
+        , radarVisualizer_(node, context)
+        , sensorStatusVisualizer_(node, context) {
             selfGlobalPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kSelfGlobal, 0);
             selfEgoPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kSelfEgo, 0);
         }
@@ -230,6 +232,12 @@ namespace AutoDrive::Visualizers {
          */
         void drawRadarTiObjects(const std::vector<DataModels::RadarTiDataModel::Object>& objects);
 
+        /**
+        * Draws sensor status text message
+        * @param sensorStatus
+        */
+        void drawSensorStatus(const std::string& sensorStatus, const FrameType& frameType);
+
     private:
 
         ros::NodeHandle& node_;
@@ -247,6 +255,8 @@ namespace AutoDrive::Visualizers {
         FrustumVisualizer frustumVisualizer_;
         TelemetryVisualizer telemetryVisualizer_;
         RadarVisualizer radarVisualizer_;
+
+        SensorStatusVisualizer sensorStatusVisualizer_;
 
         [[nodiscard]] visualization_msgs::Marker getSelfEgoCube() const;
         [[nodiscard]] visualization_msgs::Marker getSelfGlobalCube() const;

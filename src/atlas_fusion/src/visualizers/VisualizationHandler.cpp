@@ -25,7 +25,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include "Timer.h"
 
-namespace AutoDrive::Visualizers{
+namespace AutoDrive::Visualizers {
 
     void VisualizationHandler::drawSelfGlobal() const {
         selfGlobalPublisher_.publish(getSelfGlobalCube());
@@ -37,49 +37,49 @@ namespace AutoDrive::Visualizers{
 
     /* LIDAR */
 
-    void VisualizationHandler::drawLidarData(const std::shared_ptr<DataModels::LidarScanDataModel>& data) {
+    void VisualizationHandler::drawLidarData(const std::shared_ptr<DataModels::LidarScanDataModel> &data) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
 
         auto scan = data->getScan();
         if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kLeftLidar) {
             lidarVisualizer_.drawPointCloudOnTopic(scan, Topics::kLidarLeft, FrameType::kLidarLeft);
         } else if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kRightLidar) {
             lidarVisualizer_.drawPointCloudOnTopic(scan, Topics::kLidarRight, FrameType::kLidarRight);
-        }else if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kCenterLidar) {
+        } else if (data->getLidarIdentifier() == DataLoader::LidarIdentifier::kCenterLidar) {
             lidarVisualizer_.drawPointCloudOnTopic(scan, Topics::kLidarCenter, FrameType::kLidarCenter);
         }
     }
 
 
-    void VisualizationHandler::drawAggregatedPointCloudGlobal(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
+    void VisualizationHandler::drawAggregatedPointCloudGlobal(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &pc) {
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
 
         lidarVisualizer_.drawPointCloudOnTopic(pc, Topics::kLidarAggregatedGlobal, FrameType::kOrigin);
     }
 
-    void VisualizationHandler::drawAggregatedPointCloudEgo(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
+    void VisualizationHandler::drawAggregatedPointCloudEgo(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &pc) {
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
 
         lidarVisualizer_.drawPointCloudOnTopic(pc, Topics::kLidarAggregatedEgo, FrameType::kOrigin);
     }
 
 
-    void VisualizationHandler::drawAggregatedLasers(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
+    void VisualizationHandler::drawAggregatedLasers(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &pc) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
 
         lidarVisualizer_.drawPointCloudOnTopic(pc, Topics::kLidarLaser, FrameType::kOrigin);
     }
 
     void VisualizationHandler::drawLidarApproximations(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
 
         visualization_msgs::Marker::_color_type col;
         col.a = 1;
@@ -91,8 +91,8 @@ namespace AutoDrive::Visualizers{
 
     void VisualizationHandler::drawLidarApproximationsRoad(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
 
         visualization_msgs::Marker::_color_type col;
         col.a = 1;
@@ -102,28 +102,28 @@ namespace AutoDrive::Visualizers{
         lidarVisualizer_.drawApproximationOnTopic(ls, Topics::kLidarApproximationRoad, FrameType::kOrigin, col);
     }
 
-    void VisualizationHandler::drawGlobalPointcloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
+    void VisualizationHandler::drawGlobalPointcloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &pc) {
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
 
         lidarVisualizer_.drawPointCloudOnTopic(pc, Topics::kGlobalPointCloud, FrameType::kOrigin);
     }
 
-    void VisualizationHandler::drawPointcloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& pc) {
+    void VisualizationHandler::drawPointcloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &pc) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().lidar_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
 
         lidarVisualizer_.drawPointCloudOnTopic(pc, Topics::kCutoutPointcloud, FrameType::kImu);
     }
 
 
-    void VisualizationHandler::drawRGBImage(const std::shared_ptr<DataModels::CameraFrameDataModel>& data) {
+    void VisualizationHandler::drawRGBImage(const std::shared_ptr<DataModels::CameraFrameDataModel> &data) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().rgb_camera_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().rgb_camera_visualization_) { return; }
 
-        switch(data->getCameraIdentifier()) {
+        switch (data->getCameraIdentifier()) {
             case DataLoader::CameraIndentifier::kCameraLeftFront:
                 cameraVisualizer_.drawRGBCameraFrameWithTopic(data, Topics::kCameraLeftFront, Topics::kCameraLeftFrontInfo, FrameType::kCameraLeftFront);
                 break;
@@ -143,103 +143,131 @@ namespace AutoDrive::Visualizers{
     }
 
 
-    void VisualizationHandler::drawIRImage(const std::shared_ptr<DataModels::CameraIrFrameDataModel>& data) {
+    void VisualizationHandler::drawIRImage(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &data) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().ir_camera_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().ir_camera_visualization_) { return; }
 
         cameraVisualizer_.drawIRCameraFrameWithTopic(data, Topics::kCameraIr, Topics::kCameraIrInfo, FrameType::kCameraIr);
     }
 
 
-    void VisualizationHandler::drawVelocityData(const rtl::Vector3D<double>& speed) {
+    void VisualizationHandler::drawVelocityData(const rtl::Vector3D<double> &speed) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
 
         imuVisualizer_.drawImuData(speed, FrameType::kImu, Topics::kSpeedTopic);
     }
 
-    void VisualizationHandler::drawImuData(const rtl::Vector3D<double>& linAcc) {
+    void VisualizationHandler::drawImuData(const rtl::Vector3D<double> &linAcc) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().imu_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().imu_visualization_) { return; }
 
         imuVisualizer_.drawImuData(linAcc, FrameType::kImu, Topics::kImuTopic);
     }
 
-    void VisualizationHandler::drawImuAvgData(const rtl::Vector3D<double>& linAcc) {
+    void VisualizationHandler::drawImuAvgData(const rtl::Vector3D<double> &linAcc) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().imu_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().imu_visualization_) { return; }
 
         imuVisualizer_.drawImuData(linAcc, FrameType::kImu, Topics::kImuAvgTopic);
     }
 
-    void VisualizationHandler::drawGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel>& data) const {
+    void VisualizationHandler::drawGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel> &data) const {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().gnss_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().gnss_visualization_) { return; }
 
         gnssVisualizer_.drawGnssPose(data);
     }
 
     void VisualizationHandler::drawRawGnssTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().gnss_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().gnss_visualization_) { return; }
 
         trajectoryVisualizer_.drawRawTrajectory(data);
     }
 
     void VisualizationHandler::drawFilteredTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().gnss_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().gnss_visualization_) { return; }
 
         trajectoryVisualizer_.drawFilteredTrajectory(data);
     }
 
     void VisualizationHandler::drawImuGpsTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().imu_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().imu_visualization_) { return; }
 
         trajectoryVisualizer_.drawImuGpsTrajectory(data);
     }
 
-    void VisualizationHandler::updateOriginToRootTf(const DataModels::LocalPosition& pose) {
+    void VisualizationHandler::updateOriginToRootTf(const DataModels::LocalPosition &pose) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
 
         rtl::RigidTf3D<double> tf(pose.getOrientation(), pose.getPosition());
         tfTreeVisualizer_.updateOriginToRootTf(tf);
     }
 
-    void VisualizationHandler::setCameraCalibParamsForCameraId(DataModels::CameraCalibrationParamsDataModel& params, const FrameType& frame) {
+    void VisualizationHandler::setCameraCalibParamsForCameraId(DataModels::CameraCalibrationParamsDataModel &params, const FrameType &frame) {
         cameraVisualizer_.setCameraParams(frame, params);
     }
 
-    void VisualizationHandler::drawFrustumDetections(const std::vector<DataModels::FrustumDetection>& detections) {
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
+    void VisualizationHandler::drawFrustumDetections(const std::vector<DataModels::FrustumDetection> &detections) {
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
         frustumVisualizer_.visualizeFrustumDetections(detections);
     }
 
-    void VisualizationHandler::drawLidarDetection(const std::vector<std::shared_ptr<DataModels::LidarDetection>>& detections) {
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
+    void VisualizationHandler::drawLidarDetection(const std::vector<std::shared_ptr<DataModels::LidarDetection>> &detections) {
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
         lidarVisualizer_.drawLidarDetections(detections, Topics::kLidarDetections, FrameType::kImu);
     }
 
-    void VisualizationHandler::drawTelemetry(const std::string& telemetryText) {
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
+    void VisualizationHandler::drawTelemetry(const std::string &telemetryText) {
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
         telemetryVisualizer_.drawTelemetryAsText(telemetryText, FrameType::kImu, Topics::kTelemetryText);
     }
 
-    void VisualizationHandler::drawRadarTiObjects(const std::vector<DataModels::RadarTiDataModel::Object>& objects) {
+    void VisualizationHandler::drawRadarTiObjects(const std::vector<DataModels::RadarTiDataModel::Object> &objects) {
 
-        if (!context_.getFunctionalityFlags().visualization_global_enable_) {return;}
-        if (!context_.getFunctionalityFlags().radar_visualization_) {return;}
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        if (!context_.getFunctionalityFlags().radar_visualization_) { return; }
 
         radarVisualizer_.drawRadarDetectionsOnTopic(objects, Topics::kRadarTiObjects, FrameType::kRadarTi);
+    }
+
+    void VisualizationHandler::drawSensorStatus(const std::string &sensorStatus, const FrameType &frameType) {
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+
+        std::string topic;
+        switch(frameType) {
+            case FrameType::kOrigin:
+            case FrameType::kLidarLeft:
+            case FrameType::kLidarRight:
+            case FrameType::kLidarCenter:
+            case FrameType::kRadarTi:
+            case FrameType::kGnssAntennaFront:
+            case FrameType::kGnssAntennaRear:
+            case FrameType::kImu: return;
+            case FrameType::kCameraLeftFront:
+                topic = Topics::kCameraLeftFrontStatus; break;
+            case FrameType::kCameraLeftSide:
+                topic = Topics::kCameraLeftSideStatus; break;
+            case FrameType::kCameraRightFront:
+                topic = Topics::kCameraRightFrontStatus; break;
+            case FrameType::kCameraRightSide:
+                topic = Topics::kCameraRightSideStatus; break;
+            case FrameType::kCameraIr:
+                topic = Topics::kCameraIrStatus; break;
+
+        }
+        sensorStatusVisualizer_.drawStatusAsText(sensorStatus, frameType, topic);
     }
 
     visualization_msgs::Marker VisualizationHandler::getSelfEgoCube() const {

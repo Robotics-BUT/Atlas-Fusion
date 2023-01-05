@@ -50,13 +50,13 @@ namespace AutoDrive::FailCheck {
                 : context_{context}, selfModel_{selfModel}, environmentalModel_{environmentalModel} {
 
             failCheckers_[FrameType::kCameraLeftFront] = std::dynamic_pointer_cast<AbstractFailChecker>(
-                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_, FrameType::kCameraLeftFront));
             failCheckers_[FrameType::kCameraLeftSide] = std::dynamic_pointer_cast<AbstractFailChecker>(
-                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_, FrameType::kCameraLeftSide));
             failCheckers_[FrameType::kCameraRightFront] = std::dynamic_pointer_cast<AbstractFailChecker>(
-                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_, FrameType::kCameraRightFront));
             failCheckers_[FrameType::kCameraRightSide] = std::dynamic_pointer_cast<AbstractFailChecker>(
-                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_));
+                    std::make_shared<CameraRGBFailChecker>(context, selfModel_, environmentalModel_, FrameType::kCameraRightSide));
             failCheckers_[FrameType::kCameraIr] = std::dynamic_pointer_cast<AbstractFailChecker>(
                     std::make_shared<CameraIrFailChecker>(context, selfModel_, environmentalModel_));
 
@@ -88,6 +88,13 @@ namespace AutoDrive::FailCheck {
          * @return sensor reliability score
          */
         float getSensorStatus(const FrameType &sensor);
+
+        /**
+        * Generates a more in-depth status string
+        * @param sensor identifier
+        * @return status string
+        */
+        std::string getSensorStatusString(const FrameType &sensor);
 
     protected:
 

@@ -50,6 +50,11 @@ namespace AutoDrive::Visualizers::Topics {
         const std::string kCameraRightSideInfo = "/autodrive/local_map/cameras/camera_right_side/camera_info";
         const std::string kCameraIrInfo = "/autodrive/local_map/cameras/camera_ir/camera_info";
 
+        const std::string kCameraLeftFrontStatus = "/autodrive/local_map/cameras/camera_left_front/camera_status";
+        const std::string kCameraLeftSideStatus = "/autodrive/local_map/cameras/camera_left_side/camera_status";
+        const std::string kCameraRightFrontStatus = "/autodrive/local_map/cameras/camera_right_front/camera_status";
+        const std::string kCameraRightSideStatus = "/autodrive/local_map/cameras/camera_right_side/camera_status";
+        const std::string kCameraIrStatus = "/autodrive/local_map/cameras/camera_ir/camera_status";
 
         const std::string kRawTrajectory = "/autodrive/local_map/trajectory/raw";
         const std::string kFilteredTrajectory = "/autodrive/local_map/trajectory/filtered";

@@ -23,6 +23,7 @@
 #include "fail_check/CameraRGBFailChecker.h"
 #include "util/polyfit.h"
 #include "Timer.h"
+#include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::FailCheck {
 
@@ -47,29 +48,40 @@ namespace AutoDrive::FailCheck {
 
     void CameraRGBFailChecker::onNewData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data) {
         if (data == nullptr || data->getImage().empty()) return;
-        Timer t("CameraRGBFailChecker");
+        Timer t(frameTypeName(frameType_) + " validation");
 
         frameBgr = data->getImage();
         cv::cvtColor(frameBgr, frameGray, cv::COLOR_BGR2GRAY);
-        estimateVanishingPoint();
 
         std::vector<std::future<void>> futures;
 
-        futures.push_back(
-                context_.threadPool_.submit([&]() mutable { calculateVisibility(true, std::pair(vanishingPointX, vanishingPointY), std::pair(-1, -1)); }));
-        futures.push_back(context_.threadPool_.submit([&]() mutable { detectGlareAndOcclusion(); }));
+        if (frameType_ == FrameType::kCameraLeftFront || frameType_ == FrameType::kCameraRightFront) {
+            estimateVanishingPoint();
+            futures.push_back(
+                    context_.threadPool_.submit([&]() {
+                        Timer t("Visibility at Vanishing point");
+                        calculateVisibility(true, std::pair(vanishingPointX, vanishingPointY), std::pair(-1, -1));
+                    }));
+        }
 
-        for (int j = 0; j < DFT_BLOCK_COUNT; j++) {
-            for (int i = 0; i < DFT_BLOCK_COUNT; i++) {
-                int w = (DFT_WINDOW_SIZE / 2) + (i * ((frameGray.cols - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
-                int h = (DFT_WINDOW_SIZE / 2) + (j * ((frameGray.rows - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
-                futures.push_back(context_.threadPool_.submit([&]() mutable { calculateVisibility(false, std::pair(w, h), std::pair(i, j)); }));
+        futures.push_back(context_.threadPool_.submit([&]() {
+            Timer t("Glare and Occlusion");
+            detectGlareAndOcclusion();
+        }));
+
+        for (int row = 0; row < DFT_BLOCK_COUNT; row++) {
+            for (int col = 0; col < DFT_BLOCK_COUNT; col++) {
+                int w = (DFT_WINDOW_SIZE / 2) + (col * ((frameGray.cols - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
+                int h = (DFT_WINDOW_SIZE / 2) + (row * ((frameGray.rows - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
+                futures.push_back(context_.threadPool_.submit([&, w, h, row, col]() { calculateVisibility(false, std::pair(w, h), std::pair(col, row)); }));
             }
         }
 
         for (auto &future: futures) {
             future.wait();
         }
+
+        evaluatePerformance();
     }
 
     void CameraRGBFailChecker::estimateVanishingPoint() {
@@ -87,6 +99,7 @@ namespace AutoDrive::FailCheck {
     }
 
     void CameraRGBFailChecker::calculateVisibility(bool isVanishingPoint, std::pair<int, int> centerPoint, std::pair<int, int> position) {
+
         int32_t window_top_left_x = int(centerPoint.first) - (DFT_WINDOW_SIZE / 2);
         int32_t window_top_left_y = int(centerPoint.second) - (DFT_WINDOW_SIZE / 2);
         cv::Rect window_rect(window_top_left_x, window_top_left_y, DFT_WINDOW_SIZE, DFT_WINDOW_SIZE);
@@ -170,7 +183,6 @@ namespace AutoDrive::FailCheck {
     }
 
     void CameraRGBFailChecker::detectGlareAndOcclusion() {
-
         // Step 1: Convert the frame to a color space that maximizes resolution in luminance
         // Step 2: Divide the camera frame into meaningful regions to detect glare in
         int roiWidth = frameGray.cols / HISTOGRAM_COUNT;
@@ -209,19 +221,19 @@ namespace AutoDrive::FailCheck {
 
             if (glareLuminance >= (regularLuminance + occlusionLuminance)) {
                 occlusionBuffers.at(histIndex).push_back(true);
-                glareAmounts.at<float>(i, j) = (glareLuminance * 255.0f) / (regularLuminance + glareLuminance + occlusionLuminance);
+                glareAmounts.at<float>(i, j) = (glareLuminance * 10.0f) / (regularLuminance + glareLuminance + occlusionLuminance);
             } else if (occlusionLuminance >= (regularLuminance + glareLuminance)) {
                 occlusionBuffers.at(histIndex).push_back(false);
-                glareAmounts.at<float>(i, j) = occlusionBuffers.at(histIndex).dataSum() == 0L ? 0 : 64;
+                glareAmounts.at<float>(i, j) = occlusionBuffers.at(histIndex).dataSum() == 0L ? -1 : 0;
             } else {
                 occlusionBuffers.at(histIndex).push_back(true);
-                glareAmounts.at<float>(i, j) = 64;
+                glareAmounts.at<float>(i, j) = 0;
             }
 
             // For daylight images ignore skylight
             if (j < HISTOGRAM_COUNT / 2 && environmentalModel_.getIsDaylight()) {
-                if (glareAmounts.at<float>(i, j) > 64) {
-                    glareAmounts.at<float>(i, j) = 64;
+                if (glareAmounts.at<float>(i, j) > 0) {
+                    glareAmounts.at<float>(i, j) = 0;
                 }
             }
 
@@ -231,7 +243,58 @@ namespace AutoDrive::FailCheck {
                 j++;
             }
         }
+    }
 
-        // Step 5: Calculate a global score for the image based on the detected glares in various regions
+    void CameraRGBFailChecker::evaluatePerformance() {
+        float visibilitySum = 0.0f;
+        for (int row = 0; row < DFT_BLOCK_COUNT; row++) {
+            for (int col = 0; col < DFT_BLOCK_COUNT; col++) {
+                float vis = visibility.at<float>(row, col);
+
+                // First row
+                if (row == 0) {
+                    visibilitySum += vis;
+                    continue;
+                }
+
+                // Rest of the rows have higher importance so their performance is penalized;
+                visibilitySum += vis - 0.5f;
+            }
+        }
+
+        float occludedCount = 0, glaredCount = 0;
+        for (int row = 0; row < HISTOGRAM_COUNT; row++) {
+            for (int col = 0; col < HISTOGRAM_COUNT; col++) {
+                float glareAmount = glareAmounts.at<float>(row, col);
+                float importance = 1.0f;
+                if (row > 2 && col > 2 && row < HISTOGRAM_COUNT - 2 && col < HISTOGRAM_COUNT - 2) importance *= 2.0f;
+
+                if (glareAmount == 0) continue;
+
+                // Occlusion
+                if (glareAmount < 0) occludedCount += importance;
+                    // Glare
+                else glaredCount += importance * glareAmount;
+            }
+        }
+
+        nightShot = !environmentalModel_.getIsDaylight();
+        possibleFog = visibilitySum < 0;
+        possibleGlare = glaredCount > 10;
+        possibleOcclusion = occludedCount > 10;
+
+        sensorStatusString_ = frameTypeName(frameType_) + " status\n";
+        sensorStatusString_ += "Vis sum: " + std::to_string(visibilitySum) + "\n";
+        if (frameType_ == FrameType::kCameraLeftFront || frameType_ == FrameType::kCameraRightFront) {
+            sensorStatusString_ += "VP vis: " + std::to_string(vanishingPointVisibility) + "\n";
+        }
+        sensorStatusString_ += "Occluded count: " + std::to_string(occludedCount) + "\n";
+        sensorStatusString_ += "Glared count: " + std::to_string(glaredCount) + "\n";
+
+        sensorStatusString_ += "Possible fog: " + std::to_string(possibleFog) + "\n";
+        sensorStatusString_ += "Possible glare: " + std::to_string(possibleGlare) + "\n";
+        sensorStatusString_ += "Possible occlusion: " + std::to_string(possibleOcclusion) + "\n";
+        sensorStatusString_ += "Night shot: " + std::to_string(nightShot) + "\n";
+
     }
 }

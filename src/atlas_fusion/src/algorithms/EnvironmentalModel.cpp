@@ -52,7 +52,7 @@ namespace AutoDrive::Algorithms {
         sunCalc.setPosition(latitude_, longitude_, timezone_ + daylightSavingsTimeOffset_);
         sunrise_ = sunCalc.calcSunrise() / 60.0;
         sunset_ = sunCalc.calcSunset() / 60.0;
-        double h = hours_ + (minutes_ / 60.0);
+        double h = hours_ + TIMEZONE_OFFSET + (minutes_ / 60.0);
         isDaylight_ = h < sunset_ && h > sunrise_;
     }
 }

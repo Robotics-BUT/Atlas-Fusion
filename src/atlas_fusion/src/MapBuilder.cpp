@@ -103,7 +103,6 @@ namespace AutoDrive {
             }
 
             mut sensorFrame = frameTypeFromDataModel(data);
-            /*
             failChecker_.onNewData(data, sensorFrame);
             mut sensorScore = failChecker_.getSensorStatus(sensorFrame);
 
@@ -111,7 +110,6 @@ namespace AutoDrive {
                 context_.logger_.warning("Sensor Score is too low");
                 continue;
             }
-            */
 
             /* ... data processing ... */
             auto type = data->getType();
@@ -211,7 +209,6 @@ namespace AutoDrive {
 
     void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData, const FrameType &sensorFrame) {
         static int cnt = 0;
-
         std::vector<std::future<void>> futures;
 
         auto globalCoordinatePc = pointCloudAggregator_.getGlobalCoordinatePointCloud();
@@ -225,6 +222,7 @@ namespace AutoDrive {
         localMap_.setFrustumDetections(frustums, sensorFrame);
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
 
+        visualizationHandler_.drawSensorStatus(failChecker_.getSensorStatusString(sensorFrame), sensorFrame);
         if (cnt++ >= 3) {
             cnt = 0;
             futures.push_back(context_.threadPool_.submit([&]() {
@@ -234,6 +232,7 @@ namespace AutoDrive {
                 //auto downSampledTunnel = pointCloudProcessor_.downsamplePointCloud(tunnel);
                 //auto lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunnel);
                 //localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
+
 
                 visualizationHandler_.drawAggregatedPointCloudGlobal(globalCoordinatePc);
                 visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
@@ -326,7 +325,6 @@ namespace AutoDrive {
 
 
     void MapBuilder::processGnssPoseData(const std::shared_ptr<DataModels::GnssPoseDataModel> &poseData) {
-
         gnssPoseLogger_.onGnssPose(poseData);
         selfModel_.onGnssPose(poseData);
         environmentalModel_.onGnssPose(poseData);
@@ -353,12 +351,10 @@ namespace AutoDrive {
         selfModel_.onImuDquatData(dQuatData);
     }
 
-    void
-    MapBuilder::processImuGnssData(const std::shared_ptr<DataModels::ImuGnssDataModel> &poseData) {
+    void MapBuilder::processImuGnssData(const std::shared_ptr<DataModels::ImuGnssDataModel> &poseData) {
         imuPoseLogger_.onImuGps(poseData);
         visualizationHandler_.drawImuGpsTrajectory(imuPoseLogger_.getPositionHistory());
     }
-
 
     void MapBuilder::processImuImuData(const std::shared_ptr<DataModels::ImuImuDataModel> &imuData) {
 
@@ -380,13 +376,10 @@ namespace AutoDrive {
                 approximateLidar(lidarData);
             }
         }
-        {
-            // Timer t("Draw lidar data");
-            visualizationHandler_.drawLidarData(lidarData);
-            visualizationHandler_.drawSelfGlobal();
-            visualizationHandler_.drawSelfEgo();
-        }
 
+        visualizationHandler_.drawLidarData(lidarData);
+        visualizationHandler_.drawSelfGlobal();
+        visualizationHandler_.drawSelfEgo();
     }
 
     void MapBuilder::processRadarTiData(const std::shared_ptr<DataModels::RadarTiDataModel> &data) {
@@ -470,6 +463,5 @@ namespace AutoDrive {
 
         visualizationHandler_.drawLidarApproximations(approximations);
         visualizationHandler_.drawLidarApproximationsRoad(roadApproximations);
-
     }
 }

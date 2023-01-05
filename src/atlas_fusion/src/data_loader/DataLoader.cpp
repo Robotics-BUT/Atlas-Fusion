@@ -91,7 +91,7 @@ namespace AutoDrive::DataLoader {
     }
 
     void DataLoader::startAsyncDataLoading(size_t maxCacheSize) {
-        context_.threadPool_.push_task([&, maxCacheSize]() mutable {
+        context_.threadPool_.push_task([&, maxCacheSize]() {
             while (!isOnEnd()) {
                 // Pop front every read frame until the deque is smaller than maxCacheSize
                 do {
