@@ -78,6 +78,12 @@ namespace AutoDrive::Algorithms {
          */
         pcl::PointCloud<pcl::PointXYZ>::Ptr getEgoCentricPointCloudCutout(const rtl::BoundingBox3f &borders);
 
+        /**
+         * Method filters ground points from the aggregated point cloud
+         * @return Point cloud that contains ground points.
+         */
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getEgoCentricPointCloudGroundPoints();
+
     private:
 
         Context &context_;

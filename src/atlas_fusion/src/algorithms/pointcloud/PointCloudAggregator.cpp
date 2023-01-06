@@ -92,4 +92,16 @@ namespace AutoDrive::Algorithms {
 
         return pointCloudProcessor_.getPointCloudCutout(egoCentricPoints_, borders);
     }
-}
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr
+    PointCloudAggregator::getEgoCentricPointCloudGroundPoints() {
+        // Maybe pre-defined cutouts would be useful for passing into reprojections as we can calculate deterministically which points could get into other sensor FOV.
+
+        std::vector<long> batchSizes{};
+        batchSizes.resize(batchInfo_.size());
+        for(size_t i = 0; i < batchInfo_.size(); i++) {
+            batchSizes[i] = batchInfo_[i].second;
+        }
+
+        return pointCloudProcessor_.getAggregatedGroundPoints(egoCentricPoints_, batchSizes);
+    }}

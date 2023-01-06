@@ -221,20 +221,18 @@ namespace AutoDrive {
 
         if (cnt++ >= 3) {
             cnt = 0;
-            futures.push_back(context_.threadPool_.submit([&]() {
-                auto tunnel = pointCloudAggregator_.getEgoCentricPointCloudCutout(rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
-                                                                                                                rtl::Vector3D<float>{30.0f, 10.0f, 10.0f}});
+            auto tunnel = pointCloudAggregator_.getEgoCentricPointCloudCutout(rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
+                                                                                                        rtl::Vector3D<float>{30.0f, 10.0f, 10.0f}});
 
-                auto downSampledTunnel = pointCloudProcessor_.downsamplePointCloud(tunnel);
-                auto lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunnel);
-                localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
+            auto downSampledTunnel = pointCloudProcessor_.downsamplePointCloud(tunnel);
+            auto lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunnel);
+            //localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
 
-                visualizationHandler_.drawAggregatedPointCloudGlobal(globalCoordinatePc);
-                visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
-                visualizationHandler_.drawLidarDetection(lidarObstacles);
-                visualizationHandler_.drawPointcloudCutout(tunnel);
-                visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
-            }));
+            visualizationHandler_.drawAggregatedPointCloudGlobal(globalCoordinatePc);
+            visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
+            //visualizationHandler_.drawLidarDetection(lidarObstacles);
+            visualizationHandler_.drawPointcloudCutout(downSampledTunnel);
+            visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
         }
 
         if (RGB_Detection_To_IR_Projection) {
@@ -369,7 +367,7 @@ namespace AutoDrive {
             }
         }
 
-        if(lidarData->getLidarIdentifier() == DataLoader::LidarIdentifier::kCenterLidar) {
+        if (lidarData->getLidarIdentifier() == DataLoader::LidarIdentifier::kCenterLidar) {
             std::cout << "Center lidar returned: " << lidarData->getScan()->size() << " points" << std::endl;
         }
 

@@ -31,9 +31,9 @@ namespace AutoDrive::Algorithms {
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudProcessor::downsamplePointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input) {
         //TODO: This is heavy operation when done on the whole aggregated point cloud
         // Timer t("Downsampling points");
-        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud <pcl::PointXYZ>);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
 
-        pcl::VoxelGrid <pcl::PointXYZ> downsampler;
+        pcl::VoxelGrid<pcl::PointXYZ> downsampler;
         downsampler.setInputCloud(input);
         downsampler.setLeafSize(leafSize_, leafSize_, leafSize_);
         downsampler.filter(*output);
@@ -95,13 +95,42 @@ namespace AutoDrive::Algorithms {
             });
         }
 
-        for(auto & outputFuture : outputFutures) {
+        for (auto &outputFuture: outputFutures) {
             outputFuture.wait();
             pcl::concatenate(*output, *outputFuture.get(), *output);
         }
 
         assert(input->points.size() == output->points.size());
 
+        return output;
+    }
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr
+    PointCloudProcessor::getAggregatedGroundPoints(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const std::vector<long> &batchLengths) {
+        Timer t("Get point cloud cutout");
+
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
+        output->reserve(input->size());
+        output->height = 1;
+
+        // Iterate over each batch assigned to this thread
+        size_t firstPoint = 0;
+        for (unsigned long batchLength : batchLengths) {
+            // Iterate over each point in selected batch until the first one isn't in ROI
+            for (size_t p = 0; p < batchLength; p++) {
+                if(firstPoint + p >= input->points.size()) return output;
+                const auto &point = input->points.at(firstPoint + p);
+                // We can prematurely return because the points in batch are ordered in Z axis
+                if (point.z > -0.75) {
+                    break;
+                }
+                output->points.emplace_back(point);
+            }
+
+            firstPoint += batchLength;
+        }
+
+        std::cout << "Cutout returns " << std::to_string(output->size()) << " points" << std::endl;
         return output;
     }
 
@@ -122,4 +151,33 @@ namespace AutoDrive::Algorithms {
         }
         return output;
     }
+
+    void PointCloudProcessor::sortPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const Axis &axis) {
+        Timer t("Sorting point cloud of length: " + std::to_string(input->width));
+
+        switch (axis) {
+            case X:
+                std::stable_sort(input->points.begin(), input->points.end(), &compareX);
+                break;
+            case Y:
+                std::stable_sort(input->points.begin(), input->points.end(), &compareY);
+                break;
+            case Z:
+                std::stable_sort(input->points.begin(), input->points.end(), &compareZ);
+                break;
+        }
+    }
+
+    bool PointCloudProcessor::compareX(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
+        return l.x < r.x;
+    }
+
+    bool PointCloudProcessor::compareY(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
+        return l.y < r.y;
+    }
+
+    bool PointCloudProcessor::compareZ(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
+        return l.z < r.z;
+    }
+
 }

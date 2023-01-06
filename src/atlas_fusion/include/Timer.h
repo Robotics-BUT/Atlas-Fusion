@@ -43,7 +43,7 @@ struct Timer {
         if (_timerValue != nullptr) *_timerValue = ms;
 
         // Used to only show timers that take more than set amount
-        if (ms > 1) {
+        if (ms > 0) {
             std::cout << "Execution of \"" << _name << "\" took: " << ms << " ms" << std::endl;
         }
     }

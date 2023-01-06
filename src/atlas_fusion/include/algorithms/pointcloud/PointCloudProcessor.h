@@ -39,6 +39,10 @@ namespace AutoDrive::Algorithms {
 
     public:
 
+        enum Axis {
+            X, Y, Z
+        };
+
         /**
          * Constructor
          * @param context global services container (time stamps provider, TF tree, logger, etc.)
@@ -72,17 +76,38 @@ namespace AutoDrive::Algorithms {
         pcl::PointCloud<pcl::PointXYZ>::Ptr transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::RigidTf3D<double> &tf);
 
         /**
+         * This function presumes that the input aggregated point cloud has batches ordered by Z axis in the ascending order, failing to pass such will not work properly
+         * @param input input aggregate point cloud
+         * @param batchLengths lengths of individual batches inside the aggregated point cloud
+         * @param boundingBox 3D bound inside which the points will be returned
+         * @return point cloud cutout
+         */
+        pcl::PointCloud<pcl::PointXYZ>::Ptr
+        getAggregatedGroundPoints(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const std::vector<long> &batchLengths);
+        /**
          *
          * @param input input point cloud
          * @param boundingBox 3D bound inside which the points will be returned
          * @return point cloud cutout
          */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::BoundingBox3f& boundingBox);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::BoundingBox3f &boundingBox);
+
+
+        /**
+         *
+         * @param input input point cloud
+         * @param axis dimension by which the point cloud is going to be sorted
+         */
+        void sortPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const Axis &axis);
 
     private:
 
         Context &context_;
         float leafSize_;
+
+        static bool compareX(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareY(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareZ(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
     };
 
 }
