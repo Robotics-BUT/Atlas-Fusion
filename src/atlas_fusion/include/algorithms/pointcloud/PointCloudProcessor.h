@@ -98,7 +98,7 @@ namespace AutoDrive::Algorithms {
          * @param input input point cloud
          * @param axis dimension by which the point cloud is going to be sorted
          */
-        void sortPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const Axis &axis);
+        void sortPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const Axis &axis, bool ascending = true);
 
     private:
 

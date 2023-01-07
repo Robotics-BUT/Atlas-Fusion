@@ -111,7 +111,6 @@ namespace AutoDrive::Algorithms {
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
         output->reserve(input->size());
-        output->height = 1;
 
         // Iterate over each batch assigned to this thread
         size_t firstPoint = 0;
@@ -129,7 +128,6 @@ namespace AutoDrive::Algorithms {
 
             firstPoint += batchLength;
         }
-
         std::cout << "Cutout returns " << std::to_string(output->size()) << " points" << std::endl;
         return output;
     }
@@ -137,7 +135,7 @@ namespace AutoDrive::Algorithms {
     pcl::PointCloud<pcl::PointXYZ>::Ptr
     PointCloudProcessor::getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::BoundingBox3f &boundingBox) {
         // TODO: Very slow -> Find a way to make those cutouts without iterating over the whole pc.
-        // Timer t("Get point cloud cutout");
+        Timer t("Get point cloud cutout");
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
         output->reserve(input->size());
@@ -152,7 +150,7 @@ namespace AutoDrive::Algorithms {
         return output;
     }
 
-    void PointCloudProcessor::sortPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const Axis &axis) {
+    void PointCloudProcessor::sortPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const Axis &axis, bool ascending) {
         Timer t("Sorting point cloud of length: " + std::to_string(input->width));
 
         switch (axis) {
