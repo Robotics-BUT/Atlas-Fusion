@@ -81,7 +81,7 @@ namespace AutoDrive::Algorithms {
         if(egoPointsValid_) return egoCentricPoints_;
 
         egoCentricPoints_ = pointCloudProcessor_.transformPointCloud(aggregatedPointsDownsampled_, egoTf);
-        pointCloudProcessor_.sortPointCloud(egoCentricPoints_, PointCloudProcessor::Axis::Z, false);
+        //pointCloudProcessor_.sortPointCloud(egoCentricPoints_, PointCloudProcessor::Axis::Z, false);
         egoPointsValid_ = true;
 
         return egoCentricPoints_;
@@ -94,15 +94,4 @@ namespace AutoDrive::Algorithms {
 
         return pointCloudProcessor_.getPointCloudCutout(egoCentricPoints_, borders);
     }
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr
-    PointCloudAggregator::getEgoCentricPointCloudAboveGroundPoints() {
-        // Maybe pre-defined cutouts would be useful for passing into reprojections as we can calculate deterministically which points could get into other sensor FOV.
-
-        if(aboveGroundPointsValid_) return egoCentricAboveGroundPoints_;
-
-        egoCentricAboveGroundPoints_ = pointCloudProcessor_.getAggregatedAboveGroundPoints(egoCentricPoints_);
-        aboveGroundPointsValid_ = true;
-
-        return egoCentricAboveGroundPoints_;
-    }}
+}

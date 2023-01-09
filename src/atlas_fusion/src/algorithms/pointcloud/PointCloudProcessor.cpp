@@ -106,28 +106,7 @@ namespace AutoDrive::Algorithms {
     }
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr
-    PointCloudProcessor::getAggregatedAboveGroundPoints(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input) {
-        Timer t("Get point cloud cutout");
-
-        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
-        output->reserve(input->size());
-
-        for (size_t p = 0; p < input->size(); p++) {
-            const auto &point = input->points.at(p);
-            // We can prematurely return because the points are ordered in Z axis
-            if (point.z < -0.75) {
-                break;
-            }
-            output->points.emplace_back(point);
-        }
-
-        std::cout << "Cutout returns " << std::to_string(output->size()) << " points" << std::endl;
-        return output;
-    }
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr
     PointCloudProcessor::getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::BoundingBox3f &boundingBox) {
-        // TODO: Very slow -> Find a way to make those cutouts without iterating over the whole pc.
         Timer t("Get point cloud cutout");
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);

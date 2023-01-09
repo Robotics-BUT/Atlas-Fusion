@@ -76,14 +76,6 @@ namespace AutoDrive::Algorithms {
         pcl::PointCloud<pcl::PointXYZ>::Ptr transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::RigidTf3D<double> &tf);
 
         /**
-         * This function presumes that the input aggregated point cloud has batches ordered by Z axis in the descending order, failing to pass such will not work properly
-         * @param input input aggregate point cloud
-         * @param boundingBox 3D bound inside which the points will be returned
-         * @return point cloud cutout
-         */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr
-        getAggregatedAboveGroundPoints(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input);
-        /**
          *
          * @param input input point cloud
          * @param boundingBox 3D bound inside which the points will be returned
