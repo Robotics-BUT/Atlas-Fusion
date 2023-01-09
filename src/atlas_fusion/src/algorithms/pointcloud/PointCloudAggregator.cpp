@@ -66,10 +66,10 @@ namespace AutoDrive::Algorithms {
 
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getGlobalCoordinatePointCloud() {
         // Timer t("Get aggregated point cloud");
-        if (!downsampledPointsValid_) {
-            aggregatedPointsDownsampled_ = pointCloudProcessor_.downsamplePointCloud(aggregatedPoints_);
-            downsampledPointsValid_ = true;
-        }
+        if(downsampledPointsValid_) return aggregatedPointsDownsampled_;
+
+        aggregatedPointsDownsampled_ = pointCloudProcessor_.downsamplePointCloud(aggregatedPoints_);
+        downsampledPointsValid_ = true;
 
         return aggregatedPointsDownsampled_;
     }
@@ -77,10 +77,11 @@ namespace AutoDrive::Algorithms {
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getEgoCentricPointCloud(const rtl::RigidTf3D<double> &egoTf) {
         // Timer t("Get ego centric point cloud");
 
-        if (!egoPointsValid_) {
-            egoCentricPoints_ = pointCloudProcessor_.transformPointCloud(aggregatedPointsDownsampled_, egoTf);
-            egoPointsValid_ = true;
-        }
+        if(egoPointsValid_) return egoCentricPoints_;
+
+        egoCentricPoints_ = pointCloudProcessor_.transformPointCloud(aggregatedPointsDownsampled_, egoTf);
+        //pointCloudProcessor_.sortPointCloud(egoCentricPoints_, PointCloudProcessor::Axis::Z, false);
+        egoPointsValid_ = true;
 
         return egoCentricPoints_;
     }

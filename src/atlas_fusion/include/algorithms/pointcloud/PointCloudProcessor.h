@@ -39,6 +39,10 @@ namespace AutoDrive::Algorithms {
 
     public:
 
+        enum Axis {
+            X, Y, Z
+        };
+
         /**
          * Constructor
          * @param context global services container (time stamps provider, TF tree, logger, etc.)
@@ -77,12 +81,28 @@ namespace AutoDrive::Algorithms {
          * @param boundingBox 3D bound inside which the points will be returned
          * @return point cloud cutout
          */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::BoundingBox3f& boundingBox);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::BoundingBox3f &boundingBox);
+
+
+        /**
+         *
+         * @param input input point cloud
+         * @param axis dimension by which the point cloud is going to be sorted
+         */
+        void sortPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const Axis &axis, bool ascending = true);
 
     private:
 
         Context &context_;
         float leafSize_;
+
+        static bool compareXAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareYAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareZAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+
+        static bool compareXDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareYDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareZDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
     };
 
 }

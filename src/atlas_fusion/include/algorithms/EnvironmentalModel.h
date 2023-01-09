@@ -63,6 +63,10 @@ namespace AutoDrive::Algorithms {
 
         [[nodiscard]] bool getIsDaylight() const { return isDaylight_; };
 
+        void setIsWetRoad(bool isWetRoad) { isWetRoad_ = isWetRoad; }
+
+        bool getIsWetRoad() { return isWetRoad_; }
+
     private:
 
         Context &context_;
@@ -73,6 +77,7 @@ namespace AutoDrive::Algorithms {
 
         double sunrise_ = 0, sunset_ = 0;
         bool isDaylight_ = false;
+        bool isWetRoad_ = false;
     };
 }
 

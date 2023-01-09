@@ -26,25 +26,31 @@
 namespace AutoDrive::FailCheck {
 
 
-    void LidarFailChecker::onNewData(const std::shared_ptr<DataModels::LidarScanDataModel>& data) {
+    void LidarFailChecker::onNewData(const std::shared_ptr<DataModels::LidarScanDataModel> &data) {
         frameType_ = frameTypeFromDataModel(data);
         pointCount_ = data->getScan()->size();
 
+        if (frameType_ == FrameType::kLidarCenter) {
+            auto road = pointCloudProcessor_.getPointCloudCutout(data->getScan(),
+                                                                 rtl::BoundingBox3D<float>{rtl::Vector3D<float>{0.0f, -2.0f, -0.75f},
+                                                                                           rtl::Vector3D<float>{15.0f, 2.0f, -2.0f}});
+            roiPointCount_ = road->size();
+        }
         evaluatePerformance();
     }
 
     void LidarFailChecker::evaluatePerformance() {
-        if(frameType_ == FrameType::kLidarCenter) {
-            isWetRoad_ = pointCount_ < 15000;
-        } else {
-            isWetRoad_ = pointCount_ < 25000;
+        if (frameType_ == FrameType::kLidarCenter) {
+            isWetRoad_ = roiPointCount_ < 2500;
+            environmentalModel_.setIsWetRoad(isWetRoad_);
         }
-
-
 
         sensorStatusString_ = "";
         sensorStatusString_ += frameTypeName(frameType_) + "\n";
         sensorStatusString_ += "Scan points: " + std::to_string(pointCount_) + "\n";
-        sensorStatusString_ += "Possible wet road: " + std::to_string(isWetRoad_) + "\n";
+        if (frameType_ == FrameType::kLidarCenter) {
+            sensorStatusString_ += "ROI points: " + std::to_string(roiPointCount_) + "\n";
+            sensorStatusString_ += "Possible wet road: " + std::to_string(isWetRoad_) + "\n";
+        }
     }
 }

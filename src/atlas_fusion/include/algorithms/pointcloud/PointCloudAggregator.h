@@ -78,6 +78,7 @@ namespace AutoDrive::Algorithms {
          */
         pcl::PointCloud<pcl::PointXYZ>::Ptr getEgoCentricPointCloudCutout(const rtl::BoundingBox3f &borders);
 
+
     private:
 
         Context &context_;

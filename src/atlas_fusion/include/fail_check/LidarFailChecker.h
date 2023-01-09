@@ -58,8 +58,8 @@ namespace AutoDrive::FailCheck {
         Algorithms::PointCloudProcessor &pointCloudProcessor_;
 
         FrameType frameType_ = FrameType::kOrigin;
-        size_t rawPointCount_ = 0;
         size_t pointCount_ = 0;
+        size_t roiPointCount_ = 0;
 
         bool isWetRoad_ = false;
 

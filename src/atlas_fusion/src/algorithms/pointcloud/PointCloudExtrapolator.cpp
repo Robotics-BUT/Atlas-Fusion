@@ -30,7 +30,7 @@ namespace AutoDrive::Algorithms {
             DataModels::LocalPosition startPose,
             DataModels::LocalPosition endPose,
             const rtl::RigidTf3D<double> &sensorOffsetTf) {
-        // Timer t("Split point cloud into batches");
+        Timer t("Split point cloud into batches");
 
         std::vector<std::shared_ptr<DataModels::PointCloudBatch>> output;
         output.resize(noOfBatches_);
@@ -67,6 +67,7 @@ namespace AutoDrive::Algorithms {
 
                         std::copy(scan->begin() + start, scan->begin() + end, back_inserter(batch->points));
 
+                        //pointCloudProcessor_.sortPointCloud(batch, PointCloudProcessor::Axis::Z, false);
                         auto globalTf = endPose.toTf()(poseDiff.toTf().inverted()(movementCompensationTF(sensorOffsetTf)));
                         return std::make_shared<DataModels::PointCloudBatch>(pointCloudProcessor_, ts, batch, FrameType::kOrigin, globalTf);
                     });
