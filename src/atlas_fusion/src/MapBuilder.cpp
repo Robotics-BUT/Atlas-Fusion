@@ -221,7 +221,7 @@ namespace AutoDrive {
 
         if (cnt++ >= 3) {
             cnt = 0;
-            //auto tunnel = pointCloudAggregator_.getEgoCentricPointCloudGroundPoints();
+            auto tunnel = pointCloudAggregator_.getEgoCentricPointCloudAboveGroundPoints();
             //auto tunnel = pointCloudAggregator_.getEgoCentricPointCloudCutout( rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.5f},
             //                                                                                                        rtl::Vector3D<float>{30.0f, 10.0f, 10.0f}});
 
@@ -232,7 +232,7 @@ namespace AutoDrive {
             visualizationHandler_.drawAggregatedPointCloudGlobal(globalCoordinatePc);
             visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
             //visualizationHandler_.drawLidarDetection(lidarObstacles);
-            //visualizationHandler_.drawPointcloudCutout(tunnel);
+            visualizationHandler_.drawPointcloudCutout(tunnel);
             //visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
         }
 

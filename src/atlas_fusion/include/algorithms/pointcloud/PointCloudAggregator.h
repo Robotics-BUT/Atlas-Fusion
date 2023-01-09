@@ -80,9 +80,9 @@ namespace AutoDrive::Algorithms {
 
         /**
          * Method filters ground points from the aggregated point cloud
-         * @return Point cloud that contains ground points.
+         * @return Point cloud that contains above-ground points.
          */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr getEgoCentricPointCloudGroundPoints();
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getEgoCentricPointCloudAboveGroundPoints();
 
     private:
 
@@ -95,8 +95,11 @@ namespace AutoDrive::Algorithms {
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr egoCentricPoints_{};
 
+        pcl::PointCloud<pcl::PointXYZ>::Ptr egoCentricAboveGroundPoints_{};
+
         bool downsampledPointsValid_ = false;
         bool egoPointsValid_ = false;
+        bool aboveGroundPointsValid_ = false;
 
         // Holds timestamp (first) and number of points (second) of all batches added in order
         std::deque<std::pair<uint64_t, long>> batchInfo_;

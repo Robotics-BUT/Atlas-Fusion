@@ -106,28 +106,21 @@ namespace AutoDrive::Algorithms {
     }
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr
-    PointCloudProcessor::getAggregatedGroundPoints(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const std::vector<long> &batchLengths) {
+    PointCloudProcessor::getAggregatedAboveGroundPoints(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input) {
         Timer t("Get point cloud cutout");
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
         output->reserve(input->size());
 
-        // Iterate over each batch assigned to this thread
-        size_t firstPoint = 0;
-        for (unsigned long batchLength : batchLengths) {
-            // Iterate over each point in selected batch until the first one isn't in ROI
-            for (size_t p = 0; p < batchLength; p++) {
-                if(firstPoint + p >= input->points.size()) return output;
-                const auto &point = input->points.at(firstPoint + p);
-                // We can prematurely return because the points in batch are ordered in Z axis
-                if (point.z > -0.75) {
-                    break;
-                }
-                output->points.emplace_back(point);
+        for (size_t p = 0; p < input->size(); p++) {
+            const auto &point = input->points.at(p);
+            // We can prematurely return because the points are ordered in Z axis
+            if (point.z < -0.75) {
+                break;
             }
-
-            firstPoint += batchLength;
+            output->points.emplace_back(point);
         }
+
         std::cout << "Cutout returns " << std::to_string(output->size()) << " points" << std::endl;
         return output;
     }
@@ -155,27 +148,38 @@ namespace AutoDrive::Algorithms {
 
         switch (axis) {
             case X:
-                std::stable_sort(input->points.begin(), input->points.end(), &compareX);
+                std::stable_sort(input->points.begin(), input->points.end(), ascending ? &compareXAsc : &compareXDesc);
                 break;
             case Y:
-                std::stable_sort(input->points.begin(), input->points.end(), &compareY);
+                std::stable_sort(input->points.begin(), input->points.end(), ascending ? &compareYAsc : &compareYDesc);
                 break;
             case Z:
-                std::stable_sort(input->points.begin(), input->points.end(), &compareZ);
+                std::stable_sort(input->points.begin(), input->points.end(), ascending ? &compareZAsc : &compareZDesc);
                 break;
         }
     }
 
-    bool PointCloudProcessor::compareX(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
+    bool PointCloudProcessor::compareXAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
         return l.x < r.x;
     }
 
-    bool PointCloudProcessor::compareY(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
+    bool PointCloudProcessor::compareYAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
         return l.y < r.y;
     }
 
-    bool PointCloudProcessor::compareZ(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
+    bool PointCloudProcessor::compareZAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
         return l.z < r.z;
     }
 
+    bool PointCloudProcessor::compareXDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
+        return l.x > r.x;
+    }
+
+    bool PointCloudProcessor::compareYDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
+        return l.y > r.y;
+    }
+
+    bool PointCloudProcessor::compareZDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
+        return l.z > r.z;
+    }
 }

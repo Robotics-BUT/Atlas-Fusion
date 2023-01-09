@@ -76,14 +76,13 @@ namespace AutoDrive::Algorithms {
         pcl::PointCloud<pcl::PointXYZ>::Ptr transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::RigidTf3D<double> &tf);
 
         /**
-         * This function presumes that the input aggregated point cloud has batches ordered by Z axis in the ascending order, failing to pass such will not work properly
+         * This function presumes that the input aggregated point cloud has batches ordered by Z axis in the descending order, failing to pass such will not work properly
          * @param input input aggregate point cloud
-         * @param batchLengths lengths of individual batches inside the aggregated point cloud
          * @param boundingBox 3D bound inside which the points will be returned
          * @return point cloud cutout
          */
         pcl::PointCloud<pcl::PointXYZ>::Ptr
-        getAggregatedGroundPoints(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const std::vector<long> &batchLengths);
+        getAggregatedAboveGroundPoints(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input);
         /**
          *
          * @param input input point cloud
@@ -105,9 +104,13 @@ namespace AutoDrive::Algorithms {
         Context &context_;
         float leafSize_;
 
-        static bool compareX(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
-        static bool compareY(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
-        static bool compareZ(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareXAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareYAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareZAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+
+        static bool compareXDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareYDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareZDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
     };
 
 }

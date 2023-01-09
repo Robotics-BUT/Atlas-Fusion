@@ -37,6 +37,7 @@ namespace AutoDrive::Algorithms {
         }
         egoPointsValid_ = false;
         downsampledPointsValid_ = false;
+        aboveGroundPointsValid_ = false;
 
         assert(noOfPoints + pointsToAdd == aggregatedPoints_->size());
     }
@@ -66,10 +67,10 @@ namespace AutoDrive::Algorithms {
 
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getGlobalCoordinatePointCloud() {
         // Timer t("Get aggregated point cloud");
-        if (!downsampledPointsValid_) {
-            aggregatedPointsDownsampled_ = pointCloudProcessor_.downsamplePointCloud(aggregatedPoints_);
-            downsampledPointsValid_ = true;
-        }
+        if(downsampledPointsValid_) return aggregatedPointsDownsampled_;
+
+        aggregatedPointsDownsampled_ = pointCloudProcessor_.downsamplePointCloud(aggregatedPoints_);
+        downsampledPointsValid_ = true;
 
         return aggregatedPointsDownsampled_;
     }
@@ -77,10 +78,11 @@ namespace AutoDrive::Algorithms {
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getEgoCentricPointCloud(const rtl::RigidTf3D<double> &egoTf) {
         // Timer t("Get ego centric point cloud");
 
-        if (!egoPointsValid_) {
-            egoCentricPoints_ = pointCloudProcessor_.transformPointCloud(aggregatedPointsDownsampled_, egoTf);
-            egoPointsValid_ = true;
-        }
+        if(egoPointsValid_) return egoCentricPoints_;
+
+        egoCentricPoints_ = pointCloudProcessor_.transformPointCloud(aggregatedPointsDownsampled_, egoTf);
+        pointCloudProcessor_.sortPointCloud(egoCentricPoints_, PointCloudProcessor::Axis::Z, false);
+        egoPointsValid_ = true;
 
         return egoCentricPoints_;
     }
@@ -94,14 +96,13 @@ namespace AutoDrive::Algorithms {
     }
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr
-    PointCloudAggregator::getEgoCentricPointCloudGroundPoints() {
+    PointCloudAggregator::getEgoCentricPointCloudAboveGroundPoints() {
         // Maybe pre-defined cutouts would be useful for passing into reprojections as we can calculate deterministically which points could get into other sensor FOV.
 
-        std::vector<long> batchSizes{};
-        batchSizes.resize(batchInfo_.size());
-        for(size_t i = 0; i < batchInfo_.size(); i++) {
-            batchSizes[i] = batchInfo_[i].second;
-        }
+        if(aboveGroundPointsValid_) return egoCentricAboveGroundPoints_;
 
-        return pointCloudProcessor_.getAggregatedGroundPoints(egoCentricPoints_, batchSizes);
+        egoCentricAboveGroundPoints_ = pointCloudProcessor_.getAggregatedAboveGroundPoints(egoCentricPoints_);
+        aboveGroundPointsValid_ = true;
+
+        return egoCentricAboveGroundPoints_;
     }}

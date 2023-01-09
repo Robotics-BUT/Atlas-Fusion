@@ -66,7 +66,8 @@ namespace AutoDrive::Algorithms {
                         batch->width = end - start;
 
                         std::copy(scan->begin() + start, scan->begin() + end, back_inserter(batch->points));
-                        //pointCloudProcessor_.sortPointCloud(batch, PointCloudProcessor::Axis::Z);
+
+                        //pointCloudProcessor_.sortPointCloud(batch, PointCloudProcessor::Axis::Z, false);
                         auto globalTf = endPose.toTf()(poseDiff.toTf().inverted()(movementCompensationTF(sensorOffsetTf)));
                         return std::make_shared<DataModels::PointCloudBatch>(pointCloudProcessor_, ts, batch, FrameType::kOrigin, globalTf);
                     });
