@@ -20,77 +20,34 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <jsk_rviz_plugins/OverlayText.h>
 #include "visualizers/SensorStatusVisualizer.h"
-
-#include "visualization_msgs/Marker.h"
-#include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::Visualizers {
 
 
     void SensorStatusVisualizer::drawStatusAsText(const std::string &statusText, const FrameType &frame, const std::string &topic) {
         if (publishers_.count(topic) == 0) {
-            publishers_[topic] = node_.advertise<visualization_msgs::Marker>(topic, 0);
+            publishers_[topic] = node_.advertise<jsk_rviz_plugins::OverlayText>(topic, 0);
         }
 
-        auto pos = getTextPosition(frame);
+        std_msgs::ColorRGBA color;
+        color.r = 1.0;
+        color.g = 0.0;
+        color.b = 0.0;
+        color.a = 1.0;
 
-        visualization_msgs::Marker textMsg;
-        textMsg.header.frame_id = frameTypeName(frame);
-        textMsg.header.stamp = ros::Time::now();
-        textMsg.pose.position.x = std::get<0>(pos);
-        textMsg.pose.position.y = std::get<1>(pos);
-        textMsg.pose.position.z = std::get<2>(pos);
-        textMsg.scale.x = 0.2;
-        textMsg.scale.y = textMsg.scale.x;
-        textMsg.scale.z = textMsg.scale.x;
-        textMsg.color.a = 1.0;
-        textMsg.color.r = 1.0;
-        textMsg.color.g = 0.0;
-        textMsg.color.b = 0.0;
-        textMsg.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-        textMsg.action = visualization_msgs::Marker::ADD;
-
+        jsk_rviz_plugins::OverlayText textMsg;
+        textMsg.width = 400;
+        textMsg.height = 600;
+        textMsg.left = 10;
+        textMsg.top = 10;
+        textMsg.text_size = 8;
+        textMsg.line_width = 2;
+        textMsg.font = "DejaVu Sans Mono";
+        textMsg.fg_color = color;
         textMsg.text = statusText;
 
         publishers_[topic].publish(textMsg);
-    }
-
-    std::tuple<double, double, double> SensorStatusVisualizer::getTextPosition(const FrameType &frame) const {
-        std::tuple<double, double, double> pos(0.0, 0.0, 0.0);
-        switch (frame) {
-            case FrameType::kOrigin:
-            case FrameType::kRadarTi:
-            case FrameType::kGnssAntennaFront:
-            case FrameType::kGnssAntennaRear:
-            case FrameType::kImu:
-                return pos;
-            case FrameType::kCameraLeftFront:
-                std::get<0>(pos) = -0.5; std::get<1>(pos) = -2.0; std::get<2>(pos) = 1.5;
-                break;
-            case FrameType::kCameraLeftSide:
-                std::get<0>(pos) = -1.0; std::get<1>(pos) = -2.0; std::get<2>(pos) = 1.5;
-                break;
-            case FrameType::kCameraRightFront:
-                std::get<0>(pos) = 1.0; std::get<1>(pos) = -2.0; std::get<2>(pos) = 1.5;
-                break;
-            case FrameType::kCameraRightSide:
-                std::get<0>(pos) = 1.0; std::get<1>(pos) = -2.0; std::get<2>(pos) = 1.5;
-                break;
-            case FrameType::kCameraIr:
-                std::get<0>(pos) = -2.0; std::get<1>(pos) = -2.0; std::get<2>(pos) = 0.0;
-                break;
-            case FrameType::kLidarLeft:
-                std::get<0>(pos) = 0.0; std::get<1>(pos) = 0.0; std::get<2>(pos) = 0.0;
-                break;
-            case FrameType::kLidarRight:
-                std::get<0>(pos) = 0.0; std::get<1>(pos) = 0.0; std::get<2>(pos) = 0.0;
-                break;
-            case FrameType::kLidarCenter:
-                std::get<0>(pos) = 0.0; std::get<1>(pos) = 0.0; std::get<2>(pos) = 0.0;
-                break;
-        }
-
-        return pos;
     }
 }

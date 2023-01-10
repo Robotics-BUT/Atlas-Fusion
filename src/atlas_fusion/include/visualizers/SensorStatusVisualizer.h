@@ -51,8 +51,6 @@ namespace AutoDrive::Visualizers {
         Context &context_;
 
         std::map<std::string, ros::Publisher> publishers_;
-
-        std::tuple<double, double, double> getTextPosition(const FrameType &frame) const;
     };
 
 }

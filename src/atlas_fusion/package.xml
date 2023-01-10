@@ -13,4 +13,5 @@
   <depend>rospy</depend>
   <depend>std_msgs</depend>
   <depend>image_transport</depend>
+  <depend>jsk_rviz_plugins</depend>
 </package>
