@@ -24,6 +24,8 @@
 
 #include <deque>
 #include <sunset.h>
+#include <pcl/point_types.h>
+
 
 #include "Kalman1D.h"
 #include "Context.h"
@@ -36,6 +38,7 @@
 
 #include "algorithms/ImuDataProcessor.h"
 #include "data_models/gnss/GnssTimeDataModel.h"
+#include "algorithms/pointcloud/PointCloudProcessor.h"
 
 #define TIMEZONE_OFFSET 1
 
@@ -53,11 +56,14 @@ namespace AutoDrive::Algorithms {
          * Constructor
          * @param context global services container (time, logging, TF tree, etc.)
          */
-        explicit EnvironmentalModel(Context &context) : context_{context} {}
+        explicit EnvironmentalModel(Context &context, PointCloudProcessor &pointCloudProcessor) : context_{context},
+                                                                                                  pointCloudProcessor_{pointCloudProcessor} {}
 
         void onGnssTime(const std::shared_ptr<DataModels::GnssTimeDataModel> &timeData);
 
         void onGnssPose(const std::shared_ptr<DataModels::GnssPoseDataModel> &poseData);
+
+        void onDetectionROI(const pcl::PointCloud<pcl::PointXYZ>::Ptr &detectionROI);
 
         void calculateSunriseAndSunsetTimes();
 
@@ -67,17 +73,24 @@ namespace AutoDrive::Algorithms {
 
         bool getIsWetRoad() { return isWetRoad_; }
 
+        bool getIsSkyOccluded();
+
     private:
 
         Context &context_;
+        PointCloudProcessor &pointCloudProcessor_;
         SunSet sunCalc = SunSet();
 
-        uint32_t year_ = 0, month_ = 0, day_ = 0, hours_ = 0, minutes_ = 0, daylightSavingsTimeOffset_ = 0;
+        uint64_t timestamp_ = 0;
+        uint32_t year_ = 0, month_ = 0, day_ = 0, hours_ = 0, minutes_ = 0, seconds_ = 0, daylightSavingsTimeOffset_ = 0;
         double latitude_ = 0, longitude_ = 0, timezone_ = 0;
 
         double sunrise_ = 0, sunset_ = 0;
         bool isDaylight_ = false;
         bool isWetRoad_ = false;
+        bool isSkyOccluded = false;
+
+        uint64_t skyOcclusionTime_;
     };
 }
 

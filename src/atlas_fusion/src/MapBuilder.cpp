@@ -205,7 +205,6 @@ namespace AutoDrive {
     }
 
     void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData, const FrameType &sensorFrame) {
-        static int cnt = 0;
         std::vector<std::future<void>> futures;
 
         auto globalCoordinatePc = pointCloudAggregator_.getGlobalCoordinatePointCloud();
@@ -219,22 +218,20 @@ namespace AutoDrive {
         localMap_.setFrustumDetections(frustums, sensorFrame);
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
 
-        if (cnt++ >= 1) {
-            cnt = 0;
-            //auto tunnel = pointCloudAggregator_.getEgoCentricPointCloudAboveGroundPoints();
-            auto tunnel = pointCloudAggregator_.getEgoCentricPointCloudCutout(rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-30.0f, -10.0f, -0.75f},
-                                                                                                                    rtl::Vector3D<float>{30.0f, 10.0f, 10.0f}});
+        auto detectionROI = pointCloudProcessor_.getPointCloudCutout(egoCentricPc, rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-50.f, -10.f, -.75f},
+                                                                                         rtl::Vector3D<float>{50.f, 10.f, 10.f}});
+        environmentalModel_.onDetectionROI(detectionROI);
+        environmentalModel_.getIsSkyOccluded();
+        //auto downSampledTunnel = pointCloudProcessor_.downsamplePointCloud(tunnel);
+        //auto lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunnel);
+        //localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
 
-            //auto downSampledTunnel = pointCloudProcessor_.downsamplePointCloud(tunnel);
-            //auto lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunnel);
-            //localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
+        visualizationHandler_.drawAggregatedPointCloudGlobal(globalCoordinatePc);
+        visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
+        //visualizationHandler_.drawLidarDetection(lidarObstacles);
+        visualizationHandler_.drawPointcloudCutout(detectionROI);
+        //visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
 
-            visualizationHandler_.drawAggregatedPointCloudGlobal(globalCoordinatePc);
-            visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
-            //visualizationHandler_.drawLidarDetection(lidarObstacles);
-            visualizationHandler_.drawPointcloudCutout(tunnel);
-            //visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
-        }
 
         if (RGB_Detection_To_IR_Projection) {
             if (sensorFrame == FrameType::kCameraLeftFront) {
@@ -294,14 +291,6 @@ namespace AutoDrive {
     }
 
     void MapBuilder::processIRCameraData(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &irCameraFrame) {
-        static int cnt = 0;
-
-        if (cnt < 2) {
-            cnt++;
-            return;
-        }
-        cnt = 0;
-
         mut originToImuTf = selfModel_.getPosition().toTf();
         mut points2Dand3Dpair = depthMap_.getPointsInCameraFoV(
                 irCameraFrame->getCameraIdentifier(),

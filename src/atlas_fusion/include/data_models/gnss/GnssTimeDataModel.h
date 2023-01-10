@@ -59,6 +59,12 @@ namespace AutoDrive::DataModels {
         std::string toString() override;
 
         /**
+        * GNSS time - timestamp getter
+        * @return timestamp
+        */
+        inline uint64_t getTimestamp() { return timestamp_; };
+
+        /**
          * GNSS time - year getter
          * @return year
          */

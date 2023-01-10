@@ -71,14 +71,6 @@ namespace AutoDrive::Algorithms {
         */
         pcl::PointCloud<pcl::PointXYZ>::ConstPtr getEgoCentricPointCloud(const rtl::RigidTf3D<double> &egoTf);
 
-        /**
-         * Method filters out all the points that are out of given bounding box.
-         * @param borders Points that are inside this bounding box will be passed to the output point cloud.
-         * @return Point cloud that contains points from inside of the given bounding box.
-         */
-        pcl::PointCloud<pcl::PointXYZ>::Ptr getEgoCentricPointCloudCutout(const rtl::BoundingBox3f &borders);
-
-
     private:
 
         Context &context_;

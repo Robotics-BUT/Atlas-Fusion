@@ -117,12 +117,12 @@ namespace AutoDrive {
                   destinationFolder_{destinationFolder},
                   gnssPoseLogger_{context, gnssLogPoseNo},
                   imuPoseLogger_{context, imuLogPoseNo},
-                  selfModel_{context, selfModelProcessNoise, selfModelObservationNoise},
-                  environmentalModel_{context},
                   detectionProcessor_{context},
                   pointCloudProcessor_{context, leafSize},
                   pointCloudExtrapolator_{context, pointCloudProcessor_, noOfBatchesPerScan},
                   pointCloudAggregator_{context, pointCloudProcessor_, lidarAggregationTime},
+                  selfModel_{context, selfModelProcessNoise, selfModelObservationNoise},
+                  environmentalModel_{context, pointCloudProcessor_},
                   depthMap_{context, pointCloudProcessor_},
                   leftLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints},
                   rightLidarLaserAggregator_{context, noOfLasersPerLidar, noOfLaserAggregatedPoints},
@@ -173,8 +173,6 @@ namespace AutoDrive {
 
         Algorithms::SimpleTrajectoryLogger gnssPoseLogger_;
         Algorithms::SimpleTrajectoryLogger imuPoseLogger_;
-        Algorithms::SelfModel selfModel_;
-        Algorithms::EnvironmentalModel environmentalModel_;
         Algorithms::ImuDataProcessor imuProcessor_;
         Algorithms::LidarFilter lidarFilter_;
         Algorithms::DetectionsProcessor detectionProcessor_;
@@ -182,6 +180,9 @@ namespace AutoDrive {
         Algorithms::PointCloudProcessor pointCloudProcessor_;
         Algorithms::PointCloudExtrapolator pointCloudExtrapolator_;
         Algorithms::PointCloudAggregator pointCloudAggregator_;
+
+        Algorithms::SelfModel selfModel_;
+        Algorithms::EnvironmentalModel environmentalModel_;
 
         Algorithms::DepthMap depthMap_;
 

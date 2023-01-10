@@ -25,11 +25,13 @@
 namespace AutoDrive::Algorithms {
 
     void EnvironmentalModel::onGnssTime(const std::shared_ptr<DataModels::GnssTimeDataModel> &timeData) {
+        timestamp_ = timeData->getTimestamp();
         year_ = timeData->getYear();
         month_ = timeData->getMonth();
         day_ = timeData->getDay();
         hours_ = timeData->getHour();
         minutes_ = timeData->getMinute();
+        seconds_ = timeData->getSec();
 
         daylightSavingsTimeOffset_ = 0.0;
         if (month_ > 3 && month_ < 10) daylightSavingsTimeOffset_ = 1.0;
@@ -42,6 +44,23 @@ namespace AutoDrive::Algorithms {
         latitude_ = poseData->getLatitude();
         longitude_ = poseData->getLongitude();
         timezone_ = TIMEZONE_OFFSET;
+    }
+
+    void EnvironmentalModel::onDetectionROI(const pcl::PointCloud<pcl::PointXYZ>::Ptr& detectionROI) {
+        auto tunnelCheckROI = pointCloudProcessor_.getPointCloudCutout(detectionROI, rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-40.f, -1.f, 3.f},
+                                                                                                               rtl::Vector3D<float>{40.f, 3.f, 10.f}});
+        if(tunnelCheckROI->size() > 500) {
+            skyOcclusionTime_ = timestamp_;
+            isSkyOccluded = true;
+        }
+    }
+
+    bool EnvironmentalModel::getIsSkyOccluded() {
+        double diff = double(timestamp_ - skyOcclusionTime_) * 1e-9;
+        if(diff > 5) {
+            isSkyOccluded = false;
+        }
+        return isSkyOccluded;
     }
 
     void EnvironmentalModel::calculateSunriseAndSunsetTimes() {
