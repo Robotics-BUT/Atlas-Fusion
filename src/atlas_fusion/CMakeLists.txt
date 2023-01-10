@@ -44,7 +44,6 @@ set(SOURCES_ALGORITHMS
         src/algorithms/Kalman1D.cpp
         src/algorithms/Kalman3D.cpp
         src/algorithms/ImuDataProcessor.cpp
-        src/algorithms/LidarFilter.cpp
         src/algorithms/Projector.cpp
         src/algorithms/DepthMap.cpp
         src/algorithms/DetectionsProcessor.cpp

@@ -26,7 +26,7 @@
 namespace AutoDrive::DataLoader {
 
 
-    bool LidarDataLoader::initData(const std::string& path) {
+    bool LidarDataLoader::initData(const std::string &path) {
 
         std::string folder;
         switch (lidarIdentifier_) {
@@ -45,7 +45,7 @@ namespace AutoDrive::DataLoader {
         }
 
         auto csvContent = readCsv(path + folder + Files::kTimestampFile);
-        for (const auto &substrings : csvContent) {
+        for (const auto &substrings: csvContent) {
             size_t timestamp = 0;
             size_t scan_no = 0;
             size_t lidar_timestamp = 0;
@@ -53,13 +53,11 @@ namespace AutoDrive::DataLoader {
             if (substrings.size() == 2) {
                 timestamp = std::stoll(substrings[0]);
                 scan_no = std::stoll(substrings[1]);
-            }
-            else if (substrings.size() == 3) {
+            } else if (substrings.size() == 3) {
                 timestamp = std::stoll(substrings[0]);
                 scan_no = std::stoll(substrings[1]);
                 lidar_timestamp = std::stoll(substrings[2]);
-            }
-            else {
+            } else {
                 context_.logger_.error("Unexpected length of lidar scan data: ");
             }
 
@@ -78,7 +76,7 @@ namespace AutoDrive::DataLoader {
 
     timestamp_type LidarDataLoader::getLowestTimestamp() {
 
-        if(!isOnEnd()) {
+        if (!isOnEnd()) {
             return (*dataIt_)->getTimestamp();
         }
         return std::numeric_limits<uint64_t>::max();
@@ -87,9 +85,9 @@ namespace AutoDrive::DataLoader {
     std::shared_ptr<DataModels::GenericDataModel> LidarDataLoader::getNextData() {
         if (!isOnEnd()) {
             auto output = *dataIt_;
-            dataIt_ = std::next(dataIt_,1);
+            dataIt_ = std::next(dataIt_, 1);
             output->registerFilter(
-                    [ObjectPtr = &lidarFilter_](auto &&PH1) { ObjectPtr->applyFiltersOnLidarData(std::forward<decltype(PH1)>(PH1)); });
+                    std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_, std::placeholders::_1, output->getLidarIdentifier()));
             return output;
         }
         return std::make_shared<DataModels::ErrorDataModel>();
@@ -111,8 +109,8 @@ namespace AutoDrive::DataLoader {
     }
 
     void LidarDataLoader::setPose(timestamp_type timestamp) {
-        for (dataIt_ = data_.begin(); dataIt_< data_.end() ; dataIt_ = std::next(dataIt_,1)) {
-            if((*dataIt_)->getTimestamp() >= timestamp) {
+        for (dataIt_ = data_.begin(); dataIt_ < data_.end(); dataIt_ = std::next(dataIt_, 1)) {
+            if ((*dataIt_)->getTimestamp() >= timestamp) {
                 break;
             }
         }
@@ -120,9 +118,9 @@ namespace AutoDrive::DataLoader {
 
     void LidarDataLoader::releaseOldData(timestamp_type keepHistory) {
         auto currentTime = (*dataIt_)->getTimestamp();
-        while(releaseIt_ < data_.end()) {
+        while (releaseIt_ < data_.end()) {
             auto dataTimestamp = (*releaseIt_)->getTimestamp();
-            if(dataTimestamp + keepHistory < currentTime) {
+            if (dataTimestamp + keepHistory < currentTime) {
                 (*releaseIt_) = std::make_shared<DataModels::LidarScanDataModel>(0, LidarIdentifier::kNone, "", 0);
                 releaseIt_++;
             } else {

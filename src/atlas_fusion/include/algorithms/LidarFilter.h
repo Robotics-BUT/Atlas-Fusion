@@ -26,6 +26,7 @@
 #include <memory>
 #include "data_models/lidar/LidarScanDataModel.h"
 #include "Timer.h"
+#include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::Algorithms {
 
@@ -41,36 +42,40 @@ namespace AutoDrive::Algorithms {
          * Method calls the set of filtering actions on the incoming lidar scan
          * @param data lidar scan
          */
-        void applyFiltersOnLidarData( pcl::PointCloud<pcl::PointXYZ>& data) {
-
-            if(filterNearObjects_) {
-                filterNearObjects(data);
+        void applyFiltersOnLidarData(pcl::PointCloud<pcl::PointXYZ> &data, const DataLoader::LidarIdentifier &lidarIdentifier) {
+            if (filterNearObjects_) {
+                filterNearObjects(data, lidarIdentifier);
             }
         }
 
         /**
          * Set the flag that enables point cloud filtration
          */
-        void enableFilterNearObjects() {filterNearObjects_ = true;};
+        void enableFilterNearObjects() { filterNearObjects_ = true; };
 
         /**
          * Reset the flag that enables point cloud filtration
          */
-        void disableFilterNearObjects() {filterNearObjects_ = false;};
+        void disableFilterNearObjects() { filterNearObjects_ = false; };
 
     private:
 
         bool filterNearObjects_ = false;
-        void filterNearObjects(pcl::PointCloud<pcl::PointXYZ>& data) {
+
+        void filterNearObjects(pcl::PointCloud<pcl::PointXYZ> &data, const DataLoader::LidarIdentifier &lidarIdentifier) {
             // Timer t("Lidar filter");
             auto backup = data.points;
             data.points.clear();
 
-            for(const auto& point : backup) {
-                if(std::abs(point.x) + std::abs(point.y) > 2.0) {
-                    data.points.push_back(point);
+            int i = 0;
+            for (const auto &point: backup) {
+                if (std::abs(point.x) + std::abs(point.y) < 2.0) {
+                    i++;
                 }
+                data.points.push_back(point);
             }
+            std::string id = lidarIdentifier == DataLoader::LidarIdentifier::kLeftLidar ? "LidarLeft" : lidarIdentifier == DataLoader::LidarIdentifier::kCenterLidar ? "LidarCenter" : "LidarRight";
+            std::cout << id << ": Points inside 2 radius: " << i << std::endl;
             data.width = data.size();
         }
 
