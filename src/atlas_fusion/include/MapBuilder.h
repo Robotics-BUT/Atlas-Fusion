@@ -146,6 +146,7 @@ namespace AutoDrive {
                   localMap_{context},
                   objectAggregator_{context} {
             lidarFilter_.enableFilterNearObjects();
+            lidarFilter_.enableFilterOutliers();
         }
 
         /**

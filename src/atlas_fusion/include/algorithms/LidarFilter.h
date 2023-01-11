@@ -27,6 +27,7 @@
 #include "data_models/lidar/LidarScanDataModel.h"
 #include "Timer.h"
 #include "util/IdentifierToFrameConversions.h"
+#include <pcl/filters/statistical_outlier_removal.h>
 
 namespace AutoDrive::Algorithms {
 
@@ -43,8 +44,12 @@ namespace AutoDrive::Algorithms {
          * @param data lidar scan
          */
         void applyFiltersOnLidarData(pcl::PointCloud<pcl::PointXYZ> &data) {
+            Timer t("Lidar filter");
             if (filterNearObjects_) {
                 filterNearObjects(data);
+            }
+            if (filterOutliers_) {
+                //filterOutliers(data);
             }
         }
 
@@ -58,12 +63,16 @@ namespace AutoDrive::Algorithms {
          */
         void disableFilterNearObjects() { filterNearObjects_ = false; };
 
+        void enableFilterOutliers() { filterOutliers_ = true; };
+
+        void disableFilterOutliers() { filterOutliers_ = false; };
+
     private:
 
         bool filterNearObjects_ = false;
+        bool filterOutliers_ = false;
 
         void filterNearObjects(pcl::PointCloud<pcl::PointXYZ> &data) {
-            Timer t("Lidar filter");
             auto backup = data.points;
             data.points.clear();
 
@@ -78,6 +87,14 @@ namespace AutoDrive::Algorithms {
             data.width = data.size();
         }
 
+        void filterOutliers(pcl::PointCloud<pcl::PointXYZ> &data) {
+
+            pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
+            sor.setInputCloud(data.makeShared());
+            sor.setMeanK(50);
+            sor.setStddevMulThresh(1.0);
+            sor.filter(data);
+        }
     };
 
 }

@@ -1,10 +1,9 @@
 #include "DataCache.h"
-#include "RustStyle.h"
 
 namespace AutoDrive{
 
     void DataCache::setNewIRFrame(const std::shared_ptr<DataModels::CameraIrFrameDataModel>& frame) {
-        let id = frame->getCameraIdentifier();
+        const auto id = frame->getCameraIdentifier();
         irFrames_.insert({id, frame});
     }
 
@@ -16,7 +15,7 @@ namespace AutoDrive{
     }
 
     void DataCache::setNewRGBFrame(const std::shared_ptr<DataModels::CameraFrameDataModel>& frame) {
-        let id = frame->getCameraIdentifier();
+        const auto id = frame->getCameraIdentifier();
         rgbFrames_.insert({id, frame});
     }
 
@@ -38,7 +37,7 @@ namespace AutoDrive{
 
     /* Depth Map */
     void DataCache::setNewDepthMap(const std::shared_ptr<DataModels::CameraFrameDataModel>& map) {
-        let id = map->getCameraIdentifier();
+        const auto id = map->getCameraIdentifier();
         depthMaps_.insert({id, map});
     }
 

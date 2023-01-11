@@ -86,8 +86,7 @@ namespace AutoDrive::DataLoader {
         if (!isOnEnd()) {
             auto output = *dataIt_;
             dataIt_ = std::next(dataIt_, 1);
-            output->registerFilter(
-                    std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_, std::placeholders::_1));
+            output->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_, std::placeholders::_1));
             return output;
         }
         return std::make_shared<DataModels::ErrorDataModel>();

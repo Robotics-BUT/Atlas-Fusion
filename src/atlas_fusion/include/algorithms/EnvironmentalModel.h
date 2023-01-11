@@ -39,6 +39,8 @@
 #include "algorithms/ImuDataProcessor.h"
 #include "data_models/gnss/GnssTimeDataModel.h"
 #include "algorithms/pointcloud/PointCloudProcessor.h"
+#include "data_models/imu/ImuTempDataModel.h"
+#include "data_models/imu/ImuPressureDataModel.h"
 
 #define TIMEZONE_OFFSET 1
 
@@ -65,6 +67,10 @@ namespace AutoDrive::Algorithms {
 
         void onDetectionROI(const pcl::PointCloud<pcl::PointXYZ>::Ptr &detectionROI);
 
+        void onPressure(const std::shared_ptr<DataModels::ImuPressureDataModel>& pressure);
+
+        void onTemperature(const std::shared_ptr<DataModels::ImuTempDataModel>& tempData);
+
         void calculateSunriseAndSunsetTimes();
 
         [[nodiscard]] bool getIsDaylight() const { return isDaylight_; };
@@ -86,6 +92,8 @@ namespace AutoDrive::Algorithms {
         uint64_t timestamp_ = 0;
         uint32_t year_ = 0, month_ = 0, day_ = 0, hours_ = 0, minutes_ = 0, seconds_ = 0, daylightSavingsTimeOffset_ = 0;
         double latitude_ = 0, longitude_ = 0, altitude_ = 0, timezone_ = 0;
+
+        double pressure_ = 0, temperature_ = 0;
 
         double sunrise_ = 0, sunset_ = 0;
         bool isDaylight_ = false;
