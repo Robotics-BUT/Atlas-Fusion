@@ -74,7 +74,6 @@ set(SOURCES_VISUALIZERS
         src/visualizers/TrajectoryVisualizer.cpp
         src/visualizers/TFVisualizer.cpp
         src/visualizers/FrustumVisualizer.cpp
-        src/visualizers/TelemetryVisualizer.cpp
         src/visualizers/SensorStatusVisualizer.cpp
         src/visualizers/RadarVisualizer.cpp)
 

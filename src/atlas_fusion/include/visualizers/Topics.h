@@ -82,5 +82,6 @@ namespace AutoDrive::Visualizers::Topics {
 
         const std::string kTelemetryText = "/autodrive/local_map/telemetry/text";
         const std::string kSpeedTopic = "/autodrive/local_map/speed";
+        const std::string kEnvironmentalModel = "/autodrive/local_map/environmental_model";
 
     }

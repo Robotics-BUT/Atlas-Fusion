@@ -21,12 +21,12 @@
  */
 
 #include <jsk_rviz_plugins/OverlayText.h>
-#include "visualizers/SensorStatusVisualizer.h"
+#include "visualizers/TextStatusVisualizer.h"
 
 namespace AutoDrive::Visualizers {
 
 
-    void SensorStatusVisualizer::drawStatusAsText(const std::string &statusText, const FrameType &frame, const std::string &topic) {
+    void TextStatusVisualizer::drawStatusAsText(const std::string &statusText, const std::string &topic) {
         if (publishers_.count(topic) == 0) {
             publishers_[topic] = node_.advertise<jsk_rviz_plugins::OverlayText>(topic, 0);
         }

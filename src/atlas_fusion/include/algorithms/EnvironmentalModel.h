@@ -71,9 +71,11 @@ namespace AutoDrive::Algorithms {
 
         void setIsWetRoad(bool isWetRoad) { isWetRoad_ = isWetRoad; }
 
-        bool getIsWetRoad() { return isWetRoad_; }
+        bool getIsWetRoad() const { return isWetRoad_; }
 
         bool getIsSkyOccluded();
+
+        std::string getStatusString();
 
     private:
 
@@ -83,12 +85,12 @@ namespace AutoDrive::Algorithms {
 
         uint64_t timestamp_ = 0;
         uint32_t year_ = 0, month_ = 0, day_ = 0, hours_ = 0, minutes_ = 0, seconds_ = 0, daylightSavingsTimeOffset_ = 0;
-        double latitude_ = 0, longitude_ = 0, timezone_ = 0;
+        double latitude_ = 0, longitude_ = 0, altitude_ = 0, timezone_ = 0;
 
         double sunrise_ = 0, sunset_ = 0;
         bool isDaylight_ = false;
         bool isWetRoad_ = false;
-        bool isSkyOccluded = false;
+        bool isSkyOccluded_ = false;
 
         uint64_t skyOcclusionTime_;
     };

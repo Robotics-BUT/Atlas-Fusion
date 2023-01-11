@@ -154,7 +154,7 @@ namespace AutoDrive::Algorithms {
     std::string SelfModel::getTelemetryString() const {
 
         std::stringstream ss;
-        ss << "Telemetry:" << std::endl
+        ss << "Telemetry" << std::endl
            << "Pose: " << getPosition().getPosition().x() << " " << getPosition().getPosition().y() << " " << getPosition().getPosition().z() << " m" << std::endl
            << "Speed: " << getSpeedVector().x() << " " << getSpeedVector().y() << " " << getSpeedVector().z() << " m/s " << std::endl
            << "Acc: " << getAvgAcceleration().x() << " " << getAvgAcceleration().y() << " " << getAvgAcceleration().z() << " m/s^2 " << std::endl

@@ -231,7 +231,7 @@ namespace AutoDrive::Visualizers {
 
     void VisualizationHandler::drawTelemetry(const std::string &telemetryText) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
-        telemetryVisualizer_.drawTelemetryAsText(telemetryText, FrameType::kImu, Topics::kTelemetryText);
+        textStatusVisualizer_.drawStatusAsText(telemetryText, Topics::kTelemetryText);
     }
 
     void VisualizationHandler::drawRadarTiObjects(const std::vector<DataModels::RadarTiDataModel::Object> &objects) {
@@ -270,7 +270,11 @@ namespace AutoDrive::Visualizers {
             case FrameType::kLidarCenter:
                 topic = Topics::kLidarCenterStatus; break;
         }
-        sensorStatusVisualizer_.drawStatusAsText(sensorStatus, frameType, topic);
+        textStatusVisualizer_.drawStatusAsText(sensorStatus, topic);
+    }
+
+    void VisualizationHandler::drawEnvironmentalStatus(const std::string &environmentalStatus) {
+        textStatusVisualizer_.drawStatusAsText(environmentalStatus, Topics::kEnvironmentalModel);
     }
 
     visualization_msgs::Marker VisualizationHandler::getSelfEgoCube() const {

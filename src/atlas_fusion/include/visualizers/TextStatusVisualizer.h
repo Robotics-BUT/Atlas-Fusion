@@ -27,33 +27,30 @@
 namespace AutoDrive::Visualizers {
 
     /**
-     * Visualization backend (ROS) implementations for visualizing telemetry text
+     * Visualization backend (ROS) implementations for visualizing text status
      */
-    class TelemetryVisualizer {
+    class TextStatusVisualizer {
 
     public:
 
-        TelemetryVisualizer() = delete;
+        TextStatusVisualizer() = delete;
 
         /**
          * Constructor
          * @param node ros node reference
          * @param context global services container (timestamps, logging, etc.)
+         * @param frameType sensor identification
          */
-        TelemetryVisualizer(ros::NodeHandle& node, Context& context)
-        : node_{node}
-        , context_{context} {
+        TextStatusVisualizer(ros::NodeHandle &node, Context &context) : node_{node}, context_{context} {}
 
-        }
-
-        void drawTelemetryAsText(const std::string& telemetryText, const FrameType& frame, const std::string& topic);
+        void drawStatusAsText(const std::string &statusText, const std::string &topic);
 
     private:
 
-        ros::NodeHandle& node_;
-        Context& context_;
-        std::map<std::string, ros::Publisher> publishers_;
+        ros::NodeHandle &node_;
+        Context &context_;
 
+        std::map<std::string, ros::Publisher> publishers_;
     };
 
 }

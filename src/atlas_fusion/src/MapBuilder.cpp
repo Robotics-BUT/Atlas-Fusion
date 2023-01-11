@@ -197,6 +197,7 @@ namespace AutoDrive {
                     break;
             }
             visualizationHandler_.drawSensorStatus(failChecker_.getSensorStatusString(sensorFrame), sensorFrame);
+            visualizationHandler_.drawEnvironmentalStatus(environmentalModel_.getStatusString());
         }
     }
 
