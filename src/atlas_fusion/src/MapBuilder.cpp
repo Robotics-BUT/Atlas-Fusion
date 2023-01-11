@@ -218,8 +218,8 @@ namespace AutoDrive {
         localMap_.setFrustumDetections(frustums, sensorFrame);
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
 
-        auto detectionROI = pointCloudProcessor_.getPointCloudCutout(egoCentricPc, rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-10.f, -2.f, -.75f},
-                                                                                         rtl::Vector3D<float>{10.f, 1.f, 1.f}});
+        auto detectionROI = pointCloudProcessor_.getPointCloudCutout(egoCentricPc, rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-50.f, -10.f, -.75f},
+                                                                                         rtl::Vector3D<float>{50.f, 10.f, 10.f}});
         environmentalModel_.onDetectionROI(detectionROI);
         environmentalModel_.getIsSkyOccluded();
         //auto downSampledTunnel = pointCloudProcessor_.downsamplePointCloud(tunnel);

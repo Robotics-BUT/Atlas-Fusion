@@ -60,7 +60,7 @@ namespace AutoDrive::FailCheck {
         FrameType frameType_ = FrameType::kOrigin;
         size_t pointCount_ = 0;
         size_t roiPointCount_ = 0;
-
+        double range_ = 0;
         bool isWetRoad_ = false;
 
         void evaluatePerformance();

@@ -123,7 +123,9 @@ namespace AutoDrive::Algorithms {
     }
 
     void PointCloudProcessor::sortPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const Axis &axis, bool ascending) {
-        Timer t("Sorting point cloud of length: " + std::to_string(input->width));
+        auto timerName = "Sorting point cloud of length: " + std::to_string(input->width)
+                         + " by " + std::string(axis == X ? "X" : axis == Y ? "Y" : "Z") + " axis";
+        Timer t(timerName);
 
         switch (axis) {
             case X:
@@ -138,6 +140,13 @@ namespace AutoDrive::Algorithms {
         }
     }
 
+    void PointCloudProcessor::sortPointCloudByDistance(pcl::PointCloud<pcl::PointXYZ>::Ptr &input, bool ascending) {
+        Timer t("Sorting point cloud of length: " + std::to_string(input->width) + " by distance");
+
+        std::stable_sort(input->points.begin(), input->points.end(), ascending ? &compareDistAsc : &compareDistDesc);
+    }
+
+
     bool PointCloudProcessor::compareXAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
         return l.x < r.x;
     }
@@ -151,14 +160,22 @@ namespace AutoDrive::Algorithms {
     }
 
     bool PointCloudProcessor::compareXDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
-        return l.x > r.x;
+        return !compareXAsc(l, r);
     }
 
     bool PointCloudProcessor::compareYDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
-        return l.y > r.y;
+        return !compareYAsc(l, r);
     }
 
     bool PointCloudProcessor::compareZDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
-        return l.z > r.z;
+        return !compareZAsc(l, r);
+    }
+
+    bool PointCloudProcessor::compareDistAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
+        return (std::abs(l.x) + std::abs(l.y) + std::abs(l.z)) < (std::abs(r.x) + std::abs(r.y) + std::abs(r.z));
+    }
+
+    bool PointCloudProcessor::compareDistDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r) {
+        return !compareZAsc(l, r);
     }
 }

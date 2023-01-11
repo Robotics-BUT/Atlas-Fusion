@@ -87,8 +87,16 @@ namespace AutoDrive::Algorithms {
          *
          * @param input input point cloud
          * @param axis dimension by which the point cloud is going to be sorted
+         * @param ascending direction of sorting
          */
         void sortPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr &input, const Axis &axis, bool ascending = true);
+
+        /**
+         *
+         * @param input input point cloud
+         * @param ascending direction of sorting
+         */
+        void sortPointCloudByDistance(pcl::PointCloud<pcl::PointXYZ>::Ptr &input, bool ascending = true);
 
     private:
 
@@ -102,6 +110,9 @@ namespace AutoDrive::Algorithms {
         static bool compareXDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
         static bool compareYDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
         static bool compareZDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+
+        static bool compareDistAsc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
+        static bool compareDistDesc(const pcl::PointXYZ &l, const pcl::PointXYZ &r);
     };
 
 }

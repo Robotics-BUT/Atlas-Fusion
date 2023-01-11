@@ -42,9 +42,9 @@ namespace AutoDrive::Algorithms {
          * Method calls the set of filtering actions on the incoming lidar scan
          * @param data lidar scan
          */
-        void applyFiltersOnLidarData(pcl::PointCloud<pcl::PointXYZ> &data, const DataLoader::LidarIdentifier &lidarIdentifier) {
+        void applyFiltersOnLidarData(pcl::PointCloud<pcl::PointXYZ> &data) {
             if (filterNearObjects_) {
-                filterNearObjects(data, lidarIdentifier);
+                filterNearObjects(data);
             }
         }
 
@@ -62,20 +62,19 @@ namespace AutoDrive::Algorithms {
 
         bool filterNearObjects_ = false;
 
-        void filterNearObjects(pcl::PointCloud<pcl::PointXYZ> &data, const DataLoader::LidarIdentifier &lidarIdentifier) {
-            // Timer t("Lidar filter");
+        void filterNearObjects(pcl::PointCloud<pcl::PointXYZ> &data) {
+            Timer t("Lidar filter");
             auto backup = data.points;
             data.points.clear();
 
             int i = 0;
             for (const auto &point: backup) {
-                if (std::abs(point.x) + std::abs(point.y) < 2.0) {
-                    i++;
+                // Used lidars have minimal range of 2m, this formula is quicker than using powers
+                if (std::abs(point.x) + std::abs(point.y) < 2.82) {
+                    continue;
                 }
                 data.points.push_back(point);
             }
-            std::string id = lidarIdentifier == DataLoader::LidarIdentifier::kLeftLidar ? "LidarLeft" : lidarIdentifier == DataLoader::LidarIdentifier::kCenterLidar ? "LidarCenter" : "LidarRight";
-            std::cout << id << ": Points inside 2 radius: " << i << std::endl;
             data.width = data.size();
         }
 
