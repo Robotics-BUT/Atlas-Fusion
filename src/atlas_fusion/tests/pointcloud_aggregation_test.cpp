@@ -25,7 +25,7 @@
 #include "algorithms/pointcloud/PointCloudExtrapolator.h"
 
 #include "Context.h"
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <data_models/local_map/LocalPosition.h>

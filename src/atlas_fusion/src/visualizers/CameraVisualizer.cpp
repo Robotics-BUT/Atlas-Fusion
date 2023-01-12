@@ -21,43 +21,41 @@
  */
 
 #include "visualizers/CameraVisualizer.h"
+
 #include "util/IdentifierToFrameConversions.h"
-
-#include <sensor_msgs/image_encodings.h>
-#include <cv_bridge/cv_bridge.h>
-#include <opencv2/opencv.hpp>
-#include <sensor_msgs/distortion_models.h>
-#include <camera_info_manager/camera_info_manager.h>
-
 
 namespace AutoDrive::Visualizers {
 
     void CameraVisualizer::drawRGBCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const std::string &cameraTopic,
                                                        const std::string &cameraInfoTopic,
                                                        const FrameType &frame) {
+        /*
         checkCameraTopic(cameraTopic);
         checkCameraInfoTopic(cameraInfoTopic);
 
-        auto ts = ros::Time::now();
+        auto ts = node_->get_clock()->now();
 
-        cv_bridge::CvImagePtr cv_ptr(new cv_bridge::CvImage);
-        cv_ptr->header.stamp = ts;
-        cv_ptr->header.frame_id = frameTypeName(frame);
-        cv_ptr->encoding = "bgr8";
-        cv_ptr->image = data->getImage();
+        std_msgs::msg::Header header;
+        header.stamp = ts;
+        header.frame_id = frameTypeName(frame);
 
-        cameraPublishers_[cameraTopic].publish(cv_ptr->toImageMsg());
+        const cv::Mat& img = data->getImage();
+        sensor_msgs::msg::Image::SharedPtr msg = cv_bridge::CvImage(header, "bgr8", img).toImageMsg();
+
+        cameraPublishers_[cameraTopic]->publish(msg);
         publishCameraInfo(cameraParams_[frame], cameraInfoTopic, FrameType::kCameraIr, ts);
+         */
     }
 
 
     void CameraVisualizer::drawIRCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &data, const std::string &cameraTopic,
                                                       const std::string &cameraInfoTopic,
                                                       const FrameType &frame) {
+        /*
         checkCameraTopic(cameraTopic);
         checkCameraInfoTopic(cameraInfoTopic);
 
-        auto ts = ros::Time::now();
+        auto ts = node_->get_clock()->now();
 
         std::shared_ptr<cv_bridge::CvImage> cv_ptr = std::make_shared<cv_bridge::CvImage>();
         cv_ptr->header.stamp = ts;
@@ -67,26 +65,29 @@ namespace AutoDrive::Visualizers {
 
         cameraPublishers_[cameraTopic].publish(cv_ptr->toImageMsg());
         publishCameraInfo(cameraParams_[frame], cameraInfoTopic, FrameType::kCameraIr, ts);
+         */
     }
 
 
     void CameraVisualizer::checkCameraTopic(const std::string &topic) {
+        /*
         if (cameraPublishers_.count(topic) == 0) {
-            cameraPublishers_[topic] = it_.advertise(topic, 0);
+            cameraPublishers_[topic] = image_transport::create_publisher(node_, topic, 0);
         }
+         */
     }
 
 
     void CameraVisualizer::checkCameraInfoTopic(const std::string &topic) {
 
         if (cameraInfoPublishers_.count(topic) == 0) {
-            cameraInfoPublishers_[topic] = node_.advertise<sensor_msgs::CameraInfo>(topic, 0);
+            cameraInfoPublishers_[topic] = node_->create_publisher<sensor_msgs::msg::CameraInfo>(topic, 0);
         }
     }
 
     void CameraVisualizer::publishCameraInfo(const DataModels::CameraCalibrationParamsDataModel &params, const std::string &topic, const FrameType &frame,
-                                             ros::Time ts) {
-        sensor_msgs::CameraInfo msg;
+                                             const rclcpp::Time& ts) {
+        sensor_msgs::msg::CameraInfo msg;
 
         msg.header.stamp = ts;
         msg.header.frame_id = frameTypeName(frame);
@@ -97,23 +98,23 @@ namespace AutoDrive::Visualizers {
         msg.distortion_model = sensor_msgs::distortion_models::PLUMB_BOB;
 
         auto dist = params.getDistortionParams();
-        msg.D = {dist[0], dist[1], dist[2], dist[3], dist[4]};
+        msg.d = {dist[0], dist[1], dist[2], dist[3], dist[4]};
 
         auto intrinsic = params.getIntrinsicParams();
-        msg.K = {intrinsic[0][0], intrinsic[0][1], intrinsic[0][2],
+        msg.k = {intrinsic[0][0], intrinsic[0][1], intrinsic[0][2],
                  intrinsic[1][0], intrinsic[1][1], intrinsic[1][2],
                  intrinsic[2][0], intrinsic[2][1], intrinsic[2][2],};
 
-        msg.R = {1, 0, 0,
+        msg.r = {1, 0, 0,
                  0, 1, 0,
                  0, 0, 1};
 
 
-        msg.P = {intrinsic[0][0], intrinsic[0][1], intrinsic[0][2], 0,
+        msg.p = {intrinsic[0][0], intrinsic[0][1], intrinsic[0][2], 0,
                  intrinsic[1][0], intrinsic[1][1], intrinsic[1][2], 0,
                  intrinsic[2][0], intrinsic[2][1], intrinsic[2][2], 0};
 
-        cameraInfoPublishers_[topic].publish(msg);
+        cameraInfoPublishers_[topic]->publish(msg);
     }
 
 }

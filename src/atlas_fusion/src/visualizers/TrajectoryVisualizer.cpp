@@ -26,31 +26,32 @@
 namespace AutoDrive::Visualizers {
 
 
-    void TrajectoryVisualizer::drawRawTrajectory(const std::deque<DataModels::LocalPosition>& data) const {
+    void TrajectoryVisualizer::drawRawTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
         Color c{0.0, 1.0, 0.0};
         drawTrajectory(data, rawTrajectoryPublisher_, c);
     }
 
 
-    void TrajectoryVisualizer::drawFilteredTrajectory(const std::deque<DataModels::LocalPosition>& data) const {
+    void TrajectoryVisualizer::drawFilteredTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
         Color c{1.0, 0.0, 0.0};
         drawTrajectory(data, filteredTrajectoryPublisher_, c);
     }
 
 
-    void TrajectoryVisualizer::drawImuGpsTrajectory(const std::deque<DataModels::LocalPosition>& data) const {
+    void TrajectoryVisualizer::drawImuGpsTrajectory(const std::deque<DataModels::LocalPosition> &data) const {
         Color c{0.0, 0.0, 1.0};
         drawTrajectory(data, imuGpsTrajectoryPublisher_, c);
     }
 
-    void TrajectoryVisualizer::drawTrajectory(const std::deque<DataModels::LocalPosition>& data, const ros::Publisher& publisher, Color& color) const {
+    void TrajectoryVisualizer::drawTrajectory(const std::deque<DataModels::LocalPosition> &data,
+                                              const rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr &publisher, Color &color) const {
         auto data_ = data;
-        visualization_msgs::Marker msg;
+        visualization_msgs::msg::Marker msg;
 
-        msg.header.stamp = ros::Time::now();
+        msg.header.stamp = node_->get_clock()->now();
         msg.header.frame_id = frameTypeName(FrameType::kOrigin);
 
-        msg.type = visualization_msgs::Marker::LINE_STRIP;
+        msg.type = visualization_msgs::msg::Marker::LINE_STRIP;
         msg.color.r = color.red_;
         msg.color.g = color.green_;
         msg.color.b = color.blue_;
@@ -58,11 +59,11 @@ namespace AutoDrive::Visualizers {
 
         msg.scale.x = 0.02;
 
-        while(!data_.empty()) {
+        while (!data_.empty()) {
             auto p = data_.front().getPosition();
             data_.pop_front();
 
-            geometry_msgs::Point point;
+            geometry_msgs::msg::Point point;
             point.x = p.x();
             point.y = p.y();
             point.z = p.z();
@@ -70,6 +71,6 @@ namespace AutoDrive::Visualizers {
             msg.points.push_back(point);
         }
 
-        publisher.publish(msg);
+        publisher->publish(msg);
     }
 }

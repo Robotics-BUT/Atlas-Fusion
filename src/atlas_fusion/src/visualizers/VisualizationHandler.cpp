@@ -21,18 +21,16 @@
  */
 
 #include "visualizers/VisualizationHandler.h"
-
-#include <sensor_msgs/PointCloud2.h>
 #include "Timer.h"
 
 namespace AutoDrive::Visualizers {
 
     void VisualizationHandler::drawSelfGlobal() const {
-        selfGlobalPublisher_.publish(getSelfGlobalCube());
+        selfGlobalPublisher_->publish(getSelfGlobalCube());
     }
 
     void VisualizationHandler::drawSelfEgo() const {
-        selfEgoPublisher_.publish(getSelfEgoCube());
+        selfEgoPublisher_->publish(getSelfEgoCube());
     }
 
     /* LIDAR */
@@ -81,7 +79,7 @@ namespace AutoDrive::Visualizers {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
         if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
 
-        visualization_msgs::Marker::_color_type col;
+        visualization_msgs::msg::Marker::_color_type col;
         col.a = 1;
         col.r = 0;
         col.g = 1;
@@ -94,7 +92,7 @@ namespace AutoDrive::Visualizers {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
         if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
 
-        visualization_msgs::Marker::_color_type col;
+        visualization_msgs::msg::Marker::_color_type col;
         col.a = 1;
         col.r = 1;
         col.g = 0;
@@ -277,13 +275,14 @@ namespace AutoDrive::Visualizers {
         textStatusVisualizer_.drawStatusAsText(environmentalStatus, Topics::kEnvironmentalModel);
     }
 
-    visualization_msgs::Marker VisualizationHandler::getSelfEgoCube() const {
-        visualization_msgs::Marker cube;
+    visualization_msgs::msg::Marker VisualizationHandler::getSelfEgoCube() const {
+
+        visualization_msgs::msg::Marker cube;
         cube.header.frame_id = frameTypeName(FrameType::kOrigin);
-        cube.header.stamp = ros::Time();
+        cube.header.stamp = rclcpp::Time();
         cube.id = 0;
-        cube.type = visualization_msgs::Marker::CUBE;
-        cube.action = visualization_msgs::Marker::ADD;
+        cube.type = visualization_msgs::msg::Marker::CUBE;
+        cube.action = visualization_msgs::msg::Marker::ADD;
         cube.pose.position.x = 0;
         cube.pose.position.y = 0;
         cube.pose.position.z = -0.75;
@@ -302,13 +301,13 @@ namespace AutoDrive::Visualizers {
         return cube;
     }
 
-    visualization_msgs::Marker VisualizationHandler::getSelfGlobalCube() const {
-        visualization_msgs::Marker cube;
+    visualization_msgs::msg::Marker VisualizationHandler::getSelfGlobalCube() const {
+        visualization_msgs::msg::Marker cube;
         cube.header.frame_id = frameTypeName(FrameType::kImu);
-        cube.header.stamp = ros::Time();
+        cube.header.stamp = rclcpp::Time();
         cube.id = 0;
-        cube.type = visualization_msgs::Marker::CUBE;
-        cube.action = visualization_msgs::Marker::ADD;
+        cube.type = visualization_msgs::msg::Marker::CUBE;
+        cube.action = visualization_msgs::msg::Marker::ADD;
         cube.pose.position.x = 0;
         cube.pose.position.y = 0;
         cube.pose.position.z = -0.75;

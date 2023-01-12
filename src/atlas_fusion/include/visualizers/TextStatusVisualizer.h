@@ -22,6 +22,9 @@
 
 #pragma once
 
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/string.hpp"
+
 #include "Context.h"
 
 namespace AutoDrive::Visualizers {
@@ -41,16 +44,16 @@ namespace AutoDrive::Visualizers {
          * @param context global services container (timestamps, logging, etc.)
          * @param frameType sensor identification
          */
-        TextStatusVisualizer(ros::NodeHandle &node, Context &context) : node_{node}, context_{context} {}
+        TextStatusVisualizer(rclcpp::Node::SharedPtr &node, Context &context) : node_{node}, context_{context} {}
 
         void drawStatusAsText(const std::string &statusText, const std::string &topic);
 
     private:
 
-        ros::NodeHandle &node_;
+        rclcpp::Node::SharedPtr &node_;
         Context &context_;
 
-        std::map<std::string, ros::Publisher> publishers_;
+        std::map<std::string, rclcpp::Publisher<std_msgs::msg::String>::SharedPtr> publishers_;
     };
 
 }

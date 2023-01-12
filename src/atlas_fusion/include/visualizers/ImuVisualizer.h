@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include <ros/ros.h>
-#include <sensor_msgs/Imu.h>
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/imu.hpp"
 
 #include "Topics.h"
 #include "Context.h"
@@ -43,16 +43,16 @@ namespace AutoDrive::Visualizers {
          * @param node ros node reference
          * @param context global services container (timestamps, logging, etc.)
          */
-        ImuVisualizer(ros::NodeHandle &node, Context &context) : node_{node}, context_{context} {}
+        ImuVisualizer(rclcpp::Node::SharedPtr &node, Context &context) : node_{node}, context_{context} {}
 
         void drawImuData(const rtl::Vector3D<double> &linAcc, const FrameType &frame, const std::string &topic);
 
     protected:
 
-        ros::NodeHandle &node_;
+        rclcpp::Node::SharedPtr &node_;
         Context &context_;
 
-        std::map<std::string, std::shared_ptr<ros::Publisher>> publishers_;
+        std::map<std::string, rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr> publishers_;
     };
 
 }

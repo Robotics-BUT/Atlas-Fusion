@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include <ros/ros.h>
-#include <visualization_msgs/Marker.h>
-#include <memory>
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker.hpp"
 
+#include <memory>
 #include <rtl/Core.h>
 
 #include "data_models/imu/ImuImuDataModel.h"
@@ -64,7 +64,7 @@ namespace AutoDrive::Visualizers {
          * @param node ros node reference
          * @param context global services container (timestamping, logging, etc.)
          */
-        explicit VisualizationHandler(ros::NodeHandle& node, Context& context)
+        explicit VisualizationHandler(rclcpp::Node::SharedPtr & node, Context& context)
         : node_{node}
         , context_(context)
         , lidarVisualizer_(node, context)
@@ -76,8 +76,8 @@ namespace AutoDrive::Visualizers {
         , frustumVisualizer_(node, context)
         , radarVisualizer_(node, context)
         , textStatusVisualizer_(node, context) {
-            selfGlobalPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kSelfGlobal, 0);
-            selfEgoPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kSelfEgo, 0);
+            selfGlobalPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>( Topics::kSelfGlobal, 0);
+            selfEgoPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>( Topics::kSelfEgo, 0);
         }
 
         /**
@@ -240,11 +240,11 @@ namespace AutoDrive::Visualizers {
 
     private:
 
-        ros::NodeHandle& node_;
+        rclcpp::Node::SharedPtr& node_;
         Context& context_;
 
-        ros::Publisher selfGlobalPublisher_;
-        ros::Publisher selfEgoPublisher_;
+        rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr selfGlobalPublisher_;
+        rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr selfEgoPublisher_;
 
         LidarVisualizer lidarVisualizer_;
         ImuVisualizer imuVisualizer_;
@@ -257,8 +257,8 @@ namespace AutoDrive::Visualizers {
 
         TextStatusVisualizer textStatusVisualizer_;
 
-        [[nodiscard]] visualization_msgs::Marker getSelfEgoCube() const;
-        [[nodiscard]] visualization_msgs::Marker getSelfGlobalCube() const;
+        [[nodiscard]] visualization_msgs::msg::Marker getSelfEgoCube() const;
+        [[nodiscard]] visualization_msgs::msg::Marker getSelfGlobalCube() const;
     };
 
 }

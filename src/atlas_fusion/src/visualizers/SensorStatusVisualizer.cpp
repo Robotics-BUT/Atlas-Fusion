@@ -20,13 +20,13 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <jsk_rviz_plugins/OverlayText.h>
 #include "visualizers/TextStatusVisualizer.h"
 
 namespace AutoDrive::Visualizers {
 
 
     void TextStatusVisualizer::drawStatusAsText(const std::string &statusText, const std::string &topic) {
+        /*
         if (publishers_.count(topic) == 0) {
             publishers_[topic] = node_.advertise<jsk_rviz_plugins::OverlayText>(topic, 0);
         }
@@ -49,5 +49,6 @@ namespace AutoDrive::Visualizers {
         textMsg.text = statusText;
 
         publishers_[topic].publish(textMsg);
+         */
     }
 }

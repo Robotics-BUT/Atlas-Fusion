@@ -23,44 +23,44 @@
 #include "visualizers/LidarVisualizer.h"
 #include "util/IdentifierToFrameConversions.h"
 
-#include <pcl_conversions/pcl_conversions.h>
+#include "pcl_conversions/pcl_conversions.h"
 
 namespace AutoDrive::Visualizers {
 
     void LidarVisualizer::drawPointCloudOnTopic(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &pc, const std::string& topic, const FrameType &frame) {
 
-        if (publishers_.count(topic) == 0) {
-            publishers_[topic] = std::make_shared<ros::Publisher>(node_.advertise<sensor_msgs::PointCloud2>(topic, 0));
+        if (pointCloudPublishers_.count(topic) == 0) {
+            pointCloudPublishers_[topic] = node_->create_publisher<sensor_msgs::msg::PointCloud2>(topic, 0);
         }
 
-        sensor_msgs::PointCloud2 msg;
+        sensor_msgs::msg::PointCloud2 msg;
         pcl::toROSMsg(*pc, msg);
 
-        msg.header.stamp = ros::Time::now();
+        msg.header.stamp = node_->get_clock()->now();
         msg.header.frame_id = frameTypeName(frame);
-        publishers_[topic]->publish(msg);
+        pointCloudPublishers_[topic]->publish(msg);
     }
 
 
     void LidarVisualizer::drawApproximationOnTopic(const std::shared_ptr<std::vector<rtl::LineSegment3D<double>>>& ls, const std::string& topic, const FrameType &frame,
-                                                   visualization_msgs::Marker::_color_type col) {
+                                                   visualization_msgs::msg::Marker::_color_type col) {
         if (ls->empty())
             return;
 
-        if (publishers_.count(topic) == 0) {
-            publishers_[topic] = std::make_shared<ros::Publisher>(node_.advertise<visualization_msgs::Marker>(topic, 0));
+        if (approximationsPublishers_.count(topic) == 0) {
+            approximationsPublishers_[topic] = node_->create_publisher<visualization_msgs::msg::Marker>(topic, 0);
         }
 
-        visualization_msgs::Marker lineSegments;
+        visualization_msgs::msg::Marker lineSegments;
         lineSegments.header.frame_id = frameTypeName(frame);
-        lineSegments.header.stamp = ros::Time::now();
-        lineSegments.type = visualization_msgs::Marker::LINE_LIST;
-        lineSegments.action = visualization_msgs::Marker::ADD;
+        lineSegments.header.stamp = node_->get_clock()->now();
+        lineSegments.type = visualization_msgs::msg::Marker::LINE_LIST;
+        lineSegments.action = visualization_msgs::msg::Marker::ADD;
 
         for (auto &l: *ls) {
             if (l.beg().hasNaN() || l.end().hasNaN() || l.beg().lengthSquared() > 100000000 || l.end().lengthSquared() > 100000000)
                 continue;
-            geometry_msgs::Point beg, end;
+            geometry_msgs::msg::Point beg, end;
             beg.x = l.beg().x();
             beg.y = l.beg().y();
             beg.z = l.beg().z();
@@ -77,25 +77,25 @@ namespace AutoDrive::Visualizers {
 
         lineSegments.color = col;
 
-        publishers_[topic]->publish(lineSegments);
+        approximationsPublishers_[topic]->publish(lineSegments);
     }
 
 
     void LidarVisualizer::drawLidarDetections(const std::vector<std::shared_ptr<DataModels::LidarDetection>>& detections, const std::string& topic, const FrameType &frame) {
 
-        if (publishers_.count(topic) == 0) {
-            publishers_[topic] = std::make_shared<ros::Publisher>(node_.advertise<visualization_msgs::MarkerArray>(topic, 0));
+        if (detectionsPublishers_.count(topic) == 0) {
+            detectionsPublishers_[topic] = node_->create_publisher<visualization_msgs::msg::MarkerArray>(topic, 0);
         }
-        publishers_[topic]->publish(lidarDetectionsToMarkerArray(detections, frame));
+        detectionsPublishers_[topic]->publish(lidarDetectionsToMarkerArray(detections, frame));
     }
 
 
-    visualization_msgs::MarkerArray
+    visualization_msgs::msg::MarkerArray
     LidarVisualizer::lidarDetectionsToMarkerArray(const std::vector<std::shared_ptr<DataModels::LidarDetection>>& detections, const FrameType &frame) {
 
-        visualization_msgs::MarkerArray output;
+        visualization_msgs::msg::MarkerArray output;
 
-        auto timestamp = ros::Time::now();
+        auto timestamp = node_->get_clock()->now();
 
         size_t cnt = 0;
         static size_t maxCnt = 0;
@@ -111,12 +111,12 @@ namespace AutoDrive::Visualizers {
             double cz = (detection->getBoundingBox().max().getElement(2) + detection->getBoundingBox().min().getElement(2)) / 2;
 
             // Bounding Box
-            visualization_msgs::Marker marker;
+            visualization_msgs::msg::Marker marker;
             marker.header.frame_id = frameTypeName(frame);
             marker.header.stamp = timestamp;
             marker.id = cnt++;
-            marker.type = visualization_msgs::Marker::CUBE;
-            marker.action = visualization_msgs::Marker::ADD;
+            marker.type = visualization_msgs::msg::Marker::CUBE;
+            marker.action = visualization_msgs::msg::Marker::ADD;
 
             marker.pose.position.x = cx;
             marker.pose.position.y = cy;
@@ -138,12 +138,12 @@ namespace AutoDrive::Visualizers {
 
             output.markers.push_back(marker);
 
-            visualization_msgs::Marker text;
+            visualization_msgs::msg::Marker text;
             text.header.frame_id = frameTypeName(frame);
             text.header.stamp = timestamp;
             text.id = cnt++;
-            text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-            text.action = visualization_msgs::Marker::ADD;
+            text.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
+            text.action = visualization_msgs::msg::Marker::ADD;
 
             text.pose.position.x = detection->getBoundingBox().max().getElement(0);
             text.pose.position.y = detection->getBoundingBox().max().getElement(1);
@@ -167,12 +167,12 @@ namespace AutoDrive::Visualizers {
         }
 
         for (size_t i = cnt; i < maxCnt; i++) {
-            visualization_msgs::Marker marker;
+            visualization_msgs::msg::Marker marker;
             marker.header.frame_id = frameTypeName(frame);
             marker.header.stamp = timestamp;
             marker.id = cnt++;
-            marker.type = visualization_msgs::Marker::CUBE;
-            marker.action = visualization_msgs::Marker::ADD;
+            marker.type = visualization_msgs::msg::Marker::CUBE;
+            marker.action = visualization_msgs::msg::Marker::ADD;
             marker.color.a = 0.0;
 
             marker.scale.x = 0.1;

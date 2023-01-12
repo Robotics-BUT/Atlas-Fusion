@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include <ros/ros.h>
-#include <visualization_msgs/MarkerArray.h>
-#include <std_msgs/ColorRGBA.h>
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
+#include "std_msgs/msg/color_rgba.hpp"
 
 #include "data_models/local_map/FrustumDetection.h"
 #include "data_models/yolo/YoloDetectionClass.h"
@@ -47,11 +47,11 @@ namespace AutoDrive::Visualizers {
          * @param node ros node reference
          * @param context global services container (timestamps, logging, etc.)
          */
-        FrustumVisualizer(ros::NodeHandle& node, Context& context)
+        FrustumVisualizer(rclcpp::Node::SharedPtr& node, Context& context)
         : node_{node}
         , context_{context} {
 
-            frustumPublisher_ = node_.advertise<visualization_msgs::MarkerArray>( Topics::kYoloFrustumDetections, 0 );
+            frustumPublisher_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>( Topics::kYoloFrustumDetections, 0 );
         }
 
 
@@ -59,15 +59,15 @@ namespace AutoDrive::Visualizers {
 
     private:
 
-        ros::NodeHandle& node_;
+        rclcpp::Node::SharedPtr& node_;
         Context& context_;
 
-        ros::Publisher frustumPublisher_;
+        rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr frustumPublisher_;
 
-        std::vector<geometry_msgs::Point> frustumToGeometryPointVector(const std::shared_ptr<const rtl::Frustum3D<double>>& f);
-        std::vector<geometry_msgs::Point> frustumToAxis(const std::shared_ptr<const rtl::Frustum3D<double>>& f);
+        std::vector<geometry_msgs::msg::Point> frustumToGeometryPointVector(const std::shared_ptr<const rtl::Frustum3D<double>>& f);
+        std::vector<geometry_msgs::msg::Point> frustumToAxis(const std::shared_ptr<const rtl::Frustum3D<double>>& f);
 
-        std_msgs::ColorRGBA getColorByClass(DataModels::YoloDetectionClass);
+        std_msgs::msg::ColorRGBA getColorByClass(DataModels::YoloDetectionClass);
     };
 }
 
