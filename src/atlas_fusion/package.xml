@@ -17,7 +17,6 @@
   <depend>sensor_msgs</depend>
   <depend>visualization_msgs</depend>
   <depend>image_transport</depend>
-  <depend>cv_bridge</depend>
   <depend>camera_info_manager</depend>
   <depend>tf2_ros</depend>
   <depend>pcl_conversions</depend>

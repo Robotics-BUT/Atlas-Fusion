@@ -21,7 +21,6 @@
  */
 
 #include "visualizers/TFVisualizer.h"
-#include <sstream>
 
 namespace AutoDrive::Visualizers {
 

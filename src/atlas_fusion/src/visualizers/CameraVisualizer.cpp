@@ -29,7 +29,7 @@ namespace AutoDrive::Visualizers {
     void CameraVisualizer::drawRGBCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const std::string &cameraTopic,
                                                        const std::string &cameraInfoTopic,
                                                        const FrameType &frame) {
-        /*
+
         checkCameraTopic(cameraTopic);
         checkCameraInfoTopic(cameraInfoTopic);
 
@@ -39,54 +39,44 @@ namespace AutoDrive::Visualizers {
         header.stamp = ts;
         header.frame_id = frameTypeName(frame);
 
-        const cv::Mat& img = data->getImage();
-        sensor_msgs::msg::Image::SharedPtr msg = cv_bridge::CvImage(header, "bgr8", img).toImageMsg();
-
-        cameraPublishers_[cameraTopic]->publish(msg);
-        publishCameraInfo(cameraParams_[frame], cameraInfoTopic, FrameType::kCameraIr, ts);
-         */
+        cameraPublishers_[cameraTopic].publish(toCameraMsg(data->getImage(), header, "bgr8"));
+        publishCameraInfo(cameraParams_[frame], cameraInfoTopic, frame, ts);
     }
 
 
     void CameraVisualizer::drawIRCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &data, const std::string &cameraTopic,
                                                       const std::string &cameraInfoTopic,
                                                       const FrameType &frame) {
-        /*
+
         checkCameraTopic(cameraTopic);
         checkCameraInfoTopic(cameraInfoTopic);
 
         auto ts = node_->get_clock()->now();
 
-        std::shared_ptr<cv_bridge::CvImage> cv_ptr = std::make_shared<cv_bridge::CvImage>();
-        cv_ptr->header.stamp = ts;
-        cv_ptr->header.frame_id = frameTypeName(FrameType::kCameraIr);
-        cv_ptr->encoding = "mono8";
-        cv_ptr->image = data->getImage();
+        std_msgs::msg::Header header;
+        header.stamp = ts;
+        header.frame_id = frameTypeName(FrameType::kCameraIr);
 
-        cameraPublishers_[cameraTopic].publish(cv_ptr->toImageMsg());
+        cameraPublishers_[cameraTopic].publish(toCameraMsg(data->getImage(), header, "mono8"));
         publishCameraInfo(cameraParams_[frame], cameraInfoTopic, FrameType::kCameraIr, ts);
-         */
     }
 
 
     void CameraVisualizer::checkCameraTopic(const std::string &topic) {
-        /*
         if (cameraPublishers_.count(topic) == 0) {
-            cameraPublishers_[topic] = image_transport::create_publisher(node_, topic, 0);
+            cameraPublishers_[topic] = it_.advertise(topic, 0);
         }
-         */
     }
 
 
     void CameraVisualizer::checkCameraInfoTopic(const std::string &topic) {
-
         if (cameraInfoPublishers_.count(topic) == 0) {
             cameraInfoPublishers_[topic] = node_->create_publisher<sensor_msgs::msg::CameraInfo>(topic, 0);
         }
     }
 
     void CameraVisualizer::publishCameraInfo(const DataModels::CameraCalibrationParamsDataModel &params, const std::string &topic, const FrameType &frame,
-                                             const rclcpp::Time& ts) {
+                                             const rclcpp::Time &ts) {
         sensor_msgs::msg::CameraInfo msg;
 
         msg.header.stamp = ts;
@@ -115,6 +105,33 @@ namespace AutoDrive::Visualizers {
                  intrinsic[2][0], intrinsic[2][1], intrinsic[2][2], 0};
 
         cameraInfoPublishers_[topic]->publish(msg);
+    }
+
+
+    sensor_msgs::msg::Image CameraVisualizer::toCameraMsg(const cv::Mat &img, const std_msgs::msg::Header &header, const std::string &encoding) {
+        sensor_msgs::msg::Image ros_image;
+        ros_image.header = header;
+        ros_image.height = img.rows;
+        ros_image.width = img.cols;
+        ros_image.encoding = encoding;
+        ros_image.is_bigendian = (rcpputils::endian::native == rcpputils::endian::big);
+        ros_image.step = img.cols * img.elemSize();
+        size_t size = ros_image.step * img.rows;
+        ros_image.data.resize(size);
+
+        if (img.isContinuous()) {
+            memcpy(reinterpret_cast<char *>(&ros_image.data[0]), img.data, size);
+        } else {
+            // Copy by row
+            auto *ros_data_ptr = reinterpret_cast<uchar *>(&ros_image.data[0]);
+            uchar *cv_data_ptr = img.data;
+            for (int i = 0; i < img.rows; ++i) {
+                memcpy(ros_data_ptr, cv_data_ptr, ros_image.step);
+                ros_data_ptr += ros_image.step;
+                cv_data_ptr += img.step;
+            }
+        }
+        return ros_image;
     }
 
 }

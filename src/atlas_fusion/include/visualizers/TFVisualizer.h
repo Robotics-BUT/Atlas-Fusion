@@ -50,8 +50,8 @@ namespace AutoDrive::Visualizers {
         TFVisualizer(rclcpp::Node::SharedPtr &node, Context &context) :
         node_{node}
         , context_{context}
-        , broadcaster_(node)
-        , rootToOriginBroadcaster_(node) {
+        , broadcaster_(node_)
+        , rootToOriginBroadcaster_(node_) {
 
             std::vector<geometry_msgs::msg::TransformStamped> msgVector;
             for (const auto &frameType: context_.tfTree_.getFrameTypes()) {

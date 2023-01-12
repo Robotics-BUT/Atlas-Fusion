@@ -27,6 +27,8 @@
 #include "sensor_msgs/msg/camera_info.hpp"
 #include "sensor_msgs/image_encodings.hpp"
 #include "sensor_msgs/distortion_models.hpp"
+#include "image_transport/image_transport.hpp"
+#include "rcpputils/endian.hpp"
 
 #include "Context.h"
 #include "Topics.h"
@@ -47,8 +49,7 @@ namespace AutoDrive::Visualizers {
          * @param node ros node reference
          * @param context global services container (timestamps, logging, etc.)
          */
-        CameraVisualizer(rclcpp::Node::SharedPtr &node, Context &context) : node_{node}, context_{context} {}
-        //, it_(node_.get()) {}
+        CameraVisualizer(rclcpp::Node::SharedPtr &node, Context &context) : node_{node}, context_{context}, it_(node_) {}
 
         void
         drawRGBCameraFrameWithTopic(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const std::string &cameraTopic,
@@ -68,9 +69,9 @@ namespace AutoDrive::Visualizers {
         rclcpp::Node::SharedPtr &node_;
         Context &context_;
 
-        //image_transport::ImageTransport it_;
+        image_transport::ImageTransport it_;
 
-        //std::map<std::string, image_transport::Publisher> cameraPublishers_;
+        std::map<std::string, image_transport::Publisher> cameraPublishers_;
         std::map<std::string, rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr> cameraInfoPublishers_;
 
         std::map<FrameType, DataModels::CameraCalibrationParamsDataModel> cameraParams_;
@@ -80,6 +81,8 @@ namespace AutoDrive::Visualizers {
         void checkCameraInfoTopic(const std::string &);
 
         void publishCameraInfo(const DataModels::CameraCalibrationParamsDataModel &params, const std::string &topic, const FrameType &frame, const rclcpp::Time& ts);
+
+        sensor_msgs::msg::Image toCameraMsg(const cv::Mat& img, const std_msgs::msg::Header& header, const std::string& encoding);
     };
 
 }

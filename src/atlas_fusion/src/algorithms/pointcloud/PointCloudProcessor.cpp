@@ -86,7 +86,10 @@ namespace AutoDrive::Algorithms {
                 if (i == threads - 1) end = input->points.size();
 
                 inBatch->reserve(end - start);
+                inBatch->width = end - start;
+                inBatch->height = 1;
                 outBatch->width = end - start;
+                outBatch->height = 1;
 
                 std::copy(input->begin() + start, input->begin() + end, back_inserter(inBatch->points));
 
