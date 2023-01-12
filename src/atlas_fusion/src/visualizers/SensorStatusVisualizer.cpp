@@ -20,24 +20,25 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "visualizers/TextStatusVisualizer.h"
+#include "visualizers/SensorStatusVisualizer.h"
+#include "std_msgs/msg/color_rgba.hpp"
 
 namespace AutoDrive::Visualizers {
 
 
-    void TextStatusVisualizer::drawStatusAsText(const std::string &statusText, const std::string &topic) {
-        /*
+    void SensorStatusVisualizer::drawStatusAsText(const std::string &statusText, const std::string &topic) {
+    /*
         if (publishers_.count(topic) == 0) {
-            publishers_[topic] = node_.advertise<jsk_rviz_plugins::OverlayText>(topic, 0);
+            publishers_[topic] = node_->create_publisher<rviz_2d_overlay_msgs::msg::OverlayText>(topic, 0);
         }
 
-        std_msgs::ColorRGBA color;
+        std_msgs::msg::ColorRGBA color;
         color.r = 1.0;
         color.g = 0.0;
         color.b = 0.0;
         color.a = 1.0;
 
-        jsk_rviz_plugins::OverlayText textMsg;
+        rviz_2d_overlay_msgs::msg::OverlayText textMsg;
         textMsg.width = 400;
         textMsg.height = 600;
         textMsg.left = 10;
@@ -48,7 +49,7 @@ namespace AutoDrive::Visualizers {
         textMsg.fg_color = color;
         textMsg.text = statusText;
 
-        publishers_[topic].publish(textMsg);
-         */
+        publishers_[topic]->publish(textMsg);
+        */
     }
 }

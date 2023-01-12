@@ -46,7 +46,7 @@
 #include "FrustumVisualizer.h"
 #include "RadarVisualizer.h"
 #include "TrajectoryVisualizer.h"
-#include "TextStatusVisualizer.h"
+#include "SensorStatusVisualizer.h"
 
 
 namespace AutoDrive::Visualizers {
@@ -76,8 +76,8 @@ namespace AutoDrive::Visualizers {
         , frustumVisualizer_(node, context)
         , radarVisualizer_(node, context)
         , textStatusVisualizer_(node, context) {
-            selfGlobalPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>( Topics::kSelfGlobal, 0);
-            selfEgoPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>( Topics::kSelfEgo, 0);
+            selfGlobalPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>(Topics::kSelfGlobal, 0);
+            selfEgoPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>(Topics::kSelfEgo, 0);
         }
 
         /**
@@ -255,7 +255,7 @@ namespace AutoDrive::Visualizers {
         FrustumVisualizer frustumVisualizer_;
         RadarVisualizer radarVisualizer_;
 
-        TextStatusVisualizer textStatusVisualizer_;
+        SensorStatusVisualizer textStatusVisualizer_;
 
         [[nodiscard]] visualization_msgs::msg::Marker getSelfEgoCube() const;
         [[nodiscard]] visualization_msgs::msg::Marker getSelfGlobalCube() const;
