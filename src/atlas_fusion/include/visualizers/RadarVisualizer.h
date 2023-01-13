@@ -1,9 +1,12 @@
 #pragma once
 
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
+#include "visualization_msgs/msg/marker.hpp"
+
 #include "Context.h"
 #include "Topics.h"
-#include "data_models/radar//RadarTiDataModel.h"
+#include "data_models/radar/RadarTiDataModel.h"
 
 namespace AutoDrive::Visualizers {
 
@@ -15,7 +18,7 @@ namespace AutoDrive::Visualizers {
          * @param node ros node reference
          * @param context global services container (timestamping, logging, etc.)
          */
-        explicit RadarVisualizer(ros::NodeHandle &node, Context &context)
+        explicit RadarVisualizer(rclcpp::Node::SharedPtr &node, Context &context)
                 : node_{node}, context_{context} {}
 
         void drawRadarDetectionsOnTopic(const std::vector<DataModels::RadarTiDataModel::Object> &objects, const std::string &topic, const FrameType &frame);
@@ -23,10 +26,10 @@ namespace AutoDrive::Visualizers {
 
     private:
 
-        ros::NodeHandle &node_;
+        rclcpp::Node::SharedPtr &node_;
         Context &context_;
 
-        std::map<std::string, std::shared_ptr<ros::Publisher>> publishers_;
+        std::map<std::string, rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr> publishers_;
 
         size_t radarTiMaxObjectVisCount_ = 0;
     };

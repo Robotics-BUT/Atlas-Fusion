@@ -22,13 +22,15 @@
 
 #pragma once
 
+#include "rclcpp/rclcpp.hpp"
+#include "tf2_ros/static_transform_broadcaster.h"
+#include "tf2_ros/transform_broadcaster.h"
+#include "tf2/LinearMath/Quaternion.h"
+#include "geometry_msgs/msg/transform_stamped.hpp"
+
 #include "Context.h"
 #include "util/IdentifierToFrameConversions.h"
-#include <tf2_ros/static_transform_broadcaster.h>
-#include <tf2_ros/transform_broadcaster.h>
-#include <geometry_msgs/TransformStamped.h>
 #include <cstdio>
-#include <tf2/LinearMath/Quaternion.h>
 
 
 namespace AutoDrive::Visualizers {
@@ -45,14 +47,17 @@ namespace AutoDrive::Visualizers {
          * @param node ros node reference
          * @param context global services container (timestamps, logging, etc.)
          */
-        TFVisualizer(ros::NodeHandle &node, Context &context) : node_{node}, context_{context} {
+        TFVisualizer(rclcpp::Node::SharedPtr &node, Context &context) :
+        node_{node}
+        , context_{context}
+        , broadcaster_(node_)
+        , rootToOriginBroadcaster_(node_) {
 
-            broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>();
-            std::vector<geometry_msgs::TransformStamped> msgVector;
+            std::vector<geometry_msgs::msg::TransformStamped> msgVector;
             for (const auto &frameType: context_.tfTree_.getFrameTypes()) {
                 auto tf = context_.tfTree_.getTransformationForFrame(frameType);
-                geometry_msgs::TransformStamped msg;
-                msg.header.stamp = ros::Time::now();
+                geometry_msgs::msg::TransformStamped msg;
+                msg.header.stamp = node_->get_clock()->now();
                 msg.header.frame_id = frameTypeName(context_.tfTree_.getRootFrameType());
                 msg.child_frame_id = frameTypeName(frameType);
                 msg.transform.translation.x = tf.trVecX();
@@ -64,16 +69,16 @@ namespace AutoDrive::Visualizers {
                 msg.transform.rotation.w = tf.rotQuaternion().w();
                 msgVector.push_back(msg);
             }
-            broadcaster_->sendTransform(msgVector);
+            broadcaster_.sendTransform(msgVector);
         }
 
         void updateOriginToRootTf(const rtl::RigidTf3D<double> &tf);
 
     protected:
 
-        ros::NodeHandle &node_;
+        rclcpp::Node::SharedPtr &node_;
         Context &context_;
-        std::shared_ptr<tf2_ros::StaticTransformBroadcaster> broadcaster_{};
-        tf2_ros::TransformBroadcaster rootToOriginBroadcaster_{};
+        tf2_ros::StaticTransformBroadcaster broadcaster_;
+        tf2_ros::TransformBroadcaster rootToOriginBroadcaster_;
     };
 }

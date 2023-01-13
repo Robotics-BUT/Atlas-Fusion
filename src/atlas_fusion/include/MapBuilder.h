@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
 
 #include "algorithms/SimpleTrajectoryLogger.h"
 #include "algorithms/SelfModel.h"
@@ -82,7 +82,7 @@ namespace AutoDrive {
          *  @param leafSize leaf size for the point cloud subsampling
          *  @param globalLeafSize leaf size for the global point cloud subsampling
          *  @param noOfBatchesPerScan number of batches that single lidar scan will be devided into
-         *  @param liadrAggregationTime the time for which the lidar scans will be holded
+         *  @param lidarAggregationTime the time for which the lidar scans will be holded
          *  @param noOfLasersPerLidar number of lasers in the lidar scan
          *  @param noOfLaserAggregatedPoints number of points aggregated by the single laser aggregator
          *  @param keepHistoryLength how long should data loaders keep reference to the old data
@@ -91,7 +91,7 @@ namespace AutoDrive {
          *  @param destinationFolder folder where the output data will be writen
          */
         explicit MapBuilder(
-                ros::NodeHandle &node,
+                rclcpp::Node::SharedPtr &node,
                 Context &context,
                 const uint32_t gnssLogPoseNo,
                 const uint32_t imuLogPoseNo,
@@ -167,7 +167,7 @@ namespace AutoDrive {
 
     private:
 
-        ros::NodeHandle &node_;
+        rclcpp::Node::SharedPtr &node_;
         Context &context_;
         std::string destinationFolder_;
         DataCache cache_;

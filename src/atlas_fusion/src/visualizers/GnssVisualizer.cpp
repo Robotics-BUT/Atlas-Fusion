@@ -29,9 +29,9 @@ namespace AutoDrive::Visualizers {
 
     void GnssVisualizer::drawGnssPose(const std::shared_ptr<DataModels::GnssPoseDataModel> &data) const {
 
-        visualization_msgs::Marker textMsg;
+        visualization_msgs::msg::Marker textMsg;
         textMsg.header.frame_id = frameTypeName(FrameType::kGnssAntennaRear);
-        textMsg.header.stamp = ros::Time::now();
+        textMsg.header.stamp = node_->get_clock()->now();
         textMsg.pose.position.x = 0;
         textMsg.pose.position.y = 0;
         textMsg.pose.position.z = -1.0;
@@ -42,8 +42,8 @@ namespace AutoDrive::Visualizers {
         textMsg.color.r = 0.0;
         textMsg.color.g = 1.0;
         textMsg.color.b = 0.0;
-        textMsg.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-        textMsg.action = visualization_msgs::Marker::ADD;
+        textMsg.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
+        textMsg.action = visualization_msgs::msg::Marker::ADD;
 
         double printAzimut = data->getAzimut() > 180 ? data->getAzimut() - 360 : data->getAzimut();
 
@@ -54,7 +54,7 @@ namespace AutoDrive::Visualizers {
            << "Azim: " << printAzimut;
         textMsg.text = ss.str();
 
-        gnssPublisher_.publish(textMsg);
+        gnssPublisher_->publish(textMsg);
     }
 
 }

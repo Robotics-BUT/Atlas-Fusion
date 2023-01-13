@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include <ros/ros.h>
-#include <visualization_msgs/Marker.h>
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker.hpp"
 
 #include "Context.h"
 #include "Topics.h"
@@ -43,17 +43,17 @@ namespace AutoDrive::Visualizers {
          * @param node ros node reference
          * @param context global services container (timestamps, logging, etc.)
          */
-        GnssVisualizer(ros::NodeHandle& node, Context& context)
+        GnssVisualizer(rclcpp::Node::SharedPtr& node, Context& context)
         : node_{node}
         , context_{context} {
-            gnssPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kGnssTopic, 0 );
+            gnssPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>( Topics::kGnssTopic, 0 );
         }
         void drawGnssPose(const std::shared_ptr<DataModels::GnssPoseDataModel>&) const;
 
     protected:
-        ros::NodeHandle& node_;
+        rclcpp::Node::SharedPtr& node_;
         Context& context_;
-        ros::Publisher gnssPublisher_;
+        rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr gnssPublisher_;
     };
 
 }

@@ -21,15 +21,14 @@
  */
 
 #include "visualizers/TFVisualizer.h"
-#include <sstream>
 
 namespace AutoDrive::Visualizers {
 
     void TFVisualizer::updateOriginToRootTf(const rtl::RigidTf3D<double> &tf) {
 
-        geometry_msgs::TransformStamped tf_msg;
+        geometry_msgs::msg::TransformStamped tf_msg;
 
-        tf_msg.header.stamp = ros::Time::now();
+        tf_msg.header.stamp = node_->get_clock()->now();
         tf_msg.header.frame_id = frameTypeName(FrameType::kOrigin);
         tf_msg.child_frame_id = frameTypeName(context_.tfTree_.getRootFrameType());
         tf_msg.transform.translation.x = tf.trVecX();

@@ -22,12 +22,12 @@
 
 #pragma once
 
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <visualization_msgs/MarkerArray.h>
 
 #include "Context.h"
 #include "Topics.h"
@@ -48,24 +48,26 @@ namespace AutoDrive::Visualizers {
          * @param node ros node reference
          * @param context global services container (timestamps, logging, etc.)
          */
-        LidarVisualizer(ros::NodeHandle &node, Context &context) : node_{node}, context_{context} {}
+        LidarVisualizer(rclcpp::Node::SharedPtr &node, Context &context) : node_{node}, context_{context} {}
 
 
         void drawPointCloudOnTopic(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &pc, const std::string &topic, const FrameType &frame);
 
         void drawApproximationOnTopic(const std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> &ls, const std::string &topic, const FrameType &frame,
-                                      visualization_msgs::Marker::_color_type col);
+                                      visualization_msgs::msg::Marker::_color_type col);
 
         void drawLidarDetections(const std::vector<std::shared_ptr<DataModels::LidarDetection>> &detections, const std::string &topic, const FrameType &frame);
 
     private:
 
-        ros::NodeHandle &node_;
+        rclcpp::Node::SharedPtr &node_;
         Context &context_;
 
-        std::map<std::string, std::shared_ptr<ros::Publisher>> publishers_;
+        std::map<std::string, rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr> pointCloudPublishers_;
+        std::map<std::string, rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr> approximationsPublishers_;
+        std::map<std::string, rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr> detectionsPublishers_;
 
-        visualization_msgs::MarkerArray
+        visualization_msgs::msg::MarkerArray
         lidarDetectionsToMarkerArray(const std::vector<std::shared_ptr<DataModels::LidarDetection>> &detections, const FrameType &frame);
     };
 }

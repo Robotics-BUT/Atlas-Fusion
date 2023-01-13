@@ -23,7 +23,6 @@
 #pragma once
 
 #include <chrono>
-#include <ros/ros.h>
 
 #include "LogService.h"
 #include "local_map/TFTree.h"

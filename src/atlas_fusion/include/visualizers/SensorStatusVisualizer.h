@@ -22,6 +22,9 @@
 
 #pragma once
 
+#include "rclcpp/rclcpp.hpp"
+#include "rviz_2d_overlay_msgs/msg/overlay_text.hpp"
+
 #include "Context.h"
 
 namespace AutoDrive::Visualizers {
@@ -29,11 +32,11 @@ namespace AutoDrive::Visualizers {
     /**
      * Visualization backend (ROS) implementations for visualizing text status
      */
-    class TextStatusVisualizer {
+    class SensorStatusVisualizer {
 
     public:
 
-        TextStatusVisualizer() = delete;
+        SensorStatusVisualizer() = delete;
 
         /**
          * Constructor
@@ -41,16 +44,16 @@ namespace AutoDrive::Visualizers {
          * @param context global services container (timestamps, logging, etc.)
          * @param frameType sensor identification
          */
-        TextStatusVisualizer(ros::NodeHandle &node, Context &context) : node_{node}, context_{context} {}
+        SensorStatusVisualizer(rclcpp::Node::SharedPtr &node, Context &context) : node_{node}, context_{context} {}
 
         void drawStatusAsText(const std::string &statusText, const std::string &topic);
 
     private:
 
-        ros::NodeHandle &node_;
+        rclcpp::Node::SharedPtr &node_;
         Context &context_;
 
-        std::map<std::string, ros::Publisher> publishers_;
+        std::map<std::string, rclcpp::Publisher<rviz_2d_overlay_msgs::msg::OverlayText>::SharedPtr> publishers_;
     };
 
 }

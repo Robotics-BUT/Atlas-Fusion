@@ -23,7 +23,7 @@
 #include <iostream>
 #include <sstream>
 #include <opencv2/highgui.hpp>
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
 
 #include <QString>
 #include <QDebug>
@@ -93,8 +93,9 @@ int main(int argc, char **argv) {
     }
     logger.info("Initialization Done!");
 
-    ros::init(argc, argv, "autodrive_localmap");
-    ros::NodeHandle node{};
+
+    rclcpp::init(argc, argv);
+    rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("autodrive_localmap");
 
     AutoDrive::FrameType rootFrame = AutoDrive::FrameType::kImu;
     std::vector<AutoDrive::FrameType> childFrames = {AutoDrive::FrameType::kGnssAntennaFront,

@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker.hpp"
 
 #include <queue>
-#include <visualization_msgs/Marker.h>
 
 #include "Topics.h"
 #include "data_models/local_map/LocalPosition.h"
@@ -46,27 +46,27 @@ namespace AutoDrive::Visualizers {
          * @param node ros node reference
          * @param context global services container (timestamps, logging, etc.)
          */
-        TrajectoryVisualizer(ros::NodeHandle& node, Context& context)
-        : node_{node}
-        , context_{context} {
-            rawTrajectoryPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kRawTrajectory, 0 );
-            filteredTrajectoryPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kFilteredTrajectory, 0 );
-            imuGpsTrajectoryPublisher_ = node_.advertise<visualization_msgs::Marker>( Topics::kImuGpsTrajectory, 0 );
+        TrajectoryVisualizer(rclcpp::Node::SharedPtr &node, Context &context)
+                : node_{node}, context_{context} {
+            rawTrajectoryPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>(Topics::kRawTrajectory, 0);
+            filteredTrajectoryPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>(Topics::kFilteredTrajectory, 0);
+            imuGpsTrajectoryPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>(Topics::kImuGpsTrajectory, 0);
         }
 
-        void drawRawTrajectory(const std::deque<DataModels::LocalPosition>& data) const;
-        void drawFilteredTrajectory(const std::deque<DataModels::LocalPosition>& data) const;
-        void drawImuGpsTrajectory(const std::deque<DataModels::LocalPosition>& data) const;
+        void drawRawTrajectory(const std::deque<DataModels::LocalPosition> &data) const;
+        void drawFilteredTrajectory(const std::deque<DataModels::LocalPosition> &data) const;
+        void drawImuGpsTrajectory(const std::deque<DataModels::LocalPosition> &data) const;
 
     protected:
 
-        ros::NodeHandle& node_;
-        Context& context_;
-        ros::Publisher rawTrajectoryPublisher_;
-        ros::Publisher filteredTrajectoryPublisher_;
-        ros::Publisher imuGpsTrajectoryPublisher_;
+        rclcpp::Node::SharedPtr &node_;
+        Context &context_;
+        rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr rawTrajectoryPublisher_;
+        rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr filteredTrajectoryPublisher_;
+        rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr imuGpsTrajectoryPublisher_;
 
-        void drawTrajectory(const std::deque<DataModels::LocalPosition>& data, const ros::Publisher& publisher, Color& color) const;
+        void drawTrajectory(const std::deque<DataModels::LocalPosition> &data, const rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr &publisher,
+                            Color &color) const;
 
     };
 
