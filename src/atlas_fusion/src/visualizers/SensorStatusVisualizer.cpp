@@ -27,7 +27,6 @@ namespace AutoDrive::Visualizers {
 
 
     void SensorStatusVisualizer::drawStatusAsText(const std::string &statusText, const std::string &topic) {
-    /*
         if (publishers_.count(topic) == 0) {
             publishers_[topic] = node_->create_publisher<rviz_2d_overlay_msgs::msg::OverlayText>(topic, 0);
         }
@@ -50,6 +49,5 @@ namespace AutoDrive::Visualizers {
         textMsg.text = statusText;
 
         publishers_[topic]->publish(textMsg);
-        */
     }
 }

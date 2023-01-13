@@ -7,12 +7,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG " ${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
-find_package(OpenCV REQUIRED)
-
-find_package(Qt5 COMPONENTS Core REQUIRED)
-find_package(PCL 1.7 REQUIRED COMPONENTS)
-find_package(Yaml-cpp)
-
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
@@ -27,6 +21,12 @@ find_package(camera_info_manager REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(pcl_conversions REQUIRED)
 
+find_package(OpenCV REQUIRED)
+
+find_package(Qt5 COMPONENTS Core REQUIRED)
+find_package(PCL 1.7 REQUIRED COMPONENTS)
+find_package(Yaml-cpp)
+
 add_subdirectory(libs/robotic-template-library)
 include_directories(
         include
@@ -35,7 +35,6 @@ include_directories(
         ${sensor_msgs_INCLUDE_DIRS}
         ${geometry_msgs_INCLUDE_DIRS}
         ${visualization_msgs_INCLUDE_DIRS}
-        ${rviz_2d_overlay_msgs_INCLUDE_DIRS}
         ${image_transport_INCLUDE_DIRS}
         ${camera_info_manager_INCLUDE_DIRS}
         ${tf2_ros_INCLUDE_DIRS}
@@ -143,13 +142,10 @@ set(SOURCES_UTIL
         src/util/IdentifierToFrameConversions.cpp
         libs/sunset/sunset.cpp)
 
-add_library(atlas_fusion_srcs STATIC ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK} ${SOURCES_UTIL})
-
-add_executable(${PROJECT_NAME} src/main.cpp)
-ament_target_dependencies(${PROJECT_NAME} rclcpp std_msgs sensor_msgs geometry_msgs visualization_msgs rviz_2d_overlay_msgs image_transport camera_info_manager tf2_ros pcl_conversions)
+add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK} ${SOURCES_UTIL})
+ament_target_dependencies(${PROJECT_NAME} rclcpp std_msgs sensor_msgs geometry_msgs visualization_msgs rviz_2d_overlay_msgs image_transport camera_info_manager tf2_ros)
 
 target_link_libraries(${PROJECT_NAME}
-        atlas_fusion_srcs
         ${OpenCV_LIBRARIES}
         ${PCL_LIBRARIES}
         Qt5::Core
