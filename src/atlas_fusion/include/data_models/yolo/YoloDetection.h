@@ -23,8 +23,6 @@
 #pragma once
 #include "YoloDetectionClass.h"
 
-#include <iostream>
-
 #include "data_models/GenericDataModel.h"
 
 namespace AutoDrive::DataModels{

@@ -22,9 +22,7 @@
 
 #include "data_loader/DataLoader.h"
 #include "data_loader/RecordingConstants.h"
-#include "Timer.h"
 
-#include <iostream>
 #include <experimental/filesystem>
 
 namespace AutoDrive::DataLoader {

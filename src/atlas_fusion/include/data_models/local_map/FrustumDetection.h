@@ -21,8 +21,6 @@
  */
 
 #pragma once
-#include <memory>
-#include <rtl/Core.h>
 
 #include "data_models/yolo/YoloDetection.h"
 

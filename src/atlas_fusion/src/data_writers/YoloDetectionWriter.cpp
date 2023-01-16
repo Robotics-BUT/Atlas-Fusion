@@ -22,7 +22,6 @@
 
 #include "data_writers/YoloDetectionWriter.h"
 
-#include <opencv2/opencv.hpp>
 #include <data_loader/RecordingConstants.h>
 
 namespace AutoDrive::DataWriters {

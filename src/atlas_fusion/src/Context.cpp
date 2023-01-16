@@ -20,8 +20,6 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "Context.h"
-
 namespace AutoDrive {
 
     Context Context::getEmptyContext() {

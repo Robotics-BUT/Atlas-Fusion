@@ -22,11 +22,8 @@
 
 #pragma once
 
-#include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 
-#include "Topics.h"
-#include "Context.h"
 #include "data_models/imu/ImuImuDataModel.h"
 
 namespace AutoDrive::Visualizers {

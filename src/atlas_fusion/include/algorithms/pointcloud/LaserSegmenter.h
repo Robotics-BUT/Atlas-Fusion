@@ -1,9 +1,3 @@
-#pragma once
-
-#include "Context.h"
-
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
 /*
  * Copyright 2020 Brno University of Technology
  *
@@ -25,7 +19,7 @@
  * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
+#pragma once
 
 #include "rtl/seg/IA_Segmenter.h"
 #include "rtl/Vectorization.h"

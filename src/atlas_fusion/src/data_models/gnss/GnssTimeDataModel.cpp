@@ -22,7 +22,6 @@
 
 #include "data_models/gnss/GnssTimeDataModel.h"
 
-#include <sstream>
 
 namespace AutoDrive::DataModels {
 

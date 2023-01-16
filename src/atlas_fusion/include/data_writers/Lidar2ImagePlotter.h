@@ -22,10 +22,8 @@
 
 #pragma once
 
-#include <opencv2/opencv.hpp>
 #include <filesystem>
 
-#include "Context.h"
 #include "data_loader/RecordingConstants.h"
 
 namespace AutoDrive::DataWriters {

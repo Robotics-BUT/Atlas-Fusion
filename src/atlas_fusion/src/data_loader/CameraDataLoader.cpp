@@ -22,12 +22,9 @@
 
 #include "data_loader/CameraDataLoader.h"
 
-#include <opencv2/opencv.hpp>
-#include <sstream>
 
 #include "data_loader/RecordingConstants.h"
 #include "ConfigService.h"
-#include "Timer.h"
 
 namespace AutoDrive::DataLoader {
 

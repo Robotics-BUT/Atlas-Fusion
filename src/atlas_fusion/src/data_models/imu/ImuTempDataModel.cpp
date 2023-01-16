@@ -22,7 +22,6 @@
 
 #include "data_models/imu/ImuTempDataModel.h"
 
-#include <sstream>
 
 namespace AutoDrive::DataModels {
 

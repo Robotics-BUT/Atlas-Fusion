@@ -22,12 +22,8 @@
 
 #pragma once
 
-#include <vector>
-#include <memory>
 #include "data_models/lidar/LidarScanDataModel.h"
-#include "Timer.h"
 #include "util/IdentifierToFrameConversions.h"
-#include <pcl/filters/statistical_outlier_removal.h>
 
 namespace AutoDrive::Algorithms {
 

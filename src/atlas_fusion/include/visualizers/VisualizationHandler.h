@@ -22,11 +22,7 @@
 
 #pragma once
 
-#include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker.hpp"
-
-#include <memory>
-#include <rtl/Core.h>
 
 #include "data_models/imu/ImuImuDataModel.h"
 #include "data_models/camera/CameraFrameDataModel.h"
@@ -36,7 +32,6 @@
 #include "data_models/radar/RadarTiDataModel.h"
 
 #include "Topics.h"
-#include "Context.h"
 
 #include "LidarVisualizer.h"
 #include "ImuVisualizer.h"

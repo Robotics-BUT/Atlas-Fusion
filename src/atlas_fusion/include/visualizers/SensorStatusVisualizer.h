@@ -22,10 +22,7 @@
 
 #pragma once
 
-#include "rclcpp/rclcpp.hpp"
 #include "rviz_2d_overlay_msgs/msg/overlay_text.hpp"
-
-#include "Context.h"
 
 namespace AutoDrive::Visualizers {
 

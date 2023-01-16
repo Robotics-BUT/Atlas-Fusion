@@ -24,8 +24,6 @@
 
 #include "data_models/GenericDataModel.h"
 
-#include <rtl/Core.h>
-
 namespace AutoDrive::DataModels {
 
     /**

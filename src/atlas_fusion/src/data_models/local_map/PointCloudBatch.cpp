@@ -21,7 +21,6 @@
  */
 
 #include "data_models/local_map/PointCloudBatch.h"
-#include "Timer.h"
 
 namespace AutoDrive::DataModels {
 

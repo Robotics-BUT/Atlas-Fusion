@@ -22,7 +22,6 @@
 
 #include "fail_check/LidarFailChecker.h"
 #include "util/IdentifierToFrameConversions.h"
-#include "Timer.h"
 
 namespace AutoDrive::FailCheck {
 

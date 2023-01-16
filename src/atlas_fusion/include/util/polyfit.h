@@ -1,5 +1,4 @@
 #include "../../libs/eigen/Dense"
-#include <iostream>
 #include <cmath>
 #include <vector>
 #include "../../libs/eigen/QR"

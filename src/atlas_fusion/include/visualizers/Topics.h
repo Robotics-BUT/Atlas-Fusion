@@ -22,9 +22,6 @@
 
 #pragma once
 
-#include <iostream>
-#include <string>
-
 namespace AutoDrive::Visualizers::Topics {
 
         const std::string kSelfGlobal = "/autodrive/local_map/self/global";

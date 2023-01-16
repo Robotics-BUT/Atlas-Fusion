@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include <rtl/Core.h>
-
 #include "data_models/GenericDataModel.h"
 
 namespace AutoDrive::DataModels {

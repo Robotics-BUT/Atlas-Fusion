@@ -1,7 +1,5 @@
 #pragma once
 
-#include <opencv2/opencv.hpp>
-
 namespace AutoDrive::Algorithms {
 
     class SimpleImageProcessor {

@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include "Context.h"
 #include "AbstractFailChecker.h"
 #include "CameraRGBFailChecker.h"
 #include "CameraIrFailChecker.h"

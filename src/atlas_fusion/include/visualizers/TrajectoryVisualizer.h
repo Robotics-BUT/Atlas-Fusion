@@ -22,14 +22,10 @@
 
 #pragma once
 
-#include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker.hpp"
-
-#include <queue>
 
 #include "Topics.h"
 #include "data_models/local_map/LocalPosition.h"
-#include "Context.h"
 #include "VisualizationStructures.h"
 
 namespace AutoDrive::Visualizers {

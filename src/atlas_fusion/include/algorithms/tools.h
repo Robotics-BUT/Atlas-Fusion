@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include <rtl/Core.h>
-
 rtl::Quaternion<double> rpyToQuaternion(double roll, double pitch, double yaw) {
 
     double cy = cos(yaw * 0.5);

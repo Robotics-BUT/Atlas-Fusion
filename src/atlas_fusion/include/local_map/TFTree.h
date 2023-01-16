@@ -23,10 +23,6 @@
 #pragma once
 
 #include "LogService.h"
-#include <rtl/Core.h>
-#include <rtl/Transformation.h>
-#include <map>
-#include <utility>
 #include "data_models/FrameTypes.h"
 
 

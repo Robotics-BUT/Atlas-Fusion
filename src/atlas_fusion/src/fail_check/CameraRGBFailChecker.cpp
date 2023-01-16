@@ -22,7 +22,6 @@
 
 #include "fail_check/CameraRGBFailChecker.h"
 #include "util/polyfit.h"
-#include "Timer.h"
 #include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::FailCheck {

@@ -22,8 +22,6 @@
 
 #include "data_models/imu/ImuPressureDataModel.h"
 
-#include <sstream>
-
 namespace AutoDrive::DataModels {
 
     std::string ImuPressureDataModel::toString() {

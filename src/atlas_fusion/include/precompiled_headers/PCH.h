@@ -19,40 +19,56 @@
  * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#pragma once
 
-#include "data_models/lidar/LidarScanDataModel.h"
+// STD
+#include <chrono>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <istream>
+#include <QString>
+#include <QDebug>
+#include <utility>
+#include <vector>
+#include <queue>
+#include <deque>
+#include <string>
+#include <memory>
+#include <limits>
+#include <algorithm>
+#include <functional>
+#include <cmath>
+#include <map>
+#include <list>
+
+// ROS2
+#include "rclcpp/rclcpp.hpp"
+
+// RTL
+#include <rtl/Transformation.h>
+#include <rtl/Core.h>
+
+// OpenCV
+#include <opencv2/opencv.hpp>
 
 
-namespace AutoDrive::DataModels {
+// PCL
+#include <pcl/common/transforms.h>
+#include <pcl/point_cloud.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/ModelCoefficients.h>
+#include <pcl/kdtree/kdtree.h>
+#include <pcl/segmentation/extract_clusters.h>
+#include <pcl/search/impl/search.hpp>
+#include <pcl_conversions/pcl_conversions.h>
 
-    std::string LidarScanDataModel::toString() {
-
-        std::stringstream ss;
-        ss << "[Lidar Scan Data Model] : "
-           << scan_path_ << scan_.size();
-        return ss.str();
-    }
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getScan() {
-        if(filteredScan_.points.empty()) {
-            if(scan_.points.empty()) {
-                getRawScan();
-            }
-            filteredScan_ = scan_;
-            filter_(filteredScan_);
-        }
-
-        return filteredScan_.makeShared();
-    }
-
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getRawScan() {
-        // Timer t("Get lidar scan - raw");
-        if(scan_.points.empty()) {
-            if (pcl::io::loadPCDFile<pcl::PointXYZ>(scan_path_, scan_) == -1) {
-                std::cerr << "Could not open pcd file: " << scan_path_ << std::endl;
-            }
-        }
-        return scan_.makeShared();
-    }
-}
+// Misc
+#include "Context.h"
+#include "Timer.h"
+#include "visualizers/Topics.h"

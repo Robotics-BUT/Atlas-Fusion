@@ -20,8 +20,6 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <chrono>
-
 #include "MapBuilder.h"
 #include "MapBuilderMacros.h"
 
@@ -157,7 +155,7 @@ namespace AutoDrive {
                     break;
                 }
                 case DataModels::DataModelTypes::kImuImuDataModelType: {
-                    //Timer t("IMU IMU ...");
+                    Timer t("IMU IMU ...");
 
                     auto imuData = std::dynamic_pointer_cast<DataModels::ImuImuDataModel>(data);
                     processImuImuData(imuData);

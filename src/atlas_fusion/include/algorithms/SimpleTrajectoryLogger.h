@@ -22,13 +22,8 @@
 
 #pragma once
 
-#include <memory>
-#include <queue>
-
-#include <rtl/Core.h>
 #include <data_models/imu/ImuGnssDataModel.h>
 
-#include "Context.h"
 #include "data_models/gnss/GnssPoseDataModel.h"
 
 #include "data_models/local_map/GlobalPosition.h"

@@ -23,9 +23,6 @@
 
 #include "data_models/GenericDataModel.h"
 
-#include <opencv2/opencv.hpp>
-#include <iostream>
-
 #include "data_models/all.h"
 #include "data_loader/DataLoaderIdentifiers.h"
 

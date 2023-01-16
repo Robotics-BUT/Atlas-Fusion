@@ -22,16 +22,9 @@
 
 #pragma once
 
-#include <iostream>
-#include <memory>
-#include <utility>
-#include <vector>
-#include <opencv2/opencv.hpp>
-
 #include "data_models/all.h"
 #include "AbstractDataLoader.h"
 #include "data_models/DataModelTypes.h"
-#include "Context.h"
 
 namespace AutoDrive::DataLoader {
 

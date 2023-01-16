@@ -22,7 +22,6 @@
 
 #include "data_models/imu/ImuDquatDataModel.h"
 
-#include <sstream>
 
 namespace AutoDrive::DataModels {
 

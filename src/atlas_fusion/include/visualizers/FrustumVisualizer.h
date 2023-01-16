@@ -22,16 +22,11 @@
 
 #pragma once
 
-#include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 #include "std_msgs/msg/color_rgba.hpp"
 
 #include "data_models/local_map/FrustumDetection.h"
 #include "data_models/yolo/YoloDetectionClass.h"
-#include "rtl/Core.h"
-
-#include "Context.h"
-#include "Topics.h"
 
 namespace AutoDrive::Visualizers {
 

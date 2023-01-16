@@ -22,10 +22,6 @@
 
 #pragma once
 
-#include <opencv2/opencv.hpp>
-#include <iostream>
-#include <utility>
-
 #include "data_models/GenericDataModel.h"
 #include "data_models/all.h"
 

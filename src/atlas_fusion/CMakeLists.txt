@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.16)
 project(atlas_fusion)
 
 SET(CMAKE_CXX_STANDARD 17)
@@ -142,7 +142,10 @@ set(SOURCES_UTIL
         src/util/IdentifierToFrameConversions.cpp
         libs/sunset/sunset.cpp)
 
+set(HEADER_FILES include/precompiled_headers/PCH.h)
+
 add_executable(${PROJECT_NAME} src/main.cpp ${SOURCES} ${SOURCES_ALGORITHMS} ${SOURCES_LOCAL_MAP} ${SOURCES_VISUALIZERS} ${SOURCES_DATA_MODELS} ${SOURCES_DATA_LOADER} ${SOURCES_DATA_WRITERS} ${SOURCES_FAIL_CHECK} ${SOURCES_UTIL})
+target_precompile_headers(${PROJECT_NAME} PRIVATE ${HEADER_FILES})
 ament_target_dependencies(${PROJECT_NAME} rclcpp std_msgs sensor_msgs geometry_msgs visualization_msgs rviz_2d_overlay_msgs image_transport camera_info_manager tf2_ros)
 
 target_link_libraries(${PROJECT_NAME}

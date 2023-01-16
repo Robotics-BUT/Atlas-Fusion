@@ -22,9 +22,6 @@
 
 #pragma once
 
-#include <rtl/Core.h>
-
-#include "Context.h"
 #include "data_models/all.h"
 
 #include "Projector.h"

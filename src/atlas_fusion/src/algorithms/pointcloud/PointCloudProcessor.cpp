@@ -21,9 +21,7 @@
  */
 
 #include "algorithms/pointcloud/PointCloudProcessor.h"
-#include "Timer.h"
 
-#include <pcl/common/transforms.h>
 
 namespace AutoDrive::Algorithms {
 

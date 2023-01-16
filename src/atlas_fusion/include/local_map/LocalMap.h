@@ -26,8 +26,6 @@
 #include "data_models/local_map/LidarDetection.h"
 #include "data_models/local_map/Object.h"
 
-#include "Context.h"
-
 namespace AutoDrive::LocalMap {
 
     /**

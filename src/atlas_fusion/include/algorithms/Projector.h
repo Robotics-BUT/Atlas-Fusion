@@ -22,11 +22,6 @@
 
 #pragma once
 
-#include <opencv2/opencv.hpp>
-#include <utility>
-#include <rtl/Core.h>
-#include <rtl/Transformation.h>
-
 namespace AutoDrive::Algorithms {
 
     /**

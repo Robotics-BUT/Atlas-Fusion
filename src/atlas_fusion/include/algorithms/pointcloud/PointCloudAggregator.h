@@ -22,10 +22,6 @@
 
 #pragma once
 
-#include <queue>
-#include <rtl/Core.h>
-
-#include "Context.h"
 #include "data_models/local_map/PointCloudBatch.h"
 #include "data_models/local_map/LocalPosition.h"
 

@@ -22,8 +22,6 @@
 
 #include "algorithms/SelfModel.h"
 
-#include <rtl/Transformation.h>
-
 #include "algorithms/tools.h"
 
 namespace AutoDrive::Algorithms {

@@ -22,14 +22,10 @@
 
 #pragma once
 
-#include <memory>
-#include <rtl/Core.h>
-
 #include "algorithms/Projector.h"
 #include "data_models/local_map/YoloDetection3D.h"
 #include "data_models/local_map/FrustumDetection.h"
 #include "data_loader/DataLoaderIdentifiers.h"
-#include "Context.h"
 
 namespace AutoDrive::Algorithms {
 

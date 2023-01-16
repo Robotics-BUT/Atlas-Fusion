@@ -22,15 +22,9 @@
 
 #pragma once
 
-#include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-
-#include "Context.h"
-#include "Topics.h"
 #include "data_models/local_map/LidarDetection.h"
 
 namespace AutoDrive::Visualizers {

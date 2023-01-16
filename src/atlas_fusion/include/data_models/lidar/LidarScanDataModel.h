@@ -22,14 +22,6 @@
 
 #pragma once
 
-#include <utility>
-#include <vector>
-#include <iostream>
-#include <functional>
-
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-
 #include "data_models/GenericDataModel.h"
 #include "data_loader/DataLoaderIdentifiers.h"
 

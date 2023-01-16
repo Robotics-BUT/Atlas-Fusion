@@ -25,9 +25,6 @@
 #include "data_models/GenericDataModel.h"
 #include "data_models/all.h"
 
-#include <memory>
-#include <vector>
-
 namespace AutoDrive::DataLoader {
 
     typedef uint64_t timestamp_type;

@@ -20,20 +20,9 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <iostream>
-#include <sstream>
-#include <opencv2/highgui.hpp>
-#include "rclcpp/rclcpp.hpp"
-
-#include <QString>
-#include <QDebug>
-#include <utility>
 #include "MapBuilder.h"
 
-#include <rtl/Transformation.h>
-
 #include "ConfigService.h"
-#include "Context.h"
 #include "munkres/munkres.h"
 
 rtl::RigidTf3D<double> getTFFrameFromConfig(AutoDrive::ConfigService &service, const AutoDrive::FrameType &type) {

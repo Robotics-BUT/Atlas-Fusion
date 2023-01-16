@@ -22,11 +22,9 @@
 
 #pragma once
 
-#include <iostream>
 #include "AbstractDataLoader.h"
 #include "data_models/DataModelTypes.h"
 #include "data_models/all.h"
-#include "Context.h"
 #include "../algorithms/LidarFilter.h"
 
 namespace AutoDrive::DataLoader {

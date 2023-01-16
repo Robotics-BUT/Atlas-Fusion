@@ -22,9 +22,6 @@
 
 #pragma once
 
-#include <rtl/Core.h>
-#include <cmath>
-
 #include "LocalPosition.h"
 
 namespace AutoDrive::DataModels {

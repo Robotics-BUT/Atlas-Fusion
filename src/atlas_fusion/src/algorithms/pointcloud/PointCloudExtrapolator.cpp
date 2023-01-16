@@ -21,7 +21,6 @@
  */
 
 #include "algorithms/pointcloud/PointCloudExtrapolator.h"
-#include "Timer.h"
 
 namespace AutoDrive::Algorithms {
 

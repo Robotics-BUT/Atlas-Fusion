@@ -22,12 +22,8 @@
 
 #include "algorithms/DepthMap.h"
 
-#include <pcl/common/transforms.h>
-#include <pcl/point_cloud.h>
 #include <data_models/local_map/LocalPosition.h>
 
-#include <utility>
-#include "Timer.h"
 #include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::Algorithms {

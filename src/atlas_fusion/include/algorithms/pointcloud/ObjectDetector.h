@@ -22,10 +22,6 @@
 
 #pragma once
 
-#include <pcl/point_types.h>
-#include <pcl/io/pcd_io.h>
-
-#include "Context.h"
 #include "data_models/local_map/LidarDetection.h"
 
 namespace AutoDrive::Algorithms {

@@ -22,11 +22,8 @@
 
 #pragma once
 
-#include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 
-#include "Context.h"
-#include "Topics.h"
 #include "data_models/gnss/GnssPoseDataModel.h"
 
 namespace AutoDrive::Visualizers {

@@ -22,7 +22,6 @@
 
 #pragma once
 #include "data_models/yolo/YoloDetection.h"
-#include <memory>
 
 namespace AutoDrive::DataModels {
 

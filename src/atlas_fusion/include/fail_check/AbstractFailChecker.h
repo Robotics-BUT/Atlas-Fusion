@@ -22,7 +22,6 @@
 
 # pragma once
 
-#include "Context.h"
 #include "data_models/GenericDataModel.h"
 #include "algorithms/SelfModel.h"
 #include "algorithms/EnvironmentalModel.h"

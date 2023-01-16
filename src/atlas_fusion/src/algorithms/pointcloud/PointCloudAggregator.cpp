@@ -21,7 +21,6 @@
  */
 
 #include "algorithms/pointcloud/PointCloudAggregator.h"
-#include "Timer.h"
 
 namespace AutoDrive::Algorithms {
 

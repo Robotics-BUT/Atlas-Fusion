@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include <vector>
-#include <memory>
 #include "data_models/all.h"
 #include "data_models/GenericDataModel.h"
 #include "CameraDataLoader.h"
@@ -32,7 +30,6 @@
 #include "ImuDataLoader.h"
 #include "RadarTiDataLoader.h"
 #include "AbstractDataLoader.h"
-#include "Context.h"
 
 namespace AutoDrive::DataLoader {
 

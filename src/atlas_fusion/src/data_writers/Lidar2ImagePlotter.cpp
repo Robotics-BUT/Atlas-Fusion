@@ -21,7 +21,6 @@
  */
 
 #include "data_writers/Lidar2ImagePlotter.h"
-#include <algorithm>
 
 #include "data_loader/RecordingConstants.h"
 

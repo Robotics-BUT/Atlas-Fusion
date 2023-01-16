@@ -21,7 +21,6 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "Context.h"
 #include "data_models/lidar/LidarScanDataModel.h"
 #include "data_models/local_map/LocalPosition.h"
 

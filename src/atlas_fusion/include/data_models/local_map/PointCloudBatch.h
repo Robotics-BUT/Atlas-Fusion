@@ -22,13 +22,6 @@
 
 #pragma once
 
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl/common/transforms.h>
-
-#include <rtl/Transformation.h>
-
-#include <utility>
 #include "algorithms/pointcloud/PointCloudProcessor.h"
 
 namespace AutoDrive::DataModels {

@@ -24,7 +24,6 @@
 
 #include "AbstractDataLoader.h"
 #include "RecordingConstants.h"
-#include "Context.h"
 
 namespace AutoDrive::DataLoader {
 

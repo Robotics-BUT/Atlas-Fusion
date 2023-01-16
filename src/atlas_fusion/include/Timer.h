@@ -21,19 +21,15 @@
  */
 #pragma once
 
-#include <chrono>
-#include <string>
-#include <utility>
-
 struct Timer {
 
     using timePoint = std::chrono::time_point<std::chrono::steady_clock>;
 
     std::chrono::duration<float> _duration{};
     std::string _name;
+    float _minTime;
 
-
-    explicit Timer(std::string name, float *timerValue = nullptr) : _name(std::move(name)), _timerValue(timerValue) {}
+    explicit Timer(std::string name,  float minTime = 1, float *timerValue = nullptr) : _name(std::move(name)), _minTime(minTime), _timerValue(timerValue)  {}
 
     ~Timer() {
         _end = std::chrono::steady_clock::now();
@@ -43,7 +39,7 @@ struct Timer {
         if (_timerValue != nullptr) *_timerValue = ms;
 
         // Used to only show timers that take more than set amount
-        if (ms > 0) {
+        if (ms > _minTime) {
             std::cout << "Execution of \"" << _name << "\" took: " << ms << " ms" << std::endl;
         }
     }

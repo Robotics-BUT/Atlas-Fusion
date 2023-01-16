@@ -21,7 +21,6 @@
  */
 
 #include "algorithms/Projector.h"
-#include "Timer.h"
 
 namespace AutoDrive::Algorithms {
 

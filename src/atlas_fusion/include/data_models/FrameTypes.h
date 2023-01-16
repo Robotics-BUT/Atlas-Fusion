@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include <iostream>
-#include <string>
 /**
  * Frames defines the names of the sensor's local coordinates systems.
  */

@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include "rclcpp/rclcpp.hpp"
-
 #include "algorithms/SimpleTrajectoryLogger.h"
 #include "algorithms/SelfModel.h"
 #include "algorithms/EnvironmentalModel.h"
@@ -49,7 +47,6 @@
 
 #include "visualizers/VisualizationHandler.h"
 
-#include "Context.h"
 #include "DataCache.h"
 
 #include "local_map/LocalMap.h"
@@ -58,7 +55,6 @@
 #include "data_models/lidar/LidarScanDataModel.h"
 
 #include "fail_check/all.h"
-#include "Timer.h"
 
 namespace AutoDrive {
 

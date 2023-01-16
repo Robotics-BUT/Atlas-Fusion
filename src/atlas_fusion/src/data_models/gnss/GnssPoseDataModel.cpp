@@ -22,8 +22,6 @@
 
 #include "data_models/gnss/GnssPoseDataModel.h"
 
-#include <sstream>
-
 namespace AutoDrive::DataModels {
 
     std::string GnssPoseDataModel::toString() {

@@ -21,7 +21,6 @@
  */
 
 #include "data_models/camera/CameraFrameDataModel.h"
-#include <sstream>
 
 namespace AutoDrive::DataModels {
 

@@ -22,11 +22,7 @@
 
 #pragma once
 
-#include <iostream>
-#include <fstream>
 #include <filesystem>
-
-#include "Context.h"
 
 #include "data_models/yolo/YoloDetection.h"
 #include "data_models/camera/CameraIrFrameDataModel.h"

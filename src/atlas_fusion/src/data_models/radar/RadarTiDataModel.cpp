@@ -22,7 +22,6 @@
 
 #include "data_models/radar/RadarTiDataModel.h"
 
-#include <sstream>
 
 namespace AutoDrive::DataModels {
 

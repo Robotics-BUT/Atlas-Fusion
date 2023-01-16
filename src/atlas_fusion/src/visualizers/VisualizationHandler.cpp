@@ -21,7 +21,6 @@
  */
 
 #include "visualizers/VisualizationHandler.h"
-#include "Timer.h"
 
 namespace AutoDrive::Visualizers {
 

@@ -22,9 +22,6 @@
 
 #pragma once
 
-#include <rtl/Core.h>
-#include <rtl/Transformation.h>
-
 namespace AutoDrive::DataModels {
 
     /**

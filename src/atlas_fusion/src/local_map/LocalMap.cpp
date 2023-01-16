@@ -22,8 +22,6 @@
 
 #include "local_map/LocalMap.h"
 
-#include <utility>
-
 namespace AutoDrive::LocalMap {
 
 

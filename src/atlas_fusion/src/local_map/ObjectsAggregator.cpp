@@ -22,7 +22,6 @@
 
 #include "local_map/ObjectsAggregator.h"
 #include "munkres/munkres.h"
-#include "Timer.h"
 
 namespace AutoDrive::LocalMap {
 

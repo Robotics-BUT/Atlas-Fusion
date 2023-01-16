@@ -22,11 +22,6 @@
 
 #pragma once
 
-#include <rtl/Transformation.h>
-
-#include <utility>
-
-#include "Context.h"
 #include "algorithms/Projector.h"
 
 #include "data_models/local_map/FrustumDetection.h"

@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include "Context.h"
-
 #include "data_models/lidar/LidarScanDataModel.h"
 #include "data_models/local_map/PointCloudBatch.h"
 #include "data_models/local_map/LocalPosition.h"
