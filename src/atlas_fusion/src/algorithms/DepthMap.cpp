@@ -22,14 +22,12 @@
 
 #include "algorithms/DepthMap.h"
 
-#include <data_models/local_map/LocalPosition.h>
-
 #include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::Algorithms {
 
     std::vector<DataModels::YoloDetection3D>
-    DepthMap::onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data) {
+    DepthMap::onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &sensorCutoutPc) {
         auto output = std::vector<DataModels::YoloDetection3D>();
 
         if (projectors_.count(data->getCameraIdentifier()) == 0) {
@@ -37,14 +35,13 @@ namespace AutoDrive::Algorithms {
             return output;
         }
 
-        auto cameraFrame = frameTypeFromIdentifier(data->getCameraIdentifier());
         auto cameraId = data->getCameraIdentifier();
         auto yoloDetections = data->getYoloDetections();
 
         std::vector<cv::Point2f> valid2DPoints{};
         std::vector<cv::Point3f> valid3DPoints{};
 
-        getAllCurrentPointsProjectedToImage(cameraId, valid2DPoints, valid3DPoints, data->getImage().cols, data->getImage().rows);
+        getAllCurrentPointsProjectedToImage(cameraId, sensorCutoutPc, valid2DPoints, valid3DPoints, data->getImage().cols, data->getImage().rows);
 
         auto img = data->getImage();
         if (!valid2DPoints.empty()) {
@@ -78,20 +75,22 @@ namespace AutoDrive::Algorithms {
 
 
     std::shared_ptr<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>>
-    DepthMap::getPointsInCameraFoV(DataLoader::CameraIndentifier id, size_t imgWidth, size_t imgHeight, bool useDistMat) {
-
+    DepthMap::getPointsInCameraFoV(DataLoader::CameraIndentifier id, const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &sensorCutoutPc, size_t imgWidth,
+                                   size_t imgHeight, bool useDistMat) {
         auto output = std::make_shared<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>>();
-        getAllCurrentPointsProjectedToImage(id, output->first, output->second, imgWidth, imgHeight, useDistMat);
+        getAllCurrentPointsProjectedToImage(id, sensorCutoutPc, output->first, output->second, imgWidth, imgHeight, useDistMat);
         return output;
     }
 
     void DepthMap::getAllCurrentPointsProjectedToImage(
             DataLoader::CameraIndentifier id,
+            const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &sensorCutoutPc,
             std::vector<cv::Point2f> &validPoints2D,
             std::vector<cv::Point3f> &validPoints3D,
             size_t img_width,
             size_t img_height,
             bool useDistMat) {
+        Timer t("Get all current points projected to image: " + frameTypeName(frameTypeFromIdentifier(id)), 0);
 
         auto projector = projectors_[id];
         auto cameraFrame = frameTypeFromIdentifier(id);
@@ -100,9 +99,8 @@ namespace AutoDrive::Algorithms {
         auto imuToCamera = context_.tfTree_.getTransformationForFrame(cameraFrame);
         rtl::RigidTf3D<double> originToCameraTf = imuToCamera.inverted();
 
-        //TODO: Takes around 10 ms because of lots of points being transformed at once
-        // transformation of all aggregated points takes place for every camera every frame -> is there some possible room for improvement?
-        destPCL = pointCloudProcessor_.transformPointCloud(aggregatedPointCloud_, originToCameraTf);
+        auto cameraCutout = pointCloudProcessor_.getPointCloudCutoutForFrame(sensorCutoutPc, cameraFrame);
+        destPCL = pointCloudProcessor_.transformPointCloud(cameraCutout, originToCameraTf);
 
         std::vector<cv::Point3f> points3D;
         std::vector<cv::Point2f> points2D;

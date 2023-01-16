@@ -48,23 +48,15 @@ namespace AutoDrive::Algorithms {
                 : context_{context}, pointCloudProcessor_{processor} {}
 
         /**
-         * Refreshes the aggregated point cloud, that will be used for the next point cloud to camera frame projection.
-         * The point cloud will be remembered until the next update.
-         * @param cloud shared pointer to a aggregated point cloud in ego-centric coordinates, that the DepthMap will use for reprojection
-         */
-        void updatePointCloudData(pcl::PointCloud<pcl::PointXYZ>::ConstPtr &cloud) {
-            aggregatedPointCloud_ = cloud;
-        }
-
-        /**
          * Method receives the RGB camera frame that also contains neural network detections and projects point cloud
          * into these NN's detections. All the points that do not match any detections are removed, and based on the
          * matched points for each detection there is  the distance of the detection from the camera's frame estimated.
          * @param data The RGB image with all the parameters and the neural network detections
+         * @param sensorCutoutPc aggregated point cloud cutout for the respective camera frame
          * @return The vector of detections wih estimated distances
          */
         std::vector<DataModels::YoloDetection3D>
-        onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data);
+        onNewCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data, const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &sensorCutoutPc);
 
         /**
          * Adds a new instance of the Projector to the Depth Map's arsenal. These projectors are used to project point
@@ -76,13 +68,15 @@ namespace AutoDrive::Algorithms {
 
         /**
          * Return all the points that fits into the given camera's FoV
-         * @param id Identifies which projector should be used to project point into the camera's frame
+         * @param id identifies which projector should be used to project point into the camera's frame
+         * @param sensorCutoutPc aggregated point cloud cutout for the respective camera frame
          * @param imgWidth width of the frame in pixels
          * @param imgHeight height of the frame in pixels
          * @param useDistMat if should use the distortion matrix for the point cloud reprojection
          */
         std::shared_ptr<std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>> getPointsInCameraFoV(
                 DataLoader::CameraIndentifier id,
+                const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &sensorCutoutPc,
                 size_t imgWidth,
                 size_t imgHeight,
                 bool useDistMat = true);
@@ -92,10 +86,10 @@ namespace AutoDrive::Algorithms {
         Context &context_;
         PointCloudProcessor &pointCloudProcessor_;
         std::map<DataLoader::CameraIndentifier, std::shared_ptr<Projector>> projectors_{};
-        pcl::PointCloud<pcl::PointXYZ>::ConstPtr aggregatedPointCloud_{};
 
         void getAllCurrentPointsProjectedToImage(
                 DataLoader::CameraIndentifier id,
+                const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &sensorCutoutPc,
                 std::vector<cv::Point2f> &validPoints2D,
                 std::vector<cv::Point3f> &validPoints3D,
                 size_t img_width,

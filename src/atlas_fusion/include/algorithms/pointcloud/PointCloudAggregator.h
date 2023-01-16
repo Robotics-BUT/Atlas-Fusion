@@ -63,9 +63,15 @@ namespace AutoDrive::Algorithms {
 
         /**
         * Getter for all point clouds relative to the ego vehicle.
-        * @return point cloud in global coordinate system
+        * @return point cloud in ego centric coordinate system
         */
         pcl::PointCloud<pcl::PointXYZ>::ConstPtr getEgoCentricPointCloud(const rtl::RigidTf3D<double> &egoTf);
+
+        /**
+        * Get all points in sensor frame FOV
+        * @return point cloud cutout in ego centric coordinate system
+        */
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getSensorPointCloudCutout(const rtl::RigidTf3D<double> &egoTf, const FrameType &frame);
 
     private:
 
@@ -77,6 +83,7 @@ namespace AutoDrive::Algorithms {
         pcl::PointCloud<pcl::PointXYZ>::Ptr aggregatedPointsDownsampled_{};
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr egoCentricPoints_{};
+        std::map<std::string, pcl::PointCloud<pcl::PointXYZ>::Ptr> egoCentricSensorCutouts_{};
 
         bool downsampledPointsValid_ = false;
         bool egoPointsValid_ = false;

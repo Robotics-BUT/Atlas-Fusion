@@ -33,9 +33,7 @@ namespace AutoDrive::FailCheck {
         pointCount_ = data->getScan()->size();
 
         if (frameType_ == FrameType::kLidarCenter) {
-            auto road = pointCloudProcessor_.getPointCloudCutout(scan,
-                                                                 rtl::BoundingBox3D<float>{rtl::Vector3D<float>{0.0f, -2.0f, -0.75f},
-                                                                                           rtl::Vector3D<float>{15.0f, 2.0f, -2.0f}});
+            auto road = pointCloudProcessor_.getPointCloudCutout(scan, {{0.0f, -2.0f, -0.75f}, {15.0f, 2.0f, -2.0f}});
             roiPointCount_ = road->size();
         }
 

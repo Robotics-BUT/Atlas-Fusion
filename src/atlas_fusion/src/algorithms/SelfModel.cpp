@@ -158,7 +158,7 @@ namespace AutoDrive::Algorithms {
            << "Acc: " << getAvgAcceleration().x() << " " << getAvgAcceleration().y() << " " << getAvgAcceleration().z() << " m/s^2 " << std::endl
            << "Heading: " << getHeading() << std::endl
            << "Speed scal: " << getSpeedScalar() << " m/s" << std::endl
-           << "Acc scal" << getAvgAccScalar() << " m/s^2 " << std::endl;
+           << "Acc scal: " << getAvgAccScalar() << " m/s^2 " << std::endl;
 
         return ss.str();
     }

@@ -56,13 +56,6 @@ namespace AutoDrive::Algorithms {
         pcl::PointCloud<pcl::PointXYZ>::Ptr downsamplePointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input);
 
         /**
-        * Method downsamples in place the point cloud given at the input
-        * @param input given point cloud that will be downsampled
-        */
-        void downsamplePointCloudInPlace(pcl::PointCloud<pcl::PointXYZ>::Ptr &input);
-
-
-        /**
          * Method applies 3D transformation on a given point cloud
          * @param input input point cloud
          * @param tf 3D transformation that will be applied
@@ -78,6 +71,13 @@ namespace AutoDrive::Algorithms {
          */
         pcl::PointCloud<pcl::PointXYZ>::Ptr getPointCloudCutout(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::BoundingBox3f &boundingBox);
 
+        /**
+        *
+        * @param input input point cloud
+        * @param frame sensor frame id
+        * @return point cloud cutout
+        */
+        pcl::PointCloud<pcl::PointXYZ>::Ptr getPointCloudCutoutForFrame(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const FrameType& frame);
 
         /**
          *

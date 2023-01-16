@@ -21,6 +21,7 @@
  */
 
 #include "algorithms/pointcloud/PointCloudAggregator.h"
+#include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::Algorithms {
 
@@ -36,6 +37,7 @@ namespace AutoDrive::Algorithms {
         }
         egoPointsValid_ = false;
         downsampledPointsValid_ = false;
+        egoCentricSensorCutouts_.clear();
 
         assert(noOfPoints + pointsToAdd == aggregatedPoints_->size());
     }
@@ -65,7 +67,7 @@ namespace AutoDrive::Algorithms {
 
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getGlobalCoordinatePointCloud() {
         // Timer t("Get aggregated point cloud");
-        if(downsampledPointsValid_) return aggregatedPointsDownsampled_;
+        if (downsampledPointsValid_) return aggregatedPointsDownsampled_;
 
         aggregatedPointsDownsampled_ = pointCloudProcessor_.downsamplePointCloud(aggregatedPoints_);
         downsampledPointsValid_ = true;
@@ -76,12 +78,24 @@ namespace AutoDrive::Algorithms {
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getEgoCentricPointCloud(const rtl::RigidTf3D<double> &egoTf) {
         // Timer t("Get ego centric point cloud");
 
-        if(egoPointsValid_) return egoCentricPoints_;
+        if (egoPointsValid_) return egoCentricPoints_;
 
         egoCentricPoints_ = pointCloudProcessor_.transformPointCloud(aggregatedPointsDownsampled_, egoTf);
         //pointCloudProcessor_.sortPointCloud(egoCentricPoints_, PointCloudProcessor::Axis::Z, false);
         egoPointsValid_ = true;
 
         return egoCentricPoints_;
+    }
+
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudAggregator::getSensorPointCloudCutout(const rtl::RigidTf3D<double> &egoTf, const FrameType &frame) {
+        //Timer t("Get ego centric point cloud cutout for frame: " + frameTypeName(frame), 0);
+        if (!egoPointsValid_) getEgoCentricPointCloud(egoTf);
+
+        std::string f = frameTypeName(frame);
+        if (egoCentricSensorCutouts_.count(f) == 0) {
+            egoCentricSensorCutouts_[f] = pointCloudProcessor_.getPointCloudCutoutForFrame(aggregatedPointsDownsampled_, frame);
+        }
+
+        return egoCentricSensorCutouts_[f];
     }
 }

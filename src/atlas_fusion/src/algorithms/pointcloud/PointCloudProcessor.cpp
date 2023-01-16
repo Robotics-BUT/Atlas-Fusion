@@ -22,13 +22,13 @@
 
 #include "algorithms/pointcloud/PointCloudProcessor.h"
 
+#include <pcl/filters/passthrough.h>
 
 namespace AutoDrive::Algorithms {
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudProcessor::downsamplePointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input) {
-        //TODO: This is heavy operation when done on the whole aggregated point cloud
-        // Timer t("Downsampling points");
+        Timer t("Downsampling points");
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
 
         pcl::VoxelGrid<pcl::PointXYZ> downsampler;
@@ -39,18 +39,10 @@ namespace AutoDrive::Algorithms {
         return output;
     }
 
-    void PointCloudProcessor::downsamplePointCloudInPlace(pcl::PointCloud<pcl::PointXYZ>::Ptr &input) {
-
-        pcl::VoxelGrid<pcl::PointXYZ> downsampler;
-        downsampler.setInputCloud(input);
-        downsampler.setLeafSize(leafSize_, leafSize_, leafSize_);
-        downsampler.filter(*input);
-    }
-
     pcl::PointCloud<pcl::PointXYZ>::Ptr
     PointCloudProcessor::transformPointCloud(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const rtl::RigidTf3D<double> &tf) {
         //TODO: This function is really slow concatenating point clouds doesn't really have an alternative that I know of.
-        //Timer t("Transform point cloud");
+        Timer t("Transform point cloud");
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
         if (input->points.empty()) return output;
         output->reserve(input->size());
@@ -120,6 +112,37 @@ namespace AutoDrive::Algorithms {
                 output->push_back(point);
             }
         }
+        return output;
+    }
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr
+    PointCloudProcessor::getPointCloudCutoutForFrame(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr &input, const FrameType &frame) {
+        Timer t("Get point cloud cutout for frame");
+
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
+        output->reserve(input->size());
+
+        float max = std::numeric_limits<float>::max();
+        float min = std::numeric_limits<float>::lowest();
+
+        switch(frame) {
+            case FrameType::kCameraIr:
+            case FrameType::kCameraLeftFront:
+            case FrameType::kCameraRightFront: {
+                output = getPointCloudCutout(input, {{0.f, -20.f, min}, {max, 20.f, max}});
+                break;
+            }
+            case FrameType::kCameraLeftSide: {
+                output = getPointCloudCutout(input, {{-5.f, 0.f, min}, {20.f, max, max}});
+                break;
+            }
+            case FrameType::kCameraRightSide: {
+                output = getPointCloudCutout(input, {{-5.f, min, min}, {20.f, 0.f, max}});
+                break;
+            }
+            default: break;
+        }
+
         return output;
     }
 

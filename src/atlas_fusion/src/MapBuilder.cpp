@@ -155,7 +155,7 @@ namespace AutoDrive {
                     break;
                 }
                 case DataModels::DataModelTypes::kImuImuDataModelType: {
-                    Timer t("IMU IMU ...");
+                    //Timer t("IMU IMU ...");
 
                     auto imuData = std::dynamic_pointer_cast<DataModels::ImuImuDataModel>(data);
                     processImuImuData(imuData);
@@ -177,14 +177,14 @@ namespace AutoDrive {
                     break;
                 }
                 case DataModels::DataModelTypes::kImuPressDataModelType: {
-                    Timer t("Pressure ...");
+                    //Timer t("Pressure ...");
 
                     const auto pressureData = std::dynamic_pointer_cast<DataModels::ImuPressureDataModel>(data);
                     environmentalModel_.onPressure(pressureData);
                     break;
                 }
                 case DataModels::DataModelTypes::kImuTempDataModelType: {
-                    Timer t("Temperature ...");
+                    //Timer t("Temperature ...");
 
                     const auto tempData = std::dynamic_pointer_cast<DataModels::ImuTempDataModel>(data);
                     environmentalModel_.onTemperature(tempData);
@@ -217,30 +217,28 @@ namespace AutoDrive {
     void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData, const FrameType &sensorFrame) {
         std::vector<std::future<void>> futures;
 
+        auto egoPosTf = selfModel_.getPosition().toTf().inverted();
         auto globalCoordinatePc = pointCloudAggregator_.getGlobalCoordinatePointCloud();
-        auto egoCentricPc = pointCloudAggregator_.getEgoCentricPointCloud(selfModel_.getPosition().toTf().inverted());
+        auto egoCentricPc = pointCloudAggregator_.getEgoCentricPointCloud(egoPosTf);
 
-        depthMap_.updatePointCloudData(egoCentricPc);
-
-        auto detections3D = depthMap_.onNewCameraData(imgData);
+        auto detections3D = depthMap_.onNewCameraData(imgData, pointCloudAggregator_.getSensorPointCloudCutout(egoPosTf, sensorFrame));
         auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
 
         localMap_.setFrustumDetections(frustums, sensorFrame);
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
 
-        auto detectionROI = pointCloudProcessor_.getPointCloudCutout(egoCentricPc, rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-50.f, -10.f, -.75f},
-                                                                                         rtl::Vector3D<float>{50.f, 10.f, 10.f}});
+        auto detectionROI = pointCloudProcessor_.getPointCloudCutout(egoCentricPc, {{-50.f, -10.f, -.75f},
+                                                                                    {50.f,  10.f,  10.f}});
         environmentalModel_.onDetectionROI(detectionROI);
-        environmentalModel_.getIsSkyOccluded();
-        //auto downSampledTunnel = pointCloudProcessor_.downsamplePointCloud(tunnel);
-        //auto lidarObstacles = lidarObjectDetector_.detectObstacles(downSampledTunnel);
-        //localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
+
+        auto lidarObstacles = lidarObjectDetector_.detectObstacles(detectionROI);
+        localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
 
         visualizationHandler_.drawAggregatedPointCloudGlobal(globalCoordinatePc);
         visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
-        //visualizationHandler_.drawLidarDetection(lidarObstacles);
+        // visualizationHandler_.drawLidarDetection(lidarObstacles);
         visualizationHandler_.drawPointcloudCutout(detectionROI);
-        //visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
+        visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
 
 
         if (RGB_Detection_To_IR_Projection) {
@@ -261,16 +259,18 @@ namespace AutoDrive {
                 if (Depth_Map_For_IR) {
                     try {
                         auto irCameraFrame = DataModels::CameraIrFrameDataModel(imgData->getTimestamp(), imgData->getImage(), 0.0f, 100.0f,
-                                                                               imgData->getCameraIdentifier(),
-                                                                               std::vector<DataModels::YoloDetection>{});
+                                                                                imgData->getCameraIdentifier(),
+                                                                                std::vector<DataModels::YoloDetection>{});
                         static size_t frameCnt = 0;
 
                         auto originToImuTf = selfModel_.getPosition().toTf();
 
-                        auto points2Dand3Dpair = depthMap_.getPointsInCameraFoV(irCameraFrame.getCameraIdentifier(), irCameraFrame.getImage().cols,
-                                                                               irCameraFrame.getImage().rows, false);
+                        auto points2Dand3Dpair = depthMap_.getPointsInCameraFoV(irCameraFrame.getCameraIdentifier(),
+                                                                                pointCloudAggregator_.getSensorPointCloudCutout(egoPosTf, sensorFrame),
+                                                                                irCameraFrame.getImage().cols,
+                                                                                irCameraFrame.getImage().rows, false);
                         auto img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first, points2Dand3Dpair->second, irCameraFrame.getImage().cols,
-                                                                            irCameraFrame.getImage().rows, 3);
+                                                                             irCameraFrame.getImage().rows, 3);
 
                         if (yoloIrReprojector_.getCurrentIrFrameNo() > 0) {
                             lidarIrImgPlotter_.saveImage(img, frameCnt, "_depth", "png");
@@ -304,13 +304,14 @@ namespace AutoDrive {
         auto originToImuTf = selfModel_.getPosition().toTf();
         auto points2Dand3Dpair = depthMap_.getPointsInCameraFoV(
                 irCameraFrame->getCameraIdentifier(),
+                pointCloudAggregator_.getSensorPointCloudCutout(selfModel_.getPosition().toTf().inverted(), frameTypeFromDataModel(irCameraFrame)),
                 irCameraFrame->getImage().cols,
                 irCameraFrame->getImage().rows,
                 false);
         auto img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first,
-                                                            points2Dand3Dpair->second,
-                                                            irCameraFrame->getImage().cols,
-                                                            irCameraFrame->getImage().rows);
+                                                             points2Dand3Dpair->second,
+                                                             irCameraFrame->getImage().cols,
+                                                             irCameraFrame->getImage().rows);
         yoloIrReprojector_.onNewIRFrame(irCameraFrame);
         visualizationHandler_.drawIRImage(irCameraFrame);
     }

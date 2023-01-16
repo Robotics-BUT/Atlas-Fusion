@@ -48,12 +48,13 @@ namespace AutoDrive::Algorithms {
     }
 
     void EnvironmentalModel::onDetectionROI(const pcl::PointCloud<pcl::PointXYZ>::Ptr &detectionROI) {
-        auto tunnelCheckROI = pointCloudProcessor_.getPointCloudCutout(detectionROI, rtl::BoundingBox3D<float>{rtl::Vector3D<float>{-40.f, -1.f, 3.f},
-                                                                                                               rtl::Vector3D<float>{40.f, 3.f, 10.f}});
+        auto tunnelCheckROI = pointCloudProcessor_.getPointCloudCutout(detectionROI, {{-40.f, -1.f, 3.f}, {40.f, 3.f, 10.f}});
         if (tunnelCheckROI->size() > 500) {
             skyOcclusionTime_ = timestamp_;
             isSkyOccluded_ = true;
         }
+
+        getIsSkyOccluded();
     }
 
     void EnvironmentalModel::onPressure(const std::shared_ptr<DataModels::ImuPressureDataModel>& pressure) {

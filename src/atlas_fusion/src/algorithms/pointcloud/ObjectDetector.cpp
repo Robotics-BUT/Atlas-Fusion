@@ -38,11 +38,10 @@ namespace AutoDrive::Algorithms {
         pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
         tree->setInputCloud(pc);
 
-
         //TODO: Waaay to slow -> EuclideanClusterExtraction can take up to 100 ms
         std::vector<pcl::PointIndices> cluster_indices;
         {
-            // Timer t("EuclideanClusterExtraction");
+            Timer t("EuclideanClusterExtraction");
             pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
             ec.setClusterTolerance(0.50); // 20cm
             ec.setMinClusterSize(20);
