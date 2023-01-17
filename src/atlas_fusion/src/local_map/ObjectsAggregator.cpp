@@ -37,7 +37,8 @@ namespace AutoDrive::LocalMap {
             output.reserve(previousDetections.size());
             for (const auto &detection: previousDetections) {
                 if (detection->getTTL() > 1) {
-                    output.emplace_back(std::make_shared<DataModels::LidarDetection>(detection->getBoundingBox(), detection->getID(), detection->getTTL() - 1));
+                    output.emplace_back(std::make_shared<DataModels::LidarDetection>(detection->getBoundingBox(), detection->getRotation(), detection->getID(),
+                                                                                     detection->getTTL() - 1));
                 }
             }
             return output;
@@ -57,8 +58,8 @@ namespace AutoDrive::LocalMap {
     }
 
 
-    std::vector<std::pair<unsigned, unsigned>> ObjectsAggregator::matchDetections(std::vector<std::shared_ptr<DataModels::LidarDetection>> a,
-                                                                                  std::vector<std::shared_ptr<DataModels::LidarDetection>> b) const {
+    std::vector<std::pair<unsigned, unsigned>> ObjectsAggregator::matchDetections(const std::vector<std::shared_ptr<DataModels::LidarDetection>> &a,
+                                                                                  const std::vector<std::shared_ptr<DataModels::LidarDetection>> &b) const {
 
         unsigned cols = static_cast<int>(a.size());
         unsigned rows = static_cast<int>(b.size());
@@ -87,7 +88,7 @@ namespace AutoDrive::LocalMap {
     std::vector<std::shared_ptr<DataModels::LidarDetection>> ObjectsAggregator::mergeDetections(
             std::vector<std::shared_ptr<DataModels::LidarDetection>> a,
             std::vector<std::shared_ptr<DataModels::LidarDetection>> b,
-            std::vector<std::pair<unsigned, unsigned>> matches) const {
+            const std::vector<std::pair<unsigned, unsigned>> &matches) const {
 
         unsigned cols = static_cast<int>(a.size());
         unsigned rows = static_cast<int>(b.size());
@@ -96,7 +97,9 @@ namespace AutoDrive::LocalMap {
         std::vector<bool> newMatched(rows, false);
         std::vector<bool> oldMatched(cols, false);
         for (const auto &match: matches) {
-            output.emplace_back(std::make_shared<DataModels::LidarDetection>(b.at(match.first)->getBoundingBox(), a.at(match.second)->getID()));
+            output.emplace_back(std::make_shared<DataModels::LidarDetection>(b.at(match.first)->getBoundingBox(),
+                                                                             b.at(match.first)->getRotation(),
+                                                                             a.at(match.second)->getID()));
             newMatched.at(match.first) = true;
             oldMatched.at(match.second) = true;
         }
@@ -112,6 +115,7 @@ namespace AutoDrive::LocalMap {
                 if (a.at(i)->getTTL() > 1) {
                     output.emplace_back(std::make_shared<DataModels::LidarDetection>(
                             a.at(i)->getBoundingBox(),
+                            a.at(i)->getRotation(),
                             a.at(i)->getID(),
                             a.at(i)->getTTL() - 1));
                 }

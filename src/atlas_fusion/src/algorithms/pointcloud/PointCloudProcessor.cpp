@@ -52,6 +52,8 @@ namespace AutoDrive::Algorithms {
         outputFutures.resize(threads);
         size_t batchSize = std::ceil(input->points.size() / threads);
 
+        if (batchSize == 0) return output;
+
         auto rotMat = tf.rotMat();
         Eigen::Affine3f pcl_tf = Eigen::Affine3f::Identity();
         pcl_tf(0, 0) = static_cast<float>(rotMat(0, 0));

@@ -57,13 +57,13 @@ namespace AutoDrive::LocalMap {
     private:
 
         std::vector<std::pair<unsigned, unsigned>> matchDetections(
-                std::vector<std::shared_ptr<DataModels::LidarDetection>> a,
-                std::vector<std::shared_ptr<DataModels::LidarDetection>> b) const;
+                const std::vector<std::shared_ptr<DataModels::LidarDetection>>& a,
+                const std::vector<std::shared_ptr<DataModels::LidarDetection>>& b) const;
 
         std::vector<std::shared_ptr<DataModels::LidarDetection>> mergeDetections(
                 std::vector<std::shared_ptr<DataModels::LidarDetection>> a,
                 std::vector<std::shared_ptr<DataModels::LidarDetection>> b,
-                std::vector<std::pair<unsigned, unsigned>> matches) const;
+                const std::vector<std::pair<unsigned, unsigned>>& matches) const;
 
         Context& context_;
 

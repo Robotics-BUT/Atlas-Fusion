@@ -122,10 +122,10 @@ namespace AutoDrive::Visualizers {
             marker.pose.position.y = cy;
             marker.pose.position.z = cz;
 
-            marker.pose.orientation.x = 0.0;
-            marker.pose.orientation.y = 0.0;
-            marker.pose.orientation.z = 0.0;
-            marker.pose.orientation.w = 1.0;
+            marker.pose.orientation.x = detection->getRotation().x();
+            marker.pose.orientation.y = detection->getRotation().y();
+            marker.pose.orientation.z = detection->getRotation().z();
+            marker.pose.orientation.w = detection->getRotation().w();
 
             marker.scale.x = dx;
             marker.scale.y = dy;
@@ -154,9 +154,9 @@ namespace AutoDrive::Visualizers {
                     << "TTL: " << detection->getTTL() << std::endl;
             text.text = sstream.str();
 
-            text.scale.x = 1;
-            text.scale.y = 1;
-            text.scale.z = 1;
+            text.scale.x = 0.3;
+            text.scale.y = 0.3;
+            text.scale.z = 0.3;
 
             text.color.a = 0.1;
             text.color.r = 0.7;

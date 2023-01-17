@@ -128,7 +128,7 @@ namespace AutoDrive {
                                        segmenter_lower_bound, segmenter_upper_bound, segmenter_scaling},
                   globalPointcloudStorage_{context, globalLeafSize},
                   occGrid_{context},
-                  lidarObjectDetector_{context},
+                  lidarObjectDetector_{context, pointCloudProcessor_},
                   yoloIrReprojector_{context},
                   failChecker_{context, selfModel_, environmentalModel_, pointCloudProcessor_},
                   visualizationHandler_{node, context},

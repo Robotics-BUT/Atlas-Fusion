@@ -23,6 +23,7 @@
 #pragma once
 
 #include "data_models/local_map/LidarDetection.h"
+#include "algorithms/pointcloud/PointCloudProcessor.h"
 
 namespace AutoDrive::Algorithms {
 
@@ -34,15 +35,15 @@ namespace AutoDrive::Algorithms {
     public:
 
         ObjectDetector() = delete;
-        ObjectDetector(Context& context)
-        : context_{context} {}
 
-        std::vector<std::shared_ptr<DataModels::LidarDetection>> detectObstacles(const pcl::PointCloud<pcl::PointXYZ>::Ptr&);
+        ObjectDetector(Context &context, PointCloudProcessor &pointCloudProcessor) : context_{context}, pointCloudProcessor_{pointCloudProcessor} {}
+
+        std::vector<std::shared_ptr<DataModels::LidarDetection>> detectObstacles(const pcl::PointCloud<pcl::PointXYZ>::Ptr &);
 
     private:
 
-        Context& context_;
-
+        Context &context_;
+        PointCloudProcessor &pointCloudProcessor_;
     };
 
 }

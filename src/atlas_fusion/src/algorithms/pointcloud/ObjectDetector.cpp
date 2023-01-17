@@ -34,14 +34,12 @@ namespace AutoDrive::Algorithms {
             return output;
         }
 
-        // Creating the KdTree object for the search method of the extraction
-        pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
-        tree->setInputCloud(pc);
-
-        //TODO: Waaay to slow -> EuclideanClusterExtraction can take up to 100 ms
         std::vector<pcl::PointIndices> cluster_indices;
         {
             Timer t("EuclideanClusterExtraction");
+
+            pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
+
             pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
             ec.setClusterTolerance(0.50); // 20cm
             ec.setMinClusterSize(20);
@@ -50,50 +48,68 @@ namespace AutoDrive::Algorithms {
             ec.setInputCloud(pc);
             ec.extract(cluster_indices);
         }
-        if(cluster_indices.empty()) return output;
+        if (cluster_indices.empty()) return output;
 
         outputFutures.resize(cluster_indices.size());
         output.reserve(cluster_indices.size());
 
-        static size_t detectionID = 0;
-        for (size_t i = 0; i < cluster_indices.size(); i++) {
-            outputFutures[i] = context_.threadPool_.submit([&cluster_indices, &pc, i]() {
-                auto it = cluster_indices[i];
-                pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZ>);
+        {
+            Timer t("Object detection");
 
-                rtl::Vector3D<double> minPoint{NAN, NAN, NAN};
-                rtl::Vector3D<double> maxPoint{NAN, NAN, NAN};
-
-                //TODO: Don't know why, but sometimes point at index [0] is {0,0,0}
-                for (const auto &pit: it.indices) {
-                    const auto &point = pc->points[pit];
-
-                    if (pit != it.indices[3]) {
-                        if (minPoint.x() > point.x) { minPoint.setX(point.x); }
-                        if (minPoint.y() > point.y) { minPoint.setY(point.y); }
-                        if (minPoint.z() > point.z) { minPoint.setZ(point.z); }
-                        if (maxPoint.x() < point.x) { maxPoint.setX(point.x); }
-                        if (maxPoint.y() < point.y) { maxPoint.setY(point.y); }
-                        if (maxPoint.z() < point.z) { maxPoint.setZ(point.z); }
-                    } else {
-                        minPoint.setX(point.x);
-                        minPoint.setY(point.y);
-                        minPoint.setZ(point.z);
-                        maxPoint.setX(point.x);
-                        maxPoint.setY(point.y);
-                        maxPoint.setZ(point.z);
+            static size_t detectionID = 0;
+            for (size_t i = 0; i < cluster_indices.size(); i++) {
+                outputFutures[i] = context_.threadPool_.submit([&, i]() {
+                    auto it = cluster_indices[i];
+                    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZ>);
+                    cloud_cluster->points.reserve(cluster_indices.size());
+                    cloud_cluster->width = cluster_indices.size();
+                    cloud_cluster->height = 1;
+                    for (const auto &pit: it.indices) {
+                        cloud_cluster->points.emplace_back(pc->points[pit]);
                     }
+
+                    pcl::MomentOfInertiaEstimation<pcl::PointXYZ> featureExtractor;
+                    featureExtractor.setInputCloud(cloud_cluster);
+                    featureExtractor.compute();
+
+                    std::vector<float> eccentricity;
+                    pcl::PointXYZ minPointOBB, maxPointOBB, positionOBB;
+                    Eigen::Matrix3f rotationalMatrixOBB;
+
+                    featureExtractor.getOBB(minPointOBB, maxPointOBB, positionOBB, rotationalMatrixOBB);
+
+                    auto euler = rotationalMatrixOBB.eulerAngles(0, 1, 2);
+                    Eigen::Quaternionf q(Eigen::AngleAxisf(0, Eigen::Vector3f::UnitZ()));
+                    rtl::Quaterniond quat(Eigen::Quaterniond(q.w(), q.x(), q.y(), q.z()));
+
+                    return DataModels::LidarDetection(
+                            rtl::BoundingBox3d{
+                                    {positionOBB.x + minPointOBB.x, positionOBB.y + minPointOBB.y, positionOBB.z + minPointOBB.z},
+                                    {positionOBB.x + maxPointOBB.x, positionOBB.y + maxPointOBB.y, positionOBB.z + maxPointOBB.z}
+                            },
+                            quat,
+                            detectionID++
+                    );
+                });
+            }
+
+            for (auto &outputFuture: outputFutures) {
+                outputFuture.wait();
+
+                auto det = outputFuture.get();
+                auto detBB = det.getBoundingBox();
+                double xLength = abs(detBB.max().x() - detBB.min().x());
+                double yLength = abs(detBB.max().y() - detBB.min().y());
+                double zLength = abs(detBB.max().z() - detBB.min().z());
+
+                // Filter out big obstacles
+                if(xLength < 1.0 || xLength > 10.0 || yLength < 1.0 || yLength > 10.0 || zLength < 1.0 ||  zLength > 10.0 ) {
+                    continue;
                 }
 
-                return DataModels::LidarDetection(rtl::BoundingBox3d{minPoint, maxPoint}, detectionID++);
-            });
+                output.emplace_back(std::make_shared<DataModels::LidarDetection>(det));
+            }
         }
-
-        for (auto &outputFuture: outputFutures) {
-            outputFuture.wait();
-            output.emplace_back(std::make_shared<DataModels::LidarDetection>(outputFuture.get()));
-        }
-
         return output;
     }
 }
