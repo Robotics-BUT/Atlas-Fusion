@@ -227,8 +227,8 @@ namespace AutoDrive {
         localMap_.setFrustumDetections(frustums, sensorFrame);
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
 
-        auto detectionROI = pointCloudProcessor_.downsamplePointCloud(pointCloudProcessor_.getPointCloudCutout(egoCentricPc, {{-50.f, -10.f, -.75f},
-                                                                                    {50.f,  10.f,  10.f}}));
+        auto detectionROI = pointCloudProcessor_.getPointCloudCutout(egoCentricPc, {{-40.f, -3.f, -.75f},
+                                                                                    {40.f,  10.f,  5.f}});
         environmentalModel_.onDetectionROI(detectionROI);
 
         auto lidarObstacles = lidarObjectDetector_.detectObstacles(detectionROI);

@@ -37,7 +37,7 @@ namespace AutoDrive::LocalMap {
             output.reserve(previousDetections.size());
             for (const auto &detection: previousDetections) {
                 if (detection->getTTL() > 1) {
-                    output.emplace_back(std::make_shared<DataModels::LidarDetection>(detection->getBoundingBox(), detection->getRotation(), detection->getID(),
+                    output.emplace_back(std::make_shared<DataModels::LidarDetection>(detection->getBoundingBox(), detection->getOrientation(), detection->getID(),
                                                                                      detection->getTTL() - 1));
                 }
             }
@@ -97,8 +97,9 @@ namespace AutoDrive::LocalMap {
         std::vector<bool> newMatched(rows, false);
         std::vector<bool> oldMatched(cols, false);
         for (const auto &match: matches) {
+            auto orientation_ = a.at(match.second)->getOrientation().slerp(b.at(match.first)->getOrientation(), 0.01);
             output.emplace_back(std::make_shared<DataModels::LidarDetection>(b.at(match.first)->getBoundingBox(),
-                                                                             b.at(match.first)->getRotation(),
+                                                                             orientation_,
                                                                              a.at(match.second)->getID()));
             newMatched.at(match.first) = true;
             oldMatched.at(match.second) = true;
@@ -115,7 +116,7 @@ namespace AutoDrive::LocalMap {
                 if (a.at(i)->getTTL() > 1) {
                     output.emplace_back(std::make_shared<DataModels::LidarDetection>(
                             a.at(i)->getBoundingBox(),
-                            a.at(i)->getRotation(),
+                            a.at(i)->getOrientation(),
                             a.at(i)->getID(),
                             a.at(i)->getTTL() - 1));
                 }

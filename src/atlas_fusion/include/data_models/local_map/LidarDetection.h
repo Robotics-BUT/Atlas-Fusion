@@ -49,10 +49,10 @@ namespace AutoDrive::DataModels {
         [[nodiscard]] rtl::BoundingBox3d getBoundingBox() const { return box_; }
 
         /**
-        * Rotation getter
-        * @return quaternion that defines obstacle rotation
+        * Orientation getter
+        * @return quaternion that defines obstacle orientation
         */
-        [[nodiscard]] rtl::Quaterniond getRotation() const { return quat_; }
+        [[nodiscard]] rtl::Quaterniond getOrientation() const { return quat_; }
 
         /**
          * Obstacle's ID getter

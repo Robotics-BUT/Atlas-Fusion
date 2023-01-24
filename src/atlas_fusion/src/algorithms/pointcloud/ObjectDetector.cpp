@@ -103,7 +103,7 @@ namespace AutoDrive::Algorithms {
                 double zLength = abs(detBB.max().z() - detBB.min().z());
 
                 // Filter out big obstacles
-                if(xLength < 1.0 || xLength > 10.0 || yLength < 1.0 || yLength > 10.0 || zLength < 1.0 ||  zLength > 10.0 ) {
+                if(xLength > 10.0 || yLength > 10.0 ||  zLength < 0.5 ) {
                     continue;
                 }
 

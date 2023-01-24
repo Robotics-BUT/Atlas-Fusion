@@ -122,10 +122,10 @@ namespace AutoDrive::Visualizers {
             marker.pose.position.y = cy;
             marker.pose.position.z = cz;
 
-            marker.pose.orientation.x = detection->getRotation().x();
-            marker.pose.orientation.y = detection->getRotation().y();
-            marker.pose.orientation.z = detection->getRotation().z();
-            marker.pose.orientation.w = detection->getRotation().w();
+            marker.pose.orientation.x = detection->getOrientation().x();
+            marker.pose.orientation.y = detection->getOrientation().y();
+            marker.pose.orientation.z = detection->getOrientation().z();
+            marker.pose.orientation.w = detection->getOrientation().w();
 
             marker.scale.x = dx;
             marker.scale.y = dy;
