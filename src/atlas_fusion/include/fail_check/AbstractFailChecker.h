@@ -20,13 +20,19 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-# pragma once
+#pragma once
 
 #include "data_models/GenericDataModel.h"
 #include "algorithms/SelfModel.h"
 #include "algorithms/EnvironmentalModel.h"
 
 namespace AutoDrive::FailCheck {
+
+    struct SensorStatus {
+        std::map<std::string, float> statusMap;
+        float status;
+        std::string statusString;
+    };
 
     /**
      * Abstract Fail Checker defines interface for other inherited Fail Checkers
@@ -44,20 +50,14 @@ namespace AutoDrive::FailCheck {
          */
         AbstractFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
                 : context_{context}, selfModel_{selfModel}, environmentalModel_{environmentalModel} {
-            sensorStatus_ = 1.0;
+            sensorStatus_.status = 1.0;
         }
 
         /**
-         * Reports reliability of the sensor
-         * @return <0, 1> sensor performance assessment
-         */
-        virtual float getSensorStatus();
-
-        /**
-        * Generates a more in-depth status string
-        * @return status string
+        * Generates in-depth status struct
+        * @return status struct
         */
-        virtual std::string getSensorStatusString();
+        virtual SensorStatus getSensorStatus();
 
         virtual ~AbstractFailChecker() = default;
 
@@ -66,7 +66,6 @@ namespace AutoDrive::FailCheck {
         Context &context_;
         const Algorithms::SelfModel &selfModel_;
         Algorithms::EnvironmentalModel &environmentalModel_;
-        float sensorStatus_;
-        std::string sensorStatusString_;
+        SensorStatus sensorStatus_;
     };
 }

@@ -23,6 +23,8 @@
 #pragma once
 
 #include "rviz_2d_overlay_msgs/msg/overlay_text.hpp"
+#include "std_msgs/msg/float32_multi_array.hpp"
+#include "fail_check/AbstractFailChecker.h"
 
 namespace AutoDrive::Visualizers {
 
@@ -43,14 +45,18 @@ namespace AutoDrive::Visualizers {
          */
         SensorStatusVisualizer(rclcpp::Node::SharedPtr &node, Context &context) : node_{node}, context_{context} {}
 
-        void drawStatusAsText(const std::string &statusText, const std::string &topic);
+        void publishStatusAsText(const FailCheck::SensorStatus &status, const std::string &topic);
+
+        void publishStatusAsList(const FailCheck::SensorStatus &status, const std::string &topic);
 
     private:
 
         rclcpp::Node::SharedPtr &node_;
         Context &context_;
 
-        std::map<std::string, rclcpp::Publisher<rviz_2d_overlay_msgs::msg::OverlayText>::SharedPtr> publishers_;
+        std::map<std::string, rclcpp::Publisher<rviz_2d_overlay_msgs::msg::OverlayText>::SharedPtr> textPublishers_;
+        std::map<std::string, rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr> listPublishers_;
+
     };
 
 }

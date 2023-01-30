@@ -228,7 +228,7 @@ namespace AutoDrive::Visualizers {
 
     void VisualizationHandler::drawTelemetry(const std::string &telemetryText) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
-        textStatusVisualizer_.drawStatusAsText(telemetryText, Topics::kTelemetryText);
+        //sensorStatusVisualizer_.publishStatusAsText(telemetryText, Topics::kTelemetryText);
     }
 
     void VisualizationHandler::drawRadarTiObjects(const std::vector<DataModels::RadarTiDataModel::Object> &objects) {
@@ -239,10 +239,11 @@ namespace AutoDrive::Visualizers {
         radarVisualizer_.drawRadarDetectionsOnTopic(objects, Topics::kRadarTiObjects, FrameType::kRadarTi);
     }
 
-    void VisualizationHandler::drawSensorStatus(const std::string &sensorStatus, const FrameType &frameType) {
+    void VisualizationHandler::drawSensorStatus(const FailCheck::SensorStatus &sensorStatus, const FrameType &frameType) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
 
-        std::string topic;
+        std::string textTopic;
+        std::string listTopic;
         switch(frameType) {
             case FrameType::kOrigin:
 
@@ -251,27 +252,44 @@ namespace AutoDrive::Visualizers {
             case FrameType::kGnssAntennaRear:
             case FrameType::kImu: return;
             case FrameType::kCameraLeftFront:
-                topic = Topics::kCameraLeftFrontStatus; break;
+                textTopic = Topics::kCameraLeftFrontStatusString;
+                listTopic = Topics::kCameraLeftFrontStatus;
+                break;
             case FrameType::kCameraLeftSide:
-                topic = Topics::kCameraLeftSideStatus; break;
+                textTopic = Topics::kCameraLeftSideStatusString;
+                listTopic = Topics::kCameraLeftSideStatus;
+                break;
             case FrameType::kCameraRightFront:
-                topic = Topics::kCameraRightFrontStatus; break;
+                textTopic = Topics::kCameraRightFrontStatusString;
+                listTopic = Topics::kCameraRightFrontStatus;
+                break;
             case FrameType::kCameraRightSide:
-                topic = Topics::kCameraRightSideStatus; break;
+                textTopic = Topics::kCameraRightSideStatusString;
+                listTopic = Topics::kCameraRightSideStatus;
+                break;
             case FrameType::kCameraIr:
-                topic = Topics::kCameraIrStatus; break;
+                textTopic = Topics::kCameraIrStatusString;
+                listTopic = Topics::kCameraIrStatus;
+                break;
             case FrameType::kLidarLeft:
-                topic = Topics::kLidarLeftStatus; break;
+                textTopic = Topics::kLidarLeftStatusString;
+                listTopic = Topics::kLidarLeftStatus;
+                break;
             case FrameType::kLidarRight:
-                topic = Topics::kLidarRightStatus; break;
+                textTopic = Topics::kLidarRightStatusString;
+                listTopic = Topics::kLidarRightStatus;
+                break;
             case FrameType::kLidarCenter:
-                topic = Topics::kLidarCenterStatus; break;
+                textTopic = Topics::kLidarCenterStatusString;
+                listTopic = Topics::kLidarCenterStatus;
+                break;
         }
-        textStatusVisualizer_.drawStatusAsText(sensorStatus, topic);
+        sensorStatusVisualizer_.publishStatusAsText(sensorStatus, textTopic);
+        sensorStatusVisualizer_.publishStatusAsList(sensorStatus, listTopic);
     }
 
     void VisualizationHandler::drawEnvironmentalStatus(const std::string &environmentalStatus) {
-        textStatusVisualizer_.drawStatusAsText(environmentalStatus, Topics::kEnvironmentalModel);
+        //sensorStatusVisualizer_.publishStatusAsText(environmentalStatus, Topics::kEnvironmentalModel);
     }
 
     visualization_msgs::msg::Marker VisualizationHandler::getSelfEgoCube() const {

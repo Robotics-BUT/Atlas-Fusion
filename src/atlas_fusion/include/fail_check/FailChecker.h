@@ -84,18 +84,11 @@ namespace AutoDrive::FailCheck {
         void onNewData(const std::shared_ptr<DataModels::GenericDataModel> &data, const FrameType &sensor);
 
         /**
-         * Returns the reliability of the given sensor
-         * @param sensor identifier
-         * @return sensor reliability score
-         */
-        float getSensorStatus(const FrameType &sensor);
-
-        /**
-        * Generates a more in-depth status string
+        * Generates in-depth status struct
         * @param sensor identifier
-        * @return status string
+        * @return status struct
         */
-        std::string getSensorStatusString(const FrameType &sensor);
+        SensorStatus getSensorStatus(const FrameType &sensor);
 
     protected:
 

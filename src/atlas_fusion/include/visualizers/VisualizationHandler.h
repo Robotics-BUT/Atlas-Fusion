@@ -43,6 +43,8 @@
 #include "TrajectoryVisualizer.h"
 #include "SensorStatusVisualizer.h"
 
+#include "fail_check/AbstractFailChecker.h"
+
 
 namespace AutoDrive::Visualizers {
 
@@ -70,7 +72,7 @@ namespace AutoDrive::Visualizers {
         , trajectoryVisualizer_(node, context)
         , frustumVisualizer_(node, context)
         , radarVisualizer_(node, context)
-        , textStatusVisualizer_(node, context) {
+        , sensorStatusVisualizer_(node, context) {
             selfGlobalPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>(Topics::kSelfGlobal, 0);
             selfEgoPublisher_ = node_->create_publisher<visualization_msgs::msg::Marker>(Topics::kSelfEgo, 0);
         }
@@ -229,7 +231,7 @@ namespace AutoDrive::Visualizers {
         * Draws sensor status text message
         * @param sensorStatus
         */
-        void drawSensorStatus(const std::string& sensorStatus, const FrameType& frameType);
+        void drawSensorStatus(const FailCheck::SensorStatus& sensorStatus, const FrameType& frameType);
 
         void drawEnvironmentalStatus(const std::string& environmentalStatus);
 
@@ -250,7 +252,7 @@ namespace AutoDrive::Visualizers {
         FrustumVisualizer frustumVisualizer_;
         RadarVisualizer radarVisualizer_;
 
-        SensorStatusVisualizer textStatusVisualizer_;
+        SensorStatusVisualizer sensorStatusVisualizer_;
 
         [[nodiscard]] visualization_msgs::msg::Marker getSelfEgoCube() const;
         [[nodiscard]] visualization_msgs::msg::Marker getSelfGlobalCube() const;

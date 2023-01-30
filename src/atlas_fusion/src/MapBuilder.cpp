@@ -101,7 +101,7 @@ namespace AutoDrive {
 
             auto sensorFrame = frameTypeFromDataModel(data);
             failChecker_.onNewData(data, sensorFrame);
-            auto sensorScore = failChecker_.getSensorStatus(sensorFrame);
+            auto sensorScore = failChecker_.getSensorStatus(sensorFrame).status;
 
             if (sensorScore < 0.9) {
                 context_.logger_.warning("Sensor Score is too low");
@@ -205,7 +205,7 @@ namespace AutoDrive {
                     context_.logger_.warning("Unexpected type of data model from DataLoader");
                     break;
             }
-            visualizationHandler_.drawSensorStatus(failChecker_.getSensorStatusString(sensorFrame), sensorFrame);
+            visualizationHandler_.drawSensorStatus(failChecker_.getSensorStatus(sensorFrame), sensorFrame);
             visualizationHandler_.drawEnvironmentalStatus(environmentalModel_.getStatusString());
         }
     }

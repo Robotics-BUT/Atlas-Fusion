@@ -273,7 +273,7 @@ namespace AutoDrive::FailCheck {
 
                 // Occlusion
                 if (glareAmount < 0) occludedCount += importance;
-                    // Glare
+                // Glare
                 else glaredCount += importance * glareAmount;
             }
         }
@@ -283,18 +283,34 @@ namespace AutoDrive::FailCheck {
         possibleGlare = glaredCount > 10;
         possibleOcclusion = occludedCount > 10;
 
-        sensorStatusString_ = frameTypeName(frameType_) + " status\n";
-        sensorStatusString_ += "Vis sum: " + std::to_string(visibilitySum) + "\n";
-        if (frameType_ == FrameType::kCameraLeftFront || frameType_ == FrameType::kCameraRightFront) {
-            sensorStatusString_ += "VP vis: " + std::to_string(vanishingPointVisibility) + "\n";
-        }
-        sensorStatusString_ += "Occluded count: " + std::to_string(occludedCount) + "\n";
-        sensorStatusString_ += "Glared count: " + std::to_string(glaredCount) + "\n";
 
-        sensorStatusString_ += "Possible fog: " + std::to_string(possibleFog) + "\n";
-        sensorStatusString_ += "Possible glare: " + std::to_string(possibleGlare) + "\n";
-        sensorStatusString_ += "Possible occlusion: " + std::to_string(possibleOcclusion) + "\n";
-        sensorStatusString_ += "Night shot: " + std::to_string(nightShot) + "\n";
+        sensorStatus_.statusString = frameTypeName(frameType_) + " status\n";
+        sensorStatus_.statusMap["vis_sum"] = visibilitySum;
+        sensorStatus_.statusString += "Vis sum: " + std::to_string(visibilitySum) + "\n";
+
+
+        if (frameType_ == FrameType::kCameraLeftFront || frameType_ == FrameType::kCameraRightFront) {
+            sensorStatus_.statusMap["vp_vis"] = vanishingPointVisibility;
+            sensorStatus_.statusString += "VP vis: " + std::to_string(vanishingPointVisibility) + "\n";
+        }
+
+        sensorStatus_.statusMap["occluded_count"] = occludedCount;
+        sensorStatus_.statusString += "Occluded count: " + std::to_string(occludedCount) + "\n";
+
+        sensorStatus_.statusMap["glared_count"] = glaredCount;
+        sensorStatus_.statusString += "Glared count: " + std::to_string(glaredCount) + "\n";
+
+        sensorStatus_.statusMap["possible_fog"] = possibleFog;
+        sensorStatus_.statusString += "Possible fog: " + std::to_string(possibleFog) + "\n";
+
+        sensorStatus_.statusMap["possible_glare"] = possibleGlare;
+        sensorStatus_.statusString += "Possible glare: " + std::to_string(possibleGlare) + "\n";
+
+        sensorStatus_.statusMap["possible_occlusion"] = possibleOcclusion;
+        sensorStatus_.statusString += "Possible occlusion: " + std::to_string(possibleOcclusion) + "\n";
+
+        sensorStatus_.statusMap["night_shot"] = nightShot;
+        sensorStatus_.statusString += "Night shot: " + std::to_string(nightShot) + "\n";
 
     }
 }

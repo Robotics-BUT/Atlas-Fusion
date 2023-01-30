@@ -33,6 +33,9 @@ namespace AutoDrive::Visualizers::Topics {
         const std::string kLidarLeftStatus = "/autodrive/local_map/lidar_left/status";
         const std::string kLidarRightStatus = "/autodrive/local_map/lidar_right/status";
         const std::string kLidarCenterStatus = "/autodrive/local_map/lidar_center/status";
+        const std::string kLidarLeftStatusString = "/autodrive/local_map/lidar_left/status_string";
+        const std::string kLidarRightStatusString = "/autodrive/local_map/lidar_right/status_string";
+        const std::string kLidarCenterStatusString = "/autodrive/local_map/lidar_center/status_string";
         const std::string kImuTopic = "/autodrive/local_map/imu/imu";
         const std::string kImuAvgTopic = "/autodrive/local_map/imu/imu_avg";
         const std::string kGnssTopic = "/autodrive/local_map/gnss/pose_text";
@@ -50,11 +53,16 @@ namespace AutoDrive::Visualizers::Topics {
         const std::string kCameraRightSideInfo = "/autodrive/local_map/cameras/camera_right_side/camera_info";
         const std::string kCameraIrInfo = "/autodrive/local_map/cameras/camera_ir/camera_info";
 
-        const std::string kCameraLeftFrontStatus = "/autodrive/local_map/cameras/camera_left_front/camera_status";
-        const std::string kCameraLeftSideStatus = "/autodrive/local_map/cameras/camera_left_side/camera_status";
-        const std::string kCameraRightFrontStatus = "/autodrive/local_map/cameras/camera_right_front/camera_status";
-        const std::string kCameraRightSideStatus = "/autodrive/local_map/cameras/camera_right_side/camera_status";
-        const std::string kCameraIrStatus = "/autodrive/local_map/cameras/camera_ir/camera_status";
+        const std::string kCameraLeftFrontStatus = "/autodrive/local_map/cameras/camera_left_front/status";
+        const std::string kCameraLeftSideStatus = "/autodrive/local_map/cameras/camera_left_side/status";
+        const std::string kCameraRightFrontStatus = "/autodrive/local_map/cameras/camera_right_front/status";
+        const std::string kCameraRightSideStatus = "/autodrive/local_map/cameras/camera_right_side/status";
+        const std::string kCameraIrStatus = "/autodrive/local_map/cameras/camera_ir/status";
+        const std::string kCameraLeftFrontStatusString = "/autodrive/local_map/cameras/camera_left_front/status_string";
+        const std::string kCameraLeftSideStatusString = "/autodrive/local_map/cameras/camera_left_side/status_string";
+        const std::string kCameraRightFrontStatusString = "/autodrive/local_map/cameras/camera_right_front/status_string";
+        const std::string kCameraRightSideStatusString = "/autodrive/local_map/cameras/camera_right_side/status_string";
+        const std::string kCameraIrStatusString = "/autodrive/local_map/cameras/camera_ir/status_string";
 
         const std::string kRawTrajectory = "/autodrive/local_map/trajectory/raw";
         const std::string kFilteredTrajectory = "/autodrive/local_map/trajectory/filtered";

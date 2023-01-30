@@ -24,11 +24,7 @@
 
 namespace AutoDrive::FailCheck {
 
-    float AbstractFailChecker::getSensorStatus() {
+    SensorStatus AbstractFailChecker::getSensorStatus() {
         return sensorStatus_;
-    }
-
-    std::string AbstractFailChecker::getSensorStatusString() {
-        return sensorStatusString_;
     }
 }

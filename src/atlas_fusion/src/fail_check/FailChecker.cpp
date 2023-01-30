@@ -103,22 +103,12 @@ namespace AutoDrive::FailCheck {
     }
 
 
-    float FailChecker::getSensorStatus(const FrameType &sensor) {
-
+    SensorStatus FailChecker::getSensorStatus(const FrameType &sensor) {
         if (failCheckers_.count(sensor) == 0) {
             context_.logger_.warning("Unable to find fail checker for sensor");
-            return 0;
+            return {};
         }
 
         return failCheckers_[sensor]->getSensorStatus();
-    }
-
-    std::string FailChecker::getSensorStatusString(const FrameType &sensor) {
-        if (failCheckers_.count(sensor) == 0) {
-            context_.logger_.warning("Unable to find fail checker for sensor");
-            return 0;
-        }
-
-        return failCheckers_[sensor]->getSensorStatusString();
     }
 }
