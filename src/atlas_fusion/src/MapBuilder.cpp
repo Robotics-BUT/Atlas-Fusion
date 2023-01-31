@@ -209,13 +209,11 @@ namespace AutoDrive {
     }
 
     void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData, const FrameType &sensorFrame) {
-        std::vector<std::future<void>> futures;
 
         auto egoPosTf = selfModel_.getPosition().toTf().inverted();
-        auto globalCoordinatePc = pointCloudAggregator_.getGlobalCoordinatePointCloud();
-        auto egoCentricPc = pointCloudAggregator_.getEgoCentricPointCloud(egoPosTf);
+        auto egoCentricPc = pointCloudAggregator_.getLatestScanEgoCentric(egoPosTf);
 
-        auto detections3D = depthMap_.onNewCameraData(imgData, pointCloudAggregator_.getSensorPointCloudCutout(egoPosTf, sensorFrame));
+        auto detections3D = depthMap_.onNewCameraData(imgData, pointCloudAggregator_.getLatestScanCutout(egoPosTf, sensorFrame));
         auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
 
         localMap_.setFrustumDetections(frustums, sensorFrame);
@@ -230,7 +228,7 @@ namespace AutoDrive {
         auto lidarObstacles = lidarObjectDetector_.detectObstacles(detectionROI);
         localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
 
-        visualizationHandler_.drawAggregatedPointCloudGlobal(globalCoordinatePc);
+        visualizationHandler_.drawAggregatedPointCloudGlobal(pointCloudAggregator_.getLatestScan());
         visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
         visualizationHandler_.drawLidarDetection(lidarObstacles);
         visualizationHandler_.drawPointcloudCutout(detectionROI);
@@ -262,7 +260,7 @@ namespace AutoDrive {
                         auto originToImuTf = selfModel_.getPosition().toTf();
 
                         auto points2Dand3Dpair = depthMap_.getPointsInCameraFoV(irCameraFrame.getCameraIdentifier(),
-                                                                                pointCloudAggregator_.getSensorPointCloudCutout(egoPosTf, sensorFrame),
+                                                                                pointCloudAggregator_.getLatestScanCutout(egoPosTf, sensorFrame),
                                                                                 irCameraFrame.getImage().cols,
                                                                                 irCameraFrame.getImage().rows, false);
                         auto img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first, points2Dand3Dpair->second, irCameraFrame.getImage().cols,
@@ -290,17 +288,14 @@ namespace AutoDrive {
         }
 
         visualizationHandler_.drawRGBImage(imgData);
-
-        for (auto &future: futures) {
-            future.wait();
-        }
     }
 
     void MapBuilder::processIRCameraData(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &irCameraFrame) {
         auto originToImuTf = selfModel_.getPosition().toTf();
         auto points2Dand3Dpair = depthMap_.getPointsInCameraFoV(
                 irCameraFrame->getCameraIdentifier(),
-                pointCloudAggregator_.getSensorPointCloudCutout(selfModel_.getPosition().toTf().inverted(), frameTypeFromDataModel(irCameraFrame)),
+                pointCloudAggregator_.getLatestScanCutout(originToImuTf.inverted(),
+                                                          frameTypeFromDataModel(irCameraFrame)),
                 irCameraFrame->getImage().cols,
                 irCameraFrame->getImage().rows,
                 false);
@@ -356,16 +351,10 @@ namespace AutoDrive {
     void MapBuilder::processLidarScanData(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
         const auto lidarID = lidarData->getLidarIdentifier();
         if (cache_.getLidarScan(lidarID) != nullptr) {
-            if (Short_Term_Lidar_Aggregation) {
-                aggregateLidar(lidarData);
-            }
+            aggregateLidar(lidarData);
             if (Lidar_Laser_Approx_And_Seg) {
                 approximateLidar(lidarData);
             }
-        }
-
-        if (lidarData->getLidarIdentifier() == DataLoader::LidarIdentifier::kCenterLidar) {
-            std::cout << "Center lidar returned: " << lidarData->getScan()->size() << " points" << std::endl;
         }
 
         visualizationHandler_.drawLidarData(lidarData);
@@ -379,7 +368,8 @@ namespace AutoDrive {
     }
 
     void MapBuilder::aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
-        // Timer t("Aggregate lidar");
+        Timer t("Aggregate lidar");
+
         const auto lidarID = lidarData->getLidarIdentifier();
         const auto sensorFrame = frameTypeFromDataModel(lidarData);
         auto lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);
@@ -389,14 +379,18 @@ namespace AutoDrive {
         auto poseBefore = selfModel_.estimatePositionInTime(lastLidarTimestamp);
         auto poseNow = selfModel_.getPosition();
 
-        auto downsampledScan = pointCloudProcessor_.downsamplePointCloud(lidarData->getScan());
-        auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan, poseBefore, poseNow, lidarTF);
-        pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
-        pointCloudAggregator_.addPointCloudBatches(batches);
+        auto scanBatches = pointCloudExtrapolator_.splitPointCloudToBatches(lidarData->getScan(), poseBefore, poseNow,
+                                                                            lidarTF);
+        pointCloudAggregator_.addLidarScan(lidarData->getLidarIdentifier(), scanBatches);
+
+        if (Short_Term_Lidar_Aggregation) {
+            pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
+            pointCloudAggregator_.addPointCloudBatches(scanBatches);
+        }
 
         if (Global_Lidar_Aggregation) {
-            auto aggregatedPointcloud = pointCloudAggregator_.getGlobalCoordinatePointCloud();
-            globalPointcloudStorage_.addMorePointsToGlobalStorage(aggregatedPointcloud);
+            auto aggregatedPointCloud = pointCloudAggregator_.getGlobalCoordinateAggregatedPointCloud();
+            globalPointcloudStorage_.addMorePointsToGlobalStorage(aggregatedPointCloud);
             visualizationHandler_.drawGlobalPointcloud(globalPointcloudStorage_.getEntirePointcloud());
         }
     }

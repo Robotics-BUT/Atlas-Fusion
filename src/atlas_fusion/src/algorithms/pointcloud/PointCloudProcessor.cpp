@@ -95,7 +95,9 @@ namespace AutoDrive::Algorithms {
             pcl::concatenate(*output, *outputFuture.get(), *output);
         }
 
-        assert(input->points.size() == output->points.size());
+        if(input->size() != output->size()) {
+            throw std::runtime_error("Mismatch during the point cloud transformation!");
+        }
 
         return output;
     }
