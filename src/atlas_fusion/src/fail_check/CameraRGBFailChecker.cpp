@@ -283,33 +283,33 @@ namespace AutoDrive::FailCheck {
         possibleGlare = glaredCount > 10;
         possibleOcclusion = occludedCount > 10;
 
-
+        sensorStatus_.statusVector.clear();
         sensorStatus_.statusString = frameTypeName(frameType_) + " status\n";
-        sensorStatus_.statusMap["vis_sum"] = visibilitySum;
+        sensorStatus_.statusVector.emplace_back(visibilitySum);
         sensorStatus_.statusString += "Vis sum: " + std::to_string(visibilitySum) + "\n";
 
 
         if (frameType_ == FrameType::kCameraLeftFront || frameType_ == FrameType::kCameraRightFront) {
-            sensorStatus_.statusMap["vp_vis"] = vanishingPointVisibility;
+            sensorStatus_.statusVector.emplace_back(vanishingPointVisibility);
             sensorStatus_.statusString += "VP vis: " + std::to_string(vanishingPointVisibility) + "\n";
         }
 
-        sensorStatus_.statusMap["occluded_count"] = occludedCount;
+        sensorStatus_.statusVector.emplace_back(occludedCount);
         sensorStatus_.statusString += "Occluded count: " + std::to_string(occludedCount) + "\n";
 
-        sensorStatus_.statusMap["glared_count"] = glaredCount;
+        sensorStatus_.statusVector.emplace_back(glaredCount);
         sensorStatus_.statusString += "Glared count: " + std::to_string(glaredCount) + "\n";
 
-        sensorStatus_.statusMap["possible_fog"] = possibleFog;
+        sensorStatus_.statusVector.emplace_back(possibleFog);
         sensorStatus_.statusString += "Possible fog: " + std::to_string(possibleFog) + "\n";
 
-        sensorStatus_.statusMap["possible_glare"] = possibleGlare;
+        sensorStatus_.statusVector.emplace_back(possibleGlare);
         sensorStatus_.statusString += "Possible glare: " + std::to_string(possibleGlare) + "\n";
 
-        sensorStatus_.statusMap["possible_occlusion"] = possibleOcclusion;
+        sensorStatus_.statusVector.emplace_back(possibleOcclusion);
         sensorStatus_.statusString += "Possible occlusion: " + std::to_string(possibleOcclusion) + "\n";
 
-        sensorStatus_.statusMap["night_shot"] = nightShot;
+        sensorStatus_.statusVector.emplace_back(nightShot);
         sensorStatus_.statusString += "Night shot: " + std::to_string(nightShot) + "\n";
 
     }

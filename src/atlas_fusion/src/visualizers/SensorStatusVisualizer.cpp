@@ -25,8 +25,7 @@
 
 namespace AutoDrive::Visualizers {
 
-
-    void SensorStatusVisualizer::publishStatusAsText(const FailCheck::SensorStatus &status, const std::string &topic) {
+    void SensorStatusVisualizer::publishStatusAsText(const std::string &status, const std::string &topic) {
         if (textPublishers_.count(topic) == 0) {
             textPublishers_[topic] = node_->create_publisher<rviz_2d_overlay_msgs::msg::OverlayText>(topic, 0);
         }
@@ -46,9 +45,13 @@ namespace AutoDrive::Visualizers {
         textMsg.line_width = 2;
         textMsg.font = "DejaVu Sans Mono";
         textMsg.fg_color = color;
-        textMsg.text = status.statusString;
+        textMsg.text = status;
 
         textPublishers_[topic]->publish(textMsg);
+    }
+
+    void SensorStatusVisualizer::publishStatusAsText(const FailCheck::SensorStatus &status, const std::string &topic) {
+        publishStatusAsText(status.statusString, topic);
     }
 
     void SensorStatusVisualizer::publishStatusAsList(const FailCheck::SensorStatus &status, const std::string &topic) {
@@ -58,8 +61,8 @@ namespace AutoDrive::Visualizers {
 
         std_msgs::msg::Float32MultiArray array_msg;
 
-        for(const auto& s : status.statusMap) {
-            array_msg.data.push_back(s.second);
+        for(const auto& s : status.statusVector) {
+            array_msg.data.push_back(s);
         }
 
         listPublishers_[topic]->publish(array_msg);

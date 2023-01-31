@@ -46,6 +46,7 @@ namespace AutoDrive::Visualizers {
         SensorStatusVisualizer(rclcpp::Node::SharedPtr &node, Context &context) : node_{node}, context_{context} {}
 
         void publishStatusAsText(const FailCheck::SensorStatus &status, const std::string &topic);
+        void publishStatusAsText(const std::string &status, const std::string &topic);
 
         void publishStatusAsList(const FailCheck::SensorStatus &status, const std::string &topic);
 

@@ -3,7 +3,7 @@ logger:
   log_ext: "log"
   log_lvl: 1
 
-data_folder: "/home/standa/Desktop/BUD/3_1_1_2/"
+data_folder: "/home/standa/Desktop/BUD/3_1_1_1/"
 calibrations_folder: "/home/standa/Desktop/Projekty/Atlas-Fusion/src/atlas_fusion/calibrations/"
 
 map_builder:
@@ -15,7 +15,7 @@ laser_aggregator:
   points_per_laser: 50000
 
 lidar_aggregator:
-  leaf_size: 0.2
+  leaf_size: 0.15
   global_leaf_size: 1.0
   no_of_batches_per_scan: 100
   aggregation_time: 0.25
@@ -41,7 +41,7 @@ laser_segmenter:
 functionalities:
   generate_depth_map_for_ir: true
   rgb_to_ir_detection_projection: true
-  short_term_lidar_aggregation: true
+  short_term_lidar_aggregation: false
   lidar_laser_approximations_and_segmentation: false
   global_lidar_aggregation: false
 

@@ -228,7 +228,7 @@ namespace AutoDrive::Visualizers {
 
     void VisualizationHandler::drawTelemetry(const std::string &telemetryText) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
-        //sensorStatusVisualizer_.publishStatusAsText(telemetryText, Topics::kTelemetryText);
+        sensorStatusVisualizer_.publishStatusAsText(telemetryText, Topics::kTelemetryText);
     }
 
     void VisualizationHandler::drawRadarTiObjects(const std::vector<DataModels::RadarTiDataModel::Object> &objects) {
@@ -289,7 +289,7 @@ namespace AutoDrive::Visualizers {
     }
 
     void VisualizationHandler::drawEnvironmentalStatus(const std::string &environmentalStatus) {
-        //sensorStatusVisualizer_.publishStatusAsText(environmentalStatus, Topics::kEnvironmentalModel);
+        sensorStatusVisualizer_.publishStatusAsText(environmentalStatus, Topics::kEnvironmentalModel);
     }
 
     visualization_msgs::msg::Marker VisualizationHandler::getSelfEgoCube() const {

@@ -29,7 +29,7 @@
 namespace AutoDrive::FailCheck {
 
     struct SensorStatus {
-        std::map<std::string, float> statusMap;
+        std::vector<float> statusVector;
         float status;
         std::string statusString;
     };

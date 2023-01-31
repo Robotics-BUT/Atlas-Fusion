@@ -50,19 +50,21 @@ namespace AutoDrive::FailCheck {
             environmentalModel_.setIsWetRoad(isWetRoad_);
         }
 
+        sensorStatus_.statusVector.clear();
+
         sensorStatus_.statusString = frameTypeName(frameType_) + "\n";
 
-        sensorStatus_.statusMap["scan_points"] = pointCount_;
+        sensorStatus_.statusVector.emplace_back(pointCount_);
         sensorStatus_.statusString += "Scan points: " + std::to_string(pointCount_) + "\n";
 
-        sensorStatus_.statusMap["range"] = range_;
+        sensorStatus_.statusVector.emplace_back(range_);
         sensorStatus_.statusString += "Range: " + std::to_string(range_) + + " m" " \n";
 
         if (frameType_ == FrameType::kLidarCenter) {
-            sensorStatus_.statusMap["roi_points"] = roiPointCount_;
+            sensorStatus_.statusVector.emplace_back(roiPointCount_);
             sensorStatus_.statusString += "ROI points: " + std::to_string(roiPointCount_) + "\n";
 
-            sensorStatus_.statusMap["possible_wet_road"] = isWetRoad_;
+            sensorStatus_.statusVector.emplace_back(isWetRoad_);
             sensorStatus_.statusString += "Possible wet road: " + std::to_string(isWetRoad_) + "\n";
         }
     }
