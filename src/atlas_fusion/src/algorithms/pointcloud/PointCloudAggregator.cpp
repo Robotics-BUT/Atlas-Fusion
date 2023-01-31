@@ -32,8 +32,9 @@ namespace AutoDrive::Algorithms {
         size_t noOfPoints = aggregatedPoints_->size();
         for (const auto &batch: batches) {
             batchInfo_.emplace_back(batch->getTimestamp(), batch->getPointsSize());
-            pointsToAdd += batch->getPointsSize();
-            pcl::concatenate(*aggregatedPoints_, *batch->getPointsInGlobalCoordinates(), *aggregatedPoints_);
+            auto pc = batch->getPointsInGlobalCoordinates();
+            pointsToAdd += pc->width;
+            pcl::concatenate(*aggregatedPoints_, *pc, *aggregatedPoints_);
         }
         egoPointsValid_ = false;
         downsampledPointsValid_ = false;

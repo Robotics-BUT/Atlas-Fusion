@@ -21,10 +21,18 @@
  */
 
 #include "fail_check/CameraIrFailChecker.h"
+#include "util/IdentifierToFrameConversions.h"
 
 namespace AutoDrive::FailCheck {
 
-    void CameraIrFailChecker::onNewData(std::shared_ptr<DataModels::CameraIrFrameDataModel> /*data*/) {
-        return;
+    void CameraIrFailChecker::onNewData(const std::shared_ptr<DataModels::CameraIrFrameDataModel>& data) {
+        minTemp = data->getTemp().first;
+        maxTemp = data->getTemp().second;
+
+        sensorStatus_.statusString = frameTypeName(frameTypeFromIdentifier(data->getCameraIdentifier())) + " status\n";
+        sensorStatus_.statusVector.emplace_back(minTemp);
+        sensorStatus_.statusString += "Min temp: " + std::to_string(minTemp) + "\n";
+        sensorStatus_.statusVector.emplace_back(maxTemp);
+        sensorStatus_.statusString += "Max temp: " + std::to_string(maxTemp) + "\n";
     }
 }

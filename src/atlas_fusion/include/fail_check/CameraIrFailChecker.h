@@ -49,10 +49,10 @@ namespace AutoDrive::FailCheck {
          * Pipe to provide new sensor data into the Camera RGB Fail Checker
          * @param data IR camera data frame
          */
-        void onNewData(std::shared_ptr<DataModels::CameraIrFrameDataModel> data);
+        void onNewData(const std::shared_ptr<DataModels::CameraIrFrameDataModel>& data);
 
     private:
-
+        double minTemp = .0f, maxTemp = .0f;
     };
 }
 
