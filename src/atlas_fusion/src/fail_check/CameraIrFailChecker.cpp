@@ -29,10 +29,21 @@ namespace AutoDrive::FailCheck {
         minTemp = data->getTemp().first;
         maxTemp = data->getTemp().second;
 
+        // Road temp measurement
+        auto roi = data->getImage();
+        roi = roi(cv::Rect(280, 430, 60, 30));
+        meanRoadROITemp = 0.995 * meanRoadROITemp + 0.005 * ((maxTemp - minTemp) * (cv::mean(roi).val[0] / 255.0f) + minTemp);
+        environmentalModel_.onTemperature(meanRoadROITemp);
+
+        sensorStatus_.statusVector.clear();
         sensorStatus_.statusString = frameTypeName(frameTypeFromIdentifier(data->getCameraIdentifier())) + " status\n";
         sensorStatus_.statusVector.emplace_back(minTemp);
         sensorStatus_.statusString += "Min temp: " + std::to_string(minTemp) + "\n";
         sensorStatus_.statusVector.emplace_back(maxTemp);
         sensorStatus_.statusString += "Max temp: " + std::to_string(maxTemp) + "\n";
+        sensorStatus_.statusVector.emplace_back(maxTemp - minTemp);
+        sensorStatus_.statusString += "Temp range: " + std::to_string(maxTemp - minTemp) + "\n";
+        sensorStatus_.statusVector.emplace_back(meanRoadROITemp);
+        sensorStatus_.statusString += "Road ROI temp: " + std::to_string(meanRoadROITemp) + "\n";
     }
 }

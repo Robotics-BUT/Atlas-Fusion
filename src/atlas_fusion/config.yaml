@@ -15,10 +15,10 @@ laser_aggregator:
   points_per_laser: 50000
 
 lidar_aggregator:
-  leaf_size: 0.15
+  leaf_size: 0.12
   global_leaf_size: 1.0
   no_of_batches_per_scan: 100
-  aggregation_time: 0.25
+  aggregation_time: 0.15
 
 self_model:
   kalman_process_noise: 1.0
@@ -41,7 +41,7 @@ laser_segmenter:
 functionalities:
   generate_depth_map_for_ir: true
   rgb_to_ir_detection_projection: true
-  short_term_lidar_aggregation: false
+  short_term_lidar_aggregation: true
   lidar_laser_approximations_and_segmentation: false
   global_lidar_aggregation: false
 

@@ -53,6 +53,7 @@ namespace AutoDrive::FailCheck {
 
     private:
         double minTemp = .0f, maxTemp = .0f;
+        double meanRoadROITemp = .0f;
     };
 }
 

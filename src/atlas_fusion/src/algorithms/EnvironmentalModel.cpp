@@ -61,8 +61,8 @@ namespace AutoDrive::Algorithms {
         pressure_ = double(pressure->getPressure());
     }
 
-    void EnvironmentalModel::onTemperature(const std::shared_ptr<DataModels::ImuTempDataModel>& tempData) {
-        temperature_ = tempData->getTemperature();
+    void EnvironmentalModel::onTemperature(const float& temp) {
+        temperature_ = temp;
     }
 
     bool EnvironmentalModel::getIsSkyOccluded() {
@@ -94,10 +94,10 @@ namespace AutoDrive::Algorithms {
         statusStr += "Sunrise: " + std::to_string(sunrise_) + "\n";
         statusStr += "Sunset: " + std::to_string(sunset_) + "\n";
         statusStr += "Pressure: " + std::to_string(pressure_) + "\n";
-        statusStr += "Temperature: " + std::to_string(temperature_) + "\n";
-        statusStr += "is Daylight: " + std::string(isDaylight_ ? "true" : "false") + "\n";
-        statusStr += "is Wet road: " + std::string(isWetRoad_ ? "true" : "false") + "\n";
-        statusStr += "is Sky occluded: " + std::string(isSkyOccluded_ ? "true" : "false") + "\n";
+        statusStr += "Road Temperature: " + std::to_string(temperature_) + "\n";
+        statusStr += "Wet road: " + std::string(isWetRoad_ ? "true" : "false") + "\n";
+        statusStr += "Daylight: " + std::string(isDaylight_ ? "true" : "false") + "\n";
+        statusStr += "Sky occluded: " + std::string(isSkyOccluded_ ? "true" : "false") + "\n";
 
         return statusStr;
     }

@@ -35,11 +35,14 @@ namespace AutoDrive::FailCheck {
         if (frameType_ == FrameType::kLidarCenter) {
             auto road = pointCloudProcessor_.getPointCloudCutout(scan, {{0.0f, -2.0f, -0.75f}, {15.0f, 2.0f, -2.0f}});
             roiPointCount_ = road->size();
+
+            auto backscatter = pointCloudProcessor_.getPointCloudCutout(scan, {{0.0f, -3.0f, -0.5f}, {5.0f, 3.0f, 2.0f}});
+            backscatterPointCount_ = backscatter->size();
         }
 
         pointCloudProcessor_.sortPointCloudByDistance(scan, false);
         auto &p = scan->front();
-        range_ = range_ * 0.99 + 0.01 *std::sqrt(std::pow(p.x, 2) + std::pow(p.y, 2) + std::pow(p.z, 2));
+        range_ = range_ * 0.99 + 0.01 * std::sqrt(std::pow(p.x, 2) + std::pow(p.y, 2) + std::pow(p.z, 2));
 
         evaluatePerformance();
     }
@@ -66,6 +69,9 @@ namespace AutoDrive::FailCheck {
 
             sensorStatus_.statusVector.emplace_back(isWetRoad_);
             sensorStatus_.statusString += "Possible wet road: " + std::to_string(isWetRoad_) + "\n";
+
+            sensorStatus_.statusVector.emplace_back(backscatterPointCount_);
+            sensorStatus_.statusString += "Backscatter points: " + std::to_string(backscatterPointCount_) + "\n";
         }
     }
 }

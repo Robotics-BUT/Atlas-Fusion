@@ -65,7 +65,7 @@ namespace AutoDrive::Algorithms {
 
         void onPressure(const std::shared_ptr<DataModels::ImuPressureDataModel>& pressure);
 
-        void onTemperature(const std::shared_ptr<DataModels::ImuTempDataModel>& tempData);
+        void onTemperature(const float& temp);
 
         void calculateSunriseAndSunsetTimes();
 

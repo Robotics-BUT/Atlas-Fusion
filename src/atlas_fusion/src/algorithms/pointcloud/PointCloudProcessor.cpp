@@ -45,7 +45,7 @@ namespace AutoDrive::Algorithms {
         Timer t("Transform point cloud");
         pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>);
         if (input->points.empty()) return output;
-        output->reserve(input->size());
+        output->reserve(input->points.size());
 
         auto threads = context_.threadPool_.get_thread_count();
         std::vector<std::future<pcl::PointCloud<pcl::PointXYZ>::Ptr>> outputFutures;

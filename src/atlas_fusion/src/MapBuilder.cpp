@@ -183,13 +183,7 @@ namespace AutoDrive {
                     environmentalModel_.onPressure(pressureData);
                     break;
                 }
-                case DataModels::DataModelTypes::kImuTempDataModelType: {
-                    //Timer t("Temperature ...");
-
-                    const auto tempData = std::dynamic_pointer_cast<DataModels::ImuTempDataModel>(data);
-                    environmentalModel_.onTemperature(tempData);
-                    break;
-                }
+                case DataModels::DataModelTypes::kImuTempDataModelType:
                 case DataModels::DataModelTypes::kCameraCalibrationParamsDataModelType:
                 case DataModels::DataModelTypes::kImuMagDataModelType:
                 case DataModels::DataModelTypes::kImuTimeDataModelType:
@@ -227,16 +221,18 @@ namespace AutoDrive {
         localMap_.setFrustumDetections(frustums, sensorFrame);
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
 
-        auto detectionROI = pointCloudProcessor_.getPointCloudCutout(egoCentricPc, {{-40.f, -3.f, -.75f},
-                                                                                    {40.f,  10.f,  5.f}});
-        environmentalModel_.onDetectionROI(detectionROI);
+        auto roi = pointCloudProcessor_.getPointCloudCutout(egoCentricPc, {{-40.f, -5.f, -.95f},
+                                                                                    {40.f,  12.f,  10.f}});
+        environmentalModel_.onDetectionROI(roi);
+
+        auto detectionROI = pointCloudProcessor_.getPointCloudCutout(roi, {{-40.f, -5.f, -.95f}, {40.f,  12.f,  1.2f}});
 
         auto lidarObstacles = lidarObjectDetector_.detectObstacles(detectionROI);
         localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
 
         visualizationHandler_.drawAggregatedPointCloudGlobal(globalCoordinatePc);
         visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
-        // visualizationHandler_.drawLidarDetection(lidarObstacles);
+        visualizationHandler_.drawLidarDetection(lidarObstacles);
         visualizationHandler_.drawPointcloudCutout(detectionROI);
         visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
 
