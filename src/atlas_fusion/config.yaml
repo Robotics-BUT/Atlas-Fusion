@@ -39,9 +39,9 @@ laser_segmenter:
   segmenter_scaling: 0.01
 
 functionalities:
-  generate_depth_map_for_ir: true
-  rgb_to_ir_detection_projection: true
-  short_term_lidar_aggregation: true
+  generate_depth_map_for_ir: false
+  rgb_to_ir_detection_projection: false
+  short_term_lidar_aggregation: false
   lidar_laser_approximations_and_segmentation: false
   global_lidar_aggregation: false
 

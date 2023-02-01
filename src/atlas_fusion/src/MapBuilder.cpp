@@ -224,14 +224,15 @@ namespace AutoDrive {
         environmentalModel_.onDetectionROI(roi);
 
         auto detectionROI = pointCloudProcessor_.getPointCloudCutout(roi, {{-40.f, -5.f, -.95f}, {40.f,  12.f,  1.2f}});
+        auto detectionROIDownsampled = pointCloudProcessor_.downsamplePointCloud(detectionROI);
 
-        auto lidarObstacles = lidarObjectDetector_.detectObstacles(detectionROI);
+        auto lidarObstacles = lidarObjectDetector_.detectObstacles(detectionROIDownsampled);
         localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
 
         visualizationHandler_.drawAggregatedPointCloudGlobal(pointCloudAggregator_.getLatestScan());
         visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
         visualizationHandler_.drawLidarDetection(lidarObstacles);
-        visualizationHandler_.drawPointcloudCutout(detectionROI);
+        visualizationHandler_.drawPointcloudCutout(detectionROIDownsampled);
         visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
 
 
@@ -363,8 +364,7 @@ namespace AutoDrive {
     }
 
     void MapBuilder::processRadarTiData(const std::shared_ptr<DataModels::RadarTiDataModel> &data) {
-        const auto radarData = std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data);
-        visualizationHandler_.drawRadarTiObjects(radarData->getObjects());
+        visualizationHandler_.drawRadarTiObjects(data->getObjects());
     }
 
     void MapBuilder::aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {

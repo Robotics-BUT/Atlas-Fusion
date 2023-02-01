@@ -163,8 +163,7 @@ namespace AutoDrive::Algorithms {
     }
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr
-    PointCloudAggregator::getPointCloudFromBatches(
-            const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &batches) {
+    PointCloudAggregator::getPointCloudFromBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &batches) {
         pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
 
         uint32_t totalPoints = 0;
@@ -175,7 +174,7 @@ namespace AutoDrive::Algorithms {
             pcl::concatenate(*pc, *batchPc, *pc);
         }
 
-        if(totalPoints != pc->size()) {
+        if (totalPoints != pc->size()) {
             throw std::runtime_error("Mismatch during batches to point cloud conversion!");
         }
 

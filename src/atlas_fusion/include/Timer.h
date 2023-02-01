@@ -29,7 +29,7 @@ struct Timer {
     std::string _name;
     float _minTime;
 
-    explicit Timer(std::string name,  float minTime = 1, float *timerValue = nullptr) : _name(std::move(name)), _minTime(minTime), _timerValue(timerValue)  {}
+    explicit Timer(std::string name, float minTime = 1, float *timerValue = nullptr) : _name(std::move(name)), _minTime(minTime), _timerValue(timerValue) {}
 
     ~Timer() {
         _end = std::chrono::steady_clock::now();

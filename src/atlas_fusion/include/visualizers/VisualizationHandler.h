@@ -112,13 +112,13 @@ namespace AutoDrive::Visualizers {
          *
          * @param ls
          */
-        void drawLidarApproximations(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls);
+        void drawLidarApproximations(const std::shared_ptr<std::vector<rtl::LineSegment3D<double>>>& ls);
 
         /**
          *
          * @param ls
          */
-        void drawLidarApproximationsRoad(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls);
+        void drawLidarApproximationsRoad(const std::shared_ptr<std::vector<rtl::LineSegment3D<double>>>& ls);
 
 
         /**
@@ -254,8 +254,8 @@ namespace AutoDrive::Visualizers {
 
         SensorStatusVisualizer sensorStatusVisualizer_;
 
-        [[nodiscard]] visualization_msgs::msg::Marker getSelfEgoCube() const;
-        [[nodiscard]] visualization_msgs::msg::Marker getSelfGlobalCube() const;
+        [[nodiscard]] static visualization_msgs::msg::Marker getSelfEgoCube() ;
+        [[nodiscard]] static visualization_msgs::msg::Marker getSelfGlobalCube() ;
     };
 
 }
