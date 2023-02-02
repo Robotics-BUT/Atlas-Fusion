@@ -96,8 +96,7 @@ namespace AutoDrive::Algorithms {
 
         std::string f = frameTypeName(frame);
         if (latestScanCutouts_.count(f) == 0) {
-            latestScanCutouts_[f] = pointCloudProcessor_.getPointCloudCutoutForFrame(latestScanPoints_,
-                                                                                     frame);
+            latestScanCutouts_[f] = pointCloudProcessor_.getPointCloudCutoutForFrame(latestScanEgoPoints_, frame);
         }
 
         return latestScanCutouts_[f];
@@ -106,7 +105,8 @@ namespace AutoDrive::Algorithms {
 
     /** Short term aggregation section */
 
-    void PointCloudAggregator::addPointCloudBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &batches) {
+    void PointCloudAggregator::addPointCloudBatches(
+            const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &batches) {
         Timer t("Add lidar batches");
 
         auto downsampledBatches = std::vector<std::shared_ptr<DataModels::PointCloudBatch>>();
@@ -163,7 +163,8 @@ namespace AutoDrive::Algorithms {
     }
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr
-    PointCloudAggregator::getPointCloudFromBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &batches) {
+    PointCloudAggregator::getPointCloudFromBatches(
+            const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &batches) {
         pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
 
         uint32_t totalPoints = 0;

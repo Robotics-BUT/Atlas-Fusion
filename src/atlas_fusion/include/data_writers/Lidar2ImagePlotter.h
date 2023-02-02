@@ -85,7 +85,7 @@ namespace AutoDrive::DataWriters {
         std::string destFolder_;
 
         uint8_t distanceToColor(float dist);
-        float pointLenght(cv::Point3f&);
+        float pointLength(cv::Point3f&);
 
 
     };

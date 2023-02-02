@@ -131,7 +131,7 @@ namespace AutoDrive::Visualizers {
             marker.scale.y = dy;
             marker.scale.z = dz;
 
-            marker.color.a = 0.1;
+            marker.color.a = 0.5;
             marker.color.r = 0.7;
             marker.color.g = 0.7;
             marker.color.b = 0.7;
