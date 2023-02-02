@@ -71,6 +71,12 @@ namespace AutoDrive::LocalMap {
         std::vector<DataModels::FrustumDetection> getFrustumDetections();
 
         /**
+        * Getter for all camera based detections
+        * @return camera based frustum detections
+        */
+        std::vector<DataModels::FrustumDetection> getFusedFrustumDetections();
+
+        /**
          * Getter for all lidar based detections
          * @return point cloud based lidar detections
          */
@@ -91,11 +97,11 @@ namespace AutoDrive::LocalMap {
     private:
         Context &context_;
 
-        float getFrustumVolumeIntersection(const std::shared_ptr<rtl::Frustum3D<double> const> &a,
-                                           const std::shared_ptr<rtl::Frustum3D<double> const> &b);
+        static double getBoundingBoxVolume(const rtl::Frustum3D<double> &a);
+        static double getBoundingBoxVolumeIntersection(const rtl::Frustum3D<double> &a, const rtl::Frustum3D<double> &b);
 
         std::map<FrameType, std::vector<DataModels::FrustumDetection>> frustumsDetections_{};
-        std::map<DataModels::FrustumDetection, std::vector<FrameType>> fusedFrustumDetections_{};
+        std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> fusedFrustumDetections_{};
 
         std::vector<std::shared_ptr<DataModels::LidarDetection>> lidarDetections_;
         std::vector<std::shared_ptr<DataModels::Object>> objects_;

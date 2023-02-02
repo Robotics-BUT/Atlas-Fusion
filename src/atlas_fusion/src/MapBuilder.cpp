@@ -103,7 +103,7 @@ namespace AutoDrive {
             }
 
             auto sensorFrame = frameTypeFromDataModel(data);
-            failChecker_.onNewData(data, sensorFrame);
+            //failChecker_.onNewData(data, sensorFrame);
             auto sensorScore = failChecker_.getSensorStatus(sensorFrame).status;
 
             if (sensorScore < 0.9) {
@@ -218,12 +218,12 @@ namespace AutoDrive {
         auto egoCentricPc = pointCloudAggregator_.getLatestScanEgoCentric(egoPosTf);
 
         // Create 3D Detection frustums from YOLO detections
-        auto detections3D = depthMap_.onNewCameraData(imgData,
-                                                      pointCloudAggregator_.getLatestScanCutout(egoPosTf, sensorFrame));
+        auto detections3D = depthMap_.onNewCameraData(imgData, pointCloudAggregator_.getLatestScanCutout(egoPosTf, sensorFrame));
         auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
 
         localMap_.setFrustumDetections(frustums, sensorFrame);
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
+        visualizationHandler_.drawFusedFrustumDetections(localMap_.getFusedFrustumDetections());
 
         auto roi = pointCloudProcessor_.getPointCloudCutout(egoCentricPc, {{-40.f, -5.f, -.95f},
                                                                            {40.f,  12.f, 10.f}});
@@ -395,8 +395,7 @@ namespace AutoDrive {
         auto poseBefore = selfModel_.estimatePositionInTime(lastLidarTimestamp);
         auto poseNow = selfModel_.getPosition();
 
-        auto scanBatches = pointCloudExtrapolator_.splitPointCloudToBatches(lidarData->getScan(), poseBefore, poseNow,
-                                                                            lidarTF);
+        auto scanBatches = pointCloudExtrapolator_.splitPointCloudToBatches(lidarData->getScan(), poseBefore, poseNow, lidarTF);
         pointCloudAggregator_.addLidarScan(lidarData->getLidarIdentifier(), scanBatches);
 
         if (Short_Term_Lidar_Aggregation) {

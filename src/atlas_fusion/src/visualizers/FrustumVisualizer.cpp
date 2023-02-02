@@ -33,7 +33,46 @@ namespace AutoDrive::Visualizers {
 
         size_t cnt = 0;
         for(const auto& detection : detections) {
+            // Frustum
+            visualization_msgs::msg::Marker marker;
+            marker.header.frame_id = frameTypeName(FrameType::kImu);
+            marker.header.stamp = time;
+            marker.id = cnt++;
+            marker.type = visualization_msgs::msg::Marker::LINE_LIST;
+            marker.action = visualization_msgs::msg::Marker::ADD;
 
+            marker.points = frustumToGeometryPointVector(detection.getFrustum());
+
+            marker.scale.x = 0.1;
+            marker.scale.y = 0.1;
+            marker.scale.z = 0.1;
+            marker.color = getColorByClass(detection.getClass());
+            marker.color.a = 0.2;
+            msg.markers.push_back(marker);
+        }
+
+        for(size_t i = cnt ; i < maxMarkerNo; i++) {
+            visualization_msgs::msg::Marker marker;
+            marker.id = i;
+            marker.header.frame_id = frameTypeName(FrameType::kImu);
+            marker.header.stamp = time;
+            marker.type = visualization_msgs::msg::Marker::LINE_LIST;
+            marker.action = visualization_msgs::msg::Marker::ADD;
+            marker.color.a = 0.0;
+            msg.markers.push_back(marker);
+        }
+        frustumPublisher_->publish(msg);
+        maxMarkerNo = std::max(maxMarkerNo, cnt);
+    }
+
+    void FrustumVisualizer::visualizeFusedFrustumDetections(const std::vector<DataModels::FrustumDetection>& detections) {
+
+        static size_t maxMarkerNo = 0;
+        visualization_msgs::msg::MarkerArray msg;
+        auto time = rclcpp::Time();
+
+        size_t cnt = 0;
+        for(const auto& detection : detections) {
             // Frustum
             visualization_msgs::msg::Marker marker;
             marker.header.frame_id = frameTypeName(FrameType::kImu);
@@ -49,23 +88,6 @@ namespace AutoDrive::Visualizers {
             marker.scale.z = 0.1;
             marker.color = getColorByClass(detection.getClass());
             msg.markers.push_back(marker);
-
-            // Frustum Axis
-//            visualization_msgs::Marker frustumAxis;
-//            frustumAxis.header.frame_id = LocalMap::Frames::kImuFrame;
-//            frustumAxis.header.stamp = time;
-//            frustumAxis.id = cnt++;
-//            frustumAxis.type = visualization_msgs::Marker::LINE_LIST;
-//            frustumAxis.action = visualization_msgs::Marker::ADD;
-//
-//            frustumAxis.points = frustumToAxis(detection->getFrustum());
-//
-//            frustumAxis.scale.x = 0.05;
-//            frustumAxis.scale.y = 0.05;
-//            frustumAxis.scale.z = 0.05;
-//
-//            frustumAxis.color = getColorByClass(detection->getClass());
-//            msg.markers.push_back(frustumAxis);
         }
 
         for(size_t i = cnt ; i < maxMarkerNo; i++) {
@@ -78,7 +100,7 @@ namespace AutoDrive::Visualizers {
             marker.color.a = 0.0;
             msg.markers.push_back(marker);
         }
-        frustumPublisher_->publish(msg);
+        fusedFrustumPublisher_->publish(msg);
         maxMarkerNo = std::max(maxMarkerNo, cnt);
     }
 
@@ -140,24 +162,6 @@ namespace AutoDrive::Visualizers {
                 nbl, fbl,
                 nbr, fbr};
     }
-
-
-    std::vector<geometry_msgs::msg::Point> FrustumVisualizer::frustumToAxis(const std::shared_ptr<const rtl::Frustum3D<double>>& f) {
-
-        geometry_msgs::msg::Point origin;
-        geometry_msgs::msg::Point middle;
-
-        origin.x = f->getOrigin().x();
-        origin.y = f->getOrigin().y();
-        origin.z = f->getOrigin().z();
-
-        middle.x = f->getNearMidPoint().x();
-        middle.y = f->getNearMidPoint().y();
-        middle.z = f->getNearMidPoint().z();
-
-        return {origin, middle};
-    }
-
 
     std_msgs::msg::ColorRGBA FrustumVisualizer::getColorByClass(DataModels::YoloDetectionClass cls) {
         std_msgs::msg::ColorRGBA output;

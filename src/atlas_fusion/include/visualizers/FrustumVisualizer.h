@@ -47,10 +47,13 @@ namespace AutoDrive::Visualizers {
         , context_{context} {
 
             frustumPublisher_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>( Topics::kYoloFrustumDetections, 0 );
+            fusedFrustumPublisher_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>( Topics::kYoloFusedFrustumDetections, 0 );
         }
 
 
         void visualizeFrustumDetections(const std::vector<DataModels::FrustumDetection>& detections);
+
+        void visualizeFusedFrustumDetections(const std::vector<DataModels::FrustumDetection>& detections);
 
     private:
 
@@ -58,9 +61,9 @@ namespace AutoDrive::Visualizers {
         Context& context_;
 
         rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr frustumPublisher_;
+        rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr fusedFrustumPublisher_;
 
-        std::vector<geometry_msgs::msg::Point> frustumToGeometryPointVector(const std::shared_ptr<const rtl::Frustum3D<double>>& f);
-        std::vector<geometry_msgs::msg::Point> frustumToAxis(const std::shared_ptr<const rtl::Frustum3D<double>>& f);
+        static std::vector<geometry_msgs::msg::Point> frustumToGeometryPointVector(const std::shared_ptr<const rtl::Frustum3D<double>>& f);
 
         std_msgs::msg::ColorRGBA getColorByClass(DataModels::YoloDetectionClass);
     };

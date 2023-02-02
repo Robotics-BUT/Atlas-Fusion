@@ -60,7 +60,7 @@ namespace AutoDrive::DataModels {
 
         /**
          * inner camera getter
-         * @return camera's timestam
+         * @return camera's timestamp
          */
         [[nodiscard]]uint64_t getInnerCameraTimestamp() const { return innerCameraTimestamp_; };
 

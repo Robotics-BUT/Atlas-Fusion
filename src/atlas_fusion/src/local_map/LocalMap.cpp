@@ -25,21 +25,52 @@
 namespace AutoDrive::LocalMap {
 
 
-    void LocalMap::setFrustumDetections(const std::vector<DataModels::FrustumDetection> &detections,
-                                        const FrameType &sensorFrame) {
+    void LocalMap::setFrustumDetections(const std::vector<DataModels::FrustumDetection> &detections, const FrameType &sensorFrame) {
         frustumsDetections_[sensorFrame] = detections;
 
-        for (auto newDetection: detections) {
-            if(fusedFrustumDetections_.empty()) {
-                fusedFrustumDetections_[newDetection] = {};
-            }
-            for (auto &prevDetection: fusedFrustumDetections_) {
-                const auto &a = newDetection.getFrustum().;
-                const auto &b = prevDetection.first.getFrustum();
+        // Keep track of the initial detections size and detections seen in this frame
+        auto prevSize = int32_t(fusedFrustumDetections_.size());
+        std::vector<bool> seenDetections(prevSize, false);
 
-                double intersection = getFrustumVolumeIntersection(a, b);
-                if(intersection > 0.9)
-                auto d = 1;
+        // For every new incoming detection
+        for (const auto &newDet: detections) {
+            // Get its volume and iterate through all existing detections
+            double volA = getBoundingBoxVolume(*newDet.getFrustum());
+            uint32_t i = 0;
+            for (const auto &det: fusedFrustumDetections_) {
+                // Check if the mid points are closer than a threshold and update the detection if so
+                auto midA = newDet.getFrustum()->getNearMidPoint();
+                auto midB = det.first.getFrustum()->getNearMidPoint();
+
+                double dist = std::sqrt(std::pow(midA.x() - midB.x(), 2) + std::pow(midA.y() - midB.y(), 2) + std::pow(midA.z() - midB.z(), 2));
+                if (dist < 1.5 && (newDet.getClass() == det.first.getClass())) {
+                    //std::cout << "Detection already present!" << std::endl;
+                    fusedFrustumDetections_.at(i).first = newDet;
+                    fusedFrustumDetections_.at(i).second.insert(sensorFrame);
+                    seenDetections.at(i) = true;
+                    break;
+                }
+                i++;
+            }
+
+            // If the new detection hasn't been matched to anything, add it at the end of the list
+            if (i == fusedFrustumDetections_.size()) {
+                std::set<FrameType> set;
+                set.insert(sensorFrame);
+                fusedFrustumDetections_.emplace_back(newDet, set);
+                seenDetections.emplace_back(true);
+            }
+        }
+
+        // Iterate over all old detections in reverse and find those that hasn't been seen by this sensor
+        // In that case remove this sensor from sensor list and if it ends up empty, remove the whole detection
+        for (int32_t j = prevSize - 1; j >= 0; --j) {
+            if(!seenDetections.at(j)) {
+                auto &det = fusedFrustumDetections_.at(j);
+                det.second.erase(sensorFrame);
+                if (det.second.empty()) {
+                    fusedFrustumDetections_.erase(fusedFrustumDetections_.begin() + j);
+                }
             }
         }
     }
@@ -72,6 +103,14 @@ namespace AutoDrive::LocalMap {
         return output;
     }
 
+    std::vector<DataModels::FrustumDetection> LocalMap::getFusedFrustumDetections() {
+        std::vector<DataModels::FrustumDetection> output;
+        for (auto &frustumsDetection: fusedFrustumDetections_) {
+            output.push_back(frustumsDetection.first);
+        }
+        return output;
+    }
+
 
     std::vector<std::shared_ptr<DataModels::LidarDetection>> LocalMap::getLidarDetections() {
         return lidarDetections_;
@@ -82,15 +121,19 @@ namespace AutoDrive::LocalMap {
         return objects_;
     }
 
+    double LocalMap::getBoundingBoxVolume(const rtl::Frustum3D<double> &a) {
+        return (std::abs(a.getNearBottomLeft().x() - a.getNearBottomRight().x())) * (std::abs(a.getFarBottomLeft().y() - a.getNearBottomLeft().y())) *
+               (std::abs(a.getNearTopLeft().z() - a.getNearBottomLeft().z()));
+    }
 
-    float LocalMap::getFrustumVolumeIntersection(const std::shared_ptr<rtl::Frustum3D<double> const> &a,
-                                                 const std::shared_ptr<rtl::Frustum3D<double> const> &b) {
-        double x_min = std::max(a->getNearBottomLeft().x(), b->getNearBottomLeft().x());
-        double y_min = std::max(a->getNearBottomRight().y(), b->getNearBottomRight().y());
-        double z_min = std::max(a->getNearBottomLeft().z(), b->getNearBottomLeft().z());
-        double x_max = std::min(a->getFarBottomLeft().x(), b->getFarBottomLeft().x());
-        double y_max = std::min(a->getNearBottomLeft().y(), b->getNearBottomLeft().y());
-        double z_max = std::min(a->getNearTopLeft().z(), b->getNearTopLeft().z());
+    double LocalMap::getBoundingBoxVolumeIntersection(const rtl::Frustum3D<double> &a,
+                                                      const rtl::Frustum3D<double> &b) {
+        double x_min = std::max(a.getNearBottomLeft().x(), b.getNearBottomLeft().x());
+        double y_min = std::max(a.getNearBottomRight().y(), b.getNearBottomRight().y());
+        double z_min = std::max(a.getNearBottomLeft().z(), b.getNearBottomLeft().z());
+        double x_max = std::min(a.getFarBottomLeft().x(), b.getFarBottomLeft().x());
+        double y_max = std::min(a.getNearBottomLeft().y(), b.getNearBottomLeft().y());
+        double z_max = std::min(a.getNearTopLeft().z(), b.getNearTopLeft().z());
 
         double x_diff = std::max(x_max - x_min, 0.0);
         double y_diff = std::max(y_max - y_min, 0.0);
