@@ -217,6 +217,7 @@ namespace AutoDrive {
         auto egoPosTf = selfModel_.getPosition().toTf().inverted();
         auto egoCentricPc = pointCloudAggregator_.getLatestScanEgoCentric(egoPosTf);
 
+        // Create 3D Detection frustums from YOLO detections
         auto detections3D = depthMap_.onNewCameraData(imgData,
                                                       pointCloudAggregator_.getLatestScanCutout(egoPosTf, sensorFrame));
         auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);

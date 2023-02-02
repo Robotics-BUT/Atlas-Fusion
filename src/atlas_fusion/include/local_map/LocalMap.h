@@ -39,8 +39,8 @@ namespace AutoDrive::LocalMap {
          * Constructor
          * @param context global services container (logger, etc.)
          */
-        LocalMap(Context& context)
-        : context_{context} {
+        LocalMap(Context &context)
+                : context_{context} {
 
         }
 
@@ -49,7 +49,8 @@ namespace AutoDrive::LocalMap {
          * @param detections vector of camera based detections
          * @param sensorFrame frame that identifies camera frame that has been used for detection
          */
-        void setFrustumDetections(std::vector<DataModels::FrustumDetection> detections, const FrameType& sensorFrame);
+        void
+        setFrustumDetections(const std::vector<DataModels::FrustumDetection> &detections, const FrameType &sensorFrame);
 
         /**
          * Setter for all point cloud based detections
@@ -88,9 +89,14 @@ namespace AutoDrive::LocalMap {
         std::vector<std::shared_ptr<DataModels::LidarDetection>> getObjectsAsLidarDetections();
 
     private:
-        Context& context_;
+        Context &context_;
+
+        float getFrustumVolumeIntersection(const std::shared_ptr<rtl::Frustum3D<double> const> &a,
+                                           const std::shared_ptr<rtl::Frustum3D<double> const> &b);
 
         std::map<FrameType, std::vector<DataModels::FrustumDetection>> frustumsDetections_{};
+        std::map<DataModels::FrustumDetection, std::vector<FrameType>> fusedFrustumDetections_{};
+
         std::vector<std::shared_ptr<DataModels::LidarDetection>> lidarDetections_;
         std::vector<std::shared_ptr<DataModels::Object>> objects_;
     };

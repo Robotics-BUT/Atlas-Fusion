@@ -42,10 +42,9 @@ namespace AutoDrive::DataModels {
          * @param classConfidence NN's confidence of the class of the detection
          * @param cls detection class
          */
-        explicit FrustumDetection(std::shared_ptr<const rtl::Frustum3D<double>> frustum, float detConfidence, YoloDetectionClass cls)
-                : frustum_{std::move(frustum)}
-                , detConfidence_{detConfidence}
-                , cls_{cls} {
+        explicit FrustumDetection(std::shared_ptr<const rtl::Frustum3D<double>> frustum, float detConfidence,
+                                  YoloDetectionClass cls)
+                : frustum_{std::move(frustum)}, detConfidence_{detConfidence}, cls_{cls} {
 
         }
 
@@ -53,38 +52,24 @@ namespace AutoDrive::DataModels {
          * Getter for frustum.
          * @return 3D space structure
          */
-        std::shared_ptr<const rtl::Frustum3D<double>> getFrustum() const { return frustum_; };
+        [[nodiscard]] std::shared_ptr<const rtl::Frustum3D<double>> getFrustum() const { return frustum_; };
 
         /**
          * NN's confidence of the detection getter
          * @return confidence of the detection
          */
-        float getDetectionConfidence() const {return detConfidence_;};
+        [[nodiscard]] float getDetectionConfidence() const { return detConfidence_; };
 
         /**
          * Detection class getter
          * @return class of the detection
          */
-        YoloDetectionClass getClass() const {return cls_;};
-
-        /**
-         * Inserts new reference into the vector of data model that preceded this data model
-         * @param parent related preceded data model
-         */
-        void addParent(std::shared_ptr<DataModels::GenericDataModel> parent) {parents_.push_back(parent);};
-
-        /**
-         * Returns all the parents of this data model
-         * @return vector of all parents of this data model.
-         */
-        std::vector<std::shared_ptr<DataModels::GenericDataModel>> const getParents() {return parents_;};
+        [[nodiscard]] YoloDetectionClass getClass() const { return cls_; };
 
     private:
 
         std::shared_ptr<const rtl::Frustum3D<double>> frustum_;
         float detConfidence_;
         YoloDetectionClass cls_;
-        std::vector<std::shared_ptr<DataModels::GenericDataModel>> parents_;
-
     };
 }

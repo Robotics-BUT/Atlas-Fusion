@@ -25,8 +25,23 @@
 namespace AutoDrive::LocalMap {
 
 
-    void LocalMap::setFrustumDetections(std::vector<DataModels::FrustumDetection> detections, const FrameType &sensorFrame) {
-        frustumsDetections_[sensorFrame] = std::move(detections);
+    void LocalMap::setFrustumDetections(const std::vector<DataModels::FrustumDetection> &detections,
+                                        const FrameType &sensorFrame) {
+        frustumsDetections_[sensorFrame] = detections;
+
+        for (auto newDetection: detections) {
+            if(fusedFrustumDetections_.empty()) {
+                fusedFrustumDetections_[newDetection] = {};
+            }
+            for (auto &prevDetection: fusedFrustumDetections_) {
+                const auto &a = newDetection.getFrustum().;
+                const auto &b = prevDetection.first.getFrustum();
+
+                double intersection = getFrustumVolumeIntersection(a, b);
+                if(intersection > 0.9)
+                auto d = 1;
+            }
+        }
     }
 
 
@@ -38,7 +53,6 @@ namespace AutoDrive::LocalMap {
     void LocalMap::setObjects(std::vector<std::shared_ptr<DataModels::Object>> objects) {
         objects_ = std::move(objects);
     }
-
 
     std::vector<std::shared_ptr<DataModels::LidarDetection>> LocalMap::getObjectsAsLidarDetections() {
 
@@ -68,4 +82,20 @@ namespace AutoDrive::LocalMap {
         return objects_;
     }
 
+
+    float LocalMap::getFrustumVolumeIntersection(const std::shared_ptr<rtl::Frustum3D<double> const> &a,
+                                                 const std::shared_ptr<rtl::Frustum3D<double> const> &b) {
+        double x_min = std::max(a->getNearBottomLeft().x(), b->getNearBottomLeft().x());
+        double y_min = std::max(a->getNearBottomRight().y(), b->getNearBottomRight().y());
+        double z_min = std::max(a->getNearBottomLeft().z(), b->getNearBottomLeft().z());
+        double x_max = std::min(a->getFarBottomLeft().x(), b->getFarBottomLeft().x());
+        double y_max = std::min(a->getNearBottomLeft().y(), b->getNearBottomLeft().y());
+        double z_max = std::min(a->getNearTopLeft().z(), b->getNearTopLeft().z());
+
+        double x_diff = std::max(x_max - x_min, 0.0);
+        double y_diff = std::max(y_max - y_min, 0.0);
+        double z_diff = std::max(z_max - z_min, 0.0);
+
+        return x_diff * y_diff * z_diff;
+    }
 }
