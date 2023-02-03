@@ -73,7 +73,8 @@ namespace AutoDrive::FailCheck {
             for (int col = 0; col < DFT_BLOCK_COUNT; col++) {
                 int w = (DFT_WINDOW_SIZE / 2) + (col * ((frameGray.cols - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
                 int h = (DFT_WINDOW_SIZE / 2) + (row * ((frameGray.rows - DFT_WINDOW_SIZE) / (DFT_BLOCK_COUNT - 1)));
-                futures.push_back(context_.threadPool_.submit([&, w, h, row, col]() { calculateVisibility(false, std::pair(w, h), std::pair(col, row)); }));
+                futures.push_back(context_.threadPool_.submit(
+                        [&, w, h, row, col]() { calculateVisibility(false, std::pair(w, h), std::pair(col, row)); }));
             }
         }
 
@@ -82,6 +83,23 @@ namespace AutoDrive::FailCheck {
         }
 
         evaluatePerformance();
+    }
+
+    void
+    CameraRGBFailChecker::onNewCameraDetections(
+            const std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> &detectionList) {
+        detections = 0;
+        detectionsVerified = 0;
+        for (const auto &det: detectionList) {
+            auto detFrames = det.second;
+            // If the detection is seen by more than current camera, add to verified detections
+            if (detFrames.count(frameType_) > 0) {
+                detections++;
+                if(detFrames.size() > 1) {
+                    detectionsVerified++;
+                }
+            }
+        }
     }
 
     void CameraRGBFailChecker::estimateVanishingPoint() {
@@ -98,7 +116,8 @@ namespace AutoDrive::FailCheck {
         //std::cout << "Vanishing point at: (" << vanishingPointX << ", " << vanishingPointY << ")" << std::endl;
     }
 
-    void CameraRGBFailChecker::calculateVisibility(bool isVanishingPoint, std::pair<int, int> centerPoint, std::pair<int, int> position) {
+    void CameraRGBFailChecker::calculateVisibility(bool isVanishingPoint, std::pair<int, int> centerPoint,
+                                                   std::pair<int, int> position) {
 
         int32_t window_top_left_x = int(centerPoint.first) - (DFT_WINDOW_SIZE / 2);
         int32_t window_top_left_y = int(centerPoint.second) - (DFT_WINDOW_SIZE / 2);
@@ -221,7 +240,8 @@ namespace AutoDrive::FailCheck {
 
             if (glareLuminance >= (regularLuminance + occlusionLuminance)) {
                 occlusionBuffers.at(histIndex).push_back(true);
-                glareAmounts.at<float>(i, j) = (glareLuminance * 10.0f) / (regularLuminance + glareLuminance + occlusionLuminance);
+                glareAmounts.at<float>(i, j) =
+                        (glareLuminance * 10.0f) / (regularLuminance + glareLuminance + occlusionLuminance);
             } else if (occlusionLuminance >= (regularLuminance + glareLuminance)) {
                 occlusionBuffers.at(histIndex).push_back(false);
                 glareAmounts.at<float>(i, j) = occlusionBuffers.at(histIndex).dataSum() == 0L ? -1 : 0;
@@ -273,7 +293,7 @@ namespace AutoDrive::FailCheck {
 
                 // Occlusion
                 if (glareAmount < 0) occludedCount += importance;
-                // Glare
+                    // Glare
                 else glaredCount += importance * glareAmount;
             }
         }
@@ -312,5 +332,10 @@ namespace AutoDrive::FailCheck {
         sensorStatus_.statusVector.emplace_back(nightShot);
         sensorStatus_.statusString += "Night shot: " + std::to_string(nightShot) + "\n";
 
+        sensorStatus_.statusVector.emplace_back(detections);
+        sensorStatus_.statusVector.emplace_back(detectionsVerified);
+        sensorStatus_.statusString +=
+                "Verified/All detections: " + std::to_string(detectionsVerified) + "/" + std::to_string(detections) +
+                "\n";
     }
 }

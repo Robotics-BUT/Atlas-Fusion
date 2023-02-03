@@ -30,6 +30,7 @@
 #include "ImuFailChecker.h"
 #include "RadarTiFileChacker.h"
 #include "../algorithms/pointcloud/PointCloudProcessor.h"
+#include "data_models/local_map/FrustumDetection.h"
 
 namespace AutoDrive::FailCheck {
 
@@ -46,7 +47,8 @@ namespace AutoDrive::FailCheck {
          * Constructor
          * @param context global services container (time, logging, etc.)
          */
-        explicit FailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel,
+        explicit FailChecker(Context &context, const Algorithms::SelfModel &selfModel,
+                             Algorithms::EnvironmentalModel &environmentalModel,
                              Algorithms::PointCloudProcessor &pointCloudProcessor)
                 : context_{context}, selfModel_{selfModel}, environmentalModel_{environmentalModel} {
 
@@ -82,6 +84,15 @@ namespace AutoDrive::FailCheck {
          * @param sensor identifier
          */
         void onNewData(const std::shared_ptr<DataModels::GenericDataModel> &data, const FrameType &sensor);
+
+        /**
+         * Input for fused camera-based frustum detections
+         * @param detections list of detections with an accompanying set of cameras that saw it
+         * @param sensor identifier
+         */
+        void onNewCameraDetections(
+                const std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> &detections,
+                const FrameType &sensor);
 
         /**
         * Generates in-depth status struct

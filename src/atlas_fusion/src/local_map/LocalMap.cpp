@@ -103,12 +103,8 @@ namespace AutoDrive::LocalMap {
         return output;
     }
 
-    std::vector<std::pair<DataModels::FrustumDetection, uint8_t>> LocalMap::getFusedFrustumDetections() {
-        std::vector<std::pair<DataModels::FrustumDetection, uint8_t>> output;
-        for (auto &frustumsDetection: fusedFrustumDetections_) {
-            output.push_back(std::pair(frustumsDetection.first, frustumsDetection.second.size()));
-        }
-        return output;
+    std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> LocalMap::getFusedFrustumDetections() {
+        return fusedFrustumDetections_;
     }
 
 

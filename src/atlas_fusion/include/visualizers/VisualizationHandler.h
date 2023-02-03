@@ -211,9 +211,9 @@ namespace AutoDrive::Visualizers {
 
         /**
          * Draw fused frustum detections in 3D
-         * @param detections fused frustum detections with number of sensors that saw them
+         * @param detections fused frustum detections with set of sensors that saw them
          */
-        void drawFusedFrustumDetections(const std::vector<std::pair<DataModels::FrustumDetection, uint8_t>> &detections);
+        void drawFusedFrustumDetections(const std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> &detections);
 
         /**
          * Draw lidar detections in 3D space

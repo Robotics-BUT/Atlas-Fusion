@@ -72,9 +72,9 @@ namespace AutoDrive::LocalMap {
 
         /**
         * Getter for fused camera based detections
-        * @return pair of camera based frustum detections and number of cameras that saw this detection
+        * @return pair of camera based frustum detections and set of cameras that saw this detection
         */
-        std::vector<std::pair<DataModels::FrustumDetection, uint8_t>>  getFusedFrustumDetections();
+        std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>>  getFusedFrustumDetections();
 
         /**
          * Getter for all lidar based detections

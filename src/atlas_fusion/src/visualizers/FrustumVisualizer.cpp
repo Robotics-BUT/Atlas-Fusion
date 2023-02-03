@@ -54,7 +54,7 @@ namespace AutoDrive::Visualizers {
     }
 
     void FrustumVisualizer::visualizeFusedFrustumDetections(
-            const std::vector<std::pair<DataModels::FrustumDetection, uint8_t>> &detections) {
+            const std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> &detections) {
 
         visualization_msgs::msg::MarkerArray msg;
         auto time = rclcpp::Time();
@@ -90,7 +90,7 @@ namespace AutoDrive::Visualizers {
             text.pose.position.z = detection.first.getFrustum()->getNearTopLeft().z();
 
             std::stringstream sstream;
-            sstream << "Cameras: " << std::to_string(detection.second) << std::endl;
+            sstream << "Cameras: " << std::to_string(detection.second.size()) << std::endl;
             text.text = sstream.str();
 
             text.scale.x = 0.3;

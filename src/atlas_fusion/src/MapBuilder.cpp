@@ -220,8 +220,10 @@ namespace AutoDrive {
         // Create 3D Detection frustums from YOLO detections
         auto detections3D = depthMap_.onNewCameraData(imgData, pointCloudAggregator_.getLatestScanCutout(egoPosTf, sensorFrame));
         auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
-
         localMap_.setFrustumDetections(frustums, sensorFrame);
+        failChecker_.onNewCameraDetections(localMap_.getFusedFrustumDetections(), sensorFrame);
+
+        // Draw 3D detection frustums
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
         visualizationHandler_.drawFusedFrustumDetections(localMap_.getFusedFrustumDetections());
 

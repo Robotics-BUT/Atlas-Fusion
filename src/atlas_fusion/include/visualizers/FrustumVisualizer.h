@@ -53,7 +53,7 @@ namespace AutoDrive::Visualizers {
 
         void visualizeFrustumDetections(const std::vector<DataModels::FrustumDetection>& detections);
 
-        void visualizeFusedFrustumDetections(const std::vector<std::pair<DataModels::FrustumDetection, uint8_t>> &detections);
+        void visualizeFusedFrustumDetections(const std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> &detections);
 
     private:
 

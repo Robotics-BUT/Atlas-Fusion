@@ -25,6 +25,7 @@
 #include "AbstractFailChecker.h"
 #include "data_models/camera/CameraFrameDataModel.h"
 #include "../util/circularbuffer.h"
+#include "data_models/local_map/FrustumDetection.h"
 
 #define DFT_BLOCK_COUNT 4
 #define DFT_WINDOW_SIZE 128
@@ -41,7 +42,7 @@
 namespace AutoDrive::FailCheck {
 
     /**
-     * Validates RGB camera frame data. Currently bypassed.
+     * Validates RGB camera frame data.
      */
     class CameraRGBFailChecker : public AbstractFailChecker {
 
@@ -56,8 +57,9 @@ namespace AutoDrive::FailCheck {
          * @param environmentalModel model of environment current state
          * @param frame camera identifier
          */
-        CameraRGBFailChecker(Context &context, const Algorithms::SelfModel &selfModel, Algorithms::EnvironmentalModel &environmentalModel)
-        : AbstractFailChecker{context, selfModel, environmentalModel} {
+        CameraRGBFailChecker(Context &context, const Algorithms::SelfModel &selfModel,
+                             Algorithms::EnvironmentalModel &environmentalModel)
+                : AbstractFailChecker{context, selfModel, environmentalModel} {
             for (int i = 0; i < HISTOGRAM_COUNT * HISTOGRAM_COUNT; i++) {
                 occlusionBuffers.emplace_back(OCCLUSION_MIN_FRAMES);
             }
@@ -67,7 +69,13 @@ namespace AutoDrive::FailCheck {
          * Pipe to provide new sensor data into the Camera RGB Fail Checker
          * @param data RGB camera data frame
          */
-        void onNewData(const std::shared_ptr<DataModels::CameraFrameDataModel>& data);
+        void onNewData(const std::shared_ptr<DataModels::CameraFrameDataModel> &data);
+
+        /**
+         * Input for fused camera-based frustum detections
+         * @param detections list of detections with an accompanying set of cameras that saw it
+         */
+        void onNewCameraDetections(const std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> &detections);
 
     private:
         FrameType frameType_ = FrameType::kOrigin;
@@ -83,6 +91,8 @@ namespace AutoDrive::FailCheck {
         bool possibleFog = false;
         bool possibleGlare = false;
         bool possibleOcclusion = false;
+        uint8_t detections = 0;
+        uint8_t detectionsVerified = 0;
 
         // DFT Block analysis float<0, 1>
         cv::Mat visibility = cv::Mat(DFT_BLOCK_COUNT, DFT_BLOCK_COUNT, CV_32FC1, cv::Scalar(0.0f));
