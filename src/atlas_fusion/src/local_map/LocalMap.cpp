@@ -38,7 +38,7 @@ namespace AutoDrive::LocalMap {
             double volA = getBoundingBoxVolume(*newDet.getFrustum());
             uint32_t i = 0;
             for (const auto &det: fusedFrustumDetections_) {
-                // Check if the mid points are closer than a threshold and update the detection if so
+                // Check if the mid-points are closer than a threshold and update the detection if so
                 auto midA = newDet.getFrustum()->getNearMidPoint();
                 auto midB = det.first.getFrustum()->getNearMidPoint();
 
@@ -103,10 +103,10 @@ namespace AutoDrive::LocalMap {
         return output;
     }
 
-    std::vector<DataModels::FrustumDetection> LocalMap::getFusedFrustumDetections() {
-        std::vector<DataModels::FrustumDetection> output;
+    std::vector<std::pair<DataModels::FrustumDetection, uint8_t>> LocalMap::getFusedFrustumDetections() {
+        std::vector<std::pair<DataModels::FrustumDetection, uint8_t>> output;
         for (auto &frustumsDetection: fusedFrustumDetections_) {
-            output.push_back(frustumsDetection.first);
+            output.push_back(std::pair(frustumsDetection.first, frustumsDetection.second.size()));
         }
         return output;
     }

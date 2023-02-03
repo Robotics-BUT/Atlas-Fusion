@@ -98,7 +98,6 @@ namespace AutoDrive::Visualizers {
         auto timestamp = node_->get_clock()->now();
 
         size_t cnt = 0;
-        static size_t maxCnt = 0;
 
         for (const auto &detection: detections) {
 
@@ -158,7 +157,7 @@ namespace AutoDrive::Visualizers {
             text.scale.y = 0.3;
             text.scale.z = 0.3;
 
-            text.color.a = 0.1;
+            text.color.a = 0.0;
             text.color.r = 0.7;
             text.color.g = 0.7;
             text.color.b = 0.7;
@@ -166,22 +165,6 @@ namespace AutoDrive::Visualizers {
             output.markers.push_back(text);
         }
 
-        for (size_t i = cnt; i < maxCnt; i++) {
-            visualization_msgs::msg::Marker marker;
-            marker.header.frame_id = frameTypeName(frame);
-            marker.header.stamp = timestamp;
-            marker.id = cnt++;
-            marker.type = visualization_msgs::msg::Marker::CUBE;
-            marker.action = visualization_msgs::msg::Marker::ADD;
-            marker.color.a = 0.0;
-
-            marker.scale.x = 0.1;
-            marker.scale.y = 0.1;
-            marker.scale.z = 0.1;
-
-            output.markers.push_back(marker);
-        }
-        maxCnt = cnt;
         return output;
     }
 }

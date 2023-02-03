@@ -103,7 +103,7 @@ namespace AutoDrive {
             }
 
             auto sensorFrame = frameTypeFromDataModel(data);
-            //failChecker_.onNewData(data, sensorFrame);
+            failChecker_.onNewData(data, sensorFrame);
             auto sensorScore = failChecker_.getSensorStatus(sensorFrame).status;
 
             if (sensorScore < 0.9) {

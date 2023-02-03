@@ -221,7 +221,7 @@ namespace AutoDrive::Visualizers {
         frustumVisualizer_.visualizeFrustumDetections(detections);
     }
 
-    void VisualizationHandler::drawFusedFrustumDetections(const std::vector<DataModels::FrustumDetection> &detections) {
+    void VisualizationHandler::drawFusedFrustumDetections(const std::vector<std::pair<DataModels::FrustumDetection, uint8_t>> &detections) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
         frustumVisualizer_.visualizeFusedFrustumDetections(detections);
     }
