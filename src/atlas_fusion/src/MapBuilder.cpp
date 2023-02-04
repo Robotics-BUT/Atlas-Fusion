@@ -54,7 +54,8 @@ namespace AutoDrive {
             if (params.getType() == DataModels::DataModelTypes::kCameraCalibrationParamsDataModelType) {
                 visualizationHandler_.setCameraCalibParamsForCameraId(params, frame);
 
-                auto projector = std::make_shared<Algorithms::Projector>(params.getMatIntrinsicParams(), params.getMatDistortionParams(), tf);
+                auto projector = std::make_shared<Algorithms::Projector>(params.getMatIntrinsicParams(),
+                                                                         params.getMatDistortionParams(), tf);
                 if (frame == FrameType::kCameraIr) {
                     yoloIrReprojector_.setupCameraProjector(projector);
                 }
@@ -86,12 +87,14 @@ namespace AutoDrive {
             context_.logger_.debug(ss.str());
 
             if (last_system_ts == 0) {
-                last_system_ts = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                last_system_ts = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::system_clock::now().time_since_epoch()).count();
                 last_data_ts = data_ts;
             }
 
             while (true) {
-                auto system_ts = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                auto system_ts = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::system_clock::now().time_since_epoch()).count();
                 if ((data_ts - last_data_ts) < (system_ts - last_system_ts) * (uint64_t) maxReplayerRate_) {
                     last_data_ts = data_ts;
                     last_system_ts = system_ts;
@@ -208,32 +211,38 @@ namespace AutoDrive {
         dataLoader_.clear();
     }
 
-    void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData, const FrameType &sensorFrame) {
-        std::vector<std::future<void>> futures;
+    void MapBuilder::processRGBCameraData(const std::shared_ptr<DataModels::CameraFrameDataModel> &imgData,
+                                          const FrameType &sensorFrame) {
 
         auto egoPosTf = selfModel_.getPosition().toTf().inverted();
-        auto globalCoordinatePc = pointCloudAggregator_.getGlobalCoordinatePointCloud();
-        auto egoCentricPc = pointCloudAggregator_.getEgoCentricPointCloud(egoPosTf);
+        auto egoCentricPc = pointCloudAggregator_.getLatestScanEgoCentric(egoPosTf);
 
-        auto detections3D = depthMap_.onNewCameraData(imgData, pointCloudAggregator_.getSensorPointCloudCutout(egoPosTf, sensorFrame));
+        // Create 3D Detection frustums from YOLO detections
+        auto detections3D = depthMap_.onNewCameraData(imgData, pointCloudAggregator_.getLatestScanCutout(egoPosTf, sensorFrame));
         auto frustums = detectionProcessor_.onNew3DYoloDetections(detections3D, sensorFrame);
-
         localMap_.setFrustumDetections(frustums, sensorFrame);
+        failChecker_.onNewCameraDetections(localMap_.getFusedFrustumDetections(), sensorFrame);
+
+        // Draw 3D detection frustums
         visualizationHandler_.drawFrustumDetections(localMap_.getFrustumDetections());
+        visualizationHandler_.drawFusedFrustumDetections(localMap_.getFusedFrustumDetections());
 
         auto roi = pointCloudProcessor_.getPointCloudCutout(egoCentricPc, {{-40.f, -5.f, -.95f},
-                                                                                    {40.f,  12.f,  10.f}});
+                                                                           {40.f,  12.f, 10.f}});
         environmentalModel_.onDetectionROI(roi);
 
-        auto detectionROI = pointCloudProcessor_.getPointCloudCutout(roi, {{-40.f, -5.f, -.95f}, {40.f,  12.f,  1.2f}});
+        auto detectionROI = pointCloudProcessor_.getPointCloudCutout(roi, {{-40.f, -5.f, -.95f},
+                                                                           {40.f,  12.f, 1.2f}});
+        auto detectionROIDownsampled = pointCloudProcessor_.downsamplePointCloud(detectionROI);
 
-        auto lidarObstacles = lidarObjectDetector_.detectObstacles(detectionROI);
-        localMap_.setLidarDetections(objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
+        auto lidarObstacles = lidarObjectDetector_.detectObstacles(detectionROIDownsampled);
+        localMap_.setLidarDetections(
+                objectAggregator_.aggregateLidarDetections(localMap_.getLidarDetections(), lidarObstacles));
 
-        visualizationHandler_.drawAggregatedPointCloudGlobal(globalCoordinatePc);
+        visualizationHandler_.drawAggregatedPointCloudGlobal(pointCloudAggregator_.getLatestScan());
         visualizationHandler_.drawAggregatedPointCloudEgo(egoCentricPc);
         visualizationHandler_.drawLidarDetection(lidarObstacles);
-        visualizationHandler_.drawPointcloudCutout(detectionROI);
+        visualizationHandler_.drawPointcloudCutout(detectionROIDownsampled);
         visualizationHandler_.drawLidarDetection(localMap_.getLidarDetections());
 
 
@@ -245,16 +254,21 @@ namespace AutoDrive {
 
                 if (!reprojectedYoloDetections.empty()) {
                     auto imgWidthHeight = yoloIrReprojector_.getLastIrFrameWidthHeight();
-                    yoloIRDetectionWriter_.writeDetections(reprojectedYoloDetections, yoloIrReprojector_.getCurrentIrFrameNo());
-                    yoloIRDetectionWriter_.writeDetectionsAsTrainData(reprojectedYoloDetections, yoloIrReprojector_.getCurrentIrFrameNo(), imgWidthHeight.first,
+                    yoloIRDetectionWriter_.writeDetections(reprojectedYoloDetections,
+                                                           yoloIrReprojector_.getCurrentIrFrameNo());
+                    yoloIRDetectionWriter_.writeDetectionsAsTrainData(reprojectedYoloDetections,
+                                                                      yoloIrReprojector_.getCurrentIrFrameNo(),
+                                                                      imgWidthHeight.first,
                                                                       imgWidthHeight.second);
-                    yoloIRDetectionWriter_.writeIRImageAsTrainData(yoloIrReprojector_.getLastIrFrame(), yoloIrReprojector_.getCurrentIrFrameNo());
+                    yoloIRDetectionWriter_.writeIRImageAsTrainData(yoloIrReprojector_.getLastIrFrame(),
+                                                                   yoloIrReprojector_.getCurrentIrFrameNo());
                 }
 
 
                 if (Depth_Map_For_IR) {
                     try {
-                        auto irCameraFrame = DataModels::CameraIrFrameDataModel(imgData->getTimestamp(), imgData->getImage(), 0.0f, 100.0f,
+                        auto irCameraFrame = DataModels::CameraIrFrameDataModel(imgData->getTimestamp(),
+                                                                                imgData->getImage(), 0.0f, 100.0f,
                                                                                 imgData->getCameraIdentifier(),
                                                                                 std::vector<DataModels::YoloDetection>{});
                         static size_t frameCnt = 0;
@@ -262,10 +276,13 @@ namespace AutoDrive {
                         auto originToImuTf = selfModel_.getPosition().toTf();
 
                         auto points2Dand3Dpair = depthMap_.getPointsInCameraFoV(irCameraFrame.getCameraIdentifier(),
-                                                                                pointCloudAggregator_.getSensorPointCloudCutout(egoPosTf, sensorFrame),
+                                                                                pointCloudAggregator_.getLatestScanCutout(
+                                                                                        egoPosTf, sensorFrame),
                                                                                 irCameraFrame.getImage().cols,
                                                                                 irCameraFrame.getImage().rows, false);
-                        auto img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first, points2Dand3Dpair->second, irCameraFrame.getImage().cols,
+                        auto img = lidarIrImgPlotter_.renderLidarPointsToImg(points2Dand3Dpair->first,
+                                                                             points2Dand3Dpair->second,
+                                                                             irCameraFrame.getImage().cols,
                                                                              irCameraFrame.getImage().rows, 3);
 
                         if (yoloIrReprojector_.getCurrentIrFrameNo() > 0) {
@@ -290,17 +307,14 @@ namespace AutoDrive {
         }
 
         visualizationHandler_.drawRGBImage(imgData);
-
-        for (auto &future: futures) {
-            future.wait();
-        }
     }
 
     void MapBuilder::processIRCameraData(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &irCameraFrame) {
         auto originToImuTf = selfModel_.getPosition().toTf();
         auto points2Dand3Dpair = depthMap_.getPointsInCameraFoV(
                 irCameraFrame->getCameraIdentifier(),
-                pointCloudAggregator_.getSensorPointCloudCutout(selfModel_.getPosition().toTf().inverted(), frameTypeFromDataModel(irCameraFrame)),
+                pointCloudAggregator_.getLatestScanCutout(originToImuTf.inverted(),
+                                                          frameTypeFromDataModel(irCameraFrame)),
                 irCameraFrame->getImage().cols,
                 irCameraFrame->getImage().rows,
                 false);
@@ -356,16 +370,10 @@ namespace AutoDrive {
     void MapBuilder::processLidarScanData(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
         const auto lidarID = lidarData->getLidarIdentifier();
         if (cache_.getLidarScan(lidarID) != nullptr) {
-            if (Short_Term_Lidar_Aggregation) {
-                aggregateLidar(lidarData);
-            }
+            aggregateLidar(lidarData);
             if (Lidar_Laser_Approx_And_Seg) {
                 approximateLidar(lidarData);
             }
-        }
-
-        if (lidarData->getLidarIdentifier() == DataLoader::LidarIdentifier::kCenterLidar) {
-            std::cout << "Center lidar returned: " << lidarData->getScan()->size() << " points" << std::endl;
         }
 
         visualizationHandler_.drawLidarData(lidarData);
@@ -374,12 +382,12 @@ namespace AutoDrive {
     }
 
     void MapBuilder::processRadarTiData(const std::shared_ptr<DataModels::RadarTiDataModel> &data) {
-        const auto radarData = std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data);
-        visualizationHandler_.drawRadarTiObjects(radarData->getObjects());
+        visualizationHandler_.drawRadarTiObjects(data->getObjects());
     }
 
     void MapBuilder::aggregateLidar(const std::shared_ptr<DataModels::LidarScanDataModel> &lidarData) {
-        // Timer t("Aggregate lidar");
+        Timer t("Aggregate lidar");
+
         const auto lidarID = lidarData->getLidarIdentifier();
         const auto sensorFrame = frameTypeFromDataModel(lidarData);
         auto lidarTF = context_.tfTree_.getTransformationForFrame(sensorFrame);
@@ -389,14 +397,17 @@ namespace AutoDrive {
         auto poseBefore = selfModel_.estimatePositionInTime(lastLidarTimestamp);
         auto poseNow = selfModel_.getPosition();
 
-        auto downsampledScan = pointCloudProcessor_.downsamplePointCloud(lidarData->getScan());
-        auto batches = pointCloudExtrapolator_.splitPointCloudToBatches(downsampledScan, poseBefore, poseNow, lidarTF);
-        pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
-        pointCloudAggregator_.addPointCloudBatches(batches);
+        auto scanBatches = pointCloudExtrapolator_.splitPointCloudToBatches(lidarData->getScan(), poseBefore, poseNow, lidarTF);
+        pointCloudAggregator_.addLidarScan(lidarData->getLidarIdentifier(), scanBatches);
+
+        if (Short_Term_Lidar_Aggregation) {
+            pointCloudAggregator_.filterOutBatches(lidarData->getTimestamp());
+            pointCloudAggregator_.addPointCloudBatches(scanBatches);
+        }
 
         if (Global_Lidar_Aggregation) {
-            auto aggregatedPointcloud = pointCloudAggregator_.getGlobalCoordinatePointCloud();
-            globalPointcloudStorage_.addMorePointsToGlobalStorage(aggregatedPointcloud);
+            auto aggregatedPointCloud = pointCloudAggregator_.getGlobalCoordinateAggregatedPointCloud();
+            globalPointcloudStorage_.addMorePointsToGlobalStorage(aggregatedPointCloud);
             visualizationHandler_.drawGlobalPointcloud(globalPointcloudStorage_.getEntirePointcloud());
         }
     }

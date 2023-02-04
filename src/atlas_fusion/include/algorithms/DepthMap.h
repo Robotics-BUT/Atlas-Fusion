@@ -98,6 +98,6 @@ namespace AutoDrive::Algorithms {
 
         std::vector<size_t> getIndexesOfPointsInDetection(const std::vector<cv::Point2f> &validPoints2D, const DataModels::YoloDetection &detection);
 
-        float getMedianDepthOfPointVector(std::vector<cv::Point3f> &points, std::vector<size_t> &indexes);
+        float getMedianDepthOfPointVector(const std::vector<cv::Point3f> &points, std::vector<size_t> &indexes);
     };
 }

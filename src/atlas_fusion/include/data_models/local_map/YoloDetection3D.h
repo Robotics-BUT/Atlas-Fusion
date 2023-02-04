@@ -21,6 +21,7 @@
  */
 
 #pragma once
+
 #include "data_models/yolo/YoloDetection.h"
 
 namespace AutoDrive::DataModels {
@@ -28,7 +29,7 @@ namespace AutoDrive::DataModels {
     /**
      * Simple 2D bounding box representation
      */
-    struct BoundingBox2D{
+    struct BoundingBox2D {
 
         /**
          * Constructor
@@ -38,7 +39,7 @@ namespace AutoDrive::DataModels {
          * @param y2 bottom border
          */
         explicit BoundingBox2D(float x1, float y1, float x2, float y2)
-        : x1_{x1}, y1_{y1}, x2_{x2}, y2_{y2} {}
+                : x1_{x1}, y1_{y1}, x2_{x2}, y2_{y2} {}
 
         float x1_, y1_;
         float x2_, y2_;
@@ -56,52 +57,37 @@ namespace AutoDrive::DataModels {
          * @param bb 2D bounding box at the camera's plain
          * @param distance estimated distance of the detected obstacle
          * @param detConfidence detection confidence
-         * @param classConfidence confidence of the detected dlass
+         * @param classConfidence confidence of the detected class
          * @param cls detection class
          */
         explicit YoloDetection3D(BoundingBox2D bb, float distance, float detConfidence, YoloDetectionClass cls)
-        : bb_{bb}
-        , distance_{distance}
-        , detConfidence_{detConfidence}
-        , cls_{cls} {
+                : bb_{bb}, distance_{distance}, detConfidence_{detConfidence}, cls_{cls} {
 
         }
 
         /**
-         * 2D bounding box, taht localize detection on the image getter
+         * 2D bounding box, that localize detection on the image getter
          * @return 2D bounding box
          */
-        BoundingBox2D getBoundingBox() const {return bb_;};
+        [[nodiscard]] BoundingBox2D getBoundingBox() const { return bb_; };
 
         /**
          * Estimated distance getter
          * @return estimated distance of the 2D detection
          */
-        float getDistance() const {return distance_;};
+        [[nodiscard]] float getDistance() const { return distance_; };
 
         /**
-         * NN's confidence aobut the detection getter
+         * NN's confidence about the detection getter
          * @return confidence of the detection
          */
-        float getDetectionConfidence() const {return detConfidence_;};
+        [[nodiscard]] float getDetectionConfidence() const { return detConfidence_; };
 
         /**
          * Detection class getter
          * @return class of the detection
          */
-        YoloDetectionClass getClass() const {return cls_;};
-
-        /**
-         * Inserts new reference into the vector of data model that preceded this data model
-         * @param parent related preceded data model
-         */
-        void addParent(std::shared_ptr<DataModels::GenericDataModel> parent) {parents_.push_back(parent);};
-
-        /**
-         * Returns all the parents of this data model
-         * @return vector of all parents of this data model.
-         */
-        std::vector<std::shared_ptr<DataModels::GenericDataModel>> const getParents() {return parents_;};
+        [[nodiscard]] YoloDetectionClass getClass() const { return cls_; };
 
     private:
 
@@ -109,7 +95,5 @@ namespace AutoDrive::DataModels {
         float distance_;
         float detConfidence_;
         YoloDetectionClass cls_;
-        std::vector<std::shared_ptr<DataModels::GenericDataModel>> parents_;
-
     };
 }

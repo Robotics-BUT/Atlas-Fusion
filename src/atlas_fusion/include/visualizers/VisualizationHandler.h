@@ -112,13 +112,13 @@ namespace AutoDrive::Visualizers {
          *
          * @param ls
          */
-        void drawLidarApproximations(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls);
+        void drawLidarApproximations(const std::shared_ptr<std::vector<rtl::LineSegment3D<double>>>& ls);
 
         /**
          *
          * @param ls
          */
-        void drawLidarApproximationsRoad(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls);
+        void drawLidarApproximationsRoad(const std::shared_ptr<std::vector<rtl::LineSegment3D<double>>>& ls);
 
 
         /**
@@ -210,6 +210,12 @@ namespace AutoDrive::Visualizers {
         void drawFrustumDetections(const std::vector<DataModels::FrustumDetection>& detections);
 
         /**
+         * Draw fused frustum detections in 3D
+         * @param detections fused frustum detections with set of sensors that saw them
+         */
+        void drawFusedFrustumDetections(const std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> &detections);
+
+        /**
          * Draw lidar detections in 3D space
          * @param detections lidar detections
          */
@@ -254,8 +260,8 @@ namespace AutoDrive::Visualizers {
 
         SensorStatusVisualizer sensorStatusVisualizer_;
 
-        [[nodiscard]] visualization_msgs::msg::Marker getSelfEgoCube() const;
-        [[nodiscard]] visualization_msgs::msg::Marker getSelfGlobalCube() const;
+        [[nodiscard]] static visualization_msgs::msg::Marker getSelfEgoCube() ;
+        [[nodiscard]] static visualization_msgs::msg::Marker getSelfGlobalCube() ;
     };
 
 }

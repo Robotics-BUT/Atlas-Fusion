@@ -37,21 +37,19 @@ namespace AutoDrive::DataModels {
 
         public:
 
-            Object(rtl::Vector3f pose, float velocity)
+            Object(const rtl::Vector3f& pose, float velocity)
                     : pose_{pose}
                     , velocity_{velocity} {}
 
             /**
              * Get position of detected object
-             * @return postion
              */
-            inline const rtl::Vector3f& getPose() const { return pose_; };
+            [[nodiscard]] inline const rtl::Vector3f& getPose() const { return pose_; };
 
             /**
-             * Get position of detected object
-             * @return postion
+             * Get velocity of detected object
              */
-            inline float getVelocity() const { return velocity_; };
+            [[nodiscard]] inline float getVelocity() const { return velocity_; };
 
         private:
             rtl::Vector3f pose_;
@@ -74,7 +72,7 @@ namespace AutoDrive::DataModels {
          * Constructor
          * @param timestamp recording session timestamp
          */
-        RadarTiDataModel(const uint64_t timestamp)
+        explicit RadarTiDataModel(const uint64_t timestamp)
                 : GenericDataModel(timestamp)
                 , objects_{} {
             type_ = DataModelTypes::kRadarTiScanDataModelType;
@@ -84,9 +82,8 @@ namespace AutoDrive::DataModels {
 
         /**
          * Get vector of all objects detected by the scan
-         * @return postion
          */
-        inline const std::vector<Object>& getObjects() const { return objects_; };
+        [[nodiscard]] inline const std::vector<Object>& getObjects() const { return objects_; };
 
     private:
         std::vector<Object> objects_;

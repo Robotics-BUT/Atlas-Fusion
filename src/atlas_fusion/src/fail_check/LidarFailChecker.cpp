@@ -28,15 +28,19 @@ namespace AutoDrive::FailCheck {
 
     void LidarFailChecker::onNewData(const std::shared_ptr<DataModels::LidarScanDataModel> &data) {
         Timer t("Lidar fail checker");
+
         auto scan = data->getScan();
         frameType_ = frameTypeFromDataModel(data);
         pointCount_ = data->getScan()->size();
 
+
         if (frameType_ == FrameType::kLidarCenter) {
-            auto road = pointCloudProcessor_.getPointCloudCutout(scan, {{0.0f, -2.0f, -0.75f}, {15.0f, 2.0f, -2.0f}});
+            auto road = pointCloudProcessor_.getPointCloudCutout(scan, {{0.0f,  -2.0f, -0.75f},
+                                                                        {15.0f, 2.0f,  -2.0f}});
             roiPointCount_ = road->size();
 
-            auto backscatter = pointCloudProcessor_.getPointCloudCutout(scan, {{0.0f, -3.0f, -0.5f}, {5.0f, 3.0f, 2.0f}});
+            auto backscatter = pointCloudProcessor_.getPointCloudCutout(scan, {{0.0f, -3.0f, -0.5f},
+                                                                               {5.0f, 3.0f,  2.0f}});
             backscatterPointCount_ = backscatter->size();
         }
 
@@ -61,7 +65,7 @@ namespace AutoDrive::FailCheck {
         sensorStatus_.statusString += "Scan points: " + std::to_string(pointCount_) + "\n";
 
         sensorStatus_.statusVector.emplace_back(range_);
-        sensorStatus_.statusString += "Range: " + std::to_string(range_) + + " m" " \n";
+        sensorStatus_.statusString += "Range: " + std::to_string(range_) + +" m" " \n";
 
         if (frameType_ == FrameType::kLidarCenter) {
             sensorStatus_.statusVector.emplace_back(roiPointCount_);

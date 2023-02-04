@@ -87,6 +87,10 @@ namespace AutoDrive::DataLoader {
             auto output = *dataIt_;
             dataIt_ = std::next(dataIt_, 1);
             output->registerFilter(std::bind(&Algorithms::LidarFilter::applyFiltersOnLidarData, &lidarFilter_, std::placeholders::_1));
+
+            //Preload data here (not lazily once called) to save some CPU time
+            output->getScan();
+
             return output;
         }
         return std::make_shared<DataModels::ErrorDataModel>();

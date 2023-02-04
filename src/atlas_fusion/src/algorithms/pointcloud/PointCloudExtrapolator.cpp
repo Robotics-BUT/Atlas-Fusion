@@ -72,9 +72,15 @@ namespace AutoDrive::Algorithms {
                     });
         }
 
+        uint32_t points = 0;
         for(size_t i = 0; i < outputFutures.size(); i++) {
             outputFutures[i].wait();
             output[i] = outputFutures[i].get();
+            points += output[i]->getPointsSize();
+        }
+
+        if(scan->size() != points) {
+            throw std::runtime_error("Mismatch during splitting point cloud into batches!");
         }
 
         return output;

@@ -69,6 +69,7 @@ namespace AutoDrive::Visualizers::Topics {
         const std::string kImuGpsTrajectory = "/autodrive/local_map/trajectory/imu_gps";
 
         const std::string kYoloFrustumDetections = "/autodrive/local_map/yolo/frustums";
+        const std::string kYoloFusedFrustumDetections = "/autodrive/local_map/yolo/fused_frustums";
 
 
         const std::string kLidarAggregatedGlobal = "/autodrive/local_map/lidar/aggregated/global";

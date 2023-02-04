@@ -57,7 +57,6 @@ namespace AutoDrive::Algorithms {
                                                   static_cast<float>(bb.x2_), static_cast<float>(bb.y2_)};
                     DataModels::YoloDetection3D detection3D{bbx, distance, detection.getDetectionConfidence(),
                                                             detection.getDetectionClass()};
-                    detection3D.addParent(data);
                     output.push_back(detection3D);
                 }
             }
@@ -95,34 +94,30 @@ namespace AutoDrive::Algorithms {
         auto projector = projectors_[id];
         auto cameraFrame = frameTypeFromIdentifier(id);
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr destPCL;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr destPc;
         auto imuToCamera = context_.tfTree_.getTransformationForFrame(cameraFrame);
         rtl::RigidTf3D<double> originToCameraTf = imuToCamera.inverted();
 
-        auto cameraCutout = pointCloudProcessor_.getPointCloudCutoutForFrame(sensorCutoutPc, cameraFrame);
-        destPCL = pointCloudProcessor_.transformPointCloud(cameraCutout, originToCameraTf);
+        destPc = pointCloudProcessor_.transformPointCloud(sensorCutoutPc, originToCameraTf);
 
         std::vector<cv::Point3f> points3D;
         std::vector<cv::Point2f> points2D;
-        points3D.reserve(destPCL->size());
+        points3D.reserve(destPc->size());
 
-        for (const auto &pnt: destPCL->points) {
-            if (pnt.z > 0) {
+        for (const auto &pnt: destPc->points) {
+            if (pnt.z > -.5f) {
                 points3D.emplace_back(pnt.x, pnt.y, pnt.z);
             }
         }
 
         projector->projectPoints(points3D, points2D, useDistMat);
 
-        if (points3D.size() != points3D.size()) {
-            context_.logger_.error("Number of projected points does not correspond with number of input points!");
-        }
-
         validPoints2D.reserve(points2D.size());
         validPoints3D.reserve(points3D.size());
 
         for (size_t i = 0; i < points3D.size(); i++) {
-            if (points2D.at(i).y >= 0 && points2D.at(i).y < float(img_height) && points2D.at(i).x >= 0 && points2D.at(i).x < float(img_width)) {
+            const auto& p = points2D.at(i);
+            if (p.y >= 0 && p.y < float(img_height) && p.x >= 0 && p.x < float(img_width)) {
                 validPoints2D.push_back(points2D.at(i));
                 validPoints3D.push_back(points3D.at(i));
             }
@@ -132,10 +127,11 @@ namespace AutoDrive::Algorithms {
 
     std::vector<size_t> DepthMap::getIndexesOfPointsInDetection(const std::vector<cv::Point2f> &validPoints2D, const DataModels::YoloDetection &detection) {
         std::vector<size_t> output;
+
+        const auto &bb = detection.getBoundingBox();
         for (size_t i = 0; i < validPoints2D.size(); i++) {
-            const auto &point = validPoints2D.at(i);
-            const auto &bb = detection.getBoundingBox();
-            if (point.x > bb.x1_ && point.x < bb.x2_ && point.y > bb.y1_ && point.y < bb.y2_) {
+            const auto &p = validPoints2D.at(i);
+            if (p.x > bb.x1_ && p.x < bb.x2_ && p.y > bb.y1_ && p.y < bb.y2_) {
                 output.push_back(i);
             }
         }
@@ -143,12 +139,13 @@ namespace AutoDrive::Algorithms {
     }
 
 
-    float DepthMap::getMedianDepthOfPointVector(std::vector<cv::Point3f> &points, std::vector<size_t> &indexes) {
+    float DepthMap::getMedianDepthOfPointVector(const std::vector<cv::Point3f> &points, std::vector<size_t> &indexes) {
         std::vector<float> distances;
         distances.reserve(points.size());
 
         for (const auto &index: indexes) {
-            distances.push_back(points.at(index).z);
+            const auto& p= points.at(index);
+            distances.push_back(sqrt(pow(p.x, 2) + pow(p.y, 2) + pow(p.z, 2)));
         }
 
         if (distances.size() > 0) {

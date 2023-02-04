@@ -73,7 +73,7 @@ namespace AutoDrive::Visualizers {
         lidarVisualizer_.drawPointCloudOnTopic(pc, Topics::kLidarLaser, FrameType::kOrigin);
     }
 
-    void VisualizationHandler::drawLidarApproximations(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls) {
+    void VisualizationHandler::drawLidarApproximations(const std::shared_ptr<std::vector<rtl::LineSegment3D<double>>>& ls) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
         if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
@@ -86,7 +86,7 @@ namespace AutoDrive::Visualizers {
         lidarVisualizer_.drawApproximationOnTopic(ls, Topics::kLidarApproximation, FrameType::kOrigin, col);
     }
 
-    void VisualizationHandler::drawLidarApproximationsRoad(std::shared_ptr<std::vector<rtl::LineSegment3D<double>>> ls) {
+    void VisualizationHandler::drawLidarApproximationsRoad(const std::shared_ptr<std::vector<rtl::LineSegment3D<double>>>& ls) {
 
         if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
         if (!context_.getFunctionalityFlags().lidar_visualization_) { return; }
@@ -221,6 +221,11 @@ namespace AutoDrive::Visualizers {
         frustumVisualizer_.visualizeFrustumDetections(detections);
     }
 
+    void VisualizationHandler::drawFusedFrustumDetections(const std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> &detections) {
+        if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
+        frustumVisualizer_.visualizeFusedFrustumDetections(detections);
+    }
+
     void VisualizationHandler::drawLidarDetection(const std::vector<std::shared_ptr<DataModels::LidarDetection>> &detections) {
         if (!context_.getFunctionalityFlags().visualization_global_enable_) { return; }
         lidarVisualizer_.drawLidarDetections(detections, Topics::kLidarDetections, FrameType::kImu);
@@ -292,7 +297,7 @@ namespace AutoDrive::Visualizers {
         sensorStatusVisualizer_.publishStatusAsText(environmentalStatus, Topics::kEnvironmentalModel);
     }
 
-    visualization_msgs::msg::Marker VisualizationHandler::getSelfEgoCube() const {
+    visualization_msgs::msg::Marker VisualizationHandler::getSelfEgoCube() {
 
         visualization_msgs::msg::Marker cube;
         cube.header.frame_id = frameTypeName(FrameType::kOrigin);
@@ -318,7 +323,7 @@ namespace AutoDrive::Visualizers {
         return cube;
     }
 
-    visualization_msgs::msg::Marker VisualizationHandler::getSelfGlobalCube() const {
+    visualization_msgs::msg::Marker VisualizationHandler::getSelfGlobalCube() {
         visualization_msgs::msg::Marker cube;
         cube.header.frame_id = frameTypeName(FrameType::kImu);
         cube.header.stamp = rclcpp::Time();

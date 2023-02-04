@@ -39,7 +39,7 @@ namespace AutoDrive::Algorithms {
          * Method calls the set of filtering actions on the incoming lidar scan
          * @param data lidar scan
          */
-        void applyFiltersOnLidarData(pcl::PointCloud<pcl::PointXYZ> &data) {
+        void applyFiltersOnLidarData(pcl::PointCloud<pcl::PointXYZ>::Ptr &data) {
             Timer t("Lidar filter");
             if (filterNearObjects_) {
                 filterNearObjects(data);
@@ -68,28 +68,27 @@ namespace AutoDrive::Algorithms {
         bool filterNearObjects_ = false;
         bool filterOutliers_ = false;
 
-        void filterNearObjects(pcl::PointCloud<pcl::PointXYZ> &data) {
-            auto backup = data.points;
-            data.points.clear();
+        static void filterNearObjects(pcl::PointCloud<pcl::PointXYZ>::Ptr &data) {
+            auto backup = data->points;
+            data->points.clear();
 
-            int i = 0;
             for (const auto &point: backup) {
                 // Used lidars have minimal range of 2m, this formula is quicker than using powers
                 if (std::abs(point.x) + std::abs(point.y) < 2.82) {
                     continue;
                 }
-                data.points.push_back(point);
+                data->points.push_back(point);
             }
-            data.width = data.size();
+            data->width = data->size();
         }
 
-        void filterOutliers(pcl::PointCloud<pcl::PointXYZ> &data) {
+        static void filterOutliers(pcl::PointCloud<pcl::PointXYZ>::Ptr &data) {
 
             pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
-            sor.setInputCloud(data.makeShared());
+            sor.setInputCloud(data);
             sor.setMeanK(50);
             sor.setStddevMulThresh(1.0);
-            sor.filter(data);
+            sor.filter(*data);
         }
     };
 

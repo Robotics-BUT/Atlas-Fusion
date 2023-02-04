@@ -24,12 +24,15 @@
 
 #include "data_models/local_map/PointCloudBatch.h"
 #include "data_models/local_map/LocalPosition.h"
+#include "data_models/lidar/LidarScanDataModel.h"
 
 namespace AutoDrive::Algorithms {
 
     /**
-     * Point Cloud Aggregator is a class designed to accept point cloud batches on the input, and to keep this batch in
-     * the memory for a defined time. It also provides very basic space-point filtration.
+     * Point Cloud Aggregator a class designed to aggregate LiDAR scans so we can work with them together.
+     * There are two ways to use this aggregator. Either by only holding one scan per lidar at a time (used for all algorithms down the pipe),
+     * or by aggregating all scans for a given time period (For short term map building [only for visualization]).
+     * It also provides very basic space-point transformation / filtration.
      */
     class PointCloudAggregator {
 
@@ -41,7 +44,41 @@ namespace AutoDrive::Algorithms {
          * @param aggTime time in secs for how long point will be kept in the memory
          */
         explicit PointCloudAggregator(Context &context, PointCloudProcessor &pcProcessor, float aggTime)
-                : context_{context}, pointCloudProcessor_{pcProcessor}, aggregationTime_{aggTime}, aggregatedPoints_{new pcl::PointCloud<pcl::PointXYZ>} {}
+                : context_{context}, pointCloudProcessor_{pcProcessor}, aggregationTime_{aggTime},
+                  aggregatedPoints_{new pcl::PointCloud<pcl::PointXYZ>} {}
+
+        /** Lidar scan aggregation section */
+
+        /**
+        * Insert new lidar scan
+        * @param scan raw lidar scan data model
+        */
+        void addLidarScan(const DataLoader::LidarIdentifier &lidarIdentifier,
+                          const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &scanBatches);
+
+        /**
+        * Getter for all point clouds in global coordinate system.
+        * @return point cloud in global coordinate system
+        */
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getLatestScan();
+
+        /**
+        * Getter for all point clouds relative to the ego vehicle.
+        * @return point cloud in ego centric coordinate system
+        */
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getLatestScanEgoCentric(const rtl::RigidTf3D<double> &egoTf);
+
+        /**
+        * Get all points in sensor frame FOV
+        * @return point cloud cutout in ego centric coordinate system
+        */
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getLatestScanCutout(const rtl::RigidTf3D<double> &egoTf, const FrameType &frame);
+
+
+
+
+
+        /** Short term aggregation section */
 
         /**
          * Insert new batches into the aggregation memory
@@ -59,34 +96,32 @@ namespace AutoDrive::Algorithms {
          * Getter for all point clouds in global coordinate system.
          * @return point cloud in global coordinate system
          */
-        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getGlobalCoordinatePointCloud();
-
-        /**
-        * Getter for all point clouds relative to the ego vehicle.
-        * @return point cloud in ego centric coordinate system
-        */
-        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getEgoCentricPointCloud(const rtl::RigidTf3D<double> &egoTf);
-
-        /**
-        * Get all points in sensor frame FOV
-        * @return point cloud cutout in ego centric coordinate system
-        */
-        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getSensorPointCloudCutout(const rtl::RigidTf3D<double> &egoTf, const FrameType &frame);
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr getGlobalCoordinateAggregatedPointCloud();
 
     private:
 
         Context &context_;
         PointCloudProcessor &pointCloudProcessor_;
 
+        pcl::PointCloud<pcl::PointXYZ>::Ptr
+        getPointCloudFromBatches(const std::vector<std::shared_ptr<DataModels::PointCloudBatch>> &batches);
+
+        /** Lidar scan aggregation section */
+        std::vector<std::shared_ptr<DataModels::PointCloudBatch>> lidarLeftBatches_{}, lidarCenterBatches_{}, lidarRightBatches_{};
+        pcl::PointCloud<pcl::PointXYZ>::Ptr latestScanPoints_{}, latestScanEgoPoints_{};
+
+        std::map<std::string, pcl::PointCloud<pcl::PointXYZ>::Ptr> latestScanCutouts_{};
+
+        bool latestScanValid_ = false;
+        bool latestScanEgoValid_ = false;
+
+        /** Short term aggregation section */
         double aggregationTime_;
+
         pcl::PointCloud<pcl::PointXYZ>::Ptr aggregatedPoints_{};
         pcl::PointCloud<pcl::PointXYZ>::Ptr aggregatedPointsDownsampled_{};
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr egoCentricPoints_{};
-        std::map<std::string, pcl::PointCloud<pcl::PointXYZ>::Ptr> egoCentricSensorCutouts_{};
-
-        bool downsampledPointsValid_ = false;
-        bool egoPointsValid_ = false;
+        bool aggregatedDownsampledPointsValid_ = false;
 
         // Holds timestamp (first) and number of points (second) of all batches added in order
         std::deque<std::pair<uint64_t, long>> batchInfo_;

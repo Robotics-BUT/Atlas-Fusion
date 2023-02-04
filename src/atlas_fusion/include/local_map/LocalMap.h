@@ -39,8 +39,8 @@ namespace AutoDrive::LocalMap {
          * Constructor
          * @param context global services container (logger, etc.)
          */
-        LocalMap(Context& context)
-        : context_{context} {
+        LocalMap(Context &context)
+                : context_{context} {
 
         }
 
@@ -49,7 +49,8 @@ namespace AutoDrive::LocalMap {
          * @param detections vector of camera based detections
          * @param sensorFrame frame that identifies camera frame that has been used for detection
          */
-        void setFrustumDetections(std::vector<DataModels::FrustumDetection> detections, const FrameType& sensorFrame);
+        void
+        setFrustumDetections(const std::vector<DataModels::FrustumDetection> &detections, const FrameType &sensorFrame);
 
         /**
          * Setter for all point cloud based detections
@@ -70,6 +71,12 @@ namespace AutoDrive::LocalMap {
         std::vector<DataModels::FrustumDetection> getFrustumDetections();
 
         /**
+        * Getter for fused camera based detections
+        * @return pair of camera based frustum detections and set of cameras that saw this detection
+        */
+        std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>>  getFusedFrustumDetections();
+
+        /**
          * Getter for all lidar based detections
          * @return point cloud based lidar detections
          */
@@ -88,9 +95,15 @@ namespace AutoDrive::LocalMap {
         std::vector<std::shared_ptr<DataModels::LidarDetection>> getObjectsAsLidarDetections();
 
     private:
-        Context& context_;
+        Context &context_;
+
+        static double getBoundingBoxVolume(const rtl::Frustum3D<double> &a);
+        static double getBoundingBoxVolumeIntersection(const rtl::Frustum3D<double> &a, const rtl::Frustum3D<double> &b);
+        static DataModels::FrustumDetection interpolateBetweenFrustums(const DataModels::FrustumDetection& a, const DataModels::FrustumDetection& b);
 
         std::map<FrameType, std::vector<DataModels::FrustumDetection>> frustumsDetections_{};
+        std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> fusedFrustumDetections_{};
+
         std::vector<std::shared_ptr<DataModels::LidarDetection>> lidarDetections_;
         std::vector<std::shared_ptr<DataModels::Object>> objects_;
     };

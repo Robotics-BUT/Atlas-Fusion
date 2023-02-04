@@ -3,7 +3,7 @@ logger:
   log_ext: "log"
   log_lvl: 1
 
-data_folder: "/home/standa/Desktop/BUD/3_1_1_1/"
+data_folder: "/media/standa/Hry/utorrent/3_1_3_3/"
 calibrations_folder: "/home/standa/Desktop/Projekty/Atlas-Fusion/src/atlas_fusion/calibrations/"
 
 map_builder:
@@ -39,9 +39,9 @@ laser_segmenter:
   segmenter_scaling: 0.01
 
 functionalities:
-  generate_depth_map_for_ir: true
-  rgb_to_ir_detection_projection: true
-  short_term_lidar_aggregation: true
+  generate_depth_map_for_ir: false
+  rgb_to_ir_detection_projection: false
+  short_term_lidar_aggregation: false
   lidar_laser_approximations_and_segmentation: false
   global_lidar_aggregation: false
 

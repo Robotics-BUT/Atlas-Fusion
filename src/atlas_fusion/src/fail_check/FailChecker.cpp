@@ -36,64 +36,77 @@ namespace AutoDrive::FailCheck {
         switch (data->getType()) {
             case DataModels::DataModelTypes::kCameraDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<CameraRGBFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data));
+                std::dynamic_pointer_cast<CameraRGBFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::CameraFrameDataModel>(data));
                 break;
 
 
             case DataModels::DataModelTypes::kCameraIrDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<CameraIrFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::CameraIrFrameDataModel>(data));
+                std::dynamic_pointer_cast<CameraIrFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::CameraIrFrameDataModel>(data));
                 break;
 
 
             case DataModels::DataModelTypes::kLidarScanDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<LidarFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data));
+                std::dynamic_pointer_cast<LidarFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::LidarScanDataModel>(data));
                 break;
 
             case DataModels::DataModelTypes::kRadarTiScanDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<RadarTiFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data));
+                std::dynamic_pointer_cast<RadarTiFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::RadarTiDataModel>(data));
                 break;
 
 
             case DataModels::DataModelTypes::kGnssPositionDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<GnssFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::GnssPoseDataModel>(data));
+                std::dynamic_pointer_cast<GnssFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::GnssPoseDataModel>(data));
                 break;
             case DataModels::DataModelTypes::kGnssTimeDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<GnssFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::GnssTimeDataModel>(data));
+                std::dynamic_pointer_cast<GnssFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::GnssTimeDataModel>(data));
                 break;
 
 
             case DataModels::DataModelTypes::kImuDquatDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::ImuDquatDataModel>(data));
+                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::ImuDquatDataModel>(data));
                 break;
             case DataModels::DataModelTypes::kImuGnssDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::ImuGnssDataModel>(data));
+                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::ImuGnssDataModel>(data));
                 break;
             case DataModels::DataModelTypes::kImuImuDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::ImuImuDataModel>(data));
+                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::ImuImuDataModel>(data));
                 break;
             case DataModels::DataModelTypes::kImuMagDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::ImuMagDataModel>(data));
+                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::ImuMagDataModel>(data));
                 break;
             case DataModels::DataModelTypes::kImuPressDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::ImuPressureDataModel>(data));
+                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::ImuPressureDataModel>(data));
                 break;
             case DataModels::DataModelTypes::kImuTempDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::ImuTempDataModel>(data));
+                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::ImuTempDataModel>(data));
                 break;
             case DataModels::DataModelTypes::kImuTimeDataModelType:
                 sensor = failCheckers_[sensorID];
-                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(std::dynamic_pointer_cast<DataModels::ImuTimeDataModel>(data));
+                std::dynamic_pointer_cast<ImuFailChecker>(sensor)->onNewData(
+                        std::dynamic_pointer_cast<DataModels::ImuTimeDataModel>(data));
                 break;
 
             default:
@@ -102,6 +115,23 @@ namespace AutoDrive::FailCheck {
         }
     }
 
+    void
+    FailChecker::onNewCameraDetections(
+            const std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> &detections,
+            const FrameType &sensor) {
+
+        if (sensor != FrameType::kCameraLeftSide && sensor != FrameType::kCameraLeftFront &&
+            sensor != FrameType::kCameraRightFront && sensor != FrameType::kCameraRightSide) {
+            throw std::runtime_error("onNewCameraDetections called on invalid frame type!");
+        }
+
+        if (failCheckers_.count(sensor) == 0) {
+            context_.logger_.warning("Unable to find fail checker for sensor");
+            return;
+        }
+
+        std::dynamic_pointer_cast<CameraRGBFailChecker>(failCheckers_[sensor])->onNewCameraDetections(detections);
+    }
 
     SensorStatus FailChecker::getSensorStatus(const FrameType &sensor) {
         if (failCheckers_.count(sensor) == 0) {
