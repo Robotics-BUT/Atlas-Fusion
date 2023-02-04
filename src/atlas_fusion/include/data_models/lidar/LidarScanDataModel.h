@@ -77,15 +77,15 @@ namespace AutoDrive::DataModels {
          * Set up filtration function that will be applied on point cloud
          * @param fnc point cloud filtration function
          */
-        void registerFilter(std::function<void(pcl::PointCloud < pcl::PointXYZ > &)> fnc) { filter_ = std::move(fnc); };
+        void registerFilter(std::function<void(pcl::PointCloud < pcl::PointXYZ >::Ptr &)> fnc) { filter_ = std::move(fnc); };
 
     private:
 
         DataLoader::LidarIdentifier identifier_;
-        pcl::PointCloud <pcl::PointXYZ> scan_{};
-        pcl::PointCloud <pcl::PointXYZ> filteredScan_{};
+        pcl::PointCloud <pcl::PointXYZ>::Ptr scan_ {new pcl::PointCloud<pcl::PointXYZ>()};
+        pcl::PointCloud <pcl::PointXYZ>::Ptr filteredScan_{new pcl::PointCloud<pcl::PointXYZ>()};
         std::string scan_path_;
         uint64_t innerLidarTimestamp_;
-        std::function<void(pcl::PointCloud < pcl::PointXYZ > &)> filter_ = nullptr;
+        std::function<void(pcl::PointCloud < pcl::PointXYZ >::Ptr&)> filter_ = nullptr;
     };
 }

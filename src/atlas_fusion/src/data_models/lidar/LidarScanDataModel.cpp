@@ -27,32 +27,35 @@ namespace AutoDrive::DataModels {
 
     std::string LidarScanDataModel::toString() {
 
-        std::stringstream ss;
-        ss << "[Lidar Scan Data Model] : "
-           << scan_path_ << scan_.size();
-        return ss.str();
+        if(scan_ != nullptr) {
+            std::stringstream ss;
+            ss << "[Lidar Scan Data Model] : "
+               << scan_path_ << scan_->size();
+            return ss.str();
+        }
+        return "";
     }
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getScan() {
-        if(filteredScan_.points.empty()) {
-            if(scan_.points.empty()) {
+        if(filteredScan_->points.empty()) {
+            if(scan_->points.empty()) {
                 getRawScan();
             }
             filteredScan_ = scan_;
             filter_(filteredScan_);
         }
 
-        return filteredScan_.makeShared();
+        return filteredScan_;
     }
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getRawScan() {
-        // Timer t("Get lidar scan - raw");
-        if(scan_.points.empty()) {
-            if (pcl::io::loadPCDFile<pcl::PointXYZ>(scan_path_, scan_) == -1) {
+        if(scan_->points.empty()) {
+            Timer t("Reading raw point cloud", 0);
+            if (pcl::io::loadPCDFile<pcl::PointXYZ>(scan_path_, *scan_) == -1) {
                 std::cerr << "Could not open pcd file: " << scan_path_ << std::endl;
             }
         }
-        return scan_.makeShared();
+        return scan_;
     }
 }
