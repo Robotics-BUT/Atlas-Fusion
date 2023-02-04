@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include "data_models/yolo/YoloDetectionClass.h"
+
 namespace AutoDrive::DataModels {
 
     /**
@@ -39,8 +41,8 @@ namespace AutoDrive::DataModels {
          * @param id obstacle's  ID
          * @param ttl obstacle's time to live
          */
-        LidarDetection(const rtl::BoundingBox3d &box, const rtl::Quaterniond& quat, size_t id, uint32_t ttl = 10)
-                : box_{box}, quat_{quat}, id_{id}, ttl_{ttl} {}
+        LidarDetection(const rtl::BoundingBox3d &box, const rtl::Quaterniond &quat, size_t id, YoloDetectionClass cls = YoloDetectionClass::kUnknown, uint32_t ttl = 10)
+                : box_{box}, quat_{quat}, id_{id}, ttl_{ttl}, cls_{cls} {}
 
         /**
          * Axis-Aligned Bounding box getter
@@ -66,12 +68,26 @@ namespace AutoDrive::DataModels {
          */
         [[nodiscard]] size_t getTTL() const { return ttl_; };
 
+        /**
+        * Obstacle's detection class if it has been matched with yolo detection
+        * @return detection class
+        */
+        [[nodiscard]] YoloDetectionClass getDetectionClass() const { return cls_; };
+
+        /**
+        * Obstacle's detection class setter
+        * @param detectionClass
+        */
+        void setDetectionClass(const YoloDetectionClass& detectionClass) { cls_ = detectionClass; };
+
     private:
 
         rtl::BoundingBox3d box_;
         rtl::Quaterniond quat_;
         size_t id_;
         uint32_t ttl_;
+        YoloDetectionClass cls_;
+
     };
 }
 

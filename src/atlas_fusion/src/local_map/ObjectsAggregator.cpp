@@ -37,8 +37,12 @@ namespace AutoDrive::LocalMap {
             output.reserve(previousDetections.size());
             for (const auto &detection: previousDetections) {
                 if (detection->getTTL() > 1) {
-                    output.emplace_back(std::make_shared<DataModels::LidarDetection>(detection->getBoundingBox(), detection->getOrientation(), detection->getID(),
-                                                                                     detection->getTTL() - 1));
+                    output.emplace_back(
+                            std::make_shared<DataModels::LidarDetection>(detection->getBoundingBox(),
+                                                                         detection->getOrientation(),
+                                                                         detection->getID(),
+                                                                         detection->getDetectionClass(),
+                                                                         detection->getTTL() - 1));
                 }
             }
             return output;
@@ -58,26 +62,23 @@ namespace AutoDrive::LocalMap {
     }
 
 
-    std::vector<std::pair<unsigned, unsigned>> ObjectsAggregator::matchDetections(const std::vector<std::shared_ptr<DataModels::LidarDetection>> &a,
-                                                                                  const std::vector<std::shared_ptr<DataModels::LidarDetection>> &b) const {
+    std::vector<std::pair<unsigned, unsigned>>
+    ObjectsAggregator::matchDetections(const std::vector<std::shared_ptr<DataModels::LidarDetection>> &a,
+                                       const std::vector<std::shared_ptr<DataModels::LidarDetection>> &b) const {
 
         unsigned cols = static_cast<int>(a.size());
         unsigned rows = static_cast<int>(b.size());
         std::vector<float> costs(cols * rows, std::numeric_limits<float>::max());
 
-        {
-            int r = 0;
-            for (const auto &newOne: b) {
-
-                {
-                    int c = 0;
-                    for (const auto &previousOne: a) {
-                        costs.at(r * cols + c) = static_cast<float>( -previousOne->getBoundingBox().intersectionOverUnion(newOne->getBoundingBox()));
-                        c++;
-                    }
-                }
-                r++;
+        int r = 0;
+        for (const auto &newOne: b) {
+            int c = 0;
+            for (const auto &previousOne: a) {
+                costs.at(r * cols + c) = static_cast<float>( -previousOne->getBoundingBox().intersectionOverUnion(
+                        newOne->getBoundingBox()));
+                c++;
             }
+            r++;
         }
 
         auto f = [&](unsigned r, unsigned c) { return costs[r * cols + c]; };
@@ -100,7 +101,8 @@ namespace AutoDrive::LocalMap {
             auto orientation_ = a.at(match.second)->getOrientation().slerp(b.at(match.first)->getOrientation(), 0.01);
             output.emplace_back(std::make_shared<DataModels::LidarDetection>(b.at(match.first)->getBoundingBox(),
                                                                              orientation_,
-                                                                             a.at(match.second)->getID()));
+                                                                             a.at(match.second)->getID(),
+                                                                             a.at(match.second)->getDetectionClass()));
             newMatched.at(match.first) = true;
             oldMatched.at(match.second) = true;
         }
@@ -118,6 +120,7 @@ namespace AutoDrive::LocalMap {
                             a.at(i)->getBoundingBox(),
                             a.at(i)->getOrientation(),
                             a.at(i)->getID(),
+                            a.at(i)->getDetectionClass(),
                             a.at(i)->getTTL() - 1));
                 }
             }

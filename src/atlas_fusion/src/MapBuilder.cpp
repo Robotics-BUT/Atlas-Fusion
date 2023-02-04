@@ -310,6 +310,7 @@ namespace AutoDrive {
     }
 
     void MapBuilder::processIRCameraData(const std::shared_ptr<DataModels::CameraIrFrameDataModel> &irCameraFrame) {
+        /*
         auto originToImuTf = selfModel_.getPosition().toTf();
         auto points2Dand3Dpair = depthMap_.getPointsInCameraFoV(
                 irCameraFrame->getCameraIdentifier(),
@@ -322,6 +323,7 @@ namespace AutoDrive {
                                                              points2Dand3Dpair->second,
                                                              irCameraFrame->getImage().cols,
                                                              irCameraFrame->getImage().rows);
+        */
         yoloIrReprojector_.onNewIRFrame(irCameraFrame);
         visualizationHandler_.drawIRImage(irCameraFrame);
     }

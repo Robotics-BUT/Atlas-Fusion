@@ -131,9 +131,19 @@ namespace AutoDrive::Visualizers {
             marker.scale.z = dz;
 
             marker.color.a = 0.5;
-            marker.color.r = 0.7;
-            marker.color.g = 0.7;
-            marker.color.b = 0.7;
+            if(detection->getDetectionClass() == DataModels::YoloDetectionClass::kCar) {
+                marker.color.r = 0.0;
+                marker.color.g = 0.0;
+                marker.color.b = 1.0;
+            } else if(detection->getDetectionClass() == DataModels::YoloDetectionClass::kPerson)  {
+                marker.color.r = 1.0;
+                marker.color.g = 0.0;
+                marker.color.b = 0.0;
+            } else {
+                marker.color.r = 0.7;
+                marker.color.g = 0.7;
+                marker.color.b = 0.7;
+            }
 
             output.markers.push_back(marker);
 

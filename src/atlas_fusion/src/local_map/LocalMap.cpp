@@ -34,8 +34,7 @@ namespace AutoDrive::LocalMap {
 
         // For every new incoming detection
         for (const auto &newDet: detections) {
-            // Get its volume and iterate through all existing detections
-            double volA = getBoundingBoxVolume(*newDet.getFrustum());
+            // Iterate through all existing detections
             uint32_t i = 0;
             for (const auto &det: fusedFrustumDetections_) {
                 // Check if the mid-points are closer than a threshold and update the detection if so
@@ -44,7 +43,6 @@ namespace AutoDrive::LocalMap {
 
                 double dist = std::sqrt(std::pow(midA.x() - midB.x(), 2) + std::pow(midA.y() - midB.y(), 2) + std::pow(midA.z() - midB.z(), 2));
                 if (dist < 1.5 && (newDet.getClass() == det.first.getClass())) {
-                    //std::cout << "Detection already present!" << std::endl;
                     fusedFrustumDetections_.at(i).first = interpolateBetweenFrustums(newDet, det.first);
                     fusedFrustumDetections_.at(i).second.insert(sensorFrame);
                     seenDetections.at(i) = true;
@@ -76,10 +74,26 @@ namespace AutoDrive::LocalMap {
     }
 
 
-    void LocalMap::setLidarDetections(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections) {
-        lidarDetections_ = std::move(detections);
-    }
+    void LocalMap::setLidarDetections(const std::vector<std::shared_ptr<DataModels::LidarDetection>>& detections) {
+        lidarDetections_.clear();
 
+        // For every new incoming detection
+        for (const auto &newDet: detections) {
+            uint32_t closest = std::numeric_limits<uint32_t>::max();
+
+            for (const auto &det: fusedFrustumDetections_) {
+                auto midA = newDet->getBoundingBox().centroid();
+                auto midB = det.first.getFrustum()->getNearMidPoint();
+
+                double dist = std::sqrt(std::pow(midA.x() - midB.x(), 2) + std::pow(midA.y() - midB.y(), 2) + std::pow(midA.z() - midB.z(), 2));
+
+                if (dist < 1.0 && dist < closest) {
+                    newDet->setDetectionClass(det.first.getClass());
+                }
+            }
+            lidarDetections_.emplace_back(newDet);
+        }
+    }
 
     void LocalMap::setObjects(std::vector<std::shared_ptr<DataModels::Object>> objects) {
         objects_ = std::move(objects);

@@ -51,7 +51,6 @@ namespace AutoDrive::DataModels {
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr LidarScanDataModel::getRawScan() {
         if(scan_->points.empty()) {
-            Timer t("Reading raw point cloud", 0);
             if (pcl::io::loadPCDFile<pcl::PointXYZ>(scan_path_, *scan_) == -1) {
                 std::cerr << "Could not open pcd file: " << scan_path_ << std::endl;
             }

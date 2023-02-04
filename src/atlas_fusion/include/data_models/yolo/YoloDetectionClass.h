@@ -28,6 +28,7 @@ namespace AutoDrive::DataModels {
      * Full list of COCO dataset labels used for the video-yolo inference.
      */
     enum class YoloDetectionClass {
+        kUnknown = -1,
         kPerson = 0,
         kBicycle = 1,
         kCar = 2,

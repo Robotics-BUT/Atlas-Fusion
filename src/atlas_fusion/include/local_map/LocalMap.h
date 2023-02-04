@@ -56,7 +56,7 @@ namespace AutoDrive::LocalMap {
          * Setter for all point cloud based detections
          * @param detections lidar detections
          */
-        void setLidarDetections(std::vector<std::shared_ptr<DataModels::LidarDetection>> detections);
+        void setLidarDetections(const std::vector<std::shared_ptr<DataModels::LidarDetection>>& detections);
 
         /**
          * Setter for combinations of the point cloud based and camera based detections
