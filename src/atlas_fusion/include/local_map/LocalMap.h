@@ -99,6 +99,7 @@ namespace AutoDrive::LocalMap {
 
         static double getBoundingBoxVolume(const rtl::Frustum3D<double> &a);
         static double getBoundingBoxVolumeIntersection(const rtl::Frustum3D<double> &a, const rtl::Frustum3D<double> &b);
+        static DataModels::FrustumDetection interpolateBetweenFrustums(const DataModels::FrustumDetection& a, const DataModels::FrustumDetection& b);
 
         std::map<FrameType, std::vector<DataModels::FrustumDetection>> frustumsDetections_{};
         std::vector<std::pair<DataModels::FrustumDetection, std::set<FrameType>>> fusedFrustumDetections_{};

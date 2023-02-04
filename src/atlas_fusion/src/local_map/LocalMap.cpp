@@ -45,7 +45,7 @@ namespace AutoDrive::LocalMap {
                 double dist = std::sqrt(std::pow(midA.x() - midB.x(), 2) + std::pow(midA.y() - midB.y(), 2) + std::pow(midA.z() - midB.z(), 2));
                 if (dist < 1.5 && (newDet.getClass() == det.first.getClass())) {
                     //std::cout << "Detection already present!" << std::endl;
-                    fusedFrustumDetections_.at(i).first = newDet;
+                    fusedFrustumDetections_.at(i).first = interpolateBetweenFrustums(newDet, det.first);
                     fusedFrustumDetections_.at(i).second.insert(sensorFrame);
                     seenDetections.at(i) = true;
                     break;
@@ -136,5 +136,36 @@ namespace AutoDrive::LocalMap {
         double z_diff = std::max(z_max - z_min, 0.0);
 
         return x_diff * y_diff * z_diff;
+    }
+
+    DataModels::FrustumDetection LocalMap::interpolateBetweenFrustums(const DataModels::FrustumDetection& a, const DataModels::FrustumDetection& b) {
+        auto aF = a.getFrustum();
+        auto bF = b.getFrustum();
+
+        double tX = aF->getOrigin().x() + 0.5 * (bF->getOrigin().x() - aF->getOrigin().x());
+        double tY = aF->getOrigin().y() + 0.5 * (bF->getOrigin().y() - aF->getOrigin().y());
+        double tZ = aF->getOrigin().z() + 0.5 * (bF->getOrigin().z() - aF->getOrigin().z());
+
+        double ntlX = aF->getNearTopLeft().x() + 0.5 * (bF->getNearTopLeft().x() - aF->getNearTopLeft().x());
+        double ntlY = aF->getNearTopLeft().y() + 0.5 * (bF->getNearTopLeft().y() - aF->getNearTopLeft().y());
+        double ntlZ = aF->getNearTopLeft().z() + 0.5 * (bF->getNearTopLeft().z() - aF->getNearTopLeft().z());
+
+        double ntrX = aF->getNearTopRight().x() + 0.5 * (bF->getNearTopRight().x() - aF->getNearTopRight().x());
+        double ntrY = aF->getNearTopRight().y() + 0.5 * (bF->getNearTopRight().y() - aF->getNearTopRight().y());
+        double ntrZ = aF->getNearTopRight().z() + 0.5 * (bF->getNearTopRight().z() - aF->getNearTopRight().z());
+
+        double nblX = aF->getNearBottomLeft().x() + 0.5 * (bF->getNearBottomLeft().x() - aF->getNearBottomLeft().x());
+        double nblY = aF->getNearBottomLeft().y() + 0.5 * (bF->getNearBottomLeft().y() - aF->getNearBottomLeft().y());
+        double nblZ = aF->getNearBottomLeft().z() + 0.5 * (bF->getNearBottomLeft().z() - aF->getNearBottomLeft().z());
+
+        double nbrX = aF->getNearBottomRight().x() + 0.5 * (bF->getNearBottomRight().x() - aF->getNearBottomRight().x());
+        double nbrY = aF->getNearBottomRight().y() + 0.5 * (bF->getNearBottomRight().y() - aF->getNearBottomRight().y());
+        double nbrZ = aF->getNearBottomRight().z() + 0.5 * (bF->getNearBottomRight().z() - aF->getNearBottomRight().z());
+
+        auto conf = std::max(a.getDetectionConfidence(), b.getDetectionConfidence());
+
+        rtl::Frustum3D<double> frustum({tX, tY, tZ}, {ntlX, ntlY, ntlZ}, {ntrX, ntrY, ntrZ}, {nblX, nblY, nblZ}, {nbrX, nbrY, nbrZ}, aF->getDepth());
+        DataModels::FrustumDetection output(std::make_shared<rtl::Frustum3D<double>>(frustum), conf, a.getClass());
+        return output;
     }
 }

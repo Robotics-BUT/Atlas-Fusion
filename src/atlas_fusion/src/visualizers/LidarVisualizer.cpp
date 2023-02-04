@@ -97,8 +97,8 @@ namespace AutoDrive::Visualizers {
 
         auto timestamp = node_->get_clock()->now();
 
+        static size_t maxMarkerNo = 0;
         size_t cnt = 0;
-
         for (const auto &detection: detections) {
 
             double dx = detection->getBoundingBox().max().getElement(0) - detection->getBoundingBox().min().getElement(0);
@@ -164,6 +164,19 @@ namespace AutoDrive::Visualizers {
 
             output.markers.push_back(text);
         }
+
+        for(size_t i = cnt ; i < maxMarkerNo; i++) {
+            visualization_msgs::msg::Marker marker;
+            marker.id = i;
+            marker.header.frame_id = frameTypeName(FrameType::kImu);
+            marker.header.stamp = timestamp;
+            marker.type = visualization_msgs::msg::Marker::LINE_LIST;
+            marker.action = visualization_msgs::msg::Marker::ADD;
+            marker.color.a = 0.0;
+            output.markers.push_back(marker);
+        }
+
+        maxMarkerNo = std::max(maxMarkerNo, cnt);
 
         return output;
     }

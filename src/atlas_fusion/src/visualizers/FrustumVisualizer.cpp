@@ -59,6 +59,7 @@ namespace AutoDrive::Visualizers {
         visualization_msgs::msg::MarkerArray msg;
         auto time = rclcpp::Time();
 
+        static size_t maxMarkerNo = 0;
         size_t cnt = 0;
         for (const auto &detection: detections) {
             // Frustum
@@ -105,7 +106,19 @@ namespace AutoDrive::Visualizers {
             msg.markers.push_back(text);
         }
 
+        for(size_t i = cnt ; i < maxMarkerNo; i++) {
+            visualization_msgs::msg::Marker marker;
+            marker.id = i;
+            marker.header.frame_id = frameTypeName(FrameType::kImu);
+            marker.header.stamp = time;
+            marker.type = visualization_msgs::msg::Marker::LINE_LIST;
+            marker.action = visualization_msgs::msg::Marker::ADD;
+            marker.color.a = 0.0;
+            msg.markers.push_back(marker);
+        }
+
         fusedFrustumPublisher_->publish(msg);
+        maxMarkerNo = std::max(maxMarkerNo, cnt);
     }
 
 
